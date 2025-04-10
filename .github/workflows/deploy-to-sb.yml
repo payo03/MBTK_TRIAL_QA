@@ -1,6 +1,7 @@
 name: Deploy IC2 Metadata to Dev Sandbox
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
