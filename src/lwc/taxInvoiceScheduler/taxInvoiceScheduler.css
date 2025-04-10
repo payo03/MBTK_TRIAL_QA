@@ -1,0 +1,29 @@
+/*************************************************************
+ * @author : jh.jung
+ * @date : 2025-01-22
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-01-22      jh.jung         Initial Version
+**************************************************************/
+@import "c/commonStyleUtil";
+
+.btn-wrap {
+    margin-top: auto;
+    margin-bottom: 2px;
+}
+
+.handover-table {
+    height: 25em;
+}
+
+iframe {
+    width: 100%;
+    height: 731px;
+    border: 0;
+}
+
+.custom-modal {
+    height: auto
+}

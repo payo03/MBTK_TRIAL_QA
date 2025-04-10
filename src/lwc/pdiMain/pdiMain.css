@@ -1,0 +1,67 @@
+@import "c/commonStyleUtil";
+
+/* Container */
+.container {
+    display: flex;
+    flex-direction: column;
+    /* height: 100%; */
+    width: 100%;
+    /* overflow: hidden; 자식 요소에서 스크롤 방지 */
+}
+
+/* Content Section */
+.content-section {
+    display: flex;
+    flex: 1; /* 나머지 높이 차지 */
+    /* overflow: hidden; 부모 영역을 넘지 않도록 설정 */
+    height: 93%
+}
+
+.height-75 {
+    height: 68vh;
+}
+
+/* Left Section */
+.left-section {
+    flex: 1.5; /* 2:8 비율 */
+    background-color: #f4f4f4;
+    border-right: 1px solid #ddd;
+    border: 0;
+    box-shadow: 0 0 4px 1px lightgray;
+    border-radius: 0.5rem;
+    transition: all .2s linear;
+    margin-bottom: 4vh;
+}
+
+/* Right Section */
+.right-section {
+    flex: 8.5; /* 2:8 비율 */
+    /* overflow-y: hidden; 콘텐츠가 넘칠 때만 세로 스크롤 */
+    height: 100%; /* 부모의 높이와 동일 */
+}
+
+/* Content Wrappers */
+.gridHeaderWrap {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.gridHeaderTitle {
+    color: #1F1F1F;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* 하단 고정 버튼 스타일 */
+.fixed-bottom-button {
+    position: fixed;
+    bottom: 100px;
+    right: 400px;
+    z-index: 1000;
+    padding: 0.5rem 1rem 0.5rem 1rem;
+}
+
+.slds-page-header__name h1 {
+    line-height: normal !important;
+}

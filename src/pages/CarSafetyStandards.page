@@ -1,0 +1,993 @@
+<!--
+ * @author : San.Kang
+ * @date : 2025-02-07
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-02-07      San.Kang          Initial Version
+-->
+
+<apex:page sidebar="false" showheader="false" renderas="pdf" standardcontroller="VehicleStock__c" extensions="CarSafetyStandardsController" action="{!init}">
+    <apex:variable value="" var="" rendered="{!check}">
+        &nbsp; <apex:outputlabel value="■자동차 및 자동차부품의 인증 및 조사 등에 관한 규정 [별지 제1호의4 서식]" style="font-family: Arial Unicode MS; font-size:15px;"/><br/><br/>
+        <!-- Page 1 -->
+        <table align="center" border="1" cellpadding="1" cellspacing="0" style="width:700px; border-collapse:initial;">
+            <tbody>
+            <tr>
+                <td colspan="12" align="center" style="width:15%;height:46px;">
+                    <apex:outputlabel value="미완성자동차 안전기준 적합 여부 등의 정보" style="font-size:20px;font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" style="width:5%;height:46px;">
+                    <apex:outputlabel value="1" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="width:10%;height:46px;">
+                    <apex:outputlabel value="제 작 자 명" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="3" align="center" style="width:15%;height:46px;">
+                    <apex:outputlabel value="만트럭버스코리아(주)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="width:5%;height:46px;">
+                    <apex:outputlabel value="2" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="width:15%;height:46px;">
+                    <apex:outputlabel value="제작자등록번호" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="3" align="center" style="width:25%;height:46px;">
+                    <apex:outputlabel value="016" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" style="width:5%;height:46px;">
+                    <apex:outputlabel value="3" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="width:10%;height:46px;">
+                    <apex:outputlabel value="차 명" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="3" align="center" style="width:15%;height:46px;">
+                    <apex:outputlabel value="{!VehicleStock__c.carnamejewon__c}" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="width:5%;height:46px;">
+                    <apex:outputlabel value="4" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="width:25%;height:46px;">
+                    <apex:outputlabel value="형 식" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="3" align="center" style="width:15%;height:46px;">
+                    <apex:outputlabel value="{!VehicleStock__c.formjewon__c}" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" style="width:5%;height:46px;">
+                    <apex:outputlabel value="5" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="width:10%;height:46px;">
+                    <apex:outputlabel value="제원관리번호" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="3" align="center" style="width:15%;height:46px;">
+                    <apex:outputlabel value="{!VehicleStock__c.MngNo__c}" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="width:5%;height:46px;">
+                    <apex:outputlabel value="6" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="width:15%;height:46px;">
+                    <apex:outputlabel value="제작년월" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="3" align="center" style="width:25%;height:46px;">
+                    <apex:outputText value="{0,date,yyyy' 년 'MM' 월' }" style="font-family: Arial Unicode MS;">
+                        <apex:param value="{!VehicleStock__c.RealArrivalDate__c}" />
+                    </apex:outputText>
+
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="3" colspan="1" align="center" style="width:38px;height:42px;">
+                    <apex:outputlabel value="6" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td rowspan="3" colspan="1" align="center" style="width:38px;height:42px;">
+                    <apex:outputlabel value="중량" style="font-family: Arial Unicode MS;"/>
+                    <apex:outputlabel value="정보" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="4" align="center" style="width:15%;height:46px;">
+                    <apex:outputlabel value="최대허용총중량(kg)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="6" align="center" style="width:15%;height:46px;">
+
+                    <apex:outputText value="{0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
+                        <apex:param value="{!VehicleStock__c.MaxAllowWeight__c}" />
+                    </apex:outputText>
+
+
+
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="2" colspan="3" align="center" style="width:38px;height:42px;">
+                    <apex:outputlabel value="축별설계허용하중(kg)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="1" align="center" style="width:38px;height:42px;">
+                    <apex:outputlabel value="전" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="6" align="center" style="width:38px;height:42px;">
+                    <apex:outputText value="{0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
+                        <apex:param value="{!VehicleStock__c.AllowableLoadPre__c}" />
+                    </apex:outputText>
+
+                </td>
+            </tr>
+            <tr>
+                <td colspan="1" align="center" style="width:38px;height:42px;">
+                    <apex:outputlabel value="후" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="6" align="center" style="width:38px;height:42px;">
+                    <apex:outputText value="{0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
+                        <apex:param value="{!VehicleStock__c.AllowableLoadNext__c}" />
+                    </apex:outputText>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="width:38px;height:44px;">
+                    <apex:outputlabel value="항목" style="font-family: Arial Unicode MS; font-weight:800;"/>
+                </td>
+                <td colspan="2" align="center" style="width:38px;height:44px;">
+                    <apex:outputlabel value="적합 여부" style="font-family: Arial Unicode MS; font-weight:800;"/>
+                </td>
+                <td colspan="5" align="center" style="width:38px;height:44px;">
+                    <apex:outputlabel value="추가 정보(허용 한도 등)" style="font-family: Arial Unicode MS; font-weight:800;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value="충돌시 승객보호시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 102조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="left" style="width:38px;height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value="충돌시 조향핸들 후방이동시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제89조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value="충돌시 연료누출 방지시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제91조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value="충돌시 앞면유리 고정성시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제105조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value="충돌시 앞면유리 침입성시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제105조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value="좌석 및 그 잠금장치시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제97조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value="머리지지대 강도시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제26조 및 제99조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value="문열림 방지장치 강도시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제104조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value="계기판넬 충격흡수시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제88조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value="좌석등받이 충격흡수시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제98조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="width:38px;height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <br/><br/>
+        <!-- Page 2 -->
+        <table align="center" border="1" cellpadding="1" cellspacing="0" style="width:700px; border-collapse:initial;">
+            <tbody>
+            <tr>
+                <td align="center" style="width:43%; height:55px;">
+                    <apex:outputlabel value="팔걸이 충격흡수시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제100조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="width:12%; height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="width:47%; height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="햇빛가리개 충격흡수시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제 101조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="범퍼 충격흡수시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제93조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="실내후사경 충격흡수시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제108조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="조향장치 충격흡수시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제89조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="옆문강도시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제104조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="천정강도시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제92조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="좌석안전띠 부착장치 등 강도시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제103조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="견인장치 강도시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제20조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputText value="적차 : {0, number, ###,###,###,##0}kg -" style="font-family: Arial Unicode MS;" >
+                        <apex:param value="{!VehicleStock__c.TDSTestMin__c}" />
+                    </apex:outputText>
+                    <apex:outputText value="{0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
+                        <apex:param value="{!VehicleStock__c.TDSTestMax__c}" />
+                    </apex:outputText>
+
+
+                </td>
+            </tr>
+            <tr>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="후부안전판 강도시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제96조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                </td>
+            </tr>
+            <tr>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="등화장치 시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제38조, 제39조부터 제44조, 제48조부터 제49조, 제106조 및 제107조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                </td>
+            </tr>
+            <tr>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="운전자의 시계범위시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제50조 및 94조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="원동기 출력시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제111조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="시계확보장치시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제109조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="가속제어장치복귀능력시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제87조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value="소음방지장치시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제35조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td align="center" style="height:55px;">
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <br/>
+        <!-- Page 3-->
+        <table align="center" border="1" cellpadding="1" cellspacing="0" style="width:700px; border-collapse:initial;">
+            <tbody>
+            <tr>
+                <td colspan="5" align="center" style="width:43%;height:55px;">
+                    <apex:outputlabel value="승용자동차의 제동능력시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제90조 및 제15조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="width:12%;height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="width:47%;height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="승합자동차·화물자동차(피견인자동차제외) " style="font-family: Arial Unicode MS;"/>
+                    <apex:outputlabel value="및 특수자동차의 제동능력시험" style="font-family: Arial Unicode MS;"/>
+                    <br/>
+                    <apex:outputlabel value="(안전기준 제90조 관련 및 제15조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputText value="공차 : {0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
+                        <apex:param value="{!VehicleStock__c.BTestEmpty__c}" />
+                    </apex:outputText><br/>
+                    <apex:outputText value="적차 : {0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
+                        <apex:param value="{!VehicleStock__c.BTestLaden__c}" />
+                    </apex:outputText>
+
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="바퀴잠김방지식 주제동장치를 설치한 자동차의 제동능력시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제90조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputText value="공차 : {0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
+                        <apex:param value="{!VehicleStock__c.WLBTestEmpty__c}" />
+                    </apex:outputText>
+                    <br/>
+                    <apex:outputText value="적차 : {0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
+                        <apex:param value="{!VehicleStock__c.WLBTestLaden__c}" />
+                    </apex:outputText>
+
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="타이어 파열시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제88조의2 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="조향성능시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제14조 및 제89조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputText value="적차 : {0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
+                        <apex:param value="{!VehicleStock__c.SPTestLaden__c}" />
+                    </apex:outputText>
+
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="최고속도제한장치시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제54조 및 제110조의2 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="속도계시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제110조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="차실내장재 연소성시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제95조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="내부격실문 열림방지시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제113조의3 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="어린이보호용 좌석부착장치 강도시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제103조의2 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="전자파 적합성시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제111조의2 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="경음기 소음시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제53조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="밴형 화물자동차 격벽 강도시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제32조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="보행자 보호시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제102조의2 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="고전원전기장치 안전성시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제18조의2 및 제91조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="구동축전지 안전성시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제18조의3 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <br/><br/><br/><br/>
+        <!-- Page 4-->
+        <table align="center" border="1" cellpadding="1" cellspacing="0" style="width:700px; border-collapse:initial;">
+            <tbody>
+            <tr>
+                <td colspan="5" align="center" style="width:43%;height:55px;">
+                    <apex:outputlabel value="자동차용 창유리시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제34조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="width:12%;height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="width:47%;height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="자동차안정성제어장치 시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제15조의 및 제90조의2 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="타이어공기압경고장치 시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제12조의 및 제88조의3 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="공기압고무타이어 시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제12조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="연료전지자동차 수소가스 누출시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제17조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="좌석안전띠 경고장치 시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제27조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="측면보호대 강도시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제19조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputText value="단품 강도 기준(1kN) 만족" style="font-family: Arial Unicode MS;" >
+                    </apex:outputText>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="기체연료 내압용기 및 안전장치 고정성 시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제91조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="연결장치 강도시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제20조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="이륜자동차의 제동능력시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제67조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="연결자동차의 선회시 제동능력시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제90조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="사륜형 이륜자동차 최고속도제한장치시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제85조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="이륜자동차 속도계 시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제85조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="사륜형 이륜자동차의 가속능력 및 등판능력시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제63조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="사륜형 이륜자동차의 주행안전성능시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제64조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <br/><br/><br/><br/>
+        <!-- Page 5-->
+        <table align="center" border="1" cellpadding="1" cellspacing="0" style="width:700px; border-collapse:initial;">
+            <tbody>
+            <tr>
+                <td colspan="5" align="center" style="width:43%;height:55px;">
+                    <apex:outputlabel value="이륜자동차의 연료장치시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제69조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="width:12%;height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="width:47%;height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="이륜자동차의 차체외부돌기 시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제70조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="이륜자동차의 승차인 손잡이 강도시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제71조 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="이륜자동차의 원동기 출력시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제63조 및 63조의2 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="" style="font-family: Arial Unicode MS;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="에너지소비효율 및 연료소비율 시험" style="font-family: Arial Unicode MS;"/><br/>
+                    <apex:outputlabel value="(안전기준 제111조의4 관련)" style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputText value="적차 : {0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
+                        <apex:param value="{!VehicleStock__c.MaxAllowWeight__c}" />
+                    </apex:outputText>
+
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" align="center" style="height:55px;">
+                    <apex:outputlabel value="기타 적용 기준 및 참고사항 등" style="font-family: Arial Unicode MS;"/><br/>
+                </td>
+                <td colspan="2" align="center" style="height:55px;">
+                    <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
+                </td>
+                <td colspan="5" align="center" style="height:55px;font-family: Arial Unicode MS; text-align:left">
+                    <apex:outputText value="{!VehicleStock__c.OtherStandard__c}" escape="false"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="12" align="left" style="height:45px;">
+                    <apex:outputlabel value="※ ‘추가정보’란에는 각 항목별 안전기준 적합 여부 시험에 필요한 차량중량을 반드시 기입하여야 함" style="font-family: Arial Unicode MS; font-size:15px;"/>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div style="font-family: Arial Unicode MS; font-size:15px;">
+            <p>
+                □ 법 제33조 및 규칙 제50조제1항제3호에 따라 미완성자동차 안전기준 적합여부에 대한 정보를 위와 같이
+            </p>
+            <p>
+                &nbsp;&nbsp;&nbsp;&nbsp; 제공합니다.
+            </p>
+            <br/>
+            <p align="center">
+
+                <apex:outputText value="{0,date,yyyy' 년 'MM' 월 'dd' 일'}" style="font-size:20px;">
+                    <apex:param value="{!VehicleStock__c.WantedOutDT__c}" />
+                </apex:outputText>
+                <!--
+                 년&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 월&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 일
+                -->
+            </p>
+
+            <table align="center" border="none" cellpadding="1" cellspacing="0" style="width:700px; border-collapse:initial;">
+                <tbody>
+                <tr>
+                    <td colspan="12" style="height:45px;border:none;">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="width:15%;height:40px;border:none;">
+                    </td>
+                    <td colspan="6" align="center" style="width:50%;height:40px;border:none;">
+                        <apex:outputlabel value="만트럭버스코리아㈜ 대표 이사 토마스 헤머리히" style="font-family: Arial Unicode MS; font-size:20px;"/>
+                    </td>
+                    <td colspan="4" align="right" style="width:15%;height:46px;border:none;">
+                        <apex:outputlabel value="(서명 또는인)" style="font-family: Arial Unicode MS; font-size:20px;"/>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </apex:variable>
+    <apex:variable value="" var="" rendered="{!ermsg}">
+        <div style="font-family: Arial Unicode MS;">
+            제원관리번호가 없거나 미완성 자동차가 아닙니다.
+        </div>
+    </apex:variable>
+</apex:page>

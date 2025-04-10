@@ -1,0 +1,139 @@
+/* Modal Container */
+.slds-modal__container {
+    padding: 0.5rem;
+}
+/* Modal Content */
+.slds-modal__content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* 요소 간 간격 */
+}
+/* Form Element */
+.slds-form-element {
+    width: 100%; /* 내부 요소가 팝업 창에 꽉 차도록 설정 */
+}
+/* Custom Close Button */
+.custom-close-btn {
+    position: absolute;
+    transform: translateY(150%) translateX(-20%); /* 버튼 오른쪽 표시 */
+    background-color: #f4f4f4; /* 회색 배경 추가 */
+    border-radius: 50%; /* 버튼을 원형으로 만듦 (선택 사항) */
+    padding: 8px; /* 버튼 내부 여백 */
+    border: none; /* 기본 테두리 제거 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 약간의 그림자 추가 */
+    cursor: pointer; /* 커서 변경 */
+}
+.custom-close-btn:hover {
+    background-color: #e0e0e0; /* 버튼에 호버 효과 추가 */
+}
+/* Grid Alignment */
+.slds-grid {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* 입력 필드와 링크 사이 간격 */
+    width: 100%; /* 전체 너비를 차지하도록 설정 */
+}
+.slds-grid lightning-input {
+    flex: 1; /* 입력 필드가 가용 공간을 차지하도록 설정 */
+}
+.slds-grid a {
+    white-space: nowrap; /* 링크가 한 줄에 표시되도록 설정 */
+}
+/* Backdrop */
+.slds-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+}
+/* Dropdown Styling */
+.custom-dropdown {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #d8dde6; /* Light border to match SLDS styles */
+    border-radius: 0.25rem; /* Rounded corners */
+    background-color: #f4f6f9; /* Light gray background to mimic combobox */
+    color: #333; /* Text color */
+    appearance: none; /* Remove default browser styles for select */
+    cursor: pointer;
+    position: relative;
+}
+/* Placeholder Option */
+.custom-dropdown option:first-child {
+    color: #888; /* Gray text for placeholder */
+}
+/* Focus State */
+.custom-dropdown:focus {
+    outline: none;
+    border-color: #0070d2; /* Salesforce blue border for focus */
+    box-shadow: 0 0 0 0.2rem rgba(0, 112, 210, 0.25); /* Light blue glow */
+}
+/* Dropdown Arrow (Native Appearance Replacement) */
+.custom-dropdown-container {
+    position: relative;
+}
+.custom-dropdown-container::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    width: 0.75rem;
+    height: 0.75rem;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%230070d2" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5H7z"/></svg>')
+        no-repeat center center;
+    background-size: contain;
+    pointer-events: none;
+    transform: translateY(-50%);
+}
+/* Table Styling */
+.slds-table {
+    border-collapse: collapse; /* 이중 테두리 제거 */
+    width: 100%; /* 테이블 너비 전체 사용 */
+    margin-top: 0.5rem; /* 위쪽 여백 */
+}
+/* 데이터 셀 스타일 (td만 가운데 정렬) */
+.slds-table td {
+    text-align: center; /* 셀 데이터를 가운데 정렬 */
+    vertical-align: middle; /* 세로 중앙 정렬 */
+    padding: 0.5rem; /* 여백 최적화 */
+    border: 1px solid #d8dde6; /* 셀 경계선 */
+}
+/* 헤더 스타일: 경계선과 여백 */
+.slds-table th {
+    background-color: #f4f6f9; /* 헤더 배경색 */
+    color: #333; /* 헤더 텍스트 색상 */
+    font-weight: bold; /* 텍스트 강조 */
+    text-align: left; /* 헤더는 왼쪽 정렬 (필요 시 변경 가능) */
+    border-bottom: 2px solid #d8dde6; /* 헤더 하단 경계선 */
+    padding: 0.5rem; /* 여백 최적화 */
+}
+/* 콤보박스 및 입력 필드의 테두리 제거 */
+.slds-table td > lightning-combobox,
+.slds-table td > lightning-input {
+    border: none; /* 내부 요소 테두리 제거 */
+    box-shadow: none; /* 그림자 제거 */
+    margin: 0; /* 추가 여백 제거 */
+    width: 100%; /* 셀 내부를 꽉 채우도록 설정 */
+    height: auto; /* 기본 높이 */
+    background-color: transparent; /* 배경 투명화 */
+    padding: 0.15rem 0.25rem; /* 내부 여백 감소 (위아래: 0.15rem, 양옆: 0.25rem) */
+}
+/* 포커스 효과 */
+.slds-table td > lightning-combobox:focus,
+.slds-table td > lightning-input:focus {
+    outline: none; /* 기본 윤곽선 제거 */
+    box-shadow: 0 0 0 0.2rem rgba(0, 112, 210, 0.25); /* SLDS 파란 포커스 효과 */
+}
+/* 테이블과 셀 정렬 유지 */
+.slds-table td > lightning-combobox,
+.slds-table td > lightning-input {
+    padding: 0.15rem; /* 내부 요소 간격 줄임 */
+}
+/* 헤더 하단 경계선 유지 */
+.slds-table th {
+    border-bottom: 2px solid #d8dde6; /* 헤더 밑 경계선 */
+}

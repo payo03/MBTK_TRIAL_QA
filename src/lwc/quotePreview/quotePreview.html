@@ -1,0 +1,22 @@
+<!--
+ * @author : th.kim
+ * @date : 2025-01-08
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-01-08      th.kim          Initial Version
+-->
+<!-- quotePreview -->
+<template>
+	<div class="slds-size_1-of-1 slds-card quote-preview-wrap">
+		<template lwc:if={isView}>
+			<c-quote-calculator-table table-data-map={tableDataMap}></c-quote-calculator-table>
+		</template>
+		<template lwc:else>
+			<div class="slds-text-heading_small slds-text-align_center">
+				<strong>견적이 존재하지 않음</strong>
+			</div>
+		</template>
+	</div>
+</template>

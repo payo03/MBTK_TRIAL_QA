@@ -1,0 +1,20 @@
+/*************************************************************
+ * @author : th.kim
+ * @date : 2024-11-12
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2024-11-12      th.kim          Initial Version
+**************************************************************/
+@import "c/commonStyleUtil";
+
+.master-table-wrap {
+    max-height: 50vh;
+    height: 100%;
+}
+
+.filter-wrap .button-wrap {
+    margin-top: auto;
+    margin-bottom: 2px;
+}

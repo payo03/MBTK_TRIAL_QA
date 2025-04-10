@@ -1,0 +1,49 @@
+/*************************************************************
+ * @author : chaebeom.do
+ * @date : 2024-11-29
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2024-11-29      chaebeom.do          Created
+**************************************************************/
+
+.button-wrap {
+  margin-top: auto;
+  margin-bottom: 2px;
+}
+
+.product-table {
+  height: 250px;
+}
+
+.campaign-table {
+  height: 200px;
+}
+
+.table-end {
+  margin-bottom: 16px;
+}
+
+.custom-heading-medium-bold {
+  font-size: 1.5rem; /* slds-text-heading_medium의 기본 크기 */
+  font-weight: bold;
+  margin-left: 5px;
+}
+
+.custom-checkbox {
+  margin-left: 10px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.custom-box {
+  border-radius: 0.5rem;
+  border: 1px solid #c9c9c9;
+}
+
+@media screen and (max-width: 540px) {
+  .button-wrap {
+    float: right;
+  }
+}

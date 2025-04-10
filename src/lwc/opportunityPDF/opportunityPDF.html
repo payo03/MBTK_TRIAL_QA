@@ -1,0 +1,84 @@
+<template>
+    <lightning-quick-action-panel header="영업기회 관련 PDF">
+        <div class="slds-p-horizontal_xx-small" style="overflow: visible; height: auto; margin-bottom: 0;">
+            <div class="slds-grid slds-grid_align-end slds-grid_vertical-align-center slds-p-horizontal_xx-small slds-p-vertical_xx-small" style="margin-bottom: 4px;">
+                <lightning-button label="PDF 다운로드" icon-name="utility:download" icon-position="left"
+                                  onclick={handleDownloadSelected} class="squareButton"></lightning-button>
+            </div>
+
+            <div class="slds-grid slds-grid_align-start" style="margin-bottom: 4px;">
+                <lightning-input
+                    type="checkbox"
+                    label="전체 선택"
+                    checked={allCheckBtn}
+                    onchange={handleSelectAllChange}>
+                </lightning-input>
+            </div>
+
+            <template for:each={docsWithClass} for:item="doc">
+                <div key={doc.value}
+                     data-id={doc.value}
+                     class={doc.docClass}
+                     onclick={handleRowClick}
+                     style="cursor: pointer; margin-bottom: 0; padding: 0; line-height: 1;">
+                    <div class="slds-grid slds-grid_align-spread slds-align-middle" style="margin: 0; padding: 0;">
+                        <!-- 체크박스와 항목 라벨 영역 -->
+                        <div class="slds-grid slds-grid_align-start slds-align-middle" style="margin: 0; padding: 0; line-height: 1;">
+                            <lightning-input type="checkbox"
+                                             class="slds-m-right_xx-small"
+                                             value={doc.value}
+                                             checked={doc.selected}
+                                             onchange={handleCheckboxChange}
+                                             onclick={handleCheckboxClick}
+                                             style="margin: 0; padding: 0;">
+                            </lightning-input>
+                            <span class="slds-text-body_regular" style="line-height: 1;">{doc.label}</span>
+                        </div>
+                        <!-- 각 행 우측에 '보기' 버튼 추가 -->
+                        <lightning-button label="보기"
+                                          icon-name="utility:preview"
+                                          variant="neutral"
+                                          onclick={handleViewRow}
+                                          data-id={doc.value}
+                                          class="slds-m-left_xx-small smallViewButton"
+                                          style="font-size: 0.7rem; padding: 2px 4px; margin: 0;">
+                        </lightning-button>
+                    </div>
+                </div>
+            </template>
+        </div>
+<!--        <template if:true={isTaxRefundModal}>-->
+<!--            <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open centeredModal"-->
+<!--                     style="max-width:400px;">-->
+<!--                <div class="slds-modal__container">-->
+<!--                    &lt;!&ndash; 모달 헤더 &ndash;&gt;-->
+<!--                    <header class="slds-modal__header">-->
+<!--                        <h2 class="slds-modal__title">국세환급금양도요구서 출력</h2>-->
+<!--                        <lightning-button-icon icon-name="utility:close" alternative-text="Close" onclick={closeModal}-->
+<!--                                               class="slds-modal__close"></lightning-button-icon>-->
+<!--                    </header>-->
+<!--                    &lt;!&ndash; 모달 본문 &ndash;&gt;-->
+<!--                    <div class="slds-modal__content slds-p-around_medium">-->
+<!--                        <lightning-input type="number" label="시작 번호" value={firstNo} onchange={handleFromNoChange}-->
+<!--                                         required></lightning-input>-->
+<!--                        <lightning-input type="number" label="끝 번호" value={lastNo} onchange={handleToNoChange} required-->
+<!--                                         class="slds-m-top_small"></lightning-input>-->
+<!--                    </div>-->
+<!--                    &lt;!&ndash; 모달 푸터 &ndash;&gt;-->
+<!--                    <footer class="slds-modal__footer slds-grid slds-grid_align-end">-->
+<!--                        <lightning-button variant="neutral" label="취소" onclick={closeModal}></lightning-button>-->
+<!--                        <lightning-button variant="brand" label="출력" onclick={handlePrint}-->
+<!--                                          class="slds-m-left_small"></lightning-button>-->
+<!--                    </footer>-->
+<!--                </div>-->
+<!--            </section>-->
+<!--            <div class="slds-backdrop slds-backdrop_open"></div>-->
+<!--        </template>-->
+        <div slot="footer" class="slds-grid slds-grid_align-center slds-wrap">
+            <!-- 오른쪽 영역: PDF 다중 선택과 닫기 버튼 -->
+            <div class="slds-col slds-grid slds-grid_align-end">
+                <lightning-button label="닫기" onclick={handleCancel}></lightning-button>
+            </div>
+        </div>
+    </lightning-quick-action-panel>
+</template>

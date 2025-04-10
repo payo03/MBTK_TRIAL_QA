@@ -1,0 +1,148 @@
+<!--
+ * @author : th.kim
+ * @date : 2025-01-22
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-01-22      th.kim          Initial Version
+-->
+<apex:page id="CustomCalendar">
+	<head>
+		<meta charset='utf-8' />
+		<style>
+			/** 주말 없애기 */
+			.fc-day-sat,
+			.fc-day-sun {
+				display: none;
+			}
+			.fc-h-event .fc-event-title-container  {
+				height: 5.5em
+			}
+			.fc-daygrid-day-frame {
+				height: 10px
+			}
+			.fc-event-title {
+				font-size: 2rem;
+			}
+
+			.highlight-low {
+				color: white;
+				background-color: dodgerblue;
+				font-weight: bold;
+				padding: 2px 5px;
+				border-radius: 4px;
+			}
+
+			.highlight-middle {
+				color: white;
+				background-color: darkslateblue;
+				font-weight: bold;
+				padding: 2px 5px;
+				border-radius: 4px;
+			}
+
+			.highlight-high {
+				color: white;
+				background-color: red;
+				font-weight: bold;
+				padding: 2px 5px;
+				border-radius: 4px;
+			}
+			
+			.insext-btn {
+				display: none;
+			}
+		</style>
+		<script src="{!URLFOR($Resource.fullcalendar, 'index.global.min.js')}"></script>
+		<script src="{!URLFOR($Resource.fullcalendar, 'locales-all.min.js')}"></script>
+		<script>
+			
+			const lightningHost = "{!$Label.LightningHost}";
+			let calendar;
+
+			// 캘린더 생성
+			function renderCalendar(events) {
+				const calendarEl = document.getElementById('calendar');
+
+				calendar = new FullCalendar.Calendar(calendarEl, {
+					height: '700px',
+					initialView: 'dayGridMonth',
+					expandRows: true, // 화면에 맞게 높이 재설정
+					navLinks: false, // 날짜를 선택하면 Day 캘린더나 Week 캘린더로 링크
+					editable: false, // 수정 가능
+					selectable: false, // 달력 일자 드래그 설정가능
+					nowIndicator: true, // 현재 시간 마크
+					dayMaxEvents: false, // 이벤트가 오버되면 높이 제한 (+ 몇 개식으로 표현)
+					locale: 'ko', // 한국어 설정
+
+					// 이벤트 클릭 시 발생하는 이벤트
+					eventClick: function(data) {
+						postToParent('eventClick', data);
+					},
+					// event render 후 발생하는 이벤트
+					eventDidMount: function(info) {
+						applyCustomStyles(events);
+					},
+					// 이벤트
+					events: events
+
+				});
+				calendar.render();
+			}
+
+			function applyCustomStyles(events) {
+
+				document.querySelectorAll(".fc-event-title.fc-sticky").forEach(element => {
+					const text = element.textContent.trim();
+					if (text === "6/6" || text === '휴일') {
+						element.parentNode.classList.add("highlight-high");
+					} else if (text === "3/6" || text === "4/6" || text === "5/6") {
+						element.parentNode.classList.add("highlight-middle");
+					} else if (text === "0/6" || text === "1/6" || text === "2/6" ) {
+						element.parentNode.classList.add("highlight-low");
+					}
+				});
+			}
+			
+			window.addEventListener('message', function(e) {
+				if (lightningHost !== e.origin) return;  // origin 검증 후 불일치 시 빠르게 반환
+
+				const { type, event, target, selectedDay } = e.data;
+				const data = event || e.data;  // event 값이 없으면 e.data 사용
+				if (target !== 'calendar') return;  // 타겟 검증
+
+				if (type === 'INIT_DATA') {
+					event.map(e => (e.IsHoliday__c) ? e.ru_Count__c = '휴일' : e.ru_Count__c += '/6');
+
+					const keyMap = {
+						ru_Count__c: "title",
+						Date__c: "start"
+					};
+
+					const renamedEvent = event.map(obj =>
+						Object.fromEntries(Object.entries(obj).map(([key, value]) => [keyMap[key] || key, value]))
+					);
+
+					renamedEvent.push({start: selectedDay, display: 'background'})
+
+					renderCalendar(renamedEvent);
+				}
+				
+				calendar.unselect();  // 이벤트 선택 해제
+			});
+			
+			// LWC로 데이터 전송
+			function postToParent(type, data) {
+				data.type = type;
+				data.target = 'calendar';
+				const mapData = JSON.parse(JSON.stringify(data));
+				parent.postMessage(mapData, lightningHost);
+			}
+		</script>
+		<title>Custom Calendar</title>
+	</head>
+	<body>
+	<div id='calendar'></div>
+	</body>
+</apex:page>

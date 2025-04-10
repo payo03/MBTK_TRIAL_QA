@@ -1,0 +1,90 @@
+<!--
+ * @author : th.kim
+ * @date : 2024-11-08
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2024-11-08      th.kim          Created
+-->
+<apex:page id="SearchAddress">
+
+	<script src="{!URLFOR($Resource.postcode)}"></script>
+	<style>
+		@media screen and (max-width: 540px) {
+			.wrap {
+				width: 100%;
+				height: 400px;
+			}
+		}
+	</style>
+
+	<!-- 우편번호 검색창 div -->
+	<div id="wrap" class="wrap" style="width: 100%; height: 100%;"></div>
+
+	<script>
+
+		// Lighting URL
+		const lightningHost = "{!$Label.LightningHost}";
+		// 우편번호 찾기 찾기 화면을 넣을 element
+		const element_wrap = document.getElementById('wrap');
+
+		// 폼 팩터 타입
+		let formFactor;
+
+		// LWC에서 이벤트 호출 시 실행 함수
+		window.addEventListener('message', function(e) {
+			if (lightningHost !== e.origin) return;
+			if (e.data.target !== 'address') return;
+			formFactor = e.data.formFactor;
+			// alert('formFactor :: ' + formFactor);
+
+			// 모바일 화면 맞춤
+			if (formFactor !== 'Large' && window.location.href.includes('visual.force.com')) {
+				window.location.href = '/one/one.app#' + window.location.pathname;
+			}
+			openSearchAddress();
+		});
+
+		// 주소 검색 창 생성 함수 (PC: 팝업, Mobile: 임베드)
+		function openSearchAddress() {
+			const postcode = new daum.Postcode({
+				oncomplete: postToParent,
+				onclose: postToParentClose,
+
+				// 우편번호 찾기 화면 크기가 조정되었을때 실행할 코드를 작성하는 부분, 높이값 조정
+				onresize: function(size) {
+					element_wrap.style.height = `${size.height}px`;
+				},
+				width: '100%',
+				height: '100%'
+			});
+
+			// PC
+			if (formFactor === 'Large') {
+				postcode.open();
+			}
+			// Tablet || Mobile
+			else {
+				postcode.embed(element_wrap);
+			}
+
+			// element 보여주기
+			element_wrap.style.display = 'block';
+		}
+
+		// LWC로 데이터 전송
+		function postToParent(data) {
+			console.log('data :: ', data);
+			data.target = 'address';
+			parent.postMessage(data, lightningHost);
+		}
+
+		function postToParentClose(state) {
+			if(state === 'FORCE_CLOSE'){
+				//사용자가 브라우저 닫기 버튼을 통해 팝업창을 닫았을 경우, 실행될 코드를 작성하는 부분입니다.
+				parent.postMessage(state, lightningHost);
+			}
+		}
+	</script>
+</apex:page>

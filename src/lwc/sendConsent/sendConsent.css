@@ -1,0 +1,22 @@
+/*************************************************************
+ * @author : San.Kang
+ * @date : 2025-01-17
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0       2025-01-17        San.Kang           Created
+**************************************************************/
+@import "c/commonStyleUtil";
+
+@media screen and (max-width: 1023px) {
+    .sub-wrap {
+        height: 200px;
+    }
+}
+
+@media screen and (max-width: 540px) {
+    .sub-wrap {
+        height: 200px;
+    }
+}

@@ -1,0 +1,12 @@
+<!--
+ * @author : San.Kang
+ * @date : 2025-02-07
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-02-07      San.Kang          Initial Version
+-->
+<apex:page standardController="VehicleStock__c" extensions="Ctrl_AgreementLocatorController" action="{!Redirect}" showHeader="false" sidebar="false">
+    <apex:outputText value="{!errMsg}"></apex:outputText>
+</apex:page>

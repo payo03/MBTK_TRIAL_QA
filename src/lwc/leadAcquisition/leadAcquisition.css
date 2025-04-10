@@ -1,0 +1,107 @@
+/*************************************************************
+ * @author : th.kim
+ * @date : 2024-11-07
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2024-11-07      th.kim          Created
+**************************************************************/
+
+.narrow-hr{
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.sub-wrap:nth-child(2) {
+    padding-left: 0.5rem;
+    padding-top: 0;
+}
+
+.iframe-active {
+    display: block;
+    border: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.iframe-inactive {
+    display: none;
+}
+
+.quoteSection {
+    border-top: 2px solid lightgrey;
+    border-bottom: 2px solid lightgrey;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    /* border-radius: 10px; */
+}
+
+.quoteHighlight {
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+.search-btn-wrap {
+    padding-left: 0.5rem;
+}
+
+.search-btn-wrap button {
+    white-space: nowrap;
+}
+
+.biz-wrap {
+    margin-block-start: 0;
+}
+
+.bold-input {
+    font-weight: bold;
+}
+
+.custom-box {
+    border-radius: 0.5rem;
+    border: 1px solid #c9c9c9;
+}
+
+/* PC, Mobile 화면 체크 */
+@media screen and (min-width: 1024px) {
+    .sub-wrap {
+        width: 100%;
+    }
+    .leftSec {
+        height: 952px;
+    }
+    /* .rightSec {
+        height: 802px;
+    }
+    .rightSec .prequote {
+        height: 507px;
+    } */
+}
+
+@media screen and (max-width: 1023px) {
+    .sub-wrap {
+        width: 100%;
+        &:nth-child(2) {
+            padding-left: 0;
+            padding-top: 0.5rem;
+        }
+    }
+    .iframe-active {
+        height: 500px;
+    }
+}
+
+@media screen and (max-width: 540px) {
+    .sub-wrap {
+        width: 100%;
+        &:nth-child(2) {
+            padding-left: 0;
+            padding-top: 0.5rem;
+        }
+    }
+    .iframe-active {
+        height: 500px;
+    }
+}

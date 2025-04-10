@@ -1,0 +1,84 @@
+/*************************************************************
+ * @author : th.kim
+ * @date : 2024-11-07
+ * @description :
+ * @target :
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2024-11-07      th.kim          Created
+**************************************************************/
+
+.active-row {
+    background: black;
+}
+
+.table-container {
+    height: 185px;
+    overflow-y: auto;
+    /*max-height: 185px;*/
+    /*height: 100%;*/
+}
+
+.custom-table th {
+    position: sticky;
+    top: 0;
+    background-color: #f4f4f4;
+    z-index: 1;
+}
+
+
+.header_flex {
+    flex: 1 1 auto;
+}
+
+.button-container {
+    /*display: flex;*/
+    /*justify-content: flex-end; */
+    margin-left: auto;
+    padding-top: 10px;
+}
+
+.oppty-convert-modal {
+    max-height: 70vh;
+    overflow-y: auto;
+    border-radius: 0;
+}
+
+.table-end {
+    margin-bottom: 16px;
+}
+
+/* PC, Mobile 화면 체크 */
+.modal-wrap {
+    width: 80%; /* 데스크탑에서 기본 너비 */
+    max-width: 1000px; /* 원하는 최대 너비 */
+    margin: 0 auto;
+}
+
+/* 모바일에서 100% 너비 적용 */
+@media (max-width: 768px) {
+    .modal-wrap {
+        width: 100%;
+        max-width: 100%; /* 100% 너비로 설정 */
+    }
+
+    .table-end {
+        padding: 5px;
+    }
+
+    .table-end button {
+        white-space: nowrap; /* 텍스트 줄 바꿈 방지 */
+        width: 100%;         /* 버튼이 화면 크기를 가득 채움 */
+    }
+}
+
+/* SLDS 테마 적용된 행에 대해 터치 시 스타일 유지 */
+.slds-table tbody tr.slds-theme_info {
+    background-color: rgba(200, 200, 200, 0.4) !important; /* 강제로 동일 색상 유지 */
+    box-shadow: none !important; /* 클릭 시 그림자 제거 */
+    color: inherit !important;
+}
+
+.slds-table tbody tr.slds-theme_info td a {
+    color: #0070d2 !important; /* SLDS 기본 텍스트 색상 유지 */
+}

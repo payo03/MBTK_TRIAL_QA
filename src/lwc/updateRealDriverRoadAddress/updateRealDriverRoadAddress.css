@@ -1,0 +1,38 @@
+/*************************************************************
+ * @author : jh.jung
+ * @date : 2025-01-13
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-01-13      jh.jung         Initial Version
+**************************************************************/
+
+.slds-modal {position: fixed !important;top: 50% !important;left: 50% !important;transform: translate(-50%, -50%) !important; height: auto;}
+
+.slds-backdrop {position: fixed;top: 0;left: 0;width: 100vw;height: 100vh;background-color: rgba(0, 0, 0, 0.5);z-index: 1040;}
+.slds-modal__container {width: auto !important; height: auto;}
+
+
+.circle-button {
+    border-radius: var(--slds-c-button-radius-border, var(--slds-s-button-radius-border, var(--slds-g-radius-border-2)));
+}
+
+/* 모바일 고려 */
+.iframe-address {
+    display: none;
+}
+
+.iframe-active {
+    display: block;
+    width: 100%;
+    height: 100vh;
+}
+
+.custom-small-modal {
+    width: 30%
+}
+
+.custom-large-modal {
+    width: 90%
+}

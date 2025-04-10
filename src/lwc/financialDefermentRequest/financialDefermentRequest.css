@@ -1,0 +1,82 @@
+.custom-header {
+  padding-top: 0.3rem;
+  padding-bottom: 1.3rem;
+  text-align: center; /* 텍스트 중앙 정렬 */
+  font-size: 1.6rem; /* 헤더 텍스트 크기 약간 축소 */
+  font-weight: bold;
+  border-bottom: 1px solid #d8dde6; /* 헤더 아래 경계선 */
+}
+
+.custom-body {
+  padding: 1.5rem; /* 본문 여백 */
+  background-color: #ffffff; /* 본문 배경 흰색 */
+}
+
+.custom-footer {
+  text-align: center; /* 버튼 중앙 정렬 */
+  border-top: 1px solid #d8dde6; /* 상단 경계선 */
+  padding-top: 1rem; /* Footer를 본문에서 아래로 내리기 위한 패딩 */
+}
+
+.guide-text {
+  font-size: 1.2rem; /* 안내 문구 크기 */
+  color: #333333; /* 안내 문구 색상 */
+  margin-bottom: 1.5rem; /* 안내 문구 아래 여백 약간 축소 */
+}
+
+.highlight {
+  color: red;
+  font-weight: bold;
+}
+
+.custom-checkbox {
+  transform: scale(1.5); /* 체크박스 크기 키우기 */
+}
+
+.info-text {
+  font-size: 1.1rem; /* 계약 총액, 유예 금액, 만기일 크기 */
+  color: #2b2b2b; /* 기본 텍스트 색상 */
+  font-weight: bold;
+}
+
+.custom-input {
+  width: 70%;
+  max-width: 400px;
+  min-width: 200px;
+  margin-top: -0.5rem; /* 계약총액 - 유예 금액 여백 축소 */
+}
+
+.custom-date-input {
+  width: 70%;
+  max-width: 400px;
+  min-width: 200px;
+  margin-top: -0.5rem; /* 유예 금액 - 만기일 여백 축소 */
+}
+
+.custom-layout {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.checkbox-container {
+  margin-right: 10px; /* 체크박스와 텍스트 간 간격 */
+}
+
+.text-container {
+  flex: 1;
+  word-break: break-word; /* 텍스트가 줄바꿈되도록 처리 */
+}
+
+.custom-checkbox {
+  display: block; /* 체크박스를 세로 정렬 */
+}
+
+.custom-quick-action-modal-body {
+  width: 700px;
+  margin: 0 auto;
+}
+
+.custom-quick-action-close-button {
+  margin-right: calc((100% - 700px) / 2); /* modal-body 기준 Close 버튼 위치 */
+}

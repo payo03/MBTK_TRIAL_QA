@@ -1,0 +1,58 @@
+<!--
+- @Author            : jh.jung
+- @Description 		 : 
+- @Target            : 
+- @Modification Log
+- Ver      Date            Author           Modification
+- ===================================================================================
+- 1.0      2025-03-13      jh.jung           Created
+-->
+<!-- Modu Sign By Oppty -->
+<template>
+  <lightning-quick-action-panel header="고객 추가 서명">
+    <div class="slds-size_1-of-1 slds-card slds-p-around_x-small sub-wrap">
+      <div class="slds-card slds-size_1-of-1 slds-p-around_x-small">
+        <div class="slds-card__body slds-card__body_inner filter-wrap">
+          <div class="slds-text-heading_medium slds-p-bottom_small">
+            고객이름 : {targetName}
+          </div>
+          <div class="slds-text-heading_medium slds-p-bottom_small">
+            전화번호 : {targetMobilePhone}
+          </div>
+          <div class="slds-grid slds-wrap slds-gutters button-wrap modal-height">
+            <div class="slds-col slds-size_1-of-1 slds-p-around_x-small">
+              <lightning-radio-group
+                name="options"
+                label="옵션 선택"
+                options={options}
+                value={selectedOption}
+                type="radio"
+                onchange={handleChange}>
+              </lightning-radio-group>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div slot="footer" class="slds-align_absolute-center">
+      <div class="slds-m-bottom_small slds-align_absolute-center">
+        <lightning-button
+          class="slds-m-right_xx-small"
+          label="취소"
+          onclick={handleCancel}>
+        </lightning-button>
+        <lightning-button
+          variant="brand"
+          class=""
+          type="submit"
+          label="발송"
+          onclick={handleSubmit}>
+        </lightning-button>
+      </div>
+    </div>
+  </lightning-quick-action-panel>
+  <template lwc:if={isLoading}>
+    <lightning-spinner alternative-text="Loading" variant="brand" size="medium"></lightning-spinner>
+  </template>
+</template>

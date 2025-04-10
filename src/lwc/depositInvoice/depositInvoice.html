@@ -1,0 +1,47 @@
+<!--
+- @Author          : chaebeom.do
+- @Description 		 : 계약 레코드 상세 페이지에서 버튼 클릭시 deposit 요청 고객 전송
+- @Modification Log
+- Ver      Date            Author           Modification
+- ===================================================================================
+- 1.0      2025-01-07      chaebeom.do      Created
+-->
+<template>
+  <lightning-modal-header label="계약금 요청">
+  </lightning-modal-header>
+  <lightning-modal-body>
+    <div class="slds-m-around_small slds-grid slds-wrap slds-align_absolute-center">
+      <div class="slds-grid slds-wrap slds-m-around_small slds-p-around_x-small">
+        <div class="slds-size_1-of-1 slds-p-around_small">
+          <p> 고객명: {accName}</p>
+        </div>
+        <div class="slds-size_1-of-1 slds-p-around_small">
+          <p> 모델명: {vehicleName}</p>
+        </div>
+      </div>
+      <!-- <div class="slds-m-around_small slds-p-around_small slds-align_absolute-center">
+        <lightning-input type="number" label="납입 계약금" data-id="deposit" onchange={handleChange}></lightning-input>
+      </div> -->
+    </div>
+  </lightning-modal-body>
+  <lightning-modal-footer>
+    <div class="slds-size_1-of-1 slds-align_absolute-center">
+      <lightning-button
+        variant="brand"
+        class="slds-m-right_xx-small"
+        label="계약금 요청 전송"
+        onclick={sendDeposit}
+        >
+      </lightning-button>
+      <!-- <lightning-button
+        class="slds-m-right_xx-small"
+        label="뒤로 가기"
+        onclick={closeDepositModal}
+        >
+      </lightning-button> -->
+    </div>
+  </lightning-modal-footer>
+  <template lwc:if={isLoading}>
+    <lightning-spinner alternative-text="Loading" variant="brand" size="medium"></lightning-spinner>
+  </template>
+</template>

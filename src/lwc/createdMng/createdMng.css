@@ -1,0 +1,26 @@
+/*************************************************************
+ * @author : San.Kang
+ * @date : 2025-03-10
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0       2025-03-10        San.Kang           Created
+**************************************************************/
+.custom-card {
+    font-size: 14px; /* 글자 크기 작게 */
+}
+
+.custom-card lightning-icon {
+    width: 16px !important; /* 아이콘 크기 조정 */
+    height: 16px !important;
+}
+
+.custom-card .slds-avatar {
+    width: 24px !important; /* 아바타 크기 줄이기 */
+    height: 24px !important;
+}
+
+.custom-card .slds-m-bottom_xx-small {
+    margin-bottom: 2px !important; /* 하단 간격 줄이기 */
+}

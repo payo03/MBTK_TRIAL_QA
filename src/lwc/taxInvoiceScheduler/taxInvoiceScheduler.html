@@ -1,0 +1,221 @@
+<!--
+- @Author            : jh.jung
+- @Description 		 : 
+- @Target            : 
+- @Modification Log
+- Ver      Date            Author           Modification
+- ===================================================================================
+- 1.0      2025-01-22      jh.jung           Created
+-->
+<!-- Tax Invoice Scheduler -->
+<template>
+  <div class="slds-p-horizontal_small handover-scheduler-wrap">
+
+    <!-- Header Start -->
+    <div class="slds-page-header slds-page-header_record-home box-wrap">
+      <div class="slds-page-header__row">
+
+        <!-- Title Wrap Start -->
+        <div class="slds-page-header__col-title">
+          <div class="slds-media">
+            <div class="slds-media__figure">
+              <lightning-icon icon-name="standard:event"></lightning-icon>
+            </div>
+            <div class="slds-media__body">
+              <div class="slds-page-header__name">
+                <div class="slds-page-header__name-title">
+                  <h1>
+                    <span class="slds-page-header__title slds-truncate">세금계산서 스케줄</span>
+                  </h1>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Title Wrap End -->
+
+        <!-- Button Wrap Start -->
+        <div class="slds-page-header__col-actions">
+          <div class="slds-page-header__controls">
+            <div class="slds-page-header__control">
+              <ul class="slds-button-group-list">
+<!--                <li>-->
+<!--                  <button class="slds-button slds-button_neutral" onclick={handleHeaderClick}-->
+<!--                          data-name="calendar">스케줄 확인-->
+<!--                  </button>-->
+<!--                </li>-->
+                <template if:true={isSalesManager}>
+                  <li>
+                    <button class="slds-button slds-button_neutral" onclick={handleHeaderClick}
+                            data-name="taxInvoicePublish">세금계산서 발행
+                    </button>
+                  </li>
+                  <li>
+                    <button class="slds-button slds-button_neutral" onclick={handleHeaderClick}
+                            data-name="taxInvoiceCancel">세금계산서 취소
+                    </button>
+                  </li>
+                </template>
+                <li>
+                  <button class="slds-button slds-button_neutral" onclick={handleHeaderClick}
+                          data-name="depositReceipt">입금 영수증
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <!-- Button Wrap End -->
+      </div>
+    </div>
+    <!-- Header End -->
+
+    <!-- Body Start -->
+    <div class="slds-m-vertical_small">
+
+      <div class="box-wrap">
+        <div class="slds-grid slds-wrap slds-p-vertical_small filter-wrap">
+          <div class="slds-grid">
+            <lightning-combobox
+              label="입금 상태"
+              options={filterOptionMap.paymentStatusOption}
+              class="slds-p-right_xx-small"
+              data-name="paymentStatus"
+              onchange={handleFilterChange}
+              value={filterMap.paymentStatus}
+            ></lightning-combobox>
+            <lightning-input
+              type="date"
+              label="출고일 시작"
+              class="slds-p-right_xx-small"
+              data-name="startDate"
+              onchange={handleFilterChange}
+              value={filterMap.startDate}
+            ></lightning-input>
+            <lightning-input
+              type="date"
+              label="출고일 종료"
+              class="slds-p-right_xx-small"
+              data-name="endDate"
+              onchange={handleFilterChange}
+              value={filterMap.endDate}
+            ></lightning-input>
+            <lightning-input
+              label="고객"
+              class="slds-p-right_x-small"
+              data-name="searchAccountName"
+              onchange={handleFilterChange}
+              onkeyup={handleEnterKey}
+              value={filterMap.searchAccountName}
+            ></lightning-input>
+            <template if:true={isSalesManager}>
+              <lightning-input
+                label="영업사원"
+                class="slds-p-right_x-small"
+                data-name="searchSalesAgentName"
+                onchange={handleFilterChange}
+                onkeyup={handleEnterKey}
+                value={filterMap.searchSalesAgentName}
+              ></lightning-input>
+            </template>
+            <div class="btn-wrap">
+              <lightning-button-icon
+                icon-name="utility:refresh"
+                variant="border-filled"
+                class="slds-p-right_xx-small"
+                alternative-text="Refresh"
+                title="Refresh"
+                data-name="refresh"
+                onclick={filterRefresh}
+              ></lightning-button-icon>
+              <button class="slds-button slds-button_neutral" data-name="search" onclick={getFilteredList}>
+                <lightning-icon
+                  icon-name="utility:search"
+                  alternative-text="Utility search"
+                  size="x-small"
+                  title="search"
+                ></lightning-icon>
+                검색
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="handover-table">
+          <lightning-datatable
+            key-field="id"
+            columns={columns}
+            data={handoverList}
+            onrowselection={handleSelection}
+            max-row-selection="1"
+            column-widths-mode="auto"
+            min-column-width="90"
+            onrowaction={handleRowAction}
+          ></lightning-datatable>
+        </div>
+      </div>
+    </div>
+    <!-- Body End -->
+
+    <!-- Calendar Modal Start  -->
+<!--    <template lwc:if={isCalendarModal}>-->
+<!--      <section role="dialog" tabindex="-1" aria-modal="true"-->
+<!--               aria-label="Meaningful description of the modal content"-->
+<!--               class="slds-modal slds-fade-in-open slds-modal_medium">-->
+<!--        <div class="slds-modal__container custom-modal">-->
+<!--          <button class="slds-button slds-button_icon slds-modal__close" onclick={closeModal}>-->
+<!--            <lightning-icon icon-name="utility:close" size="small"></lightning-icon>-->
+<!--            <span class="slds-assistive-text">Cancel and close</span>-->
+<!--          </button>-->
+<!--          <div class={modalClass} id="modal-content-id-1">-->
+<!--            <div class="slds-modal__header">-->
+<!--              <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate" tabindex="-1">-->
+<!--                출고일 변경-->
+<!--              </h1>-->
+<!--            </div>-->
+
+<!--            &lt;!&ndash; 달력만 표시 &ndash;&gt;-->
+<!--&lt;!&ndash;            <iframe src="/apex/CustomCalendar?isdtp=p1" onload={handleLoad}></iframe>&ndash;&gt;-->
+<!--            &lt;!&ndash; 달력 + 문구 다 표시    &ndash;&gt;-->
+<!--            <div class="slds-grid slds-wrap">-->
+<!--              <div class="slds-size_3-of-4 filter-wrap">-->
+<!--                <iframe src="/apex/CustomCalendar?isdtp=p1" onload={handleLoad}></iframe>-->
+<!--              </div>-->
+<!--              <div class="slds-size_1-of-4 filter-wrap">-->
+<!--                <lightning-card title="모델별 소요 영업일">-->
+<!--                  <div class="slds-m-around_medium">-->
+<!--                    <template for:each={optionDelayList} for:item="option">-->
+<!--                      <lightning-layout key={option.Id} class="slds-vertical slds-wrap">-->
+<!--                        <lightning-layout-item-->
+<!--                          class="slds-size_1-of-1 slds-p-around_medium slds-flex">-->
+<!--                          <template if:true={option.isAssign}>-->
+<!--                            <lightning-icon-->
+<!--                              icon-name="utility:check"-->
+<!--                              size="small"-->
+<!--                              class="slds-m-right_x-small">-->
+<!--                            </lightning-icon>-->
+<!--                          </template>-->
+<!--                          <span class={option.className}>-->
+<!--                            {option.Attribute1__c} </br> +{option.Attribute2__c}영업일-->
+<!--                          </span>-->
+<!--                        </lightning-layout-item>-->
+<!--                      </lightning-layout>-->
+<!--                    </template>-->
+<!--                  </div>-->
+<!--                </lightning-card>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--        <template lwc:if={isLoading}>-->
+<!--          <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>-->
+<!--        </template>-->
+<!--      </section>-->
+<!--      <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>-->
+<!--    </template>-->
+    <!-- Calendar Modal End  -->
+
+    <template lwc:if={isLoading}>
+      <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+  </div>
+</template>

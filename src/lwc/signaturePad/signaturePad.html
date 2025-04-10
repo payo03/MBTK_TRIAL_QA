@@ -1,0 +1,18 @@
+<!--
+ * @author : th.kim
+ * @date : 2025-02-25
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-02-25      th.kim          Initial Version
+-->
+<!-- Signature Pad -->
+<template>
+	<template lwc:if={signatureLoaded}>
+		<canvas class="drawing-pad" width={canvasWidth} height={canvasHeight} onmousedown={startDrawing}
+				onmousemove={draw} onmouseup={stopDrawing} onmouseleave={stopDrawing} onmouseout={stopDrawing}></canvas>
+	</template>
+	<!--			<lightning-button label="Erase" onclick={handleClick} data-name="erase"></lightning-button>-->
+	<!--			<lightning-button label="Save" onclick={handleClick} data-name="save"></lightning-button>-->
+</template>

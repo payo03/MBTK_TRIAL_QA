@@ -1,0 +1,20 @@
+<!--
+ * @author : th.kim
+ * @date : 2024-11-07
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2024-11-07      th.kim          Created
+-->
+<!-- leadMgtMain -->
+<template>
+	<div class="slds-card slds-grid slds-wrap slds-size_1-of-1">
+		<div class="slds-size_2-of-5 slds-p-around_medium map-wrap">
+			<c-lead-map onmarkerclick={handleMarkerClick} onmarkerfilter={handleMarkerFilterEvent}></c-lead-map>
+		</div>
+		<div class="slds-size_3-of-5 slds-p-around_medium table-wrap">
+			<c-lead-table></c-lead-table>
+		</div>
+	</div>
+</template>

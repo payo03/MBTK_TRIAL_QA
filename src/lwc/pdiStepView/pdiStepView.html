@@ -1,0 +1,60 @@
+<!--
+- @Author            : payo03@solomontech.net
+- @Description 		 : 
+- @Target            : 
+- @Modification Log
+- Ver      Date            Author                           Modification
+- ===================================================================================
+- 1.0      2025-01-22      payo03@solomontech.net           Created
+-->
+<!-- Pdi Step View -->
+<template>
+    <section class="slds-card">
+        <!-- 진행률 헤더 영역 -->
+        <header class="slds-theme_shade slds-p-around_medium">
+            <div class="slds-grid slds-grid_align-spread slds-p-bottom_x-small progress-text">
+                <strong>PDI Step</strong>
+                <strong>{overallProgress}% Complete</strong>
+            </div>
+            <div class="slds-progress-bar slds-progress-bar_circular"
+                 role="progressbar"
+                 aria-valuemin="0"
+                 aria-valuemax="100"
+                 aria-valuenow={overallProgress}>
+                <span class="slds-progress-bar__value" style={progressBarStyle}>
+                    <span class="slds-assistive-text">Progress: {overallProgress}%</span>
+                </span>
+            </div>
+        </header>
+
+        <!-- 스텝 버튼 영역 -->
+        <div class="slds-grid slds-grid_vertical slds-p-around_small left-section">
+            <template for:each={steps} for:item="step">
+                <div key={step.name} class="slds-p-bottom_small">
+                    <div class="slds-grid slds-grid_vertical-align-center button-row">
+                        <template if:false={step.completed}>
+                            <lightning-button
+                                    label={step.label}
+                                    variant={step.variant}
+                                    data-name={step.name}
+                                    onclick={handleButtonClick}
+                                    class="custom-left-button">
+                            </lightning-button>
+                        </template>
+                        <template if:true={step.completed}>
+                            <span class="custom-left-button green-circle" data-name={step.name} onclick={handleButtonClick}>
+                                <lightning-icon icon-name="utility:check"
+                                                alternative-text="Complete"
+                                                size="small">
+                                </lightning-icon>
+                            </span>
+                        </template>
+
+                        <span class="button-text slds-m-left_small slds-text-title_bold">{step.short}</span>
+                    </div>
+                    <p class="bottom-text slds-m-top_xx-small">{step.long}</p>
+                </div>
+            </template>
+        </div>
+    </section>
+</template>

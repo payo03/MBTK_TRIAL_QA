@@ -1,0 +1,32 @@
+/*************************************************************
+ * @author : San.Kang
+ * @date : 2025-03-11
+ * @description :
+ * @target :
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0       2025-03-11        San.Kang           Created
+**************************************************************/
+.paste-container {
+    text-align: center;
+    padding: 10px;
+    border: 2px dashed #ccc;
+    height: 50%;
+}
+
+.paste-area {
+    min-height: 40px;
+    padding: 10px;
+    border: none;
+    outline: none;
+    width: 100%;
+    text-align: center;
+}
+
+
+.paste-placeholder {
+    color: #777;
+    pointer-events: none; /* 클릭 방지 */
+    user-select: none; /* 드래그 방지 */
+    caret-color: transparent;
+}

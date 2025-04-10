@@ -1,0 +1,97 @@
+<!--
+- @Author            : payo03@solomontech.net
+- @Description 		 : 
+- @Target            : 
+- @Modification Log
+- Ver      Date            Author                           Modification
+- ===================================================================================
+- 1.0      2024-11-26      payo03@solomontech.net           Created
+- 1.1      2024-11-27      payo03@solomontech.net           VF Page의 Filter된 ID List값 전달
+-->
+<apex:page id="AvisOrderInfo"
+           standardController="AvisOrderInfo__c"
+           recordSetVar="AvisOrderInfos"
+           extensions="CreateVehicleController">
+
+    <apex:form >
+
+        <!-- Filter 처리한 AvisOrderInfoList Return -->
+        <apex:actionFunction name="fetchAvisOrderInfo" action="{!selectFilterOrder}" rerender="output">
+            <apex:param assignTo="{!filterId}" name="filterId" value="" />
+            <apex:param assignTo="{!actionType}" name="actionType" value="" />
+        </apex:actionFunction>
+
+        <!-- Redirect AvisOrderInfo -->
+        <apex:actionFunction name="redirectPage" action="{!navigationPage}" rerender="output">
+            <apex:param assignTo="{!targetURL}" name="targetURL" value="" />
+        </apex:actionFunction>
+
+    </apex:form>
+
+    <apex:outputPanel id="output">
+        <script>
+            // selectFilterOrder Return
+            if('{!infoString}' != null && '{!infoString}' !== "") {
+                let records = '{!infoString}';
+                let actionType = '{!actionType}';
+
+                let paramRecords = JSON.parse(records).map(item => item.Id);
+                console.log('VF Param : ', paramRecords);
+                console.log('actionType : ', actionType);
+
+                window.postMessage({
+                    type: actionType,
+                    records: paramRecords
+                }, '*');
+            }
+        </script>
+    </apex:outputPanel>
+
+    <div id="lwcContainer">
+        <apex:includeLightning />
+        <script>
+            // Create Popup
+            $Lightning.use("c:lightningApp", function() {
+                $Lightning.createComponent(
+                    "c:createVehicle",
+                    {
+                        paramFilterId: "{!filterId}"
+                    },
+                    "lwcContainer",
+                    function(cmp) {
+
+                    }
+                );
+            });
+
+            // Handle LWC - VF
+            window.addEventListener('message', async function(event) {
+                console.log('VF Receive : ', event.data.type);
+                // Close Popup
+                if (event.data.type === 'POPUP_CLOSE_LWC') {
+                    let targetURL = event.data.targetURL;
+                    let container = document.getElementById('lwcContainer');
+                    container.innerHTML = "";
+
+                    redirectPage(targetURL);
+                }
+                // Select AvisOrderInfo
+                if (event.data.type === 'SELECT_ORDER_LWC') {
+                    const filterId = event.data.filterId;
+                    const actionType = 'SELECT_ORDER_VF';
+
+                    // 호출: ActionFunction 호출
+                    await fetchAvisOrderInfo(filterId, actionType);
+                }
+                // CUSTOMS_INFO AvisOrderInfo
+                if (event.data.type === 'CUSTOMS_INFO_LWC') {
+                    const filterId = event.data.filterId;
+                    const actionType = 'CUSTOMS_INFO_VF';
+
+                    // 호출: ActionFunction 호출
+                    await fetchAvisOrderInfo(filterId, actionType);
+                }
+            });
+        </script>
+    </div>
+</apex:page>

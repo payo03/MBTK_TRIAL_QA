@@ -1,0 +1,20 @@
+/*************************************************************
+ * @author : th.kim
+ * @date : 2024-12-20
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2024-12-20      th.kim          Initial Version
+**************************************************************/
+.box-wrap {
+     border: 0;
+     box-shadow: 0 0 4px 1px lightgray;
+     border-radius: 0.5rem;
+     padding: 1rem;
+     transition: all .2s linear;
+ }
+
+/*.box-wrap:hover {*/
+/*    transform: scale3d(1.01, 1.01, 1.01);*/
+/*}*/

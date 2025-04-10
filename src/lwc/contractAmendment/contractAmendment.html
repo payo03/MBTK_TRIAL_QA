@@ -1,0 +1,36 @@
+<!-- Contract Amendment -->
+<template>
+    <lightning-quick-action-panel header="계약서 변경 요청">
+        <div class="slds-size_1-of-1 slds-card slds-p-around_x-small sub-wrap">
+            <div class="slds-text-heading_small slds-p-bottom_small">
+                <div class="slds-m-bottom_small">
+                    <lightning-input
+                            type="text"
+                            label="코멘트"
+                            value={inputValue}
+                            onchange={handleInputChange}>
+                    </lightning-input>
+                </div>
+                <div class="slds-m-bottom_small">
+                    <span> 계약서 수정 승인을 요청하시겠습니까? </span>
+                </div>
+            </div>
+        </div>
+        <div slot="footer" class="slds-align_absolute-center">
+            <div class="slds-m-bottom_small slds-align_absolute-center">
+                <lightning-button
+                        class="slds-m-right_xx-small"
+                        label="취소"
+                        onclick={handleCancel}>
+                </lightning-button>
+                <lightning-button
+                        variant="brand"
+                        class=""
+                        type="submit"
+                        label="확인"
+                        onclick={handleSubmit}>
+                </lightning-button>
+            </div>
+        </div>
+    </lightning-quick-action-panel>
+</template>

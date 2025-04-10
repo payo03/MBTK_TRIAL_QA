@@ -1,0 +1,274 @@
+<!--
+ * @author : th.kim
+ * @date : 2024-11-07
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2024-11-07      th.kim          Created
+-->
+<!-- leadTable -->
+<template>
+	<div class="slds-grid slds-wrap slds-size_1-of-1">
+<!--		<div class="slds-size_1-of-1">-->
+		<div class="slds-box slds-size_1-of-1 slds-p-around_x-small table-end">
+			<div class="slds-card__header slds-grid">
+				<header class="slds-media slds-media_center slds-has-flexi-truncate slds-wrap">
+					<div class="slds-media__body header_flex">
+						<h2 class="slds-card__header-title">
+							<span class="slds-card__header-link slds-truncate">
+								<span>{selectedValue} 리드 목록</span>
+							</span>
+						</h2>
+					</div>
+					<div class="button-container">
+						<lightning-button-group>
+							<lightning-button label="리드 생성" onclick={redirectHandler}></lightning-button>
+							<lightning-button label="Task 생성" onclick={openModal} name="CreateTask"></lightning-button>
+							<lightning-button label="기회 변환" onclick={openModal} name="ConvertOppty"></lightning-button>
+						</lightning-button-group>
+					</div>
+				</header>
+			</div>
+			<div class="slds-card__body slds-card__body_inner table-container">
+				<table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered custom-table" aria-label="Example table of Opportunities with vertical borders">
+					<thead>
+						<tr class="slds-line-height_reset">
+							<th class="" scope="col">
+							</th>
+							<th class="" scope="col">
+								<div class="slds-truncate" title="Name">이름</div>
+							</th>
+							<th class="" scope="col">
+								<div class="slds-truncate" title="MobilePhone">전화번호</div>
+							</th>
+							<th class="" scope="col">
+								<div class="slds-truncate" title="Address">도로명주소</div>
+							</th>
+							<th class="" scope="col">
+								<div class="slds-truncate" title="Rating">Rating</div>
+							</th>
+							<th class="" scope="col">
+								<div class="slds-truncate" title="CreateDate">생성일자</div>
+							</th>
+						</tr>
+					</thead>
+					<tbody class="lead-table-body">
+					<template if:false= {filteredLeadList.length}>
+						<tr>
+							<td colspan="6" class="slds-text-align_center">
+								<div class="slds-card__header slds-grid">
+									<div class="slds-media__body">
+										<h2 class="slds-card__header-title">
+											<span class="slds-card__header-link slds-truncate">
+												<span>해당 기간에 작성된 리드가 없습니다.</span>
+											</span>
+										</h2>
+									</div>
+								</div>
+							</td>
+						</tr>
+					</template>
+					<template if:true= {filteredLeadList.length}>
+						<template for:each={filteredLeadList} for:item="lead">
+							<tr class="slds-hint-parent" key={lead.Id} data-id={lead.Id}>
+								<td class="" scope="col">
+									<input
+										type="radio"
+										name="chk_info"
+										data-id={lead.Id}
+										onchange={handleRowCheckboxChange}>
+								</td>
+								<td data-label="Name">
+									<div class="slds-truncate"><a href={lead.url} target="_blank">{lead.Name}</a></div>
+								</td>
+								<td data-label="MobilePhone">
+									<div class="slds-truncate">{lead.MobilePhone}</div>
+								</td>
+								<td data-label="Address">
+									<div class="slds-truncate">{lead.RoadAddress__c}</div>
+								</td>
+								<td data-label="Rating">
+									<div class="slds-truncate">{lead.fm_Rating__c}</div>
+								</td>
+								<td data-label="CreateDate">
+									<div class="slds-truncate">
+										<lightning-formatted-date-time value={lead.CreatedDate} year="2-digit" month="2-digit" day="2-digit" hour="numeric" minute="numeric"></lightning-formatted-date-time>
+									</div>
+								</td>
+							</tr>
+						</template>
+					</template>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<template if:true= {filteredLeadList.length}>
+			<div class="slds-box slds-size_1-of-1 slds-p-around_x-small">
+				<div class="slds-card__header slds-grid">
+					<header class="slds-media slds-media_center slds-has-flexi-truncate">
+						<div class="slds-media__body">
+							<h2 class="slds-card__header-title">
+								<span class="slds-card__header-link slds-truncate">
+									<span>Task 목록</span>
+								</span>
+							</h2>
+						</div>
+					</header>
+				</div>
+				<div class="slds-card__body slds-card__body_inner table-container">
+					<table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered custom-table" aria-label="Example table of Opportunities with vertical borders">
+						<thead>
+							<tr class="slds-line-height_reset">
+								<th class="" scope="col">
+									<div class="slds-truncate" title="Status">상태</div>
+								</th>
+								<th class="" scope="col">
+									<div class="slds-truncate" title="Subject">제목</div>
+								</th>
+								<th class="" scope="col">
+									<div class="slds-truncate" title="Description">내용</div>
+								</th>
+								<th class="" scope="col">
+									<div class="slds-truncate" title="CreateDate">생성일자</div>
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<template if:false= {isLoading}>
+								<template if:false= {checkedRecordId}>
+									<tr>
+										<td colspan="4" class="slds-text-align_center">
+											<div class="slds-card__header slds-grid">
+												<div class="slds-media__body">
+													<h2 class="slds-card__header-title">
+														<span class="slds-card__header-link slds-truncate">
+															<span>리드를 선택해주세요</span>
+														</span>
+													</h2>
+												</div>
+											</div>
+										</td>
+									</tr>
+								</template>
+								<template if:true= {checkedRecordId}>
+									<template if:false= {taskListByCheckedLead.length}>
+										<tr>
+											<td colspan="4" class="slds-text-align_center">
+												<div class="slds-card__header slds-grid">
+													<div class="slds-media__body">
+														<h2 class="slds-card__header-title">
+															<span class="slds-card__header-link slds-truncate">
+																<span>해당 리드에 작성한 Task가 없습니다.</span>
+															</span>
+														</h2>
+													</div>
+												</div>
+											</td>
+										</tr>
+									</template>
+									<template if:true= {taskListByCheckedLead.length}>
+										<template for:each={taskListByCheckedLead} for:item="task">
+											<tr class="slds-hint-parent" key={task.Id} data-id={task.Id}>
+												<td data-label="Status">
+													<div class="slds-truncate">{task.Status}</div>
+												</td>
+												<td data-label="Subject">
+													<div class="slds-truncate">{task.Subject}</div>
+												</td>
+												<td data-label="Description">
+													<div class="slds-truncate">{task.Description}</div>
+												</td>
+												<td data-label="CreateDate">
+													<div class="slds-truncate">
+														<lightning-formatted-date-time value={task.CreatedDate} year="2-digit" month="2-digit" day="2-digit" hour="numeric" minute="numeric"></lightning-formatted-date-time>
+													</div>
+												</td>
+											</tr>
+										</template>
+									</template>
+								</template>
+							</template>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</template>
+	</div>
+
+	<!-- start CreateTask modal -->
+	<template if:true={isTaskModal}>
+	<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open">
+		<div class="slds-modal__container">
+			<button class="slds-button slds-button_icon slds-modal__close" onclick={closeModal} name="CreateTask">
+				<lightning-icon icon-name="utility:close" size="small" name="CreateTask"></lightning-icon>
+				<span class="slds-assistive-text">Cancel and close</span>
+			</button>
+			<div class="slds-modal__header">
+				<h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate" tabindex="-1">Task 작성</h1>
+			</div>
+			<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+				<lightning-combobox
+					name="subject"
+					label="제목"
+					value={taskSubjectValue}
+					options={taskSubjectOption}
+					onchange={handleTaskSubjectChange}>
+				</lightning-combobox>
+				<lightning-textarea
+					name="description"
+					label="내용"
+					placeholder="내용을 입력하세요"
+					value={taskDescriptionValue}
+					onkeyup={handleTaskDescriptionChange}>
+				</lightning-textarea>
+			</div>
+			<div class="slds-modal__footer">
+				<button class="slds-button slds-button_neutral" aria-label="Cancel and close" onclick={closeModal} name="CreateTask">취소</button>
+				<button class="slds-button slds-button_brand" onclick={createTask}>생성</button>
+			</div>
+		</div>
+	</section>
+	<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+	</template>
+	<!-- end task modal -->
+
+	<!-- start isConvertModal modal -->
+	<template if:true={isConvertModal}>
+		<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-modal_large slds-fade-in-open">
+<!--		<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="custom-modal slds-modal slds-fade-in-open">-->
+			<div class="slds-modal__container modal-wrap">
+				<button class="slds-button slds-button_icon slds-modal__close" onclick={closeModal} name="ConvertOppty">
+					<lightning-icon icon-name="utility:close" size="small" name="ConvertOppty"></lightning-icon>
+					<span class="slds-assistive-text">Cancel and close</span>
+				</button>
+				<div class="slds-modal__header">
+					<h1 id="modal-heading-02" class="slds-modal__title slds-hyphenate" tabindex="-1">기회 변환 전 차종, 캠페인 선택</h1>
+				</div>
+				<div class="slds-modal__content slds-p-around_medium">
+					<c-product-campaign-table onrowselect={handleRowSelect} ongetproductid={getProductIdByChild}></c-product-campaign-table>
+				</div>
+				<div class="slds-modal__footer">
+					<button class="slds-button slds-button_neutral" aria-label="Cancel and close" onclick={closeModal} name="ConvertOppty">취소</button>
+					<button class="slds-button slds-button_brand" onclick={convertHandler}>생성</button>
+				</div>
+			</div>
+		</section>
+		<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+	</template>
+	<!-- end oppty modal -->
+
+	<!-- start loading spinner-->
+	<template lwc:if={isLoading}>
+		<lightning-spinner alternative-text="Loading" variant="brand" size="medium"></lightning-spinner>
+	</template>
+	<!-- end loading spinner-->
+
+<!--	<lightning-quick-action-panel header="기회 변환" onclose={closeModal}>-->
+<!--		<div class="slds-p-around_medium">-->
+<!--			<c-product-campaign-table onrowselect={handleRowSelect}></c-product-campaign-table>-->
+<!--		</div>-->
+<!--		<lightning-button slot="footer" label="Cancel" onclick={closeModal}></lightning-button>-->
+<!--		<lightning-button slot="footer" label="Save" variant="brand" onclick={convertHandler}></lightning-button>-->
+<!--	</lightning-quick-action-panel>-->
+</template>

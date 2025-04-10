@@ -1,0 +1,60 @@
+<!--
+- @Author            : jh.jung
+- @Description 		 : 
+- @Target            : 
+- @Modification Log
+- Ver      Date            Author                           Modification
+- ===================================================================================
+- 1.0      2024-11-21      jh.jung           Created
+-->
+<!-- Campaign Utility Bar -->
+<template>
+  <lightning-accordion>
+    <!-- 캠페인 목록을 아코디언 항목으로 표시 -->
+    <template for:each={campaignData} for:item="campaign">
+      <lightning-accordion-section key={campaign.Id} label={campaign.Name}>
+        <div class="slds-box slds-box_xx-small">
+          <p>
+            <strong class="label">시작날짜</strong>
+            : {campaign.StartDate__c}
+          </p>
+          <p>
+            <strong class="label">종료날짜</strong>
+            : {campaign.ExpireDate__c}
+          </p>
+          <template if:true={campaign.DiscountRate__c}>
+            <p>
+              <strong class="label">할인율</strong>
+              : {campaign.DiscountRate__c}%
+            </p>
+          </template>
+          <template if:true={campaign.DiscountPrice__c}>
+            <p>
+              <strong class="label">할인가격</strong>
+              : <lightning-formatted-number value={campaign.DiscountPrice__c}
+                                          format-style="decimal"
+                                          minimum-fraction-digits="0"
+                                          maximum-fraction-digits="2">
+              </lightning-formatted-number>
+              ₩
+            </p>
+          </template>
+          <p>
+            <strong class="label"><a href={campaign.url} target="_blank">상세보기</a></strong>
+          </p>
+<!--          <p>-->
+<!--            <strong class="label">제품목록</strong>-->
+<!--          </p>-->
+<!--          &lt;!&ndash; CampaignJunction__r 관련 정보 출력 &ndash;&gt;-->
+<!--          <template for:each={campaign.CampaignJunction__r} for:item="junction">-->
+<!--            <p key={junction.Id}>-->
+<!--              <template if:true={junction.Product__r}>-->
+<!--                - {junction.Product__r.Name}-->
+<!--              </template>-->
+<!--            </p>-->
+<!--          </template>-->
+        </div>
+      </lightning-accordion-section>
+    </template>
+  </lightning-accordion>
+</template>

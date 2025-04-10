@@ -1,0 +1,692 @@
+<!--
+ * @author : th.kim
+ * @date : 2024-12-13
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2024-12-13      th.kim          Initial Version
+-->
+<!-- quoteCalculatorTable -->
+<template>
+	
+	<div class="slds-grid slds-wrap calc-wrap">
+		<div class="slds-p-horizontal_x-small slds-size_1-of-2">
+			<div class="slds-size_1-of-1 slds-scrollable_x box-wrap">
+				
+				<!-- 차종 테이블 Start -->
+				<div>
+					<template lwc:if={productData}>
+						<table class="slds-table slds-table_header-hidden">
+							<tbody>
+							<tr class="slds-hint-parent">
+								<th>
+									<strong>1) 차종</strong>
+								</th>
+								<td>
+									<div title="">{productData.name}</div>
+								</td>
+								<td>
+									<div class="slds-text-align_right" title="">
+										<lightning-formatted-number
+											value={productData.price}></lightning-formatted-number>
+										원
+									</div>
+								</td>
+							</tr>
+							
+							<template lwc:if={productData.optionList.length}>
+								<template for:each={productData.optionList} for:item="option" for:index="idx">
+									<template lwc:if={idx}>
+										<tr class="slds-hint-parent" key={option.id}>
+											<th>
+												<lightning-icon icon-name="utility:level_down"
+												                size="xx-small"></lightning-icon>
+											</th>
+											<td class="slds-grid slds-wrap">
+												<div>{option.name}</div>
+											</td>
+											<td>
+												<div class="slds-text-align_right">
+													<lightning-formatted-number
+														value={option.price}></lightning-formatted-number>
+													원
+												</div>
+											</td>
+										</tr>
+									</template>
+									<template lwc:else>
+										<tr class="slds-hint-parent" key={option.id}>
+											<th>
+												<div>옵션</div>
+											</th>
+											<td class="slds-grid slds-wrap">
+												<div>{option.name}</div>
+											</td>
+											<td>
+												<div class="slds-text-align_right">
+													<lightning-formatted-number
+														value={option.price}></lightning-formatted-number>
+													원
+												</div>
+											</td>
+										</tr>
+									</template>
+								</template>
+							</template>
+							<template lwc:else>
+								<tr>
+									<th colspan="3">옵션을 선택하지 않았음</th>
+								</tr>
+							</template>
+							<tr class="slds-hint-parent slds-border_bottom">
+								<td class="slds-text-title_bold" colspan="3">
+									<div class="slds-grid slds-wrap slds-size_1-of-1">
+										<div class="slds-text-heading_small slds-text-align_left">총 차량 가격</div>
+										<div class="slds-text-heading_small title-price">
+											<lightning-formatted-number
+												value={productData.totalPrice}></lightning-formatted-number>
+											원
+										</div>
+									</div>
+								</td>
+							</tr>
+							</tbody>
+						</table>
+					</template>
+				</div>
+				<!-- 차종 테이블 End -->
+				
+				<!-- 프로모션 테이블 Start -->
+				<div class="table-wrap">
+					<template lwc:if={promotionData}>
+						<table class="slds-table slds-table_header-hidden">
+							<tbody>
+							<template lwc:if={promotionData.promotionList.length}>
+								<template for:each={promotionData.promotionList} for:item="promotion" for:index="idx">
+									<template lwc:if={idx}>
+										<tr class="slds-hint-parent" key={promotion.id}>
+											<td>
+												<lightning-icon icon-name="utility:level_down"
+												                size="xx-small"></lightning-icon>
+											</td>
+											<td class="slds-grid slds-wrap">
+												<div title="">{promotion.name}&nbsp;
+													<lightning-formatted-number value={promotion.discountRate}
+													                            format-style="percent" maximum-fraction-digits="2"></lightning-formatted-number>
+												</div>
+											</td>
+											<td>
+												<div class="slds-text-align_right" title="">
+													<lightning-formatted-number
+														value={promotion.discountPrice}></lightning-formatted-number>
+													원
+												</div>
+											</td>
+										</tr>
+									</template>
+									<template lwc:else>
+										<tr class="slds-hint-parent" key={promotion.id}>
+											<th>
+												<strong>2) 프로모션</strong>
+											</th>
+											<td class="slds-grid slds-wrap">
+												<div title="">{promotion.name}&nbsp;
+													<lightning-formatted-number value={promotion.discountRate}
+													                            format-style="percent" maximum-fraction-digits="2"></lightning-formatted-number>
+												</div>
+											</td>
+											<td>
+												<div class="slds-text-align_right" title="">
+													<lightning-formatted-number
+														value={promotion.discountPrice}></lightning-formatted-number>
+													원
+												</div>
+											</td>
+										</tr>
+									</template>
+								</template>
+							</template>
+							<template lwc:else>
+								<tr class="slds-hint-parent">
+									<td colspan="2">
+										<div>2) 프로모션</div>
+									</td>
+									<td>
+										<div class="slds-text-align_right" title="">
+											<lightning-formatted-number value="0"></lightning-formatted-number>
+											원
+										</div>
+									</td>
+								</tr>
+							</template>
+							<tr class="slds-hint-parent">
+								<td colspan="2">
+									<div title="">기준 할인 금액</div>
+								</td>
+								<td>
+									<div class="slds-text-align_right" title="">
+										<lightning-formatted-number
+											value={promotionData.baseDiscount}></lightning-formatted-number>
+										원
+									</div>
+								</td>
+							</tr>
+							<tr class="slds-hint-parent">
+								<td colspan="2">추가 손실가격</td>
+								<td>
+									<div class="slds-text-align_right" title="">
+										<lightning-formatted-number
+											value={promotionData.additionalDiscount}></lightning-formatted-number>
+										원
+									</div>
+								</td>
+							</tr>
+							<tr class="slds-hint-parent">
+								<td colspan="2">차량 추가 할인</td>
+								<td>
+									<div class="slds-text-align_right" title="">
+										<lightning-formatted-number
+											value={promotionData.additionalStockDiscount}></lightning-formatted-number>
+										원
+									</div>
+								</td>
+							</tr>
+							<tr class="slds-hint-parent slds-border_bottom">
+								<td class="slds-text-title_bold" colspan="3">
+									<div class="slds-grid slds-wrap slds-size_1-of-1">
+										<div class="slds-text-heading_small slds-text-align_left">총 할인 가격</div>
+										<div class="slds-text-heading_small title-price">
+											<lightning-formatted-number
+												value={promotionData.totalPrice}></lightning-formatted-number>
+											원
+										</div>
+									</div>
+								</td>
+							</tr>
+							</tbody>
+						</table>
+					</template>
+				</div>
+				<!-- 프로모션 테이블 End -->
+				
+				<!-- 할인 가격 세부내역 테이블 Start -->
+				<div class="table-wrap">
+					<template lwc:if={discountDetailData}>
+						<table class="slds-table slds-table_header-hidden">
+							<tbody>
+							<tr class="slds-hint-parent">
+								<th colspan="3">
+									<strong>3) 총 할인 가격 세부내역</strong>
+								</th>
+							</tr>
+							<tr class="slds-hint-parent">
+								<td>주유권</td>
+								<td>주유상품권</td>
+								<td>
+									<div class="slds-text-align_right" title="">
+										<lightning-formatted-number
+											value={discountDetailData.oilCouponPrice}></lightning-formatted-number>
+										원
+									</div>
+								</td>
+							</tr>
+							<tr class="slds-hint-parent">
+								<td colspan="3">주유상품권 차감</td>
+							</tr>
+							<tr class="slds-hint-parent">
+								<td>
+									<lightning-icon icon-name="utility:level_down"
+									                size="xx-small"></lightning-icon>
+								</td>
+								<td>부가세후취 이자 차감</td>
+								<td>
+									<div class="slds-text-align_right" title="">
+										<lightning-formatted-number
+											value={financialData.interestDefermentVAT}></lightning-formatted-number>
+										원
+									</div>
+								</td>
+							</tr>
+							<tr class="slds-hint-parent">
+								<td>
+									<lightning-icon icon-name="utility:level_down"
+									                size="xx-small"></lightning-icon>
+								</td>
+								<td>자동덮개/기타보강 옵션 차감</td>
+								<td>
+									<div class="slds-text-align_right" title="">
+										<lightning-formatted-number
+											value={productData.optionAdditionalPrice}></lightning-formatted-number>
+										원
+									</div>
+								</td>
+							</tr>
+							<tr class="slds-hint-parent slds-border_bottom">
+								<td>
+									<div title="">인도금 할인</div>
+								</td>
+								<td>
+									<div title=""></div>
+								</td>
+								<td>
+									<div class="slds-text-align_right" title="">
+										<lightning-formatted-number
+											value={discountDetailData.discountPrice}></lightning-formatted-number>
+										원
+									</div>
+								</td>
+							</tr>
+							</tbody>
+						</table>
+					</template>
+				</div>
+				<!-- 할인 가격 세부내역 테이블 End -->
+				
+				<!-- 기본제공 품목 테이블 Start -->
+				<div class="table-wrap">
+					<table class="slds-table slds-table_header-hidden">
+						<tbody>
+						<tr class="slds-hint-parent">
+							<td colspan="3">
+								<div>4) 기본제공 품목</div>
+							</td>
+						</tr>
+						<template lwc:if={defaultOptionsData.length}>
+							<template for:each={defaultOptionsData} for:item="option" for:index="idx">
+								<tr class="slds-hint-parent" key={option.id}>
+									<td colspan="2">
+										<div title="">{option.name}</div>
+									</td>
+									<td>
+										<div class="slds-text-align_right" title="">
+											<lightning-formatted-number
+												value={option.price}></lightning-formatted-number>
+											원
+										</div>
+									</td>
+								</tr>
+							</template>
+						</template>
+						<template lwc:else>
+							<td colspan="3">
+								<div>기본제공 품목을 선택하지 않았음</div>
+							</td>
+						</template>
+						</tbody>
+					</table>
+				</div>
+				<!-- 기본제공 품목 세부내역 테이블 End -->
+				
+				<div class="slds-grid slds-wrap slds-p-vertical_x-small slds-p-horizontal_xx-small slds-border_top">
+					<div class="slds-text-title_bold">
+						<div class="slds-text-heading_small">실 판매가격</div>
+					</div>
+					<div class="slds-text-title_bold title-price">
+						<div class="slds-text-heading_small">
+							<lightning-formatted-number value={realSalesPriceData}></lightning-formatted-number>
+							원 (VAT 포함)
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="slds-p-left_x-small slds-p-right_small slds-size_1-of-2">
+			<div class="slds-size_1-of-1 slds-scrollable_x box-wrap">
+				
+				<!-- `특장` 테이블 Start -->
+				<div class="table-wrap">
+					<table class="slds-table slds-table_header-hidden">
+						<tbody>
+						<tr class="slds-hint-parent">
+							<td colspan="3">
+								<div>5) 특장</div>
+							</td>
+						</tr>
+						<template lwc:if={specialData.special.length}>
+							<template for:each={specialData.special} for:item="special">
+								<tr key={special.idx} class="slds-hint-parent">
+									<td>
+										<lightning-icon icon-name="utility:level_down" size="xx-small"></lightning-icon>
+									</td>
+									<td class="slds-grid slds-wrap">
+										<div title="">{special.subOption}</div>
+									</td>
+									<td>
+										<div class="slds-text-align_right" title="">
+											<lightning-formatted-number value={special.price}></lightning-formatted-number>
+											원
+										</div>
+									</td>
+								</tr>
+							</template>
+						</template>
+						<template lwc:else>
+							<tr>
+								<th colspan="3">특장을 선택하지 않았음</th>
+							</tr>
+						</template>
+						<tr class="slds-hint-parent slds-border_bottom">
+							<td class="slds-text-title_bold" colspan="3">
+								<div class="slds-grid slds-wrap slds-size_1-of-1">
+									<div class="slds-text-heading_small slds-text-align_left">실 판매가격 + 특장비용</div>
+									<div class="slds-text-heading_small title-price">
+										<lightning-formatted-number
+											value={totalRealAndSpecialPrice}></lightning-formatted-number>
+										원
+									</div>
+								</div>
+							</td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+				<!-- 특장 테이블 End -->
+				
+				<!-- 할부 테이블 Start -->
+				<template lwc:if={financialData}>
+					<div class="table-wrap">
+						<table class="slds-table slds-table_header-hidden">
+							<tbody>
+							<tr class="slds-hint-parent">
+								<th>
+									<strong>6) 할부</strong>
+								</th>
+								<td>금융사</td>
+								<td>
+									<div class="slds-text-align_right" title="">{financialData.financialName}</div>
+								</td>
+							</tr>
+							<tr class="slds-hint-parent">
+								<th>
+									<lightning-icon icon-name="utility:level_down" size="xx-small"></lightning-icon>
+								</th>
+								<td class="slds-grid slds-wrap">
+									<div>계약금</div>
+								</td>
+								<td>
+									<div class="slds-text-align_right">
+										<lightning-formatted-number
+											value={financialData.deposit}></lightning-formatted-number>
+										원
+									</div>
+								</td>
+							</tr>
+							<tr class="slds-hint-parent">
+								<th>
+									<lightning-icon icon-name="utility:level_down" size="xx-small"></lightning-icon>
+								</th>
+								<td class="slds-grid slds-wrap">
+									<div>인도금</div>
+								</td>
+								<td>
+									<div class="slds-text-align_right">
+										<lightning-formatted-number
+											value={financialData.deliveryPrice}></lightning-formatted-number>
+										원
+									</div>
+								</td>
+							</tr>
+							<tr class="slds-hint-parent">
+								<th>
+									<lightning-icon icon-name="utility:level_down" size="xx-small"></lightning-icon>
+								</th>
+								<td class="slds-grid slds-wrap">
+									<div>부가세유예</div>
+								</td>
+								<td>
+									<div class="slds-text-align_right">
+										<lightning-formatted-number
+											value={financialData.defermentVAT}></lightning-formatted-number>
+										원
+									</div>
+								</td>
+							</tr>
+							<tr class="slds-hint-parent">
+								<th>
+									<lightning-icon icon-name="utility:level_down" size="xx-small"></lightning-icon>
+								</th>
+								<td class="slds-grid slds-wrap">
+									<div>인도금유예</div>
+								</td>
+								<td>
+									<div class="slds-text-align_right">
+										<lightning-formatted-number
+											value={financialData.paymentDeferredAmount}></lightning-formatted-number>
+										원
+									</div>
+								</td>
+							</tr>
+							<tr class="slds-hint-parent">
+								<th>
+									<lightning-icon icon-name="utility:level_down" size="xx-small"></lightning-icon>
+								</th>
+								<td class="slds-grid slds-wrap">
+									<div>총 대출금액</div>
+								</td>
+								<td>
+									<div class="slds-text-align_right">
+										<lightning-formatted-number
+											value={financialData.loanAmount}></lightning-formatted-number>
+										원
+									</div>
+								</td>
+							</tr>
+							<tr class="slds-hint-parent">
+								<th>
+									<lightning-icon icon-name="utility:level_down" size="xx-small"></lightning-icon>
+								</th>
+								<td class="slds-grid slds-wrap">
+									<div>대출금</div>
+								</td>
+								<td>
+									<div class="slds-text-align_right">
+										<lightning-formatted-number
+											value={financialData.excludeCapitalLoanAmount}></lightning-formatted-number>
+										원
+									</div>
+								</td>
+							</tr>
+							<tr class="slds-hint-parent">
+								<th>
+									<lightning-icon icon-name="utility:level_down" size="xx-small"></lightning-icon>
+								</th>
+								<td class="slds-grid slds-wrap">
+									<div>캐피탈 유예</div>
+								</td>
+								<td>
+									<div class="slds-text-align_right">
+										<lightning-formatted-number
+											value={financialData.capitalDeferment}></lightning-formatted-number>
+										원
+									</div>
+								</td>
+							</tr>
+							<tr class="slds-hint-parent">
+								<th>
+									<lightning-icon icon-name="utility:level_down" size="xx-small"></lightning-icon>
+								</th>
+								<td class="slds-grid slds-wrap">
+									<div>적용금리</div>
+								</td>
+								<td>
+									<div class="slds-text-align_right">
+										<lightning-formatted-number
+											value={financialData.interestRate}></lightning-formatted-number>
+										%
+									</div>
+								</td>
+							</tr>
+							<tr class="slds-hint-parent">
+								<th>
+									<lightning-icon icon-name="utility:level_down" size="xx-small"></lightning-icon>
+								</th>
+								<td class="slds-grid slds-wrap">
+									<div>개월 수</div>
+								</td>
+								<td>
+									<div class="slds-text-align_right">
+										<lightning-formatted-number
+											value={financialData.loanTermMonth}></lightning-formatted-number>
+										개월
+									</div>
+								</td>
+							</tr>
+							<tr class="slds-hint-parent slds-border_bottom">
+								<td class="slds-text-title_bold" colspan="3">
+									<div class="slds-grid slds-wrap slds-size_1-of-1">
+										<div class="slds-text-heading_small slds-text-align_left">예상 월 할부금</div>
+										<div class="slds-text-heading_small title-price">
+											<lightning-formatted-number
+												value={financialData.monthlyPayment}></lightning-formatted-number>
+											원
+										</div>
+									</div>
+								</td>
+							</tr>
+							</tbody>
+						</table>
+					</div>
+				</template>
+				<!-- 할부 테이블 End -->
+				
+				<!-- 부대비용 테이블 Start -->
+				<div class="table-wrap">
+					<table class="slds-table slds-table_header-hidden">
+						<tbody>
+						<tr class="slds-hint-parent">
+							<td colspan="3">
+								<div>7) 부대비용</div>
+							</td>
+						</tr>
+						<tr class="slds-hint-parent">
+							<td>
+								<lightning-icon icon-name="utility:level_down" size="xx-small"></lightning-icon>
+							</td>
+							<td class="slds-grid slds-wrap">
+								<div title="">탁송료</div>
+							</td>
+							<td>
+								<div class="slds-text-align_right" title="">
+									<lightning-formatted-number value={extraExpensesData.consignment}></lightning-formatted-number>
+									원
+								</div>
+							</td>
+						</tr>
+						<tr class="slds-hint-parent">
+							<td>
+								<lightning-icon icon-name="utility:level_down" size="xx-small"></lightning-icon>
+							</td>
+							<td>
+								<div title="">출고보험료</div>
+							</td>
+							<td>
+								<div class="slds-text-align_right" title="">
+									<lightning-formatted-number value={extraExpensesData.insurance}></lightning-formatted-number>
+									원
+								</div>
+							</td>
+						</tr>
+						<template lwc:if={extraExpensesData.isStampDuty}>
+							<tr class="slds-hint-parent">
+								<td>
+									<lightning-icon icon-name="utility:level_down" size="xx-small"></lightning-icon>
+								</td>
+								<td>
+									<div title="">인지대</div>
+								</td>
+								<td>
+									<div class="slds-text-align_right" title="">
+										<lightning-formatted-number value={extraExpensesData.stampDuty}></lightning-formatted-number>
+										원
+									</div>
+								</td>
+							</tr>
+						</template>
+						<tr class="slds-hint-parent">
+							<td>
+								<lightning-icon icon-name="utility:level_down" size="xx-small"></lightning-icon>
+							</td>
+							<td>
+								<div title="">공증료</div>
+							</td>
+							<td>
+								<div class="slds-text-align_right" title="">
+									<lightning-formatted-number value={extraExpensesData.notarizedFee}></lightning-formatted-number>
+									원
+								</div>
+							</td>
+						</tr>
+						<tr class="slds-hint-parent">
+							<td>
+								<lightning-icon icon-name="utility:level_down" size="xx-small"></lightning-icon>
+							</td>
+							<td>
+								<div title="">합계</div>
+							</td>
+							<td>
+								<div class="slds-text-align_right" title="">
+									<lightning-formatted-number value={extraExpensesData.totalExpenses}></lightning-formatted-number>
+									원
+								</div>
+							</td>
+						</tr>
+						<tr class="slds-hint-parent">
+							<td>
+								<lightning-icon icon-name="utility:level_down" size="xx-small"></lightning-icon>
+							</td>
+							<td>
+								<div title="">취등록세</div>
+							</td>
+							<td>
+								<div class="slds-text-align_right" title="">
+									<lightning-formatted-number value={extraExpensesData.registrationTax}></lightning-formatted-number>
+									원
+								</div>
+							</td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+				<!-- 부대비용 테이블 End -->
+				
+				<!-- CareFree 테이블 Start -->
+				<div class="table-wrap slds-border_top">
+					<div class="slds-size_1-of-1 slds-p-bottom_x-small slds-p-horizontal_xx-small">
+						<strong class="slds-text-heading_small">출고 전 납입금은 총&nbsp;
+							<lightning-formatted-number value={totalPaymentBeforeReleased}></lightning-formatted-number>
+							원 입니다.
+						</strong>
+					</div>
+					<template lwc:if={serviceItemData.fieldList.length}>
+						<strong class="slds-p-horizontal_xx-small">유지보수 세부내용</strong>
+						<table class="slds-table slds-table_header-hidden">
+							<tbody>
+							<tr class="slds-hint-parent">
+								<td colspan="3">
+									<div>{serviceItemData.name}</div>
+								</td>
+							</tr>
+							<template for:each={serviceItemData.fieldList} for:item="field">
+								<tr key={field.label} class="slds-hint-parent">
+									<td>
+										<lightning-icon icon-name="utility:level_down" size="xx-small"></lightning-icon>
+									</td>
+									<td class="slds-grid slds-wrap">
+										<div title="">{field.label}</div>
+									</td>
+									<td>
+										<div class="slds-text-align_right" title="">{field.value}</div>
+									</td>
+								</tr>
+							</template>
+							</tbody>
+						</table>
+					</template>
+				</div>
+				<!-- CareFree 테이블 End -->
+			</div>
+		</div>
+	</div>
+</template>

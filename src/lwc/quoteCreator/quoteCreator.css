@@ -1,0 +1,203 @@
+/*************************************************************
+ * @author : th.kim
+ * @date : 2024-12-09
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2024-12-09      th.kim          Initial Version
+**************************************************************/
+@import "c/commonStyleUtil";
+
+.slds-modal__container {
+    padding-block-end: 0;
+}
+
+iframe {
+    width: 100%;
+    height: 80vh;
+    border: 0;
+}
+
+.button-wrap {
+    margin-top: auto;
+    margin-bottom: 2px;
+}
+
+.body-header:nth-child(2) > div:not(.stock-table-wrap) {
+    font-weight: bold;
+}
+
+.body-header .body-wrap .body-sub-wrap {
+    height: 50%;
+}
+
+.body-header .body-wrap .body-sub-wrap .box-wrap {
+    height: 100%;
+    align-content: center;
+}
+
+.body-header .box-wrap lightning-formatted-number {
+    color: black;
+}
+
+.car-table-wrap {
+    overflow: initial;
+}
+
+.stock-table-wrap {
+    animation-name: slide-down;
+    animation-duration: 0.3s;
+    animation-iteration-count: 1;
+}
+
+.stock-table-wrap > div.slds-scrollable_y {
+    height: 80%;
+}
+
+.stock-table-wrap-header > div {
+    align-content: center;
+}
+
+.stock-table-wrap-header > lightning-button-icon {
+    margin-left: auto;
+}
+
+lightning-accordion lightning-accordion-section {
+    border: 0;
+    border-radius: 10px;
+}
+
+.table-wrap {
+    padding-top: 0.5rem;
+}
+
+table:not(.table-wrap table) tr:first-child {
+    font-weight: bold;
+}
+
+.table-wrap table tr:first-child td:first-child {
+    font-weight: bold;
+}
+
+table lightning-icon {
+    align-self: center;
+    padding-right: 0.5rem;
+}
+
+.campaign-table-wrap {
+    max-height: 200px;
+}
+
+lightning-input:disabled {
+    color: #2e2e2e;
+}
+
+.button-wrap {
+    justify-content: center;
+}
+
+.special-wrap:not(:first-child) {
+    border-top: solid 1px lightgray;
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+}
+
+/* PC, 태블릿, Mobile 화면 체크 */
+
+/* PC */
+@media screen and (min-width: 1024px) {
+    .body-header {
+        width: 50%;
+
+        &:nth-child(2) {
+            padding-left: 0;
+        }
+    }
+}
+
+/* 태블릿 */
+@media screen and (max-width: 1023px) {
+    .body-header {
+        width: 100%;
+        padding: 0.5rem;
+    }
+
+    .body-contents > div {
+        width: 50%;
+        padding: 0.5rem;
+    }
+
+    .body-contents > div:not(div:first-child) {
+        padding: 0;
+    }
+
+    lightning-accordion {
+        lightning-datatable {
+            color: black !important;
+        }
+
+        lightning-input {
+            color: black !important;
+        }
+
+        lightning-record-picker {
+            color: black !important;
+        }
+
+        lightning-combobox {
+            color: black !important;
+        }
+    }
+}
+
+/* 모바일 */
+@media screen and (max-width: 540px) {
+    .body-header {
+        width: 100%;
+        padding: 0.5rem;
+    }
+
+    .body-contents > div {
+        width: 100%;
+        padding: 0.5rem;
+    }
+
+    lightning-accordion {
+        lightning-datatable {
+            color: black !important;
+        }
+
+        lightning-input {
+            color: black !important;
+        }
+
+        lightning-record-picker {
+            color: black !important;
+        }
+
+        lightning-combobox {
+            color: black !important;
+        }
+    }
+
+    .summary-wrap > div {
+        width: 100%;
+        padding: 0.3rem;
+    }
+
+    .summary-wrap > div .box-wrap {
+        padding: 0 1rem;
+    }
+}
+
+@keyframes slide-down {
+    0% {
+        transform: scaleY(0);
+        transform-origin: 0 0;
+    }
+    100% {
+        transform: scaleY(1);
+        transform-origin: 0 0;
+    }
+}

@@ -1,0 +1,161 @@
+<!--
+ * @author : chaebeom.do
+ * @date : 2025-03-11
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-03-11      chaebeom.do     Created
+-->
+<template>
+  <!-- Header Start -->
+  <div class="slds-page-header slds-page-header_record-home box-wrap">
+    <div class="slds-page-header__row">
+      <!-- Title Wrap Start -->
+      <div class="slds-page-header__col-title">
+        <div class="slds-media">
+          <div class="slds-media__figure">
+            <lightning-icon icon-name="standard:event"></lightning-icon>
+          </div>
+          <div class="slds-media__body">
+            <div class="slds-page-header__name">
+              <div class="slds-page-header__name-title">
+                <h1>
+                  <span class="slds-page-header__title slds-truncate">
+                    굿윌 사용 신청
+                  </span>
+                </h1>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Title Wrap End -->
+    </div>
+  </div>
+  <!-- Header End -->
+
+  <!-- 레코드 생성 Start -->
+  <div class="slds-m-vertical_small slds-grid">
+    <div class="slds-size_1-of-1 slds-large-size_3-of-6 slds-card slds-m-horizontal_x-small box-wrap">
+      <lightning-record-edit-form
+        object-api-name="GoodWillUsing__c" onsuccess={handleSuccess}
+        onerror={handleError} density="comfy" class="slds-size_1-of-1">
+        <div class="slds-grid slds-wrap slds-form__item slds-no-space">
+          <lightning-input-field field-name="GoodWillMaster__c" data-id="GoodWillMaster" 
+          value={goodWillMasterId} style="display: none;"></lightning-input-field>
+          <lightning-input-field field-name="GoodWillVIN__c" 
+          value={vinNo} style="display: none;"></lightning-input-field>
+          <lightning-input type="text" label="굿윌 사용 차량" data-id="VehicleStock"
+          value={vinNo} maxlength="17" onchange={handleChange} required="true"></lightning-input>
+          <lightning-input-field field-name="UsingGoodWill__c" data-id="UsingGoodWill" 
+          value={usingGoodWill} onchange={handleChange}></lightning-input-field>
+          <lightning-input-field field-name="Description__c" data-id="Description" 
+          value={description} onchange={handleChange}></lightning-input-field>
+          <div class="slds-file-selector__dropzone slds-size_1-of-1 slds-p-around_medium"
+              data-name="uploadFile"
+              ondragover={handleDragOver}
+              ondragleave={handleDragLeave}
+              ondrop={handleDrop}>
+            <input type="file"
+                  multiple
+                  name="uploadFile"
+                  onchange={handleUploadFinished}
+                  class="slds-file-selector__input slds-assistive-text"
+                  accept={accept}
+                  id="uploadFile" />
+            <lightning-button
+                variant="Neutral"
+                name="uploadFile"
+                label="Upload File"
+                onclick={handleChooseFile}
+                icon-name="utility:upload">
+            </lightning-button>
+            <div class="slds-p-around_small">Drag and Drop files here</div>
+          </div>
+          <template if:true={fileDetails}>
+            <div class="pill-container slds-p-top_small">
+                <template for:each={fileDetails} for:item="file" for:index="index">
+                    <lightning-pill 
+                        key={file.key} data-key={file.key} label={file.name} onremove={handleRemove}>
+                    </lightning-pill>
+                </template>
+            </div>
+          </template>
+        </div>
+        <div class="slds-m-top_small slds-align_absolute-center slds-wrap slds-grid">
+          <lightning-button
+            class="slds-m-right_xx-small"
+            label="신청 양식 초기화"
+            onclick={clearEditForm}
+          ></lightning-button>
+          <lightning-button
+            variant="brand"
+            class="slds-m-right_xx-small"
+            type={applyValidation}
+            label="굿윌 사용 신청"
+            onclick={handleSubmit}
+          ></lightning-button>
+        </div>
+      </lightning-record-edit-form>
+    </div>
+    <div class="slds-size_1-of-1 slds-large-size_2-of-6 slds-card slds-m-horizontal_x-small box-wrap" style="margin-top: 0;">
+      <template lwc:if={usingHistoryStatus}>
+        <div class="slds-p-top_x-small slds-text-heading_medium slds-text-align_center">
+          나의 굿윌 잔액
+        </div>
+        <div class="slds-grid slds-grid_align-end" style="width: 80%;">
+          <lightning-button-icon
+                icon-name="utility:refresh"
+                variant="border-filled"
+                class="slds-p-right_xx-small"
+                alternative-text="Refresh"
+                title="Refresh"
+                data-name="refresh"
+                onclick={handleRefresh}
+              ></lightning-button-icon>
+        </div>
+        <div class="slds-p-top_x-small slds-text-heading_large slds-text-align_center">
+          {availablePoints}
+        </div>
+        <div class="slds-p-top_x-small slds-text-heading_medium">
+          최근 사용 내역
+        </div>
+        <div class="slds-size_1-of-1">
+          <lightning-datatable
+              key-field="id"
+              data={usingHistory}
+              columns={columns}
+              hide-checkbox-column="true"
+              column-widths-mode="auto">
+          </lightning-datatable>
+        </div>
+      </template>
+      <template lwc:else>
+        <br> 
+        <br> 
+        <div class="slds-p-top_x-small slds-text-heading_medium slds-text-align_center">
+          <strong>굿윌 마스터가 없는 사용자입니다.</strong>
+        </div>
+        <br>
+        <div class="slds-p-top_x-small slds-text-heading_medium slds-text-align_center">
+          굿윌 적립은 반기마다 업데이트됩니다.
+        </div>
+        <div class="slds-p-top_x-small slds-text-heading_medium slds-text-align_center">
+          1~6월분 : 7월 적립
+        </div>
+        <div class="slds-p-top_x-small slds-text-heading_medium slds-text-align_center">
+          7~12월분 : 다음해 1월 적립
+        </div>
+      </template>
+    </div>
+  </div>
+  <!-- 레코드 생성 End -->
+  <template lwc:if={isLoading}>
+    <lightning-spinner alternative-text="Loading" variant="brand" size="medium"></lightning-spinner>
+  </template>
+
+  <!-- 모달 Start -->
+
+  <!-- 모달 End -->
+</template>

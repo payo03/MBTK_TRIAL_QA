@@ -1,0 +1,47 @@
+<!--
+- @Author          : chaebeom.do
+- @Description 		 : 레코드 상세 페이지에서 버튼 클릭시 카톡으로 고객에게 동의 랜딩페이지 전송
+- @Modification Log
+- Ver      Date            Author           Modification
+- ===================================================================================
+- 1.0      2024-01-02      chaebeom.do      Created
+- 1.1      2025-01-03      San.Kang         Updated
+-->
+<template>
+    <lightning-quick-action-panel header="개인정보 고객 동의">
+        <div class="slds-size_1-of-1 slds-card slds-p-around_x-small sub-wrap">
+            <div class="slds-text-heading_small">
+                <div class="slds-m-bottom_small">
+                    <lightning-icon icon-name="utility:lock" size="small" class="slds-m-right_small"></lightning-icon>
+                    <strong>고객님의 개인정보 보호를 위해</strong><br/><br/>
+                    <span>카카오톡으로 전송된 <strong>동의 요청 메시지</strong>를 다시 보내시겠습니까?</span>
+                </div>
+            </div>
+        </div>
+        <div slot="footer" class="slds-text-align_center">
+            <lightning-button variant="neutral" label="취소" onclick={handleCancel}></lightning-button>
+            <lightning-button variant="brand" label="재전송" onclick={handleResend}
+                              class="slds-m-left_small"></lightning-button>
+        </div>
+        <!--    <div slot="footer" class="slds-text-align_center">-->
+        <!--      <div class="">-->
+        <!--        <lightning-button-->
+        <!--                variant="brand"-->
+        <!--                class="slds-m-right_xx-small"-->
+        <!--                type="submit"-->
+        <!--                label="카톡 전송"-->
+        <!--                onclick={sendKakaoTalkToCustomer}-->
+        <!--        >-->
+        <!--        </lightning-button>-->
+        <!--        <lightning-button-->
+        <!--                class="slds-m-right_xx-small"-->
+        <!--                label="닫기"-->
+        <!--                onclick={handleCancel}-->
+        <!--        >-->
+        <!--        </lightning-button>-->
+        <!--      </div>-->
+        <!--    </div>-->
+        <!-- FOOTER -->
+
+    </lightning-quick-action-panel>
+</template>

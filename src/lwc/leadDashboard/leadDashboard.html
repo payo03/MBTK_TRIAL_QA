@@ -1,0 +1,51 @@
+<!--
+- @Author            : jh.jung
+- @Description 		 : 
+- @Target            : 
+- @Modification Log
+- Ver      Date            Author           Modification
+- ===================================================================================
+- 1.0      2024-12-05      jh.jung           Created
+-->
+<!-- Lead Dashboard -->
+<template>
+  <lightning-card title="최근 3개월 리드 정보">
+    <div class="slds-grid slds-wrap slds-p-around_small">
+      <!-- Open Leads Card -->
+      <div class="slds-col slds-size_1-of-2 custom-card">
+        <lightning-card title="열린 리드 수">
+          <p class="slds-text-heading_medium slds-align_absolute-center">
+            {leadData.openLeads}
+          </p>
+        </lightning-card>
+      </div>
+
+      <!-- Converted Leads Card -->
+      <div class="slds-col slds-size_1-of-2 custom-card">
+        <lightning-card title="전환된 리드 수">
+          <p class="slds-text-heading_medium slds-align_absolute-center">
+            {leadData.convertedLeads}
+          </p>
+        </lightning-card>
+      </div>
+
+      <!-- High Temp Leads Card -->
+      <div class="slds-col slds-size_1-of-2 custom-card">
+        <lightning-card title="관심 리드율">
+          <p class="slds-text-heading_medium slds-align_absolute-center">
+            {leadData.highTempRate}%
+          </p>
+        </lightning-card>
+      </div>
+
+      <!-- Conversion Rate Card -->
+      <div class="slds-col slds-size_1-of-2 custom-card">
+        <lightning-card title="기회 전환율">
+          <p class="slds-text-heading_medium slds-align_absolute-center">
+            {leadData.conversionRate}%
+          </p>
+        </lightning-card>
+      </div>
+    </div>
+  </lightning-card>
+</template>

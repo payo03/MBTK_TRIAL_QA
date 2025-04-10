@@ -1,0 +1,36 @@
+.left-section {
+    background-color: #f4f4f4;
+}
+
+.progress-text {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.button-text {
+    font-size: 1rem;
+    line-height: 3rem;
+}
+
+.bottom-text {
+    font-size: 0.9rem;
+    padding-left: 3rem;
+    color: #666;
+}
+
+.custom-left-button {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    justify-content: center;
+}
+
+.green-circle {
+    background-color: #06a59a;
+    border-radius: 50%;
+    align-items: center;
+    display: inline-flex;
+    cursor: pointer;
+    border: 1px solid black;
+}

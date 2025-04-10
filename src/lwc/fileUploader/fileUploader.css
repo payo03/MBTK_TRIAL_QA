@@ -1,0 +1,21 @@
+@import "c/commonStyleUtil";
+
+@media screen and (max-width: 1023px) {
+  .sub-wrap {
+      height: 200px;
+  }
+}
+
+@media screen and (max-width: 540px) {
+  .sub-wrap {
+      height: 200px;
+  }
+}
+
+.box-wrap {
+  padding: 5px !important;
+}
+
+.slds-file-selector__dropzone {
+  justify-items: center;
+}

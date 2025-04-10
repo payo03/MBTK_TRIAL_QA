@@ -1,0 +1,60 @@
+/*************************************************************
+ * @author : th.kim
+ * @date : 2024-12-13
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2024-12-13      th.kim          Initial Version
+**************************************************************/
+@import "c/commonStyleUtil";
+
+.table-wrap {
+    padding-top: 0.5rem;
+}
+
+table {
+    table-layout: auto;
+}
+
+table tbody td div {
+    text-wrap: auto;
+}
+
+table:not(.table-wrap table) tr:first-child {
+    font-weight: bold;
+}
+
+.table-wrap table tr:first-child td:first-child {
+    font-weight: bold;
+}
+
+table lightning-icon {
+    align-self: center;
+    padding-right: 0.5rem;
+}
+
+.title-price {
+    margin-left: auto;
+}
+
+/* PC, Mobile 화면 체크 */
+@media screen and (min-width: 1024px) {
+    .calc-wrap > div {
+        width: 50%;
+    }
+}
+
+@media screen and (max-width: 1023px) {
+    .calc-wrap > div {
+        width: 100%;
+        padding: 0.5rem;
+    }
+}
+
+@media screen and (max-width: 540px) {
+    .calc-wrap > div {
+        width: 100%;
+        padding: 0.5rem;
+    }
+}

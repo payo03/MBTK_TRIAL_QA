@@ -1,0 +1,62 @@
+<!--
+- @Author            : payo03@solomontech.net
+- @Description 		 : 
+- @Target            : 
+- @Modification Log
+- Ver      Date            Author                           Modification
+- ===================================================================================
+- 1.0      2025-01-22      payo03@solomontech.net           Created
+-->
+<!-- Pdi Step 0 View -->
+<template>
+    <div class="container">
+        <!-- 콘텐츠 영역 -->
+        <div class="content">
+            <!-- 개별 VIN Select 화면 -->
+            <template if:false={varIsBulk}>
+                <div class="filter-container">
+                    <lightning-input
+                            type="search"
+                            label=""
+                            value={searchKey}
+                            onchange={handleSearch}
+                            onkeydown={handleKeyDown}
+                            placeholder="VIN 입력"
+                            class="custom-search">
+                    </lightning-input>
+                    <lightning-button
+                            label="검색"
+                            icon-name="utility:search"
+                            onclick={handleSearchButton}>
+                    </lightning-button>
+                </div>
+                <lightning-datatable
+                        key-field="Id"
+                        data={data}
+                        columns={columns}
+                        max-row-selection="1"
+                        selected-rows={selectedStockRowList}
+                        onrowselection={handleRowSelection}
+                        onclick={handleRowAction}>
+                </lightning-datatable>
+            </template>
+
+            <!-- 대량 VIN Copy & Paste 화면 -->
+            <template if:true={varIsBulk}>
+                <div onpaste={handlePaste}>
+                    <lightning-datatable
+                            key-field="id"
+                            data={bulkData}
+                            columns={bulkColumns}
+                            hide-checkbox-column="true">
+                    </lightning-datatable>
+                    <template if:false={bulkData.length}>
+                        <div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">
+                            <strong>엑셀 파일에서 작업을 완료한 VIN 컬럼을 붙여넣기 하세요.</strong>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>

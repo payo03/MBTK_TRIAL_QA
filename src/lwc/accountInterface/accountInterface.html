@@ -1,0 +1,83 @@
+<!-- Account Interface -->
+<template>
+
+    <lightning-modal-header label="고객/가상계좌 정보 전송(License 전용)"></lightning-modal-header>
+
+    <lightning-modal-body>
+        <div class="slds-m-around_small slds-align_absolute-center">
+            <strong class="slds-text-heading_medium">다음 항목들이 작성되었는지 확인 바랍니다</strong>
+        </div>
+
+        <div class="slds-form">
+            <div class="slds-form-element">
+                <lightning-input
+                        label="사업자 번호"
+                        name="BusinessNumber__c"
+                        value={account.BusinessNumber__c}
+                        onchange={handleInputChange}>
+                </lightning-input>
+            </div>
+            <div class="slds-form-element">
+                <lightning-input
+                        label="사업자 명"
+                        name="BusinessName__c"
+                        value={account.BusinessName__c}
+                        onchange={handleInputChange}>
+                </lightning-input>
+            </div>
+            <div class="slds-form-element">
+                <lightning-input
+                        label="주민번호"
+                        name="IDNumber__pc"
+                        value={account.IDNumber__pc}
+                        onchange={handleInputChange}>
+                </lightning-input>
+            </div>
+            <div class="slds-form-element">
+                <lightning-input
+                        label="이메일 주소"
+                        name="PersonEmail"
+                        value={account.PersonEmail}
+                        onchange={handleInputChange}>
+                </lightning-input>
+            </div>
+            <div class="slds-form-element">
+                <lightning-input
+                        label="우편번호"
+                        name="PostalCode__c"
+                        value={account.PostalCode__c}
+                        onchange={handleInputChange}>
+                </lightning-input>
+            </div>
+            <div class="slds-form-element">
+                <lightning-input
+                        label="도로주소"
+                        name="RoadAddress__c"
+                        value={account.RoadAddress__c}
+                        onchange={handleInputChange}>
+                </lightning-input>
+            </div>
+            <div class="slds-form-element">
+                <lightning-input
+                        label="연락처"
+                        name="PersonMobilePhone"
+                        value={account.PersonMobilePhone}
+                        onchange={handleInputChange}>
+                </lightning-input>
+            </div>
+        </div>
+    </lightning-modal-body>
+
+    <lightning-modal-footer>
+        <div class="slds-align_absolute-center">
+            <lightning-button
+                    label="저장"
+                    onclick={handleSave}>
+            </lightning-button>&nbsp;
+            <lightning-button
+                    label="전송"
+                    onclick={handleSendInfo}>
+            </lightning-button>
+        </div>
+    </lightning-modal-footer>
+</template>

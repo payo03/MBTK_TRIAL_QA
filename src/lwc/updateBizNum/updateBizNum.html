@@ -1,0 +1,49 @@
+<!--
+- @Author            : jh.jung
+- @Description 		 : 
+- @Target            : 
+- @Modification Log
+- Ver      Date            Author           Modification
+- ===================================================================================
+- 1.0      2024-12-18      jh.jung           Created
+-->
+<!-- Update Biz Num -->
+<template>
+  <lightning-quick-action-panel header="사업자 번호 수정">
+    <div class="slds-size_1-of-1 slds-card slds-p-around_x-small sub-wrap">
+      <div class="slds-card slds-size_1-of-1 slds-p-around_x-small">
+        <div class="slds-card__body slds-card__body_inner filter-wrap">
+          <div class="slds-grid slds-wrap button-wrap">
+            <lightning-input
+              class="slds-size_1-of-1"
+              type="text"
+              name="biznum"
+              label="사업자 번호"
+              placeholder="XXX-XX-XXXXX"
+              maxlength="12"
+              value={bizNum}
+              onkeyup={handleChange}>
+            </lightning-input>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div slot="footer" class="slds-align_absolute-center">
+      <div class="slds-m-bottom_small slds-align_absolute-center">
+        <lightning-button
+          class="slds-m-right_xx-small"
+          label="취소"
+          onclick={handleCancel}>
+        </lightning-button>
+        <lightning-button
+          variant="brand"
+          class=""
+          type="submit"
+          label="저장"
+          onclick={updateBizNum}>
+        </lightning-button>
+      </div>
+    </div>
+  </lightning-quick-action-panel>
+</template>

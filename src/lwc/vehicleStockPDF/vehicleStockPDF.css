@@ -1,0 +1,84 @@
+/*************************************************************
+ * @author : San.Kang
+ * @date : 2025-02-13
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0       2025-02-13        San.Kang           Created
+**************************************************************/
+@import "c/commonStyleUtil";
+
+@media screen and (max-width: 1023px) {
+    .sub-wrap {
+        height: 200px;
+    }
+}
+
+@media screen and (max-width: 540px) {
+    .sub-wrap {
+        height: 200px;
+    }
+}
+
+.slds-form-element__help {
+    display: none;
+}
+
+.squareButton {
+    border-radius: 0;
+}
+
+.cellBorder {
+    border-bottom: 0.5px solid #d8dde6;
+}
+
+.smallViewButton {
+    font-size: 0.7rem;
+    padding: 2px 4px;
+}
+
+.selectedRow {
+    background-color: #e0f3ff; /* 선택된 항목의 배경색 (연한 파란색) */
+}
+
+.address-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px; /* 입력 필드와 버튼 사이 간격 */
+}
+
+
+.search-button {
+    white-space: nowrap; /* 버튼 줄바꿈 방지 */
+}
+
+.address-input {
+    width: 100%; /* 입력 필드 너비 조절 */
+}
+
+.iframe-address {
+    display: none;
+}
+
+.address-container {
+    display: flex;
+    width: 100%; /* 전체 컨테이너 너비 */
+    gap: 10px; /* 두 개 필드 사이 간격 */
+}
+
+.road-address {
+    flex: 40%;
+    border: 1px solid #d1d1d1; /* 테두리 색상 설정 */
+    border-radius: 6px; /* 둥근 테두리 적용 */
+    background-color: white; /* 배경색 */
+}
+
+.detail-address {
+    flex: 20%; /* 상세 주소 필드의 너비 (30%) */
+}
+.address-container {
+    display: flex;
+    width: 100%; /* 전체 컨테이너 너비 */
+    gap: 10px; /* 두 개 필드 사이 간격 */
+}

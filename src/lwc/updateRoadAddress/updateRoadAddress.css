@@ -1,0 +1,22 @@
+/*************************************************************
+ * @author : jh.jung
+ * @date : 2024-12-13
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2024-12-13      jh.jung         Initial Version
+**************************************************************/
+
+.slds-modal {position: fixed !important;top: 50% !important;left: 50% !important;transform: translate(-50%, -50%) !important; height: auto;}
+
+.slds-backdrop {position: fixed;top: 0;left: 0;width: 100vw;height: 100vh;background-color: rgba(0, 0, 0, 0.5);z-index: 1040;}
+.slds-modal__container {width: auto !important; height: auto;}
+
+.iframe-address {
+    display: none;
+}
+
+.circle-button {
+    border-radius: var(--slds-c-button-radius-border, var(--slds-s-button-radius-border, var(--slds-g-radius-border-2)));
+}

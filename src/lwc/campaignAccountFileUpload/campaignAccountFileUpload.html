@@ -1,0 +1,69 @@
+<template>
+
+    <div class="slds-m-around_medium">
+        <div class="slds-text-heading_medium">파일 업로드 하는 방법.</div>
+        <dl>
+            <br/>
+            <dd>Report 생성</dd>
+            <dd>&nbsp;1-1. Reports에서 New Report 클릭 → Accounts 검색후 관련 리포트 생성. </dd>
+            <br/>
+            <dd>필드 추가</dd>
+            <dd>&nbsp;2-1. 첫 번째 컬럼에 Account ID 추가.</dd>
+            <dd>&nbsp;2-2. 원하는 필드를 추가로 컬럼에 넣고 완료 후 Save 클릭. </dd>
+            <br/>
+            <dd>Report 내보내기 </dd>
+            <dd>&nbsp;3-1. 생성된 Report에서 오른쪽 상단 Edit 버튼 옆 화살표 클릭 → Export 선택. </dd>
+            <dd>&nbsp;3-2. Details Only, Format: Comma Delimited (.csv), Encoding: Korean 선택 후 Export. </dd>
+            <dd>&nbsp;3-3. 다운로드된 파일을 열어 내용 확인. </dd>
+            <br/>
+            <dd>파일 업로드 </dd>
+            <dd>&nbsp;4-1. 문제가 없으면 Upload Files 클릭 → 확인한 Excel 파일 업로드. </dd>
+            <dd>&nbsp;4-2. 업로드 성공 시 연결된 고객에 레코드가 생성됨. </dd>
+        </dl>
+    </div>
+
+    <lightning-card variant="Narrow" title="Upload Accounts Report Files" icon-name="standard:file">
+        <div class="slds-var-p-around_small">
+            <lightning-layout multiple-rows>
+                <lightning-layout-item padding="around-small" size="12" medium-device-size="12" large-device-size="12">
+                    <!-- 드래그 앤 드롭 영역 -->
+                    <div class="slds-file-selector__dropzone"
+                        ondragover={handleDragOver} 
+                        ondragleave={handleDragLeave} 
+                        ondrop={handleDrop}>
+                        <input type="file" 
+                            onchange={handleFilesChange} 
+                            class="slds-file-selector__input slds-assistive-text" 
+                            accept=".jpg, .csv, .png, .doc, .pdf" 
+                            id="file-upload-input-115" />
+                        <lightning-button 
+                            variant="Neutral" label="Upload Files" onclick={handleChooseFile} icon-name="utility:upload">
+                        </lightning-button>
+                        Drag and drop files here
+                    </div>
+                    <template if:true={fileDetails}>
+                        <p><strong>{fileDetails.name} ({fileDetails.size})</strong></p>
+                    </template>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+    </lightning-card>
+
+    <div slot="footer" class="slds-align_absolute-center">
+        <div class="slds-m-around_small slds-align_absolute-center">
+            <lightning-button
+                class="slds-m-right_xx-small"
+                label="취소"
+                onclick={handleCancel}>
+            </lightning-button>
+            <lightning-button
+                variant="brand"
+                class=""
+                type="submit"
+                label="저장"
+                onclick={uploadFile}>
+            </lightning-button>
+        </div>
+    </div>
+
+</template>

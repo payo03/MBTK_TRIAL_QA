@@ -1,0 +1,50 @@
+<!--
+- @Author          : chaebeom.do
+- @Description 		 : 레코드 상세 페이지에서 버튼 클릭시 모달을 통해 사전배정 신청/deposit 고객 전송
+- @Modification Log
+- Ver      Date            Author           Modification
+- ===================================================================================
+- 1.0      2024-12-31      chaebeom.do      Created
+-->
+<template>
+  <lightning-modal-header label="사전 배정">
+  </lightning-modal-header>
+  <lightning-modal-body>
+    <div class="slds-m-around_small slds-text-heading_large slds-align_absolute-center slds-text-color_error">중요사항</div>
+    <div class="slds-text-heading_small slds-align_absolute-center slds-text-color_error">
+      ※사전배정은 10일간 유효하고 10일이 지나면 만료됩니다.
+      <br>
+      만료시 계약금 환불은 불가합니다.
+      <br>
+      실제 배정은 결제 선착순으로 진행됩니다.
+    </div>
+    <div class="slds-m-around_small slds-align_absolute-center">
+      위 내용을 필히 숙지하고 고객에게 반드시 공유하여야 합니다.
+    </div>
+    <div class="slds-m-around_small slds-grid slds-wrap" style="padding-left: 100px; padding-right: 100px;">
+      <div class="slds-size_1-of-1">
+        <lightning-input
+          class="slds-m-right_xx-small"
+          label="승인 요청 내용"
+          data-id="comment"
+          onchange={handleChange}
+        >
+        </lightning-input>
+      </div>    
+      <div class="slds-size_1-of-2">
+        <lightning-input type="number" label="납입 계약금" data-id="deposit" onchange={handleChange}></lightning-input>
+      </div>  
+    </div>
+  </lightning-modal-body>
+  <lightning-modal-footer>
+    <div class="slds-align_absolute-center">
+      <lightning-button
+            variant="brand"
+            class="slds-m-right_xx-small"
+            label="사전 배정 신청"
+            onclick={handlePreAllocation}
+            >
+          </lightning-button>
+    </div>
+  </lightning-modal-footer>
+</template>

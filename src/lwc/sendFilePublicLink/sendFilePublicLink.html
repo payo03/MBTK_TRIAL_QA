@@ -1,0 +1,70 @@
+<!--
+- @Author          : chaebeom.do
+- @Description 		 : 레코드 상세 페이지에서 버튼 클릭시 file의 pdf 링크 생성 후 카톡으로 고객에게 전송
+- @Modification Log
+- Ver      Date            Author           Modification
+- ===================================================================================
+- 1.0      2024-12-17      chaebeom.do      Created
+-->
+<template>
+  <lightning-modal-header label="견적 발송">
+  </lightning-modal-header>
+  <lightning-modal-body>
+    <div class="slds-m-around_small slds-grid slds-wrap">
+      <div class="slds-m-top_x-large slds-m-bottom_small slds-size_1-of-2 slds-align_absolute-center">
+        <p> 견적명: {quoteName}</p>
+      </div>
+      <div class="slds-size_1-of-2 slds-align_absolute-center">
+        <lightning-radio-group 
+          name="chooseLanguage"
+          label="언어 선택"
+          class="chooseLanguage slds-m-around_small"
+          options={radioOptions}
+          value={radioValue}
+          onchange={handleChange}
+          type="button"
+          >
+        </lightning-radio-group>
+        <lightning-button
+          variant="brand"
+          size="large"
+          class="slds-m-top_large slds-m-right_xx-small"
+          label="Pdf 보기"
+          onclick={handleOpenPdf}
+          >
+        </lightning-button>
+        <lightning-button
+          variant="brand"
+          size="large"
+          class="slds-m-top_large"
+          label="Pdf 저장"
+          onclick={handleSave}
+          >
+        </lightning-button>
+      </div>
+    </div>
+  </lightning-modal-body>
+  <lightning-modal-footer>
+    <div class="slds-align_absolute-center">
+      <lightning-button
+        variant="brand"
+        class="slds-m-right_xx-small"
+        type="submit"
+        label="견적서 카카오톡 발송"
+        onclick={handleSend}
+        >
+      </lightning-button>
+      <lightning-button
+          class="slds-m-right_xx-small"
+          label="닫기"
+          onclick={handleCancel}
+          >
+      </lightning-button>
+    </div>
+  </lightning-modal-footer>
+
+
+  <template lwc:if={isLoading}>
+    <lightning-spinner alternative-text="Loading" variant="brand" size="medium"></lightning-spinner>
+  </template>
+</template>

@@ -1,0 +1,196 @@
+<!--
+ * @author : San.Kang
+ * @date : 2025-02-12
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-02-12      San.Kang          Initial Version
+-->
+<apex:page showHeader="false" applyBodyTag="false" applyHtmlTag="false" sidebar="false" renderAs="pdf" controller="DumpAutoCoverController" action="{!init}">
+    <head>
+        <style type="text/css" media="print">
+            @page{
+            margin-top: 0.3cm;
+            margin-bottom: 0.2cm;
+            margin-left: 1.0cm;
+            margin-right: 0.5cm;
+            }
+            body{
+            align:center;
+            }
+            td{
+            align:center;
+            padding:8px;
+            font-size:12pt;
+            }
+            table{
+            width:700px;
+            border-spacing: 0px;
+            border:1px solid;
+            }
+            tr{
+            align:center;
+            }
+        </style>
+    </head>
+    <body style="font-family: Arial Unicode MS;">
+<!--    <apex:variable value="" var="" rendered="{!opportunity != null && isDump}">-->
+    <apex:variable value="" var="" rendered="{!opportunity != null}">
+        <div style="page-break-after:always;">
+            <table style="border:none;padding-right:0px;">
+                <tr style="padding-right:0px;">
+                    <td align="right">
+                        <apex:image url="/servlet/servlet.FileDownload?file={!docImage1}" width="175" height="60"/>
+                    </td>
+                </tr>
+            </table>
+            <br/>
+            <table>
+                <tr>
+                    <td colspan="10" align="center">
+                        <h2 style="text-decoration:underline;">
+                            덤프차량 자동 덮개 장착 요청서
+                        </h2>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="10" style="padding:15px;">
+                        <p>
+                            본 요청서를 소지하신 고객의 아래 차량에 덤프차량용
+                            <span style="color:red;font-size:13pt;">(자동덮개 □·자동덮개外 기타보강 □)</span>
+                            에 한하여 무상 장착하여 주시기 바랍니다.
+                        </p>
+                        <p align="center">
+                            {!vehicleStock.Product__r.ReleaseDate__c}
+                        </p>
+                        <p align="right">
+                                <span style="font-size:13pt;">
+                                    만트럭버스코리아 주식회사
+                                </span>
+                        </p>
+<!--                        <apex:variable value="" var="" rendered="{!salesHead == null}">-->
+                        <apex:variable value="" var="">
+                            <p align="right">
+                                <span style="font-size:11pt;">Head of Sales Truck</span>
+                                &nbsp;&nbsp;&nbsp;&nbsp;
+                                <span style="font-size:13pt;">Jaeho Shim</span>
+                                &nbsp;&nbsp;
+                                <span style="font-size:11pt;">(인)</span>
+                            </p>
+                        </apex:variable>
+<!--                        <apex:variable value="" var="" rendered="{!salesHead != null}">-->
+<!--                            <p align="right">-->
+<!--                                <span style="font-size:11pt;">Head of Sales Truck</span>-->
+<!--                                &nbsp;&nbsp;&nbsp;&nbsp;-->
+<!--                                <span style="font-size:13pt;">{!salesHead.Name}</span>-->
+<!--                                <apex:image url="{!'/servlet/servlet.FileDownload?file=' + salesHead.PlainValue1__c}" width="130" height="60" style="float:right"/>-->
+<!--                            </p>-->
+<!--                        </apex:variable>-->
+                    </td>
+                </tr>
+                <tr align="center">
+                    <td colspan="1" style="border-top:1px solid; border-right:1px solid; width:20%;">샤시번호</td>
+                    <td colspan="4" style="border-top:1px solid; border-right:1px solid; width:30%;">{!vehicleStock.VehicleNo__c}</td>
+                    <td colspan="1" style="border-top:1px solid; border-right:1px solid; width:20%;">차대번호</td>
+                    <td colspan="4" style="border-top:1px solid; width:30%;">{!vehicleStock.Name}</td>
+                </tr>
+                <tr align="center">
+                    <td colspan="1" style="border-top:1px solid; border-right:1px solid;">고 객 명</td>
+                    <td colspan="4" style="border-top:1px solid; border-right:1px solid;">{!opportunity.Account.Name}</td>
+                    <td colspan="1" style="border-top:1px solid; border-right:1px solid;">연 락 처</td>
+                    <td colspan="4" style="border-top:1px solid;">{!opportunity.Account.PersonMobilePhone}</td>
+                </tr>
+            </table>
+            <table style="border:none;">
+                <tr>
+                    <td style="font-size:10pt;">* 재 발급이 불가하오니 분실/훼손하지 않도록 주의하여주시기 바랍니다.</td>
+                </tr>
+                <tr>
+                    <td style="border-bottom:1px solid #4A7EBB;"></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td colspan="10" align="center" style="background-color:#F8F8F8;">
+                        <h2>
+                            덤프차량 자동 덮개 장착 확인서
+                        </h2>
+                    </td>
+                </tr>
+                <tr align="center">
+                    <td colspan="2" style="border-top:1px solid; border-right:1px solid; width:20%;">공 급 사</td>
+                    <td colspan="4" style="border-top:1px solid; border-right:1px solid; width:35%;">
+                            <span style="color:red;">
+                                □</span>
+                        ㈜ 수 양
+                    </td>
+                    <td colspan="4" style="border-top:1px solid;">
+                            <span style="color:red;">
+                                □</span>
+                        ㈜ 우 원
+                    </td>
+                </tr>
+                <tr align="center">
+                    <td colspan="2" style="border-top:1px solid; border-right:1px solid;">장착점 명</td>
+                    <td colspan="4" style="border-top:1px solid; border-right:1px solid;">&nbsp;</td>
+                    <td colspan="2" style="border-top:1px solid; border-right:1px solid;width:20%;">장착점 확인</td>
+                    <td colspan="2" style="border-top:1px solid;">
+                            <span style="text-decoration:underline;">
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            </span>
+                        <span style="font-size:10pt;">&nbsp;(인)</span>
+                    </td>
+                </tr>
+                <tr align="center" style="background-color:#FFFFD9;">
+                    <td colspan="2" rowspan="2" style="border-top:1px solid; border-right:1px solid;">고객확인</td>
+                    <td colspan="5" rowspan="2" style="border-top:1px solid; border-right:1px solid;;">&nbsp;</td>
+                    <td colspan="1" style="border-top:1px solid; border-right:1px solid;width:10%;">일자</td>
+                    <td colspan="2" style="border-top:1px solid;">
+                        {!YEAR(TODAY())}.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.
+                    </td>
+                </tr>
+                <tr align="center" style="background-color:#FFFFD9;">
+                    <td colspan="1" style="border-top:1px solid; border-right:1px solid;width:10%;">확인</td>
+                    <td colspan="2" style="border-top:1px solid;">
+                            <span style="text-decoration:underline;">
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            </span>
+                        <span style="font-size:10pt;">&nbsp;(인)</span>
+                    </td>
+                </tr>
+            </table>
+            <br/>
+            <img src="/servlet/servlet.FileDownload?file={!docImage2}"/><br />
+            √ 장착점 소재지<span style="font-size:10pt;">(가나다 순)</span>는 뒷면을 참조하시기 바랍니다.<br/>
+            √ 고객분 및 장착점은 <span style="color:red;">반드시</span> 장착에 따른 확인서명을 하셔야 합니다 (<span style="color:red;">부재 시 무효</span>)<br/>
+            √ 확인서명시 개인정보 사용에 동의하는 것으로 합니다.<br/>
+        </div>
+        <!---------------------page 2----------------------------->
+        <div style="page-break-after:none;">
+            <table style="border:none;padding-right:0px;">
+                <tr style="padding-right:0px;">
+                    <td align="right">
+                        <apex:image url="/servlet/servlet.FileDownload?file={!docImage1}" width="175" height="60"/>
+                    </td>
+                </tr>
+                <tr><td></td></tr>
+                <tr>
+                    <td>
+                        <apex:image url="/servlet/servlet.FileDownload?file={!docImage3}" width="700" height="900"/>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </apex:variable>
+    <apex:variable value="" var="" rendered="{!opportunity==null}">
+        <apex:outputText value="해당 차대번호가 영업기회에 배정되어 있지 않습니다." style="font-family: Arial Unicode MS;" />
+        <br/>
+    </apex:variable>
+<!--    <apex:outputText value="덤프 차량만 출력 가능합니다." rendered="{!!isDump}" style="font-family: Arial Unicode MS;" />-->
+    </body>
+</apex:page>

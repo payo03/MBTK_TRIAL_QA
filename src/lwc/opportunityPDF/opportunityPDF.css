@@ -1,0 +1,45 @@
+/*************************************************************
+ * @author : San.Kang
+ * @date : 2025-02-14
+ * @description :
+ * @target :
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0       2025-02-14        San.Kang           Created
+**************************************************************/
+@import "c/commonStyleUtil";
+
+@media screen and (max-width: 1023px) {
+    .sub-wrap {
+        height: 200px;
+    }
+}
+
+@media screen and (max-width: 540px) {
+    .sub-wrap {
+        height: 200px;
+    }
+}
+
+.squareButton {
+    border-radius: 0;
+}
+
+.cellBorder {
+    border-bottom: 0.5px solid #d8dde6;
+}
+
+.smallViewButton {
+    font-size: 0.7rem;
+    padding: 2px 4px;
+}
+
+.selectedRow {
+    background-color: #e0f3ff; /* 선택된 항목의 배경색 (연한 파란색) */
+}
+
+.centeredModal {
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%);
+}

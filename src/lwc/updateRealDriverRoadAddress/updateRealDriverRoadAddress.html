@@ -1,0 +1,65 @@
+<!--
+- @Author            : jh.jung
+- @Description 		 : 
+- @Target            : 
+- @Modification Log
+- Ver      Date            Author           Modification
+- ===================================================================================
+- 1.0      2025-01-13      jh.jung           Created
+-->
+<!-- Update Real Driver Road Address -->
+<template>
+  <template if:true={isModal}>
+    <iframe class={iframeClass} src="/apex/SearchAddress?isdtp=p1" onload={handleLoad}></iframe>
+    <template if:true={isAnotherInfoModal}>
+      <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class={modalSize}>
+        <div class="slds-modal__container">
+          <button class="slds-button slds-button_icon slds-modal__close circle-button" onclick={closeModal} style="margin-inline-start: auto">
+            <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+            <span class="slds-assistive-text">Cancel and close</span>
+          </button>
+          <div class="slds-modal__header">
+            <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate" tabindex="-1">추가 정보</h1>
+          </div>
+          <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+            <lightning-input
+              type="text"
+              data-id="realDriverNameField"
+              name="realDriverName"
+              label="실차주 이름"
+              value={realDriverName}
+              onkeyup={handleChange}
+              required>
+            </lightning-input>
+            <lightning-input
+              type="text"
+              data-id="realDriverMobileField"
+              name="realDriverMobile"
+              label="실차주 모바일"
+              placeholder="XXX-XXX-XXXX"
+              maxlength="13"
+              value={realDriverMobile}
+              onkeyup={handleChange}
+              required>
+            </lightning-input>
+            <lightning-input
+              type="text"
+              data-id="realDriverIDNumberField"
+              name="realDriverIDNumber"
+              label="실차주 주민번호"
+              placeholder="XXXXXX-XXXXXXX"
+              maxlength="14"
+              value={realDriverIDNumber}
+              onkeyup={handleChange}>
+            </lightning-input>
+          </div>
+          <div class="slds-modal__footer">
+            <button class="slds-button slds-button_neutral circle-button" aria-label="Cancel and close" onclick={closeModal}>취소</button>
+            <button class="slds-button slds-button_brand circle-button" onclick={updateRealDriverInfo}>저장</button>
+          </div>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+    </template>
+  </template>
+</template>

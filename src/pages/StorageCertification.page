@@ -1,0 +1,158 @@
+<!--
+ * @author : San.Kang
+ * @date : 2025-02-12
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-02-12      San.Kang          Initial Version
+-->
+<apex:page showHeader="false" sidebar="false" renderAs="pdf" standardController="Opportunity" extensions="StorageCertController" action="{!init}">
+    <head>
+        <style>
+            td { font-family: 'Arial Unicode MS';font-size:5px; text-align:left; vertical-align:middle; }
+        </style>
+    </head>
+
+    <body>
+
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr style="background:#303c49;color:#FFFFFF;height:70px;">
+            <td width="38%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Number<br/><br/>
+                &nbsp;&nbsp; AN_MTB_01_1_02
+            </td>
+            <td width="47%">MAN Truck &amp; Bus Korea<br/><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Appendix1
+            </td>
+            <td width="15%">
+                <apex:image url="/servlet/servlet.FileDownload?file=015900000062Gu1" width="125" height="45" style="margin:-5px -20px" /><br/>
+            </td>
+        </tr>
+
+        <tr style="background:#e60041;height:10px;">
+            <td colspan="3">
+            </td>
+        </tr>
+        <tr height="4">
+            <td colspan="3">
+                &nbsp;
+            </td>
+        </tr>
+    </table>
+
+    <table border="0" cellspacing="0" cellpadding="0"  width="100%">
+        <tr>
+            <td>
+                <table border="0" cellspacing="1" cellpadding="2"  width="100%">
+                    <tr>
+                        <td style="width:56%; border-top:solid 1px;border-collapse:collapse;border-left:solid 1px;border-right:solid 1px;border-bottom:solid 2px;font-size:14px;">
+                            <br/>
+                            <B><center><font size="6">Safekeeping contract</font></center></B><br/>
+                            Between MAN Truck &amp; Bus Korea - hereinafter called “MAN“ –<br/>
+                            and the Customer <br/><br/>
+
+                            &nbsp;<span style="text-decoration:underline;font-family:'Arial Unicode MS';font-size:11px;">{!Opportunity.Account.Name}</span><br/>
+                            - hereinafter called ”Customer“ -<br/>
+                            The following agreement has been reached:<br/><br/>
+
+                            1. The Customer has purchased the commercial vehicle.<br/>
+
+                            Model : <span style="text-decoration:underline;font-family:'Arial Unicode MS';font-size:11px;">{!Opportunity.VehicleStock__r.Product__r.VehicleCategory__r.Name}</span><br/>
+                            Vehicle no : <span style="text-decoration:underline;font-family:'Arial Unicode MS';font-size:11px;">{!Opportunity.VehicleStock__r.Name}</span><br/>
+                            Sales date : <span style="text-decoration:underline;font-family:'Arial Unicode MS';font-size:11px;">{!sSalesEngDate}</span><br/><br/>
+
+                            from MAN. The regulations regarding the reservation of ownership agreed in the purchase contract remain unaffected.<br/><br/>
+
+                            2. The Customer herewith hands over the above-mentioned vehicle for safekeeping until it is collected which is expected to<br/> be at the latest on _______________________<br/><br/>
+
+                            3. MAN shall safeguard the vehicle in the same manner and with the same care as its own stock of vehicles for sale. Further<br/> liability claims vis-à-vis MAN arising from this safekeeping is ruled out.<br/><br/>
+
+                            4. The safekeeping shall be carried out free of charge. <br/><br/>
+
+                            5. After completion of the period indicated in figure 2 MAN may at any time give notice of termination of the safekeeping. If no period is agreed in figure 2 the notice of termination can be declared at the earliest 4 weeks after the date of this contract. After declaration of the termination the Customer is obligated to collect the vehicle from MAN without delay.<br/><br/>
+
+                            6. The Customer confirms the acceptance of the above-mentioned vehicle and the transfer of the risk and any connected accidental destruction or deterioration of the vehicle.
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <table border="0" cellspacing="0" cellpadding="0"  width="100%">
+                                <tr align="right"><td>Date, for the Customer</td></tr>
+                                <tr align="right"><td>/ <span style="font-family:'Arial Unicode MS';font-size:11px;">날짜, for 고객</span></td></tr>
+                                <tr align="right"><td>&nbsp;</td></tr>
+                                <tr align="right"><td>Date, for the Head of MAN Sales</td></tr>
+                                <tr align="right"><td>/ <span style="font-family:'Arial Unicode MS';font-size:11px;">날짜, for 만트럭 영업 부서장</span></td></tr>
+                                <tr align="right"><td>&nbsp;</td></tr>
+                                <tr align="right"><td>Date for the CFO of the Sales subsidiary</td></tr>
+                                <tr align="right"><td>/ <span style="font-family:'Arial Unicode MS';font-size:11px;">날짜, for 관리 부서장</span></td></tr>
+                            </table>
+                            <br/>
+                            <br/>
+                        </td>
+                        <td style="width:43%; border-top:solid 1px;border-collapse:collapse;border-right:solid 1px;border-right:solid 2px;border-bottom:solid 2px;font-family:'Arial Unicode MS';font-size:11px;">
+                            <center><h2><B>보 관 확 인 서</B></h2></center>
+                            만트럭버스코리아  (이하 "만트럭") 와 <br/>
+
+                            고객     (이하"고객님")<br/><br/>
+                            <span style="text-decoration:underline">{!Opportunity.Account.Name}</span>님은<br/>
+                            아래와 같이 동의하여 이행하기로합니다.<br/><br/><br/>
+
+                            1. 고객님은 하기 상용차량을 구매하였습니다.<br/>
+
+                            차&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;종 : <span style="text-decoration:underline">{!Opportunity.VehicleStock__r.Product__r.VehicleCategory__r.Name}</span><br/>
+                            차대번호 : <span style="text-decoration:underline">{!Opportunity.VehicleStock__r.Name}</span><br/>
+                            판매일자 : <span style="text-decoration:underline">{!sSalesDate}</span><br/><br/>
+
+                            매매계약서에 작성된 고객님의 소유권 등의 효력은<br/>
+                            아무런 영향 없이 그대로 유효합니다.<br/><br/>
+
+                            2. 고객님은 위 상기 차량을 만트럭에 보관의뢰<br/>
+                            하셨으며, 상기 차량을 고객님은<br/>
+                            ______년_____월_____일 인수토록 합니다.<br/><br/>
+
+                            3. 만트럭은 상기 차량을 만트럭의 차량 재고 (판매를<br/>
+                            위한 재고관리) 처럼 관리할 것이며, 이 차량관리로부터<br/>
+                            발생되는 모든 위험은 고객님이 부담합니다.<br/><br/><br/>
+
+                            4. 상기 차량의 보관은 무료로 진행합니다. <br/><br/>
+
+                            5. 2항에 명시된 인수일이 경과될 경우 만트럭은 언제든<br/>
+                            보관기일의 만료를 고객님께 통보할 수 있습니다. 만약<br/>
+                            2항에 인수일이 명시되어있지 않다면 본 확인서 작성<br/>
+                            후 4주 후에 만트럭은 보관기일의 만료를 통보할 수<br/>
+                            있습니다. 보관기일의 만료 후에는 고객님은 지체없이<br/>
+                            만트럭으로부터 차량을 인수하여야 합니다.<br/><br/>
+
+                            6. 고객님은 상기 차량을 인수함을 확인하였으며, 또한<br/>
+                            이와 관련된 차량의 감가 또는 훼손 그리고 각종 위험도<br/>
+                            부담함을 확인하셨습니다.
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <table border="0" cellspacing="0" cellpadding="0"  width="100%">
+                                <tr align="left"><td>&nbsp;</td></tr>
+                                <tr align="left"><td>&nbsp;_________________________________________</td></tr>
+                                <tr align="left"><td>&nbsp;</td></tr>
+                                <tr align="left"><td>&nbsp;</td></tr>
+                                <tr align="left"><td>&nbsp;_________________________________________</td></tr>
+                                <tr align="left"><td>&nbsp;</td></tr>
+                                <tr align="left"><td>&nbsp;</td></tr>
+                                <tr align="left"><td>&nbsp;_________________________________________</td></tr>
+                            </table>
+                            <br/>
+                            <br/>
+                        </td>
+                        <td style="width:1%;">
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td>
+                <apex:image url="/servlet/servlet.FileDownload?file=01590000007f09O" /><br/>
+            </td>
+        </tr>
+    </table>
+
+    </body>
+</apex:page>

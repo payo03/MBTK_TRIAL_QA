@@ -1,0 +1,108 @@
+<!--
+- @Author            : payo03@solomontech.net
+- @Description 		 : 
+- @Target            : 
+- @Modification Log
+- Ver      Date            Author                           Modification
+- ===================================================================================
+- 1.0      2025-01-22      payo03@solomontech.net           Created
+-->
+<!-- Pdi Step 5 View -->
+<template>
+    <div class="container">
+        <!-- 콘텐츠 영역 -->
+        <div class="content">
+            <!-- 개별 VIN Select 화면 -->
+            <template if:false={varIsBulk}>
+                <lightning-record-view-form
+                    object-api-name="VehicleStock__c"
+                    record-id={_selectedVIN.Id}
+                >
+                <lightning-tabset>
+                    <lightning-tab label="차량 이슈"> 
+                        <lightning-record-edit-form
+                            object-api-name="VehicleStock__c"
+                            record-id={_selectedVIN.Id}
+                        >
+                        <div class="slds-grid slds-wrap slds-box">
+                            <div class="slds-col slds-size_1-of-2">
+                                <div class="checkBox">
+                                    <lightning-input-field field-name="VehicleIssue1__c"> </lightning-input-field>
+                                </div>
+                                <div class="checkBox">
+                                    <lightning-input-field field-name="VehicleIssue2__c"> </lightning-input-field>
+                                </div>
+                                <div class="checkBox">
+                                    <lightning-input-field field-name="VehicleIssue3__c"> </lightning-input-field>
+                                </div>
+                                <div class="checkBox">
+                                    <lightning-input-field field-name="VehicleIssue4__c"> </lightning-input-field>
+                                </div>
+                                <div class="checkBox">
+                                    <lightning-input-field field-name="VehicleIssue5__c"> </lightning-input-field>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <div class="checkBox">
+                                    <lightning-input-field field-name="VehicleIssue1Solved__c"> </lightning-input-field>
+                                </div>
+                                <div class="checkBox">
+                                    <lightning-input-field field-name="VehicleIssue2Solved__c"> </lightning-input-field>
+                                </div>
+                                <div class="checkBox">
+                                    <lightning-input-field field-name="VehicleIssue3Solved__c"> </lightning-input-field>
+                                </div>
+                                <div class="checkBox">
+                                    <lightning-input-field field-name="VehicleIssue4Solved__c"> </lightning-input-field>
+                                </div>
+                                <div class="checkBox">
+                                    <lightning-input-field field-name="VehicleIssue5Solved__c"> </lightning-input-field>
+                                </div>
+                            </div>
+                        </div>
+                        </lightning-record-edit-form>
+                    </lightning-tab>
+                    <lightning-tab label="메인"> 
+                        <div class="slds-grid slds-wrap slds-box">
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-output-field field-name="Product__c"> </lightning-output-field>
+                                <lightning-output-field field-name="VehicleNo__c"> </lightning-output-field>
+                                <lightning-output-field field-name="IsPTO__c"> </lightning-output-field>
+                                <lightning-output-field field-name="IsAERO__c"> </lightning-output-field>
+                                <lightning-output-field field-name="EngineType__c"> </lightning-output-field>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-output-field field-name="Ship__c"> </lightning-output-field>                                
+                                <lightning-output-field field-name="ETA__c"> </lightning-output-field>
+                                <lightning-output-field field-name="VehicleStatus__c"> </lightning-output-field>
+                                <lightning-output-field field-name="Exworks__c"> </lightning-output-field>
+                                <lightning-output-field field-name="DriveDistance__c"> </lightning-output-field>
+                            </div>
+                        </div>
+                    </lightning-tab>
+                </lightning-tabset>
+                </lightning-record-view-form>
+                <div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">
+                    <strong>완료 버튼을 누르면 차량재고가 출고준비완료 처리됩니다.</strong>
+                </div>
+            </template>
+
+            <!-- 대량 VIN Copy & Paste 화면 -->
+            <template if:true={varIsBulk}>
+                <div onpaste={handlePaste}>
+                    <lightning-datatable
+                            key-field="id"
+                            data={bulkData}
+                            columns={bulkColumns}
+                            hide-checkbox-column="true">
+                    </lightning-datatable>
+                    <template if:false={bulkData.length}>
+                        <div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">
+                            <strong>엑셀 파일에서 작업을 완료한 VIN 컬럼을 붙여넣기 하세요.</strong>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>

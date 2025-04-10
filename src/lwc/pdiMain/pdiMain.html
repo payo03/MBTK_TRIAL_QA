@@ -1,0 +1,240 @@
+<template>
+	<div class="container slds-card slds-p-around_small">
+		
+		<!-- Header Start -->
+		<div class="slds-page-header slds-page-header_record-home box-wrap">
+			<div class="slds-page-header__row">
+				
+				<!-- Title Wrap Start -->
+				<div class="slds-page-header__col-title">
+					<div class="slds-media">
+						<div class="slds-media__figure">
+							<lightning-icon icon-name="standard:flow"></lightning-icon>
+						</div>
+						<div class="slds-media__body">
+							<div class="slds-page-header__name">
+								<div class="slds-page-header__name-title">
+									<h1 class="slds-page-header__title slds-truncate">
+										<span>PDI Step</span>
+										<template if:true={selectedRow}>
+											<template lwc:if={selectedRow.CarColor__c}>
+												<span>[{selectedRow.Name} / 색상: {selectedRow.CarColor__c}]</span>
+											</template>
+											<template lwc:else>
+												<span>[{selectedRow.Name}]</span>
+											</template>
+										</template>
+									</h1>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Title Wrap End -->
+				
+				<!-- Button Wrap Start -->
+				<div class="slds-page-header__col-actions">
+					<div class="slds-page-header__controls">
+						<div class="slds-page-header__control">
+							<ul class="slds-button-group-list">
+								<li>
+									<lightning-button
+										label="개별 VIN 선택"
+										variant={variantMap.specific}
+										name="specific"
+										onclick={handleButtonClick}
+										class="slds-button">
+									</lightning-button>
+								</li>
+								<li>
+									<lightning-button
+										label="대량 VIN 붙여넣기"
+										variant={variantMap.bulk}
+										name="bulk"
+										onclick={handleButtonClick}
+										class="slds-button">
+									</lightning-button>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!-- Button Wrap End -->
+			</div>
+		</div>
+		<!-- Header End -->
+		
+		<div class="slds-m-vertical_small">
+			<div class="box-wrap">
+				<!-- Tabs -->
+				<lightning-tabset active-tab-value={switchTabName}>
+					
+					<template for:each={tabs} for:item="tab">
+						<lightning-tab key={tab.name}
+						               label={tab.label}
+						               value={tab.name}
+						               onactive={handleTabSwitch}>
+						</lightning-tab>
+					</template>
+				</lightning-tabset>
+				
+				<div class="content-section">
+					<!-- LEFT -->
+					<div class="left-section slds-m-around_x-small">
+						<c-pdi-step-view step-list={stepList}
+						                 is-bulk={isBulk}
+						                 onstepchange={handleStepChange}>
+						</c-pdi-step-view>
+					</div>
+					
+					<!-- RIGHT -->
+					<div class="right-section">
+						<template if:false={isStep0}>
+							<div class="slds-grid slds-grid_align-end slds-p-vertical_x-small" style="width: 80%;">
+								<ul class="slds-button-group-list">
+									<li>
+										<lightning-button
+											label="단계 완료"
+											data-name="nextStep"
+											onclick={toggleModal}
+											class="slds-button">
+										</lightning-button>
+									</li>
+									<template if:false={isBulk}>
+										<li>
+											<lightning-button
+												label="단계 취소"
+												data-name="prevStep"
+												onclick={toggleModal}
+												class="slds-button">
+											</lightning-button>
+										</li>
+									</template>
+								</ul>
+							</div>
+						</template>
+						<template if:true={isStep0}>
+							<c-pdi-step0-view selected-vin={selectedRow}
+																var-stock-list={stockList}
+							                  is-bulk={isBulk}
+							                  onrecordselect={handleRecordSelected}
+							                  onbulkpaste={handleBulkPaste}
+																onsearchvin={handleSearch}>
+							</c-pdi-step0-view>
+						</template>
+						<template if:true={isStep1}>
+							<c-pdi-step1-view selected-vin={selectedRow}
+																is-bulk={isBulk}
+																onchangedrivedistance={handleDriveDistance}
+																onrecordselect={handleRecordSelected}
+																onbulkpaste={handleBulkPaste}>
+							</c-pdi-step1-view>
+						</template>
+						<template if:true={isStep2}>
+							<c-pdi-step2-view selected-vin={selectedRow}
+																is-bulk={isBulk}
+																onchangedrivedistance={handleDriveDistance}
+																onrecordselect={handleRecordSelected}
+																onbulkpaste={handleBulkPaste}>
+							</c-pdi-step2-view>
+						</template>
+						<template if:true={isStep3}>
+							<c-pdi-step3-view selected-vin={selectedRow}
+																step-list={stepList}
+																onstep3select={handleStep3Select}
+																onstep3complete={handleStep34}>
+							</c-pdi-step3-view>
+						</template>
+						<template if:true={isStep4}>
+							<c-pdi-step4-view selected-vin={selectedRow}
+																step-list={stepList}
+																onstep4open={toggleModal}
+																onstep4complete={handleStep34}>
+							</c-pdi-step4-view>
+						</template>
+						<template if:true={isStep5}>
+							<c-pdi-step5-view selected-vin={selectedRow}
+																is-bulk={isBulk}
+																onrecordselect={handleRecordSelected}
+																onbulkpaste={handleBulkPaste}>
+							</c-pdi-step5-view>
+						</template>
+					</div>
+				</div>
+				
+				<!-- Step0은 VIN 선택창 -->
+				<!-- <template if:false={isShowComplete}>
+					<button class="fixed-bottom-button slds-button slds-button_brand" onclick={toggleModal}>완료
+					</button>
+				</template> -->
+			</div>
+			<template lwc:if={isLoading}>
+				<lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+			</template>
+		</div>
+		<!-- Modal Start -->
+		<template lwc:if={isModalOpen}>
+			<section role="dialog" tabindex="-1" aria-modal="true"
+									aria-label="Meaningful description of the modal content"
+									class="slds-modal slds-fade-in-open slds-modal_large">
+					<div class="slds-modal__container" style="width: 30%;">
+							<button class="slds-button slds-button_icon slds-modal__close" onclick={toggleModal}>
+									<lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+									<span class="slds-assistive-text">Cancel and close</span>
+							</button>
+							<div class="slds-modal__header">
+									<template if:true={isNext}>
+											<h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate" tabindex="-1">
+													단계 완료
+											</h1>
+									</template>
+									<template if:false={isNext}>
+											<h1 id="modal-heading-02" class="slds-modal__title slds-hyphenate" tabindex="-1">
+													단계 취소
+											</h1>
+									</template>
+							</div>
+							<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+									<div class="slds-grid slds-wrap">
+											<div class="slds-size_1-of-1">
+													<template if:true={isNext}>
+															<div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">
+																	<strong>현재 단계를 완료하시겠습니까?</strong>
+															</div>
+													</template>
+													<template if:false={isNext}>
+															<div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">
+																	<strong>현재 단계를 취소하시겠습니까?</strong>
+															</div>
+													</template>
+<!--												<div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">-->
+<!--														<strong>현재 단계를 완료하시겠습니까?</strong>-->
+<!--												</div>-->
+											</div>
+									</div>
+							</div>
+							<div class="slds-modal__footer slds-text-align_center">
+									<template if:true={isNext}>
+											<button class="slds-button slds-button_brand" data-name="save"
+															onclick={handleComplete}>확인
+											</button>
+									</template>
+									<template if:false={isNext}>
+											<button class="slds-button slds-button_brand" data-name="rollback"
+															onclick={handleRollback}>확인
+											</button>
+									</template>
+									<button class="slds-button slds-button_neutral" data-name="cancel"
+													onclick={toggleModal}>취소
+									</button>
+							</div>
+					</div>
+					<template lwc:if={isLoading}>
+							<lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+					</template>
+			</section>
+			<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+		</template>
+		<!-- Modal End -->
+	</div>
+</template>

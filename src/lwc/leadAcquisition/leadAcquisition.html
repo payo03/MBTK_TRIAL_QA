@@ -1,0 +1,331 @@
+<!--
+ * @author : th.kim
+ * @date : 2024-11-07
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2024-11-07      th.kim          Created
+ * 1.3          2024-11-13      chaebeom.do     Added funtion for pre-quote calculation
+ * 1.4          2025-02-19      chaebeom.do     담당 SA 변경 기능 '견적 생성' 버튼에 통합
+ * 1.5          2025-03-24      th.kim          UI/UX 변경 및 프로세스 변경
+-->
+<!-- leadAcquisition -->
+<template>
+	
+	<!-- Header Start -->
+	<div class="slds-page-header slds-page-header_record-home slds-p-bottom_medium">
+		<div class="slds-page-header__row">
+			
+			<!-- Title Wrap Start -->
+			<div class="slds-page-header__col-title">
+				<div class="slds-media">
+					<div class="slds-media__figure">
+						<lightning-icon icon-name="standard:lead"></lightning-icon>
+					</div>
+					<div class="slds-media__body">
+						<div class="slds-page-header__name">
+							<div class="slds-page-header__name-title">
+								<h1>
+									<span class="slds-page-header__title slds-truncate">리드 수집</span>
+								</h1>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Title Wrap End -->
+			
+			<!-- Button Wrap Start -->
+			<div class="slds-page-header__col-actions">
+				<div class="slds-page-header__controls">
+					<div class="slds-page-header__control">
+						<ul class="slds-button-group-list">
+							<li>
+								<button class="slds-button slds-button_neutral" onclick={handleSave}
+								        data-name="lead">리드 생성
+								</button>
+							</li>
+							<li>
+								<button class="slds-button slds-button_neutral" onclick={handleConvert}
+								        data-name="quote">견적 생성
+								</button>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<!-- Button Wrap End -->
+		</div>
+	</div>
+	<!-- Header End -->
+	
+	<div class="slds-grid slds-wrap slds-card slds-p-around_xx-small wrap">
+
+		<!-- Left Section Start -->
+		<div class="slds-col slds-size_1-of-1 slds-large-size_1-of-4 leftSec" >
+			<!-- 리드 레코드 생성 Start -->
+			<div class="slds-size_1-of-1 slds-card slds-p-around_x-small sub-wrap" style="height: 100%; margin-bottom: 16px;">
+					<template lwc:if={isIframeInactive}>
+						<div class="slds-p-vertical_small custom-box">
+							<lightning-record-edit-form
+								object-api-name="Lead" record-id={recordId} onsuccess={handleSuccess}
+								onerror={handleError} density="comfy" class="slds-size_1-of-1">
+								<div class="slds-grid slds-wrap slds-form__item slds-no-space">
+									<lightning-input-field field-name="LastName" class="leadInfo" data-id="LastName" value={lastName} onchange={handleChange}></lightning-input-field>
+									<div class="slds-grid slds-size_1-of-1 slds-form-element slds-grid_vertical-align-end">
+										<lightning-input-field field-name="MobilePhone" class="leadInfo" data-id="MobileP"
+										                       required="true" value={phone} onchange={handleChange} style="display: none;"></lightning-input-field>
+										<lightning-input type="text" label="휴대폰" data-id="MobilePhone"
+										                 class="slds-p-horizontal_xx-small slds-col" value={phone} maxlength={phoneLength} onchange={handleChange} required="true"></lightning-input>
+										<!--									<div class="slds-form-element search-btn-wrap">-->
+										<!--										<label class="slds-form-element__label">-->
+										<!--										</label>-->
+										<!--										<button class="slds-button slds-button_neutral slds-m-right_x-small slds-m-bottom_xxx-small" type="button" onclick={handleDupCheck}>중복 확인-->
+										<!--										</button>-->
+										<!--									</div>-->
+									</div>
+								</div>
+								<div class="slds-grid slds-size_1-of-1 slds-form__item slds-no-space">
+									<div class="slds-grid slds-size_1-of-1 slds-form-element">
+										<lightning-input-field field-name="BusinessNumber__c" class="leadInfo" data-id="bizNum" value={bizNum} onchange={handleChange}></lightning-input-field>
+										<!--									<div class="slds-form-element search-btn-wrap">-->
+										<!--										<label class="slds-form-element__label">-->
+										<!--											<abbr class="slds-required" title="필수"></abbr>-->
+										<!--										</label>-->
+										<!--										<button class="slds-button slds-button_neutral" type="button" onclick={handleBizCheck}>확인-->
+										<!--										</button>-->
+										<!--									</div>-->
+									</div>
+								</div>
+								<div class="slds-grid slds-size_1-of-1 slds-form__item slds-no-space">
+									<div class="slds-grid slds-size_1-of-1 slds-form-element">
+										<lightning-input-field field-name="RoadAddress__c" disabled="true"
+										                       value={roadAddress}></lightning-input-field>
+										<div class="slds-form-element search-btn-wrap">
+											<label class="slds-form-element__label">
+												<abbr class="slds-required" title="필수"></abbr>
+											</label>
+											<button class="slds-button slds-button_neutral slds-m-right_x-large" type="button" onclick={handleSearchClick}>주소 검색
+											</button>
+										</div>
+									</div>
+								</div>
+								<template lwc:if={isEditable}>
+									<div class="slds-form__item slds-no-space">
+										<div class="slds-size_1-of-1 slds-form-element">
+											<lightning-input-field field-name="DetailAddress__c" data-id="detailAddress" value={detailAddress} onchange={handleChange}></lightning-input-field>
+										</div>
+									</div>
+								</template>
+								<div class="slds-grid slds-size_1-of-1 slds-form__item slds-no-space">
+									<lightning-input-field field-name="Description" class="leadInfo" data-id="Description" value={description} onchange={handleChange}></lightning-input-field>
+									<lightning-input-field field-name="ProductId__c" class="leadInfo" data-id="Product"
+									                       value={selectedProductId} style="display: none;"></lightning-input-field>
+									<lightning-input-field field-name="PostalCode__c" class="leadInfo" data-id="PostalCode"
+									                       value={postalCode} style="display: none;"></lightning-input-field>
+								</div>
+								<!--							<div class="slds-m-top_small slds-align_absolute-center slds-wrap slds-grid">-->
+								<!--								<template lwc:if={leadCreated}>-->
+								<!--									<lightning-button-->
+								<!--										class="slds-m-right_xx-small"-->
+								<!--										label="새 리드 입력"-->
+								<!--										onclick={createNewLead}-->
+								<!--									></lightning-button>-->
+								<!--								</template>-->
+								<!--								<template lwc:if={isNewLead}>-->
+								<!--									<lightning-button-->
+								<!--										variant="brand"-->
+								<!--										class="slds-m-right_xx-small"-->
+								<!--										type={dupComplete}-->
+								<!--										label="리드 생성"-->
+								<!--										onclick={handleSave}-->
+								<!--									></lightning-button>-->
+								<!--								</template>-->
+								<!--								<template lwc:else>-->
+								<!--									<lightning-button-->
+								<!--										variant="brand"-->
+								<!--										class="slds-m-right_xx-small"-->
+								<!--										type={dupComplete}-->
+								<!--										label="리드 수정"-->
+								<!--										onclick={handleSave}-->
+								<!--									></lightning-button>-->
+								<!--								</template>-->
+								<!--								<template lwc:if={isMobile}>-->
+								<!--									<lightning-button	-->
+								<!--										variant="brand" -->
+								<!--										class="" -->
+								<!--										label="차종 선택"-->
+								<!--										data-id="product" -->
+								<!--										onclick={handleScroll}-->
+								<!--									></lightning-button>-->
+								<!--								</template>-->
+								<!--							</div>-->
+							</lightning-record-edit-form>
+						</div>
+<!--						<template lwc:if={leadCreated}>-->
+<!--							<div class="slds-card__body slds-card__body_inner">-->
+<!--								<div style="height: 250px;">-->
+<!--									<lightning-datatable-->
+<!--													key-field="id"-->
+<!--													data={leadData}-->
+<!--													columns={leadColumns}-->
+<!--													max-row-selection="1"-->
+<!--													selected-rows={selectedLeadRowIds}-->
+<!--													resize-column-disabled-->
+<!--													onrowselection={handleLeadRowSelection}>-->
+<!--									</lightning-datatable>-->
+<!--								</div>-->
+<!--							</div>-->
+<!--						</template>-->
+					</template>
+					<!-- 주소 검색 View 화면 -->
+				<iframe class={iframeClass} src="/apex/SearchAddress?isdtp=p1"></iframe>
+			</div>
+			<!-- 리드 레코드 생성 End -->
+		</div>
+		<!-- Left Section End -->
+
+		<div class="slds-grid slds-card slds-wrap slds-size_1-of-1 slds-large-size_3-of-4">
+			<!-- Middle Section Start -->
+			<div class="slds-col slds-size_1-of-1 slds-large-size_2-of-3">
+				<c-product-campaign-table onrowselect={handleRowSelect}></c-product-campaign-table>
+<!--				<template lwc:if={isPC}>-->
+<!--					<div class="slds-m-top_small slds-align_absolute-center">-->
+<!--						<lightning-button-->
+<!--							class="slds-m-right_xx-small"-->
+<!--							type="button"-->
+<!--							label="선택 초기화"-->
+<!--							onclick={clearSelection}-->
+<!--						></lightning-button>-->
+<!--						<lightning-button-->
+<!--							variant="brand"-->
+<!--							class="slds-m-right_xx-small"-->
+<!--							type="button"-->
+<!--							label="견적 생성"-->
+<!--							onclick={handleConvert}-->
+<!--						></lightning-button>-->
+<!--					</div>-->
+<!--				</template>-->
+<!--				<template lwc:if={isLoading}>-->
+<!--					<lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>-->
+<!--				</template>-->
+			</div>
+			<!-- Middle Section End -->
+
+			<!-- Right Section Start -->
+			<div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3">
+				<div class="slds-size_1-of-1 slds-p-around_x-small sub-wrap">
+					<!-- 월납입금 계산기 Start -->
+					<div class="slds-size_1-of-1 sub-wrap move-scroll slds-m-bottom_x-small custom-box">
+						<div class="slds-card__body slds-card__body_inner">
+							<lightning-combobox
+								label="금융회사"
+								options={financialList}
+								data-name="financeId"
+								onchange={handleFinanceChange}
+							></lightning-combobox>
+							<lightning-input type="text" label="이자율 범위" disabled
+															value={interestRateRange}></lightning-input>
+							<lightning-input type="number" label="할부금리(%)(연)" data-id="interestRate" 
+															class="slds-size_1-of-1" value={interestRate} placeholder="예시)15.20" step=".01" 
+															min={minInterestRate} max={maxInterestRate}
+															message-when-range-underflow="이자율 범위를 확인해주세요."
+															message-when-range-overflow="이자율 범위를 확인해주세요." onchange={handleCalc}></lightning-input>
+							<lightning-input type="number" label="대출금액(원)" data-id="totalLoan" 
+															class="slds-size_1-of-1" value={totalLoan}  placeholder="예시)200,000,000" onchange={handleCalc}></lightning-input>
+							<lightning-slider label="할부기간(개월)" value={duration} step="6" data-id="duration" 
+															min={minimumDuration} max={maximumDuration} onchange={handleCalc}></lightning-slider>
+							<template lwc:if={isMobile}>
+								<div class="slds-m-top_small slds-align_absolute-center">
+									<lightning-button	class="slds-m-right_xx-small"	variant="brand" label="차종 재선택" data-id="product" onclick={handleScroll}></lightning-button>
+								</div>
+							</template>
+						</div>
+					</div>
+					<!-- 월납입금 계산기 End -->
+					<!-- 예상 견적 화면 Start -->
+					<div class="slds-size_1-of-1 slds-p-around_x-small sub-wrap custom-box">
+						<div class="slds-card slds-size_1-of-1">
+							<div class="slds-card__header slds-grid">
+								<header class="slds-media slds-media_center slds-has-flexi-truncate">
+									<div class="slds-media__body">
+										<h2 class="slds-card__header-title">
+											<span class="slds-card__header-link slds-truncate" title="예상 견적">
+												<span>예상 견적(원)</span>
+											</span>
+										</h2>
+										<h4 style="font-weight: bold; color: red">※아래 금액은 옵션, 특장이 포함되지 않은 참고용입니다.</h4>
+									</div>
+								</header>
+							</div>
+							<div class="slds-grid slds-wrap">
+								<lightning-input type="number" label="기준가" data-id="listPrice" 
+																		class="slds-size_1-of-2 quoteHighlight" readonly value={listPrice}></lightning-input>
+								<div class="quoteSection slds-grid slds-wrap slds-size_1-of-1">
+									<lightning-input type="number" label="판매조건 할인가" data-id="salesconditionDiscountAmt"
+																		class="slds-size_1-of-2" readonly value={salesconditionDiscountAmt}></lightning-input>
+									<lightning-input type="number" label="총 할인율(%)" data-id="discountRate"
+																		class="slds-size_1-of-2" readonly value={discountRate} step=".01"></lightning-input>
+									<lightning-input type="number" label="캠페인 할인가" data-id="discountPrice"
+																		class="slds-size_1-of-2" readonly value={discountPrice}></lightning-input>
+								</div>
+								<lightning-input type="number" label="실 판매가" data-id="realSellPrice" field-level-help="기준가 - (세일즈컨디션 할인가 + 캠페인 할인가)"
+																	class="slds-size_1-of-2 quoteHighlight" readonly value={realSellPrice}></lightning-input>
+								<div class="quoteSection slds-grid slds-wrap slds-size_1-of-1">
+									<lightning-input type="number" label="계약금"
+																		class="slds-size_1-of-2" readonly value="1000000"></lightning-input>
+									<lightning-input type="number" label="할부금리(%)" data-id="interestRate"
+																		class="slds-size_1-of-2" readonly value={interestRate} step=".01"></lightning-input>
+									<lightning-input type="number" label="할부원금" data-id="totalLoan"
+																		class="slds-size_1-of-2" readonly value={totalLoan}></lightning-input>
+									<lightning-input type="number" label="할부기간(개월)" data-id="duration"
+																		class="slds-size_1-of-2" readonly value={duration}></lightning-input>
+									<lightning-input type="number" label="인도금" data-id="downpayment" field-level-help="실 판매가 - 할부원금 - 계약금"
+																		class="slds-size_1-of-2" readonly value={downpayment}></lightning-input>
+									<!-- <lightning-input type="number" label="총 상환금액" data-id="totalRepayment" field-level-help="월 상환금액 X 할부기간"
+																		class="slds-size_1-of-2" readonly value={totalRepayment}></lightning-input>
+									<lightning-input type="number" label="이자합계" data-id="interestTotal" field-level-help="총 상환금액 - 할부원금"
+																		class="slds-size_1-of-2" readonly value={interestTotal}></lightning-input> -->
+								</div>
+								<lightning-input type="number" label="월 상환금액" data-id="monthlyPayment" field-level-help="할부원금에 대한 원리금균등상환 방식"
+																		class="slds-size_1-of-2 quoteHighlight" readonly value={monthlyPayment}></lightning-input>
+							</div>
+						</div>
+					</div>
+					<!-- 예상 견적 화면 End -->
+				</div>
+			</div>
+			<!-- Right Section End -->
+			 <template lwc:if={isMobile}>
+				<div class="slds-m-top_small slds-align_absolute-center slds-p-around_x-small">
+					<lightning-button	
+						class="slds-m-right_xx-small" 
+						label="상단으로" 
+						data-id="top" 
+						onclick={handleScroll}
+					></lightning-button>
+					<lightning-button
+						class="slds-m-right_xx-small"
+						type="button"
+						label="선택 초기화"
+						onclick={clearSelection}
+					></lightning-button>
+				</div>
+				<div class="slds-m-bottom_small slds-align_absolute-center slds-p-around_x-small">
+					<lightning-button
+						variant="brand"
+						class="slds-m-right_xx-small"
+						type="button"
+						label="견적 생성"
+						onclick={handleConvert}
+					></lightning-button>
+				</div>
+			 </template>
+		</div>
+	</div>
+	<template lwc:if={isLoading}>
+		<lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+	</template>
+	
+</template>

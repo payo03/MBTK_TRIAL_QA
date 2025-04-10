@@ -1,0 +1,389 @@
+<!--
+ * @author : th.kim
+ * @date : 2025-01-21
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-01-21      th.kim          Initial Version
+-->
+<!-- handoverScheduler -->
+<template>
+	<div class="slds-p-horizontal_small handover-scheduler-wrap">
+		
+		<!-- Header Start -->
+		<div class="slds-page-header slds-page-header_record-home box-wrap">
+			<div class="slds-page-header__row">
+				
+				<!-- Title Wrap Start -->
+				<div class="slds-page-header__col-title">
+					<div class="slds-media">
+						<div class="slds-media__figure">
+							<lightning-icon icon-name="standard:event"></lightning-icon>
+						</div>
+						<div class="slds-media__body">
+							<div class="slds-page-header__name">
+								<div class="slds-page-header__name-title">
+									<h1>
+										<span class="slds-page-header__title slds-truncate">
+											출고 예정서 (Handover Scheduler)
+										</span>
+									</h1>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Title Wrap End -->
+				
+				<!-- Button Wrap Start -->
+				<div class="slds-page-header__col-actions">
+					<div class="slds-page-header__controls">
+						<div class="slds-page-header__control">
+							<ul class="slds-button-group-list">
+								<li>
+									<button class="slds-button slds-button_neutral" onclick={handleHeaderClick}
+									        data-name="export">엑셀다운
+									</button>
+								</li>
+								<li>
+									<button class="slds-button slds-button_neutral" onclick={handleHeaderClick}
+									        data-name="completeHandover">출고처리
+									</button>
+								</li>
+								<li>
+									<button class="slds-button slds-button_neutral" onclick={handleHeaderClick}
+									        data-name="cancelStock">배정취소
+									</button>
+								</li>
+								<li>
+									<button class="slds-button slds-button_neutral" onclick={handleHeaderClick}
+									        data-name="checkUpdate">업데이트 확인
+									</button>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!-- Button Wrap End -->
+			</div>
+		</div>
+		<!-- Header End -->
+		
+		<!-- Body Start -->
+		<div class="slds-m-vertical_small">
+			<div class="box-wrap">
+				<div class="slds-grid slds-wrap slds-p-bottom_small filter-wrap">
+					<div class="slds-grid">
+						<lightning-combobox
+							label="입금 상태"
+							options={filterOptionMap.paymentStatusOption}
+							class="slds-p-right_xx-small"
+							data-name="paymentStatus"
+							onchange={handleFilterChange}
+							value={filterMap.paymentStatus}
+						></lightning-combobox>
+						<lightning-combobox
+							label="차량 상태"
+							options={filterOptionMap.vehicleStatusOption}
+							class="slds-p-right_xx-small"
+							data-name="vehicleStatus"
+							onchange={handleFilterChange}
+							value={filterMap.vehicleStatus}
+						></lightning-combobox>
+						<lightning-input
+							type="date"
+							label="출고일 시작"
+							class="slds-p-right_xx-small"
+							data-name="startDate"
+							onchange={handleFilterChange}
+							value={filterMap.startDate}
+						></lightning-input>
+						<lightning-input
+							type="date"
+							label="출고일 종료"
+							class="slds-p-right_xx-small"
+							data-name="endDate"
+							onchange={handleFilterChange}
+							value={filterMap.endDate}
+						></lightning-input>
+						<div class="btn-wrap">
+							<lightning-button-icon
+								icon-name="utility:refresh"
+								variant="border-filled"
+								class="slds-p-right_xx-small"
+								alternative-text="Refresh"
+								title="Refresh"
+								data-name="refresh"
+								onclick={handleFilterClick}
+							></lightning-button-icon>
+							<button class="slds-button slds-button_neutral" data-name="search"
+							        onclick={handleFilterClick}>
+								<lightning-icon
+									icon-name="utility:search"
+									alternative-text="Utility search"
+									size="x-small"
+									title="search"
+								></lightning-icon>
+								검색
+							</button>
+						</div>
+					</div>
+					<lightning-button-group>
+						<lightning-button label="이번 달" variant={variantMap.THIS_MONTH} data-name="THIS_MONTH"
+						                  onclick={handleFilterClick}></lightning-button>
+						<lightning-button label="지난 달" variant={variantMap.LAST_MONTH} data-name="LAST_MONTH"
+						                  onclick={handleFilterClick}></lightning-button>
+						<lightning-button label="계약완료 & 출고일 미정" variant={variantMap.undecided} data-name="undecided"
+						                  onclick={handleFilterClick}></lightning-button>
+					</lightning-button-group>
+				</div>
+				<div>
+					<c-custom-data-table
+						key-field="id"
+						columns={columns}
+						data={handoverList}
+						onrowaction={handleRowAction}
+						onrowselection={handleSelection}
+						selected-rows={selectedRowIdList}
+						column-widths-mode="auto"
+						min-column-width="80"
+					></c-custom-data-table>
+					<template if:false={handoverList.length}>
+						<div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">
+							<strong>현재 조건에 조회되는 데이터가 없습니다.</strong>
+						</div>
+					</template>
+				</div>
+			</div>
+		</div>
+		<!-- Body End -->
+		
+		<!-- Modal Start -->
+		<template lwc:if={isModalOpen}>
+			<section role="dialog" tabindex="-1" aria-modal="true"
+			         aria-label="Meaningful description of the modal content"
+			         class={modalSize}>
+				<div class="slds-modal__container">
+					<button class="slds-button slds-button_icon slds-modal__close" onclick={toggleModal}>
+						<lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+						<span class="slds-assistive-text">Cancel and close</span>
+					</button>
+					<template lwc:if={isModalHeader}>
+						<div class="slds-modal__header">
+							<h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate" tabindex="-1">
+								<template lwc:if={modalMap.export}>
+									{exportTitle}
+								</template>
+								<template lwc:elseif={modalMap.completeHandover}>
+									해당 리스트를 출고 처리 하시겠습니까 ?
+								</template>
+								<template lwc:elseif={modalMap.cancelStock}>
+									해당 리스트를 출고 취소 하시겠습니까 ?
+								</template>
+								<template lwc:elseif={modalMap.checkUpdate}>
+									해당 리스트를 업데이트 확인 처리 하시겠습니까 ?
+								</template>
+								<template lwc:elseif={modalMap.viewVIN}>
+									차량 검색
+								</template>
+							</h1>
+						</div>
+					</template>
+					<div class={modalClass} id="modal-content-id-1">
+						
+						<!-- 캘린더 Start -->
+						<template lwc:if={modalMap.calendar}>
+							<div class="slds-grid slds-size_1-of-1 calendar-wrap">
+								<div class="slds-size_3-of-4">
+									<iframe src="/apex/CustomCalendar?isdtp=p1" onload={handleLoad}></iframe>
+								</div>
+								<div class="slds-size_1-of-4">
+									<lightning-card title="모델별 소요 영업일">
+										<div class="">
+											<template for:each={optionDelayList} for:item="option">
+												<lightning-layout key={option.Id} class="slds-vertical slds-wrap">
+													<lightning-layout-item
+														class="slds-size_1-of-1 slds-grid slds-p-around_x-small">
+														<template lwc:if={option.isAssign}>
+															<lightning-input type="checkbox" label=""
+															                 variant="label-hidden" name="" checked
+															                 disabled></lightning-input>
+															<div class="slds-text-heading_small">
+																<strong>{option.Attribute1__c}</strong>
+																<br>
+																<strong>+{option.Attribute2__c}영업일</strong>
+															</div>
+														</template>
+														<template lwc:else>
+															<lightning-input type="checkbox" label=""
+															                 variant="label-hidden" name=""
+															                 disabled></lightning-input>
+															<div class="slds-text-heading_small">
+																{option.Attribute1__c}
+																<br>
+																+{option.Attribute2__c}영업일
+															</div>
+														</template>
+													</lightning-layout-item>
+												</lightning-layout>
+											</template>
+										</div>
+									</lightning-card>
+								</div>
+							</div>
+						</template>
+						<!-- 캘린더 End -->
+						
+						<!-- 엑셀 Start -->
+						<template lwc:elseif={modalMap.export}>
+							<lightning-datatable
+								key-field="id"
+								columns={exportColumns}
+								data={exportList}
+								column-widths-mode="auto"
+								hide-checkbox-column="true"
+								min-column-width="80"
+							></lightning-datatable>
+						</template>
+						<!-- 엑셀 End -->
+						
+<!--						&lt;!&ndash; 출고처리 Start &ndash;&gt;-->
+<!--						<template lwc:elseif={modalMap.completeHandover}>-->
+<!--							<c-custom-data-table-->
+<!--								key-field="id"-->
+<!--								columns={columns}-->
+<!--								data={selectedRowList}-->
+<!--								column-widths-mode="auto"-->
+<!--								hide-checkbox-column="true"-->
+<!--								min-column-width="80"-->
+<!--							></c-custom-data-table>-->
+<!--						</template>-->
+<!--						&lt;!&ndash; 출고처리 Start &ndash;&gt;-->
+<!--						-->
+<!--						&lt;!&ndash; 업데이트 확인 Start &ndash;&gt;-->
+<!--						<template lwc:elseif={modalMap.checkUpdate}>-->
+<!--							<c-custom-data-table-->
+<!--								key-field="id"-->
+<!--								columns={columns}-->
+<!--								data={selectedRowList}-->
+<!--								column-widths-mode="auto"-->
+<!--								hide-checkbox-column="true"-->
+<!--								min-column-width="80"-->
+<!--							></c-custom-data-table>-->
+<!--						</template>-->
+<!--						&lt;!&ndash; 업데이트 확인 Start &ndash;&gt;-->
+						
+						<!-- 차량 변경 Start -->
+						<template lwc:elseif={modalMap.viewVIN}>
+							<div class="slds-grid slds-wrap">
+								<div class="slds-size_1-of-1 filter-wrap">
+									<div class="slds-grid">
+										<lightning-input
+											type="text"
+											label="VIN"
+											class="slds-p-right_xx-small"
+											data-name="Name"
+											onchange={handleModalFilterChange}
+											value={stockFilterMap.Name}
+										></lightning-input>
+										<lightning-input
+											type="text"
+											label="VEHICLE NO"
+											class="slds-p-right_xx-small"
+											data-name="VehicleNo__c"
+											onchange={handleModalFilterChange}
+											value={stockFilterMap.VehicleNo__c}
+										></lightning-input>
+										<div class="btn-wrap">
+											<lightning-button-icon
+												icon-name="utility:refresh"
+												variant="border-filled"
+												class="slds-p-right_xx-small"
+												alternative-text="Refresh"
+												title="Refresh"
+												data-name="refresh"
+												onclick={handleModalFilterClick}
+											></lightning-button-icon>
+											<button class="slds-button slds-button_neutral" data-name="search"
+											        onclick={handleModalFilterClick}>
+												<lightning-icon
+													icon-name="utility:search"
+													alternative-text="Utility search"
+													size="x-small"
+													title="search"
+												></lightning-icon>
+												검색
+											</button>
+										</div>
+									</div>
+								</div>
+								<div class="slds-size_1-of-1 slds-p-top_x-small">
+									<lightning-datatable
+										key-field="Id"
+										columns={stockColumns}
+										data={stockList}
+										onrowselection={handleModalRowSelection}
+										column-widths-mode="auto"
+										max-row-selection="1"
+										selected-rows={selectedStockRowList}
+										min-column-width="80"
+									></lightning-datatable>
+									<template if:false={stockList.length}>
+										<div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">
+											<strong>현재 변경 가능한 차량이 조회되지 않습니다.</strong>
+										</div>
+									</template>
+								</div>
+							</div>
+						</template>
+						<!-- 차량 변경 End -->
+						
+						
+						<!-- 출고처리, 출고취소, 업데이트 확인 Start -->
+						<template lwc:else>
+							<c-custom-data-table
+								key-field="id"
+								columns={columns}
+								data={selectedRowList}
+								column-widths-mode="auto"
+								hide-checkbox-column="true"
+								min-column-width="80"
+							></c-custom-data-table>
+						</template>
+						<!-- 업데이트 확인 Start -->
+					
+					</div>
+					<template if:false={modalMap.calendar}>
+						<div class="slds-modal__footer slds-text-align_center">
+							<button class="slds-button slds-button_neutral" data-name="cancel"
+							        onclick={toggleModal}>Cancel
+							</button>
+							<button class="slds-button slds-button_brand" data-name="save"
+							        onclick={handleModalClick}>
+								<template lwc:if={modalMap.export}>
+									다운로드
+								</template>
+								<template lwc:elseif={modalMap.viewVIN}>
+									저장
+								</template>
+								<template lwc:else>
+									확인
+								</template>
+							</button>
+						</div>
+					</template>
+				</div>
+				<template lwc:if={isLoading}>
+					<lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+				</template>
+			</section>
+			<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+		</template>
+		<!-- Modal End -->
+		
+		<template lwc:if={isLoading}>
+			<lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+		</template>
+	</div>
+</template>

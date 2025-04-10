@@ -1,0 +1,130 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="HtmlUnknownAttribute" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="myValues">
+        <value>
+          <list size="8">
+            <item index="0" class="java.lang.String" itemvalue="columns" />
+            <item index="1" class="java.lang.String" itemvalue="data" />
+            <item index="2" class="java.lang.String" itemvalue="key-field" />
+            <item index="3" class="java.lang.String" itemvalue="draft-values" />
+            <item index="4" class="java.lang.String" itemvalue="suppress-bottom-bar" />
+            <item index="5" class="java.lang.String" itemvalue="oncellchange" />
+            <item index="6" class="java.lang.String" itemvalue="hide-checkbox-column" />
+            <item index="7" class="java.lang.String" itemvalue="lwc:dynamic" />
+          </list>
+        </value>
+      </option>
+      <option name="myCustomValuesEnabled" value="true" />
+    </inspection_tool>
+    <inspection_tool class="InconsistentSalesforceApiVersion" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredFilePaths">
+        <list>
+          <option value="$PROJECT_DIR$/src/classes/Account_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/Account_tr_test.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/adjustUser_ba.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/AssignRequest_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/AsyncCustomsInfo.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/AsyncTaxInvoiceIssuance.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/AvisConfig_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/AvisOrderInfo_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/CancelRequestModuSign_ba.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/CancelVirtualAccount_ba.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/CommonUtilController.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/CommonUtilController.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/CommonUtilController.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/CommonUtilController_test.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/CommonUtilCustomController.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/CommonUtilCustomController_test.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/ConfigMasterController.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/Contract_tr_test.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/CreateVehicleController.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/CreateVehicleStock_ba.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/CreateVehicleStock_ba.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/CreateVehicleStock_ba.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/CreateVehicleStock_ba.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/CreateVehicleStock_ba.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/CreateVehicleStock_ba.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/CreateVehicleStock_ba.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/CreateVehicleStock_ba.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/CreateVehicleStock_ba.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/EmailConfigController.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/EmailConfigController_test.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/EmailMessage_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/FetchSAPResult_ba.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/Handover_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/Handover_tr_test.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/HandoverDateAllocationHistory_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/HttpCallOutConsts.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/HttpCallOutOrgCache_test.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/IF_DTO.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/IF_DTO_test.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/IF_HealthCheck.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/IF_HealthCheck_test.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/IF_SAP.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/IF_SAP_test.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/IF_Util.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/IF_Webhook_test.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/IFAuditLogDetail_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/InterfaceSAP.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/InterfaceSAP.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/InterfaceSAP_test.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/ITrigger.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/Lead_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/LeadAcquisitionController.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/ModuSignPDFController.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/Opportunity_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/PaymentType_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/PreAssignRequestAlimtalk_ba.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/PreAssignRequestAlimtalk_ba_Test.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/PreAssignRequestAlimtalk_sc.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/PreAssignRequestAssignDate_ba.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/PreAssignRequestAssignDate_ba_Test.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/PreAssignRequestAssignDate_sc.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/Product2_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/Quote_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/QuoteLineItem_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/SAPInterface.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/SAPInterface_test.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/StageUpdateCommonController.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/TaxInvoiceSchedulerController.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/TestObjectBuilder.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/TestObjectBuilder2_test.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/TestObjectBuilder_test.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/TriggerHandler.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/TriggerHandler_test.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/User_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/VehicleStock_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/VehicleStockTableController.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/lwc/commonStyleUtil/commonStyleUtil.js-meta.xml" />
+          <option value="$PROJECT_DIR$/src/lwc/commonUtil/commonUtil.js-meta.xml" />
+          <option value="$PROJECT_DIR$/src/lwc/quoteCalculatorTable/quoteCalculatorTable.js-meta.xml" />
+          <option value="$PROJECT_DIR$/src/lwc/sampleLWC/sampleLWC.js-meta.xml" />
+          <option value="$PROJECT_DIR$/src/lwc/taxInvoiceScheduler/taxInvoiceScheduler.js-meta.xml" />
+          <option value="$PROJECT_DIR$/src/lwc/updateRealDriverRoadAddress/updateRealDriverRoadAddress.js-meta.xml" />
+          <option value="$PROJECT_DIR$/src/lwc/vehicleStockTable/vehicleStockTable.js-meta.xml" />
+          <option value="$PROJECT_DIR$/src/lwc/vehicleStockTable/vehicleStockTable.js-meta.xml" />
+          <option value="$PROJECT_DIR$/src/lwc/vehicleStockTable/vehicleStockTable.js-meta.xml" />
+          <option value="$PROJECT_DIR$/src/lwc/vehicleStockTable/vehicleStockTable.js-meta.xml" />
+          <option value="$PROJECT_DIR$/src/lwc/vehicleStockTable/vehicleStockTable.js-meta.xml" />
+          <option value="$PROJECT_DIR$/src/lwc/vehicleStockTable/vehicleStockTable.js-meta.xml" />
+          <option value="$PROJECT_DIR$/src/lwc/vehicleStockTable/vehicleStockTable.js-meta.xml" />
+          <option value="$PROJECT_DIR$/src/pages/AvisOrderInfo.page-meta.xml" />
+          <option value="$PROJECT_DIR$/src/pages/KakaoMap.page-meta.xml" />
+          <option value="$PROJECT_DIR$/src/pages/ModusignPDFContractTemplate.page-meta.xml" />
+          <option value="$PROJECT_DIR$/src/triggers/AvisOrderInfo.trigger-meta.xml" />
+          <option value="$PROJECT_DIR$/src/triggers/IFAuditLogDetail.trigger-meta.xml" />
+          <option value="$PROJECT_DIR$/src/triggers/Product2.trigger-meta.xml" />
+          <option value="$PROJECT_DIR$/src/triggers/User.trigger-meta.xml" />
+          <option value="$PROJECT_DIR$/src/triggers/User.trigger-meta.xml" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="SpellCheckingInspection" enabled="true" level="INFORMATION" enabled_by_default="true">
+      <option name="processCode" value="true" />
+      <option name="processLiterals" value="true" />
+      <option name="processComments" value="true" />
+    </inspection_tool>
+  </profile>
+</component>

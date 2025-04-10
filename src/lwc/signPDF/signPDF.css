@@ -1,0 +1,56 @@
+/*************************************************************
+ * @author : San.Kang
+ * @date : 25. 2. 20.
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0       25. 2. 20.        San.Kang           Created
+**************************************************************/
+@import "c/commonStyleUtil";
+
+@media screen and (max-width: 1023px) {
+    .sub-wrap {
+        height: 200px;
+    }
+}
+
+@media screen and (max-width: 540px) {
+    .sub-wrap {
+        height: 200px;
+    }
+}
+
+.cellBorder {
+    border-bottom: 1px solid #d8dde6;
+}
+
+.selectedRow {
+    background-color: #e0f3ff; /* 선택된 항목의 배경색 (연한 파란색) */
+}
+
+.centeredModal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.modal-container {
+    width: 95%;
+    max-width: 600px;
+    margin: 1rem auto;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* 싸인 영역을 넓게 처리 */
+.signature-area {
+    width: 100%;
+}
+
+/* 캔버스는 부모의 너비에 맞춰 자동 조정 */
+canvas {
+    width: 100% !important;
+    height: auto !important;
+}

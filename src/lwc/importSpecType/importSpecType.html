@@ -1,0 +1,63 @@
+<!--
+ * @author : San.Kang
+ * @date : 2025-03-11
+ * @description :
+ * @target :
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-03-11      San.Kang          Initial Version
+-->
+<template>
+    <lightning-card title="Excel 데이터 업로드" icon-name="utility:paste">
+        <div class="slds-size_1-of-1 slds-card__body">
+            <div class="slds-m-around_medium slds-grid slds-grid_align-end">
+                <lightning-button label="초기화" variant="neutral" onclick={handleReset}></lightning-button>
+                <lightning-button label="Import" variant="brand" class="slds-m-left_x-small" onclick={importExcel}></lightning-button>
+            </div>
+            <!-- 붙여넣기 영역 -->
+
+            <template lwc:if={hasData}>
+                <div class="slds-m-around_medium">
+                    <template lwc:if={suceessFlag}>
+                        <div class=slds-m-bottom_medium>
+                            <span style="font-size: 20px; font-weight: bold;">
+                                <lightning-icon icon-name="utility:success" variant="success" size="small"></lightning-icon> Success
+                            </span>
+                        </div>
+                        <lightning-datatable
+                            key-field="id"
+                            data={successMap.gridData}
+                            columns={successMap.tableColumns}
+                            hide-checkbox-column="true"
+                            column-widths-mode="auto">
+                        </lightning-datatable>
+                    </template>
+                    <template lwc:else>
+                        <lightning-datatable
+                            key-field="id"
+                            data={excelMap.gridData}
+                            columns={excelMap.tableColumns}
+                            hide-checkbox-column="true"
+                            column-widths-mode="auto">
+                        </lightning-datatable>
+                    </template>
+                </div>
+            </template>
+
+            <template lwc:else>
+                <div class="slds-m-around_medium slds-box paste-container slds-box">
+                    <div class="paste-area"
+                         contenteditable="true"
+                         onpaste={handlePaste}
+                         oninput={handleInput}>
+                        <span class="paste-placeholder">여기에 Excel 데이터를 복사 & 붙여넣기 하세요.</span>
+                    </div>
+                </div>
+            </template>
+            <!-- Lightning Datatable -->
+        </div>
+        <template lwc:if={isLoading}>
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </template>
+    </lightning-card>
+</template>

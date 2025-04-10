@@ -1,0 +1,1853 @@
+<!--
+- @Author            : jh.jung
+- @Description 		   : 동적으로 계약서를 만들기 위한 임시 VF
+- @Target            :
+- @Modification Log
+- Ver      Date            Author           Modification
+- ===================================================================================
+- 1.0      2024-12-31      jh.jung           Created
+-->
+<apex:page id="ModusignPDFTemplate" controller="ModuSignPDFController" applyHtmlTag="false" sidebar="false" showHeader="false" renderAs="advanced_pdf" docType="html-5.0" action="{!getVFInfo}">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+    <style type="text/css">
+        .page-break {
+            page-break-before: always; /* 페이지 나누기 */
+        }
+
+        .full-page-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 비율 유지하며 페이지 채우기 */
+        }
+
+        body {
+            font-family: Arial Unicode MS;
+            margin: 0;
+        }
+
+        @page {
+            size: A4 portrait;
+            border: 1px gray;
+            margin: 0;
+            /* @bottom-center {
+                content: "Page " counter(page) " of " counter(pages);
+            } */
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .background-image {
+          display: block;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          z-index: -1;
+        }
+
+        .watermark {
+          position: fixed;
+          top: 90%;
+          right: 0;
+          color: #d9d9d9;
+          font-size: 12px;
+          opacity: 0.1;
+          z-index: 1000;
+        }
+
+        .watermarkTest {
+          width: 100%;
+          /* border-collapse: collapse; */
+          margin-bottom: 30px;
+          /* padding: 10px; */
+          /* margin-top: 10px; */
+        }
+
+        .watermark2 {
+          /* margin-top: auto; */
+          padding-top: 300px;
+          /* padding: 10px; */
+          box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 15px; 
+          table-layout: fixed;
+        }
+
+        th {
+          font-weight: bold;
+        }
+
+        th, td {
+          /* padding-bottom: 12px;
+          text-align: left;
+          line-height: 1;
+          border-bottom: 1px solid gray; */
+          font-size: 10px;
+        }
+
+        .table-logoSheet {
+          width: 100%;
+          margin: auto;
+          /* padding-top: 100px; */
+          padding-left: 80px;
+          page-break-before: always;
+        }
+
+        .logoTableSheet {
+          margin: 30px; 
+          width: 100%;
+          /* padding: 10px; */
+          margin-bottom: 50px;
+          /* text-align: left; */
+        }
+
+        .title {
+          /* text-align: left; */
+          font-weight: bold;
+          font-size: 20px;
+        }
+
+        .saDetailInfo {
+          width: 100%;
+          font-weight: bold;
+          font-size: 12px;
+          color: gray;
+          margin-top: 30px;
+        }
+
+        .manTruck {
+          margin: 30px;
+          text-align: center;
+          font-weight: bold;
+          /* margin-bottom: 35px; */
+        }
+
+        .logoBottomSheet {
+          width: 100%;
+        }
+
+        .logoBottomText {
+          font-size: 10px;
+          width: 75%;
+        }
+        .logoBottomImg {
+          width: 25%;
+        }
+
+        .table-div {
+          width: 80%;
+          margin: auto;
+        }
+
+        .table-div th, .table-div td {
+          padding-bottom: 12px; 
+          text-align: left;
+          line-height: 1; 
+          border: none;
+        }
+
+        .table-container {
+          width: 80%;
+          margin: auto;
+        }
+
+        .table-container th {
+          padding-bottom: 12px; 
+          text-align: left;
+          line-height: 1; 
+          border-bottom: 1px solid gray;
+        }
+
+        .table-container td {
+          padding-bottom: 12px; 
+          /* text-align: right; */
+          line-height: 1; 
+          border-bottom: 1px solid gray;
+          padding-right: 15px;
+        }
+
+        .table-price {
+          width: 80%;
+          margin: auto;
+          padding-top: 150px;
+          page-break-before: always;
+        }
+
+        .table-price th {
+          padding-bottom: 12px; 
+          text-align: left;
+          line-height: 1; 
+        }
+
+        .table-price td {
+          padding-bottom: 12px; 
+          /* text-align: right; */
+          line-height: 1; 
+          padding-right: 15px;
+        }
+
+        .table-finance {
+          /* position: relative; */
+          width: 80%;
+          margin: auto;
+          padding-top: 150px;
+          page-break-before: always;
+          /* min-height: 500px; */
+          /* padding-bottom: 100px; */
+          display: flex;
+          flex-direction: column;
+          min-height: 80vh;
+        }
+
+        .table-finance th {
+          text-align: left;
+          padding-bottom: 12px; 
+          /* text-align: right; */
+          line-height: 1; 
+          padding-right: 15px;
+        }
+
+        /* .table-finance td {
+          padding-bottom: 12px; 
+          text-align: right;
+          line-height: 1; 
+          padding-right: 15px;
+        } */
+
+        .top-border td, .top-border th {
+            border-top: 2px solid black;
+        }
+        .bottom-border td, .bottom-border th {
+            border-bottom: 2px solid black;
+        }
+
+        .saInfo {
+            width: 100%;
+            height: 100%;
+            border-bottom: 1px solid black;
+            align-items: center;
+        }
+
+        .saCustomTitle {
+            /* width: 35%; */
+            height: 50px;
+            align-items: center;
+        }
+
+        .divCommon {
+            padding: 3px;
+        }
+
+        .label {
+            display: inline-block;
+            width: 200px;
+        }
+
+        .value {
+            display: inline-block;
+        }
+
+        
+    </style>
+  </head>
+  <apex:outputPanel rendered="{!selectedOption == 'all' || selectedOption == 'contract'}">
+    <body>
+
+      <apex:outputPanel layout="block" rendered="{!lang == 'KR'}">
+
+        <div class="table-div">
+          <table class="logoTableSheet">
+            <div class="title">MAN Truck &amp; Bus Korea Ltd.</div>
+            <div style="font-size: 15px;">경기도 용인시 기흥구 보라하갈로 57</div>
+            {!pdfWrapper.accountName}
+          </table>
+
+          <table class="saDetailInfo">
+            <colgroup>
+              <col width="10%"/>
+              <col width="20%"/>
+              <col width="25%"/>
+              <col width="30%"/>
+              <col width="15%"/>
+            </colgroup>
+            <thead>
+              <th>Sales Agent</th>
+              <th>Phone</th>
+              <th>Fax</th>
+              <th>Email</th>
+              <th>Date</th>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{!pdfWrapper.opportunityOwnerName}</td>
+                <td>{!pdfWrapper.ownerPhone}</td>
+                <td>{!pdfWrapper.ownerFax}</td>
+                <td>{!pdfWrapper.ownerEmail}</td>
+                <td>{!pdfWrapper.formatStartDate}</td>
+            </tr>
+            </tbody>
+          </table>
+          <p>
+            계약번호: {!pdfWrapper.contractNumber}
+            <br/>
+            <br/>
+            친애하는 고객님께, 
+            <br/>
+            <br/>
+            먼저 저희 MAN을 믿고 소중한 차량을 구매해 주신 것에 대해 진심으로 감사드립니다.
+            <br/>
+            고객님께서 선택하신 차량이 앞으로의 여정에 큰 만족과 기쁨을 드리길 바랍니다.
+            <br/>
+            <br/>
+            저희는 고객님께 최상의 서비스와 최고의 차량 품질을 제공하기 위해 항상 최선을 다하고 있습니다. 
+            <br/>
+            <br/>
+            혹시 차량 사용 중에 궁금하신 점이나 도움이 필요하신 경우 언제든지 저희에게 연락해 주시기 바랍니다.
+            <br/>
+            <br/>
+            다시 한번 저희를 선택해 주셔서 감사드리며, 고객님의 안전하고 행복한 운전을 항상 응원하겠습니다.
+            <br/>
+            앞으로도 지속적인 신뢰와 만족을 드릴 수 있도록 노력하겠습니다.
+            <br/>
+            감사합니다.
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+          </p>
+          <hr/>
+          <h2 class="manTruck">
+            만트럭버스코리아 주식회사
+            <br/>
+            대표이사 ANDERSSON LARS PETER MARTIN
+          </h2>
+
+          <p class="watermark" style="text-align: right; margin: 10px;"> 
+            {!pdfWrapper.accountName}
+            <br/>
+            {!pdfWrapper.contractNumber}
+            <br/>
+          </p>
+
+          <table class="logoBottomSheet">
+            <th class="logoBottomText">
+              3rd FL 57, Borahagal-ro, Giheung-gu
+              <br/>
+              Yongin city, Gyeonggi-do, Korea 17099
+              <br/>
+              Telephone 080 661 1472 Telefax 031 8014 5833
+              <br/>
+              MAN Truck &amp; Bus Korea Ltd.   www.manturck.co.kr
+            </th>
+            <th class="logoBottomImg">
+              <apex:image value="{!$Resource.ManTest}" />
+            </th>
+
+          </table>
+        </div>
+
+        <div class="table-logoSheet">
+          <table class="logoTableSheet">
+            <div class="title">MAN Truck &amp; Bus Korea Ltd.</div>
+            <div style="font-size: 10px;">만트럭버스코리아는 전국 어디서나 동일한 가격 및 조건 제공을 약속드립니다.</div>
+          </table>
+          <h3>자동차/건설기계 매매계약서</h3>
+        </div>
+        <div style="text-align: right; padding-right: 80px; font-size: 10px; color:red">다음 계약내용 및 계약조항의 주요내용에 대한 설명을 듣고 계약서 1통을 정히 수령하였음을 확인함</div>
+        
+          <div class="table-container">
+            <table>
+              <tr class="top-border bottom-border">
+                <th>계약번호</th>
+                <td>{!pdfWrapper.contractNumber}</td>
+                <th>계약일</th>
+                <td>{!pdfWrapper.formatStartDate}</td>
+              </tr>
+            </table>
+
+            <table>
+              <tr class="bottom-border">
+                <th>차종</th>
+                <td colspan="2">{!pdfWrapper.quoteProductName}</td>
+                <th>차량색상</th>
+                <td colspan="2">{!pdfWrapper.quoteProductColour}</td>
+              </tr>
+
+              <!-- <apex:variable var="optionItems" value="" />
+              <apex:variable var="basicItems" value="" />
+
+              <apex:outputPanel rendered="{!NOT(ISNULL(pdfWrapper.optionList)) && pdfWrapper.optionList.size > 0}">
+                <apex:repeat value="{!pdfWrapper.optionList}" var="item">
+                    <apex:variable var="optionItems"
+                    value="{!IF(item.optionPrice > 0, optionItems & item.optionName & '<br/>', optionItems)}" />
+                    <apex:variable var="basicItems"
+                        value="{!IF(item.optionPrice == 0, basicItems & item.optionName & '<br/>', basicItems)}" />
+                </apex:repeat>
+              </apex:outputPanel>
+              <tr>
+                  <th colspan="1">선택사양</th>
+                  <td colspan="5"><apex:outputText escape="false" value="{!IF(ISNULL(optionItems), '', optionItems)}" /></td>
+              </tr>
+              <tr>
+                  <th colspan="1">기본제공품목</th>
+                  <td colspan="5"><apex:outputText escape="false" value="{!IF(ISNULL(basicItems), '', basicItems)}"/></td>
+              </tr> -->
+
+              <tr>
+                <th colspan="1">선택사양</th>
+                <td colspan="5">
+                    <apex:repeat value="{!pdfWrapper.optionList}" var="item">
+                        <apex:outputText escape="false" value="{!IF(item.optionPrice > 0, item.optionName & '<br/>', '')}" />
+                    </apex:repeat>
+                </td>
+            </tr>
+            <tr>
+                <th colspan="1">기본제공품목</th>
+                <td colspan="5">
+                    <apex:repeat value="{!pdfWrapper.optionList}" var="item">
+                        <apex:outputText escape="false" value="{!IF(item.optionPrice == 0, item.optionName & '<br/>', '')}" />
+                    </apex:repeat>
+                </td>
+            </tr>
+
+              <tr>
+                <th>차량가격</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{0,number,###,###}">
+                      <!-- <apex:param value="{!IF(ISNULL(pdfWrapper.product.productPrice), 0, pdfWrapper.product.productPrice)}" /> -->
+                      <apex:param value="{!pdfWrapper.product.productPrice}" />
+                  </apex:outputText>원
+                </td>
+                <th>계약금</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{0,number,#,###}">
+                      <apex:param value="{!pdfWrapper.contractDeposit}" />
+                  </apex:outputText>원
+                </td>
+                <th>할부회사</th>
+                <td>{!pdfWrapper.quoteFinanceName}</td>
+              </tr>
+              <tr>
+                <th>옵션사양가</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!pdfWrapper.quoteTotalVehiclePrice - pdfWrapper.product.productPrice}" />
+                  </apex:outputText>원
+                </td>
+                <th>총 인도금</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{0,number,#,###}">
+                      <!-- <apex:param value="{!totalDownVATDefer}" /> -->
+                  </apex:outputText>원
+                </td>
+                <th>할부금리</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{!pdfWrapper.quoteDefaultInterestRate}" /> %
+                </td>
+              </tr>
+              <tr>
+                <th>인도금할인</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!pdfWrapper.quoteDeliveryDiscountPrice}" />
+                  </apex:outputText>원
+                </td>
+                <th>대출원금</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{0,number,###,###}">
+                     <apex:param value="{!pdfWrapper.loanAmount}"/>
+                  </apex:outputText>원
+                </td>
+                <th>할부거치개월수</th>
+                <!-- <apex:repeat value="{!pdfWrapper.defermentList}" var="req">
+                  <td>{!req.requestDays}Months</td>
+                </apex:repeat> -->
+                <!-- <apex:outputPanel layout="none" rendered="{!isDefermentReq}">
+                  <td></td>
+                </apex:outputPanel> -->
+                <td></td>
+              </tr>
+              <tr>
+                <th>실판매가격</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{0,number,###,###}">
+                      <apex:param value="{!pdfWrapper.contractRealSalesPrice}" />
+                  </apex:outputText>원
+                </td>
+                <th>캐피탈 VAT 유예금</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!pdfWrapper.quoteCapitalDefermentAmount}"/>
+                  </apex:outputText>원
+                </td>
+                <th>할부분납개월수</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{!pdfWrapper.quoteMonthDivideInputMonth}"/> 개월
+                </td>
+              </tr>
+              <tr>
+                <th>납부총액</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{0,number,###,###}">
+                      <apex:param value="{!pdfWrapper.contractRealSalesPrice}" />
+                  </apex:outputText>원
+                </td>
+                <th>총대출금</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!pdfWrapper.quoteTotalLoanAmount}" />
+                  </apex:outputText>원
+                </td>
+                <th>월 할부금</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{0,number,###,###}">
+                      <apex:param value="{!pdfWrapper.quoteMonthlyPayment}" />
+                  </apex:outputText>원
+                </td>
+              </tr>
+            </table>
+
+            <table>
+              <tr class="bottom-border">
+                <th colspan="6">특약사항</th>
+              </tr>
+              <tr>
+                <th>부가세유예금</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{0,number,###,###}">
+                      <apex:param value="{!pdfWrapper.opportunityTaxDeferredAmount}"/>
+                  </apex:outputText>원
+                </td>
+                <th>부가세후취이자</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{0,number,#,###}">
+                      <apex:param value="{!pdfWrapper.quoteInterestDefermentVAT}" />
+                    </apex:outputText>원
+                </td>
+                <th>공증료</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{0,number,###,###}">
+                      <apex:param value="{!pdfWrapper.quoteNotarizedFee}" />
+                  </apex:outputText>원
+                </td>
+              </tr>
+              <tr>
+                <th>인도유예금</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!pdfWrapper.opportunityPaymentDeferredAmount}"/>
+                  </apex:outputText>원
+                </td>
+                <th></th>
+                <td></td>
+                <th>탁송료</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{0,number,###,###}">
+                      <apex:param value="{!pdfWrapper.quoteConsignmentPrice}"/>
+                  </apex:outputText>원
+                </td>
+              </tr>
+            </table>
+            <table>
+              <tr class="bottom-border">
+                <th colspan="6">매수인(을)</th>
+              </tr>
+              <tr>
+                <th>성명</th>
+                <td>{!pdfWrapper.accountName}</td>
+                <th>생년월일</th>
+                <!-- <td>{!LEFT(pdfWrapper.accountIDNumber, FIND("-", pdfWrapper.accountIDNumber) - 1)}</td> -->
+                <td></td>
+                <th>전화번호</th>
+                <td>{!pdfWrapper.accountPersonMobilePhone}</td>
+              </tr>
+              <tr>
+                <th>주민등록번호(사업자번호)</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{!IF(
+                    AND(NOT(ISBLANK(pdfWrapper.accountIDNumber)), NOT(ISBLANK(pdfWrapper.accountBusinessNumber))),
+                    pdfWrapper.accountIDNumber & ' / ' & pdfWrapper.accountBusinessNumber,
+                    IF(NOT(ISBLANK(pdfWrapper.accountIDNumber)),
+                        pdfWrapper.accountIDNumber,
+                        pdfWrapper.accountBusinessNumber))}" >
+                  </apex:outputText>
+                </td>
+                <th>사업자명(상호)</th>
+                <td>
+                  <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountName, '')}" />
+                </td>
+                <th>고객구분</th>
+                <td>{!pdfWrapper.accountBusinessCategory}</td>
+              </tr>
+              <tr>
+                <th>주소</th>
+                <td colspan="3">{!pdfWrapper.accountRoadAddress}</td>
+                <th>Email</th>
+                <td>{!pdfWrapper.accountPersonEmail}</td>
+              </tr>
+            </table>
+
+            <table>
+              <tr class="bottom-border">
+                <th colspan="6">실차주</th>
+              </tr>
+              <tr>
+                <th>성명</th>
+                <td>{!pdfWrapper.accountRealDriver}</td>
+                <th>생년월일</th>
+                <td></td>
+                <!-- <td>{!LEFT(pdfWrapper.accountRealDriverIDNumber, FIND("-", pdfWrapper.accountRealDriverIDNumber) - 1)}</td> -->
+                <th>전화번호</th>
+                <td>{!pdfWrapper.accountRealDriverMobile}</td>
+              </tr>
+              <tr>
+                <th>주민등록번호(사업자번호)</th>
+                <td style="text-align: right">{!pdfWrapper.accountRealDriverIDNumber}</td>
+                <th>Email</th>
+                <td>{!pdfWrapper.accountRealDriverEmail}</td>
+                <th></th>
+                <td></td>
+              </tr>
+              <tr>
+                <th>주소</th>
+                <td colspan="5">{!pdfWrapper.accountRealDriverAddress}</td>
+              </tr>
+            </table>
+            <table>
+              <tr class="bottom-border">
+                <th colspan="6">고객전용 입금계좌</th>
+              </tr>
+              <tr>
+                <th>가상계좌번호</th>
+                <td>{!pdfWrapper.virtualAccount}</td>
+                <th>은행명</th>
+                <td>씨티은행</td>
+                <th>예금주</th>
+                <td>만트럭버스</td>
+              </tr>
+            </table>
+            <div style="font-size: 10px; color: red;">1. 계약서마다 가상계좌번호가 상이하므로 반드시 각 계약건의 가상게좌번호를 확인해주시기 바랍니다.</div>
+            <div style="font-size: 10px; color: red;">2. 고객님의 차량 배정 및 계약의 확정을 위해 계약금은 환불이 불가능합니다.</div>
+            <div style="font-size: 10px; color: red;">3. 자동차 매매대금 송금은 고객전용 입금계좌로만 가능합니다. 이 외 다른 계좌로 송금 유도 시 즉시 고객센터로 신고해주세요.</div>
+          </div>
+          <div class="table-price">
+            <table>
+              <tr class="top-border bottom-border">
+                <th>영수증</th>
+                <td></td>
+                <th>영수금액(계약금)</th>
+                <td style="text-align: right">
+                  <apex:outputText value="{0,number,#,###}">
+                      <apex:param value="{!pdfWrapper.contractDeposit}" />
+                  </apex:outputText>원
+                </td>
+                <th>영수일자</th>
+                <!-- <td>{!formatTaxDate}</td> -->
+                <td></td>
+              </tr>
+            </table>
+            <div style="font-size: 10px;">*본 영수증은 자동차 매매대금용으로만 효력이 있으며 기타용도 사용은 무효입니다.</div>
+            <table>
+              <h3 style="text-align: left;">
+                  Price Break Down
+              </h3>
+              <colgroup>
+                  <col width="10%"/>
+                  <col width="70%"/>
+                  <col width="20%"/>
+              </colgroup>
+              <tr class="bottom-border">
+                  <th colspan="2">차량 가격 Vehicle</th>
+                  <th style="text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                      <apex:param value="{!pdfWrapper.quoteTotalVehiclePrice}" />
+                    </apex:outputText>원
+                  </th>
+              </tr>
+              <tr>
+                  <!-- <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(quoteDetail['product']['name']))}">
+                    <td colspan="2">{!quoteDetail['product']['name']}</td>
+                  </apex:outputPanel>
+                  <apex:outputPanel layout="none" rendered="{!ISBLANK(quoteDetail['product']['name'])}">
+                    <td colspan="2"></td>
+                  </apex:outputPanel> -->
+                  <td colspan="2">{!pdfWrapper.product.productName}</td>
+!
+                  <!-- <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(pdfWrapper.product.productPrice))}">
+                    <td style="text-align: right;">
+                      <apex:outputText value="{0,number,###,###}">
+                          <apex:param value="{!pdfWrapper.product.productPrice}" />
+                      </apex:outputText>
+                    </td>
+                  </apex:outputPanel>
+                  <apex:outputPanel layout="none" rendered="{!ISBLANK(pdfWrapper.product.productPrice)}">
+                    <td></td>
+                  </apex:outputPanel> -->
+                  <td style="text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!pdfWrapper.product.productPrice}" />
+                    </apex:outputText>
+                  </td>
+              </tr>
+              <tr>
+                <td colspan="2">Option</td>
+                <td style="text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!pdfWrapper.quoteTotalVehiclePrice - pdfWrapper.product.productPrice}" />
+                    </apex:outputText>
+                </td>
+                <td></td>
+              </tr>
+              <apex:repeat value="{!pdfWrapper.optionList}" var="item">
+                <tr>
+                    <td></td>
+                    <td>{!item.optionName}</td>
+                    <td style="text-align: right;">
+                        <apex:outputText value="{0,number,###,###}">
+                            <apex:param value="{!item.optionPrice}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+              </apex:repeat>
+              <!-- <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(quoteDetail['option']))}">
+                <apex:repeat value="{!quoteDetail['option']}" var="item">
+                    <tr>
+                        <td></td>
+                        <td>{!item['name']}</td>
+                        <td style="text-align: right;">
+                            <apex:outputText value="{0,number,###,###}">
+                                <apex:param value="{!item['price']}" />
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                </apex:repeat>
+              </apex:outputPanel> -->
+              <!-- <apex:outputPanel layout="none" rendered="{!ISBLANK(pdfWrapper.product.productPrice)}">
+                  <tr>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                  </tr>
+              </apex:outputPanel>
+
+              <apex:outputPanel layout="none" rendered="{!ISBLANK(quoteDetail['option'])}">
+                  <tr>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                  </tr>
+              </apex:outputPanel> -->
+            </table>
+            <table style="margin-top: 20px; width: 100%;">
+              <colgroup>
+                  <col width="70%"/>
+                  <col width="30%"/>
+              </colgroup>
+              <tr class="bottom-border">
+                  <th style="font-size: 15px">총 할인 금액 (Total Discount)</th>
+                  <th style="text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                      <apex:param value="{!pdfWrapper.quoteTotalDiscountAmt}" />
+                    </apex:outputText>원
+                  </th>
+              </tr>
+              <tr>
+                  <th>기준 할인 금액 (Basic Discount)</th>
+                  <th style="text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                      <!-- <apex:param value="{!IF(baseDiscount == null, 0, (pdfWrapper.product.productPrice * baseDiscount / 100))}" /> -->
+                      <apex:param value="{!IF(ISBLANK(baseDiscount), 0, (pdfWrapper.product.productPrice * baseDiscount / 100))}" />
+                      <!-- <apex:param value="{!pdfWrapper.product.productPrice * pdfWrapper.baseDiscount / 100}" /> -->
+                    </apex:outputText>원
+                  </th>
+              </tr>
+              <tr>
+                <th>차량 추가 할인</th>
+                <th style="text-align: right;">
+                  <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!pdfWrapper.quoteVehicleDiscountPrice}" />
+                  </apex:outputText>원
+                </th>
+              </tr>
+              <!-- <apex:repeat value="{!quoteDetail['promotion']}" var="item">
+                  <tr>
+                      <th style="text-align: left;">{!item['name']}</th>
+                      <th style="text-align: right;">
+                          <apex:outputText value="{0,number,###,###}">
+                              <apex:param value="{!IF(item['discountPrice'] == null, (pdfWrapper.product.productPrice * item['discountRate']) , item['discountPrice'])}" />
+                          </apex:outputText>원
+                      </th>
+                  </tr>
+              </apex:repeat> -->
+              <apex:repeat value="{!pdfWrapper.promotionList}" var="item">
+                  <tr>
+                      <th style="text-align: left;">{!item.promotionName}</th>
+                      <th style="text-align: right;">
+                          <apex:outputText value="{0,number,###,###}">
+                              <!-- <apex:param value="{!IF(item.promotionDiscountPrice == null, (pdfWrapper.product.productPrice * item.promotionDiscountRate) , item.promotionDiscountPrice)}" /> -->
+                              <apex:param value="{!IF(ISBLANK(item.promotionDiscountPrice), (pdfWrapper.product.productPrice * item.promotionDiscountRate) , item.promotionDiscountPrice)}" />
+                          </apex:outputText>원
+                      </th>
+                  </tr>
+              </apex:repeat>
+            </table>
+
+            <table style="margin-top: 20px;">
+              <colgroup>
+                  <col width="80%"/>
+                  <col width="20%"/>
+              </colgroup>
+              <tr class="bottom-border">
+                  <th style="font-size: 15px">총 할인 금액 구분 (Total Discount Provide division)</th>
+                  <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!pdfWrapper.quoteTotalDiscountAmt}" />
+                    </apex:outputText>원
+                  </th>
+              </tr>
+              <tr>
+                <th>인도금 할인 (Downpayment Discount)</th>
+                <th style="height: 30px; text-align: right;">
+                  <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!pdfWrapper.quoteDeliveryDiscountPrice}" />
+                  </apex:outputText>원
+                </th>
+              </tr>
+              <tr>
+                  <th>주유상품권 (Oil Coupon)</th>
+                  <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                      <apex:param value="{!pdfWrapper.quoteOilCouponPrice}" />
+                    </apex:outputText>원
+                </th>
+              </tr>
+              <tr class="bottom-border">
+                  <th>부가세후취 이자 (VAT Deferment Interest)</th>
+                  <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,#,###}">
+                      <apex:param value="{!pdfWrapper.quoteInterestDefermentVAT}" />
+                    </apex:outputText>원
+                  </th>
+              </tr>
+            </table>
+            <table style="margin-top: 10px;">
+                <colgroup>
+                    <col width="80%"/>
+                    <col width="20%"/>
+                </colgroup>
+                <tr class="bottom-border">
+                  <th style="height: 30px; font-size: 15px;">실 판매가격 (Total Price) 차량 가격 - 인도금 할인</th>
+                    <th style="height: 30px; text-align: right;">
+                      <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!realSaleDiscount}" />
+                      </apex:outputText>원
+                    </th>
+                </tr>
+            </table>
+            <table style="margin-top: 10px;">
+              <colgroup>
+                  <col width="80%"/>
+                  <col width="20%"/>
+              </colgroup>
+              <tr>
+                  <th style="height: 30px;">특장 (BB Use Case)</th>
+              </tr>
+              <!-- <apex:repeat value="{!quoteDetail['special']}" var="item">
+                  <tr>
+                      <th style="text-align: left; ">{!item['subOption']}</th>
+                      <th style="text-align: right; ">
+                          <apex:outputText value="{0,number,###,###}">
+                              <apex:param value="{!item['price']}" />
+                          </apex:outputText>원
+                      </th>
+                  </tr>
+              </apex:repeat> -->
+              <apex:repeat value="{!pdfWrapper.specialList}" var="item">
+                  <tr>
+                      <th style="text-align: left; ">{!item.specialSubOption}</th>
+                      <th style="text-align: right; ">
+                          <apex:outputText value="{0,number,###,###}">
+                              <apex:param value="{!item.specialPrice}" />
+                          </apex:outputText>원
+                      </th>
+                  </tr>
+              </apex:repeat>
+            </table>
+            <table style="margin-top: 20px;">
+                <colgroup>
+                    <col width="80%"/>
+                    <col width="20%"/>
+                </colgroup>
+                <tr class="bottom-border">
+                    <th style="height: 30px;">실 판매가격+특장비용 (Total price + BB use case price)</th>
+                    <th style="height: 30px; text-align: right;">
+                        <apex:outputText value="{0,number,###,###}">
+                            <apex:param value="{!pdfWrapper.quoteTotalRealAndSpecialPrice}" />
+                        </apex:outputText>원
+                    </th>
+                </tr>
+            </table>
+          </div>
+
+          <div class="table-finance">
+            <table>
+              <colgroup>
+                  <col width="80%"/>
+                  <col width="20%"/>
+              </colgroup>
+              <tr class="bottom-border">
+                  <th colspan="4" style="height: 30px; font-size: 12px">지불조건 Financing – Based on Total Price [individual offering of MFS / other banks] [lump sum] </th>
+              </tr>
+              <tr>
+                  <th style="height: 30px;">인도금 (Downpayment) 계약금+선수금+부가세 유예금+인도금유예금</th>
+                  <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,#,###}">
+                      <!-- <apex:param value="{!totalDownVATDefer}" /> -->
+                  </apex:outputText>원
+                  </th>
+              </tr>
+              <tr>
+                <th style="height: 30px; font-weight: bold">계약금 (Deposit)</th>
+                <th style="height: 30px; text-align: right;">
+                  <apex:outputText value="{0,number,#,###}">
+                      <apex:param value="{!pdfWrapper.contractDeposit}" />
+                  </apex:outputText>원
+                </th>
+            </tr>
+              <tr>
+                  <th style="height: 30px;">선수금 (Advance payment for delivery)</th>
+                  <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                      <apex:param value="{!pdfWrapper.quoteAdvancePayment}"/>
+                    </apex:outputText>원
+                  </th>
+              </tr>
+              <tr>
+                  <th style="height: 30px;">부가세 유예금 (VAT Deferment)</th>
+                    <th style="height: 30px; text-align: right;">
+                        <apex:outputText value="{0,number,###,###}">
+                            <apex:param value="{!pdfWrapper.opportunityTaxDeferredAmount}"/>
+                        </apex:outputText>원
+                    </th>
+              </tr>
+              <tr>
+                <th style="height: 30px;">인도금 유예금 (Deffered payment)</th>
+                <th style="height: 30px; text-align: right;">
+                  <apex:outputText value="{0,number,###,###}">
+                      <apex:param value="{!pdfWrapper.opportunityPaymentDeferredAmount}"/>
+                  </apex:outputText>원
+                </th>
+              </tr>
+              <tr>
+                  <th style="height: 30px; font-weight: bold">할부원금 (Capital amount)</th>
+                  <th style="height: 30px; text-align: right;">
+                      <apex:outputText value="{0,number,###,###}">
+                          <apex:param value="{!pdfWrapper.loanAmount}"/>
+                      </apex:outputText>원
+                  </th>
+              </tr>
+              <tr>
+                  <th style="height: 30px;">캐피탈 VAT 유예금 (Capital VAT Deferment)</th>
+                  <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                      <apex:param value="{!pdfWrapper.quoteCapitalDefermentAmount}"/>
+                    </apex:outputText>원
+                  </th>
+              </tr>
+              <tr>
+                  <th style="height: 30px;">적용금리 (capital interest rate)</th>
+                  <th style="height: 30px; text-align: right;">
+                      <th style="text-align: right">
+                        <apex:outputText value="{!pdfWrapper.quoteDefaultInterestRate}" />%
+                      </th>
+                  </th>
+              </tr>
+              <tr>
+                  <th style="height: 30px;">개월 수 (Runtime)</th>
+                  <th style="height: 30px; text-align: right;">
+                      <apex:outputText value="{!pdfWrapper.quoteMonthDivideInputMonth}" />개월
+                  </th>
+              </tr>
+              <tr>
+                  <th style="height: 30px;">예상 월 할부금 (Expected monthly installment)</th>
+                  <th style="height: 30px; text-align: right;">
+                      <apex:outputText value="{0,number,###,###}">
+                          <apex:param value="{!pdfWrapper.quoteMonthlyPayment}" />
+                      </apex:outputText>원
+                  </th>
+              </tr>
+            </table>
+
+            <table style="margin-top: 20px;">
+              <colgroup>
+                  <col width="80%"/>
+                  <col width="20%"/>
+              </colgroup>
+              <tr class="bottom-border">
+                  <th colspan="4" style="height: 30px; font-size: 15px;">등록/부대비용 Additional purchase costs</th>
+              </tr>
+              <tr>
+                <th style="height: 30px;">공증료 (VAT Deferment Notarization fee)</th>
+                <th style="height: 30px; text-align: right;">
+                  <apex:outputText value="{0,number,###,###}">
+                      <apex:param value="{!pdfWrapper.quoteNotarizedFee}" />
+                  </apex:outputText>원
+                </th>
+              </tr>
+              <tr>
+                <th style="height: 30px;">탁송료 (Consignment fee)</th>
+                <th style="height: 30px; text-align: right;">
+                  <apex:outputText value="{0,number,###,###}">
+                      <apex:param value="{!pdfWrapper.quoteConsignmentPrice}"/>
+                  </apex:outputText>원
+                </th>
+              </tr>
+              <tr>
+                  <th style="height: 30px; text-align: left;">취등록세 (Registration fee)</th>
+                  <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                       <apex:param value="{!pdfWrapper.quoteRegistrationTax}" />
+                    </apex:outputText>원
+                </th>
+              </tr>
+            </table>
+            <div class="watermark2">
+              <table class="watermarkTest">
+                <colgroup>
+                  <col style="width: 10%;" />
+                  <col style="width: 5%;" />
+                  <col style="width: 40%;" />
+                  <col style="width: 40%;" />
+                  <col style="width: 5%;" />
+                </colgroup>
+                <tr class="bottom-border">
+                    <td>매도인(갑)</td>
+                    <td>주소</td>
+                    <td>경기도 용인시 기흥구 보라하갈로 57 만트럭버스코리아</td>
+                    <td>대표이사 ANDERSSON LARS PETER MARTIN</td>
+                    <td>
+                      <apex:image value="{!$Resource.ManStamp}" />
+                    </td>
+                </tr>
+              </table>
+              <table class="watermarkTest">
+                <colgroup>
+                  <col style="width: 10%;" />
+                  <col style="width: 5%;" />
+                  <col style="width: 35%;" />
+                  <col style="width: 5%;" />
+                  <col style="width: 25%;" />
+                  <col style="width: 15%;" />
+                  <col style="width: 10%;" />
+                  <col style="width: 5%;" />
+                </colgroup>
+                <tr class="bottom-border">
+                  <td>매도인(을)</td>
+                  <td>주소</td>
+                  <td>{!pdfWrapper.accountRoadAddress}</td>
+                  <td>성명</td>
+                  <td>{!pdfWrapper.accountName}</td>
+                  <td>사업자명</td>
+                  <td>
+                    <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountName, '')}" />
+                  </td>
+                  <td>(인)</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+      </apex:outputPanel>
+
+      <apex:outputPanel layout="block" rendered="{!lang == 'EN'}">
+
+      <div class="table-div">
+        <table class="logoTableSheet">
+          <div class="title">MAN Truck &amp; Bus Korea Ltd.</div>
+          <div style="font-size: 15px;">57, Borahagal-ro, Giheung-gu, Yongin-si, Gyeonggi-do</div>
+          {!pdfWrapper.accountName}
+        </table>
+
+        <table class="saDetailInfo">
+          <colgroup>
+            <col width="10%"/>
+            <col width="20%"/>
+            <col width="25%"/>
+            <col width="30%"/>
+            <col width="15%"/>
+          </colgroup>
+          <thead>
+            <th>Sales Agent</th>
+            <th>Phone</th>
+            <th>Fax</th>
+            <th>Email</th>
+            <th>Date</th>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{!pdfWrapper.opportunityOwnerName}</td>
+              <td>{!pdfWrapper.ownerPhone}</td>
+              <td>{!pdfWrapper.ownerFax}</td>
+              <td>{!pdfWrapper.ownerEmail}</td>
+              <td>{!pdfWrapper.formatStartDate}</td>
+          </tr>
+          </tbody>
+        </table>
+        <p>
+          ContractNumber: {!pdfWrapper.contractNumber}
+          <br/>
+          <br/>
+          Dear Customer,
+          <br/>
+          <br/>
+          Thank you sincerely for purchasing a MAN Truck &amp; Bus Korea vehicle
+          <br/>
+          We hope that the MAN vehicle you have chosen will bring you great satisfaction and joy on your journey ahead.
+          <br/>
+          <br/>
+          We are always committed to providing you with the best service and the highest vehicle quality.
+          <br/>
+          <br/>
+          If you have any questions or need any assistance while using your vehicle, please feel free to contact us anytime.
+          <br/>
+          <br/>
+          Thank you.
+          <br/>
+          <br/>
+        </p>
+        <hr/>
+        <h2 class="manTruck">
+          MAN Truck &amp; Bus Korea Ltd
+          <br/>
+          ANDERSSON LARS PETER MARTIN
+        </h2>
+
+        <p class="watermark" style="text-align: right; margin: 10px;">
+          {!pdfWrapper.accountName}
+          <br/>
+          {!pdfWrapper.contractNumber}
+          <br/>
+        </p>
+
+        <table class="logoBottomSheet">
+          <th class="logoBottomText">
+            3rd FL 57, Borahagal-ro, Giheung-gu
+            <br/>
+            Yongin city, Gyeonggi-do, Korea 17099
+            <br/>
+            Telephone 080 661 1472 Telefax 031 8014 5833
+            <br/>
+            MAN Truck &amp; Bus Korea Ltd. &amp; www.manturck.co.kr
+          </th>
+          <th class="logoBottomImg">
+            <apex:image value="{!$Resource.ManTest}" />
+          </th>
+
+        </table>
+      </div>
+
+      <div class="table-logoSheet">
+        <table class="logoTableSheet">
+          <div class="title">MAN Truck &amp; Bus Korea Ltd.</div>
+          <div style="font-size: 10px;">만트럭버스코리아는 전국 어디서나 동일한 가격 및 조건 제공을 약속드립니다.</div>
+        </table>
+        <h3>자동차/건설기계 매매계약서</h3>
+      </div>
+      <div style="text-align: right; padding-right: 80px; font-size: 10px; color:red">다음 계약내용 및 계약조항의 주요내용에 대한 설명을 듣고 계약서 1통을 정히 수령하였음을 확인함</div>
+
+        <div class="table-container">
+          <table>
+            <tr class="top-border bottom-border">
+              <th>Contract No.</th>
+              <td>{!pdfWrapper.contractNumber}</td>
+              <th>Contract Date</th>
+              <td>{!pdfWrapper.formatStartDate}</td>
+            </tr>
+          </table>
+
+          <table>
+            <tr class="bottom-border">
+              <th>Vehicle Model</th>
+              <td colspan="2">{!pdfWrapper.quoteProductName}</td>
+              <th>Vehicle Color</th>
+              <td colspan="2">{!pdfWrapper.quoteProductColour}</td>
+            </tr>
+            <!-- <apex:variable var="optionItems" value="" />
+            <apex:variable var="basicItems" value="" />
+            <apex:outputPanel rendered="{!NOT(ISNULL(pdfWrapper.optionList)) && pdfWrapper.optionList.size > 0}">
+              <apex:repeat value="{!pdfWrapper.optionList}" var="item">
+                  <apex:variable var="optionItems" 
+                      value="{!IF(item.optionPrice > 0, optionItems & item.optionName & '<br/>', optionItems)}" />
+                  <apex:variable var="basicItems" 
+                      value="{!IF(item.optionPrice == 0, basicItems & item.optionName & '<br/>', basicItems)}" />
+              </apex:repeat>
+            </apex:outputPanel>
+            <tr>
+                <th colspan="1">Option Item</th>
+                <td colspan="5"><apex:outputText escape="false" value="{!IF(ISNULL(optionItems), '', optionItems)}" /></td>
+            </tr>
+            <tr>
+                <th colspan="1">Standard Item</th>
+                <td colspan="5"><apex:outputText escape="false" value="{!IF(ISNULL(basicItems), '', basicItems)}"/></td>
+            </tr> -->
+
+            <tr>
+              <th colspan="1">Option Item</th>
+              <td colspan="5">
+                  <apex:repeat value="{!pdfWrapper.optionList}" var="item">
+                      <apex:outputText escape="false" value="{!IF(item.optionPrice > 0, item.optionName & '<br/>', '')}" />
+                  </apex:repeat>
+              </td>
+            </tr>
+            <tr>
+                <th colspan="1">Standard Item</th>
+                <td colspan="5">
+                    <apex:repeat value="{!pdfWrapper.optionList}" var="item">
+                        <apex:outputText escape="false" value="{!IF(item.optionPrice == 0, item.optionName & '<br/>', '')}" />
+                    </apex:repeat>
+                </td>
+            </tr>
+            <tr>
+              <th>Vehicle Price</th>
+              <td style="text-align: right;">
+                <apex:outputText value="{0,number,###,###}">
+                    <!-- <apex:param value="{!IF(ISNULL(pdfWrapper.product.productPrice), 0, pdfWrapper.product.productPrice)}" /> -->
+                    <apex:param value="{!pdfWrapper.product.productPrice}" />
+                </apex:outputText>
+              </td>
+              <th>Deposit</th>
+              <td style="text-align: right;">
+                <apex:outputText value="{0,number,#,###}">
+                    <apex:param value="{!pdfWrapper.contractDeposit}" />
+                </apex:outputText>
+              </td>
+              <th>Capital Company</th>
+              <td>{!pdfWrapper.quoteFinanceName}</td>
+            </tr>
+            <tr>
+              <th>Option Price</th>
+              <td style="text-align: right;">
+                <apex:outputText value="{0,number,###,###}">
+                  <apex:param value="{!pdfWrapper.quoteTotalVehiclePrice - pdfWrapper.product.productPrice}" />
+                </apex:outputText>
+              </td>
+              <th>Downpayment</th>
+              <td style="text-align: right;">
+                <apex:outputText value="{0,number,#,###}">
+                    <!-- <apex:param value="{!totalDownVATDefer}" /> -->
+                </apex:outputText>
+              </td>
+              <th>Capital Rate</th>
+              <td>{!pdfWrapper.quoteDefaultInterestRate}%</td> 
+            </tr>
+            <tr>
+              <th>Downpayment Discount </th>
+              <td style="text-align: right;">
+                <apex:outputText value="{0,number,###,###}">
+                  <apex:param value="{!pdfWrapper.quoteDeliveryDiscountPrice}" />
+                </apex:outputText>
+              </td>
+              <th>Capital Amount</th>
+              <td style="text-align: right;">
+                <apex:outputText value="{0,number,###,###}">
+                  <apex:param value="{!pdfWrapper.loanAmount}"/>
+                </apex:outputText>
+              </td>
+              <th>Capital Deferred Months</th>
+              <!-- <apex:repeat value="{!pdfWrapper.defermentList}" var="req">
+                <td>{!req.requestDays}Months</td>
+              </apex:repeat> -->
+              <!-- <apex:outputPanel layout="none" rendered="{!isDefermentReq}">
+                <td></td>   
+              </apex:outputPanel> -->
+              <td></td>
+            </tr>
+            <tr>
+              <th>Vehicle Sale Price 1</th>
+              <td style="text-align: right;">
+                <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!pdfWrapper.contractRealSalesPrice}" />
+                </apex:outputText>
+              </td>
+              <th>Capital VAT Deferment</th>
+              <td style="text-align: right;">
+                <apex:outputText value="{0,number,###,###}">
+                  <apex:param value="{!pdfWrapper.quoteCapitalDefermentAmount}"/>
+                </apex:outputText>
+              </td>
+              <th>Capital installment Months</th>
+              <td>
+                <apex:outputText value="{!pdfWrapper.quoteMonthDivideInputMonth}"/>Months
+              </td>
+            </tr>
+            <tr>
+              <th>Vehicle Sales Price 2</th>
+              <td style="text-align: right;">
+                <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!pdfWrapper.contractRealSalesPrice}" />
+                </apex:outputText>
+              </td>
+              <th>Total Capital Amount</th>
+              <td style="text-align: right;">
+                <apex:outputText value="{0,number,###,###}">
+                  <apex:param value="{!pdfWrapper.quoteTotalLoanAmount}"/> 
+                </apex:outputText>
+              </td>
+              <th>Capital Monthly Installments</th>
+              <td style="text-align: right;">
+                <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!pdfWrapper.quoteMonthlyPayment}" />
+                </apex:outputText>
+              </td>
+            </tr>
+          </table>
+
+          <table>
+            <tr class="bottom-border">
+              <th colspan="6">Special Conditions</th>
+            </tr>
+            <tr>
+              <th>VAT Deferment</th>
+              <td style="text-align: right;">
+                <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!pdfWrapper.opportunityTaxDeferredAmount}"/>
+                </apex:outputText>
+              </td>
+              <th>VAT Deferment Interest</th>
+              <td style="text-align: right;">
+                <apex:outputText value="{0,number,#,###}">
+                    <apex:param value="{!pdfWrapper.quoteInterestDefermentVAT}" />
+                  </apex:outputText>
+              </td>
+              <th>VAT Deferment Notarization fee</th>
+              <td style="text-align: right;">
+                <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!pdfWrapper.quoteNotarizedFee}" />
+                </apex:outputText>
+              </td>
+            </tr>
+            <tr>
+              <th>Deffered payment</th>
+              <td style="text-align: right;">
+                <apex:outputText value="{0,number,###,###}">
+                  <apex:param value="{!pdfWrapper.opportunityPaymentDeferredAmount}"/>
+                </apex:outputText>
+              </td>
+              <th></th>
+              <td></td>
+              <th></th>
+              <td></td>
+            </tr>
+          </table>
+          <table>
+            <tr class="bottom-border">
+              <th colspan="6">Customer</th>
+            </tr>
+            <tr>
+              <th>Name</th>
+              <td>{!pdfWrapper.accountName}</td>
+              <th>Birth Date</th>
+              <td></td>
+              <!-- <td>{!LEFT(pdfWrapper.accountIDNumber, FIND("-", pdfWrapper.accountIDNumber) - 1)}</td> -->
+              <th>Phone</th>
+              <td>{!pdfWrapper.accountPersonMobilePhone}</td>
+            </tr>
+            <tr>
+              <th>Residential Number(Biz Number)</th>
+              <td style="text-align: right">
+                <apex:outputText value="{!IF(
+                  AND(NOT(ISBLANK(pdfWrapper.accountIDNumber)), NOT(ISBLANK(pdfWrapper.accountBusinessNumber))),
+                  pdfWrapper.accountIDNumber & ' / ' & pdfWrapper.accountBusinessNumber,
+                  IF(NOT(ISBLANK(pdfWrapper.accountIDNumber)), 
+                      pdfWrapper.accountIDNumber, 
+                      pdfWrapper.accountBusinessNumber))}">
+                </apex:outputText>      
+              </td>
+              <th>Company Name</th>
+              <td>
+                <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountName, '')}" />
+              </td> 
+              <th>Business Type</th>
+              <td>{!pdfWrapper.accountBusinessCategory}</td>
+            </tr>
+            <tr>
+              <th>Adderess</th>
+              <td colspan="3">{!pdfWrapper.accountRoadAddress}</td>
+              <th>Email</th>
+              <td>{!pdfWrapper.accountPersonEmail}</td>
+            </tr>
+          </table>
+          <table>
+            <tr class="bottom-border">
+              <th colspan="6">Real driver</th>
+            </tr>
+            <tr>
+              <th>Name</th>
+              <td>{!pdfWrapper.accountRealDriver}</td>
+              <th>Birth date</th>
+              <td></td>
+              <!-- <td>{!LEFT(pdfWrapper.accountRealDriverIDNumber, FIND("-", pdfWrapper.accountRealDriverIDNumber) - 1)}</td> -->
+              <th>Phone</th>
+              <td>{!pdfWrapper.accountRealDriverMobile}</td>
+            </tr>
+            <tr>
+              <th>Residential number(Biz number)</th>
+              <td style="text-align: right">{!pdfWrapper.accountRealDriverIDNumber}</td>
+              <th>Email</th>
+              <td>{!pdfWrapper.accountRealDriverEmail}</td>
+              <th></th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Adderess</th>
+              <td colspan="5">{!pdfWrapper.accountRealDriverAddress}</td>
+            </tr>
+          </table>
+          <table>
+            <tr class="bottom-border">
+              <th colspan="6">Customer only deposit account</th>
+            </tr>
+            <tr>
+              <th>Virtue account</th>
+              <td>{!pdfWrapper.virtualAccount}</td>
+              <th>Bank</th>
+              <td>씨티은행</td>
+              <th>Account owner</th>
+              <td>만트럭버스</td>
+            </tr>
+          </table> 
+          <div style="font-size: 10px; color: red;">1. 계약서마다 가상계좌번호가 상이하므로 반드시 각 계약건의 가상게좌번호를 확인해주시기 바랍니다.</div>
+          <div style="font-size: 10px; color: red;">2. 고객님의 차량 배정 및 계약의 확정을 위해 계약금은 환불이 불가능합니다.</div>
+          <div style="font-size: 10px; color: red;">3. 자동차 매매대금 송금은 고객전용 입금계좌로만 가능합니다. 이 외 다른 계좌로 송금 유도 시 즉시 고객센터로 신고해주세요.</div>
+        </div>
+        <div class="table-price">
+          <table>
+            <tr class="top-border bottom-border">
+              <th>Receipt</th>
+              <td></td>
+              <th>Deposit Amount</th>
+              <td style="text-align: right">
+                <apex:outputText value="{0,number,#,###}">
+                    <apex:param value="{!pdfWrapper.contractDeposit}" />
+                </apex:outputText>
+              </td>
+              <th>Deposit date</th>
+              <!-- <td>{!formatTaxDate}</td> -->
+              <td></td>
+            </tr>
+          </table>
+          <div style="font-size: 10px;">*본 영수증은 자동차 매매대금용으로만 효력이 있으며 기타용도 사용은 무효입니다.</div>
+          <table>
+            <h3 style="text-align: left;">
+                Price Break Down
+            </h3>
+            <colgroup>
+                <col width="10%"/>
+                <col width="70%"/>
+                <col width="20%"/>
+            </colgroup>
+            <tr class="bottom-border">
+                <th colspan="2">차량 가격 Vehicle</th>
+                <th style="text-align: right;">
+                  <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!pdfWrapper.quoteTotalVehiclePrice}" />
+                  </apex:outputText>
+                </th>
+            </tr>
+            <tr>
+                <!-- <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(quoteDetail['product']['name']))}">
+                  <td colspan="2">{!quoteDetail['product']['name']}</td>
+                </apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!ISBLANK(quoteDetail['product']['name'])}">
+                  <td colspan="2"></td>
+                </apex:outputPanel> -->
+                <td colspan="2">{!pdfWrapper.product.productName}</td>
+
+                <!-- <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(pdfWrapper.product.productPrice))}">
+                  <td style="text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!pdfWrapper.product.productPrice}" />
+                    </apex:outputText>
+                  </td>
+                </apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!ISBLANK(pdfWrapper.product.productPrice)}">
+                  <td></td>
+                </apex:outputPanel> -->
+                <td style="text-align: right;">
+                  <apex:outputText value="{0,number,###,###}">
+                      <apex:param value="{!pdfWrapper.product.productPrice}" />
+                  </apex:outputText>
+                </td>
+            </tr>
+            <tr>
+              <td colspan="2">Option</td>
+              <td style="text-align: right;">
+                  <apex:outputText value="{0,number,###,###}">
+                      <apex:param value="{!pdfWrapper.quoteTotalVehiclePrice - pdfWrapper.product.productPrice}" />
+                  </apex:outputText>
+              </td>
+              <td></td>
+            </tr>
+            <apex:repeat value="{!pdfWrapper.optionList}" var="item">
+                <tr>
+                    <td></td>
+                    <td>{!item.optionName}</td>
+                    <td style="text-align: right;">
+                        <apex:outputText value="{0,number,###,###}">
+                            <apex:param value="{!item.optionPrice}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+            </apex:repeat>
+          </table>
+          <table style="margin-top: 20px;">
+            <colgroup>
+                <col width="80%"/>
+                <col width="20%"/>
+            </colgroup>
+            <tr class="bottom-border">
+                <th style="font-size: 15px">Total Discount</th>
+                <th style="text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!pdfWrapper.quoteTotalDiscountAmt}" />
+                    </apex:outputText>
+                </th>
+            </tr>
+            <tr>
+                <th>Basic Discount</th>
+                <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <!-- <apex:param value="{!IF(baseDiscount == null, 0, (pdfWrapper.product.productPrice * baseDiscount / 100))}" /> -->
+                        <apex:param value="{!IF(ISBLANK(baseDiscount), 0, (pdfWrapper.product.productPrice * baseDiscount / 100))}" />
+                        <!-- <apex:param value="{!pdfWrapper.product.productPrice * pdfWrapper.baseDiscount / 100}" /> -->
+                    </apex:outputText>
+                </th>
+            </tr>
+            <!-- <apex:repeat value="{!quoteDetail['promotion']}" var="item"> -->
+            <apex:repeat value="{!pdfWrapper.promotionList}" var="item">
+              <tr>
+                <th style="text-align: left; ">{!item.promotionName}</th>
+                <th style="text-align: right; ">
+                    <apex:outputText value="{0,number,###,###}">
+                        <!-- <apex:param value="{!IF(item['discountPrice'] == null, (pdfWrapper.product.productPrice * item['discountRate']) , item['discountPrice'])}" /> -->
+                        <!-- <apex:param value="{!IF(item.promotionDiscountPrice== null, (pdfWrapper.product.productPrice * item.promotionDiscountRate) , item.promotionDiscountPrice)}" /> -->
+                        <apex:param value="{!IF(ISBLANK(item.promotionDiscountPrice), (pdfWrapper.product.productPrice * item.promotionDiscountRate) , item.promotionDiscountPrice)}" />
+                      </apex:outputText>
+                </th>
+              </tr>
+            </apex:repeat>
+            <tr>
+              <th>Additional Vehicle Discount</th>
+              <th style="text-align: right;">
+                <apex:outputText value="{0,number,###,###}">
+                  <apex:param value="{!pdfWrapper.quoteVehicleDiscountPrice}" />
+                </apex:outputText>
+              </th>
+            </tr>
+          </table>
+          <table style="margin-top: 20px;">
+            <colgroup>
+                <col width="80%"/>
+                <col width="20%"/>
+            </colgroup>
+            <tr class="bottom-border">
+                <th style="font-size: 15px">Total Discount Provide division</th>
+                <th style="height: 30px; text-align: right;">
+                  <apex:outputText value="{0,number,###,###}">
+                      <apex:param value="{!pdfWrapper.quoteTotalDiscountAmt}" />
+                  </apex:outputText>
+                </th>
+            </tr>
+            <tr>
+              <th>Downpayment Discount</th>
+              <th style="height: 30px; text-align: right;">
+                <apex:outputText value="{0,number,###,###}">
+                  <apex:param value="{!pdfWrapper.quoteDeliveryDiscountPrice}" />
+                </apex:outputText>
+              </th>
+            </tr>
+            <tr>
+                <th>Oil Coupon</th>
+                <th style="height: 30px; text-align: right;">
+                  <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!pdfWrapper.quoteOilCouponPrice}" />
+                  </apex:outputText>
+              </th>
+            </tr>
+            <tr class="bottom-border">
+                <th>VAT Deferment Interest</th>
+                <th style="height: 30px; text-align: right;">
+                  <apex:outputText value="{0,number,#,###}">
+                    <apex:param value="{!pdfWrapper.quoteInterestDefermentVAT}" />
+                  </apex:outputText>
+                </th>
+            </tr>
+          </table>
+          <table style="margin-top: 10px;">
+              <colgroup>
+                  <col width="80%"/>
+                  <col width="20%"/>
+              </colgroup>
+              <tr class="bottom-border">
+                <th style="height: 30px; font-size: 15px;">Total Price</th>
+                  <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!realSaleDiscount}" />
+                      </apex:outputText>
+                  </th>
+              </tr>
+          </table>   
+          <table style="margin-top: 10px;">
+            <colgroup>
+                <col width="80%"/>
+                <col width="20%"/>
+            </colgroup>
+            <tr>
+                <th style="height: 30px;">BB Use Case</th>
+            </tr>
+            <!-- <apex:repeat value="{!quoteDetail['special']}" var="item">
+                <tr>
+                    <th style="text-align: left; ">{!item['subOption']}</th>
+                    <th style="text-align: right; ">
+                        <apex:outputText value="{0,number,###,###}">
+                            <apex:param value="{!item['price']}" />
+                        </apex:outputText>
+                    </th>
+                </tr>
+            </apex:repeat> -->
+            <apex:repeat value="{!pdfWrapper.specialList}" var="item">
+                <tr>
+                    <th style="text-align: left; ">{!item.specialSubOption}</th>
+                    <th style="text-align: right; ">
+                        <apex:outputText value="{0,number,###,###}">
+                            <apex:param value="{!item.specialPrice}" />
+                        </apex:outputText>
+                    </th>
+                </tr>
+            </apex:repeat>
+          </table>
+          <table style="margin-top: 20px;">
+              <colgroup>
+                  <col width="80%"/>
+                  <col width="20%"/>
+              </colgroup>
+              <tr class="bottom-border">
+                  <th style="height: 30px;">Total price + BB use case price</th>
+                  <th style="height: 30px; text-align: right;">
+                      <apex:outputText value="{0,number,###,###}">
+                          <apex:param value="{!pdfWrapper.quoteTotalRealAndSpecialPrice}" />
+                      </apex:outputText>
+                  </th>
+              </tr>
+          </table>
+        </div>
+
+        <div class="table-finance">
+          <table>
+            <colgroup>
+                <col width="80%"/>
+                <col width="20%"/>
+            </colgroup>
+            <tr class="bottom-border">
+                <th colspan="4" style="height: 30px; font-size: 15px">Financing – Based on Total Price [individual offering of MFS / other banks] [lump sum] </th>
+            </tr>
+            <tr>
+                <th style="height: 30px;">Downpayment</th>
+                <th style="height: 30px; text-align: right;">
+                  <apex:outputText value="{0,number,#,###}">
+                    <!-- <apex:param value="{!totalDownVATDefer}" /> -->
+                </apex:outputText>
+                </th>
+            </tr>
+            <tr>
+              <th style="height: 30px; font-weight: bold">Deposit</th>
+              <th style="height: 30px; text-align: right;">
+                <apex:outputText value="{0,number,#,###}">
+                  <apex:param value="{!pdfWrapper.contractDeposit}" />
+                </apex:outputText>
+              </th>
+          </tr>
+            <tr>
+                <th style="height: 30px;">Advance payment for delivery</th>
+                <th style="height: 30px; text-align: right;">
+                  <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!pdfWrapper.quoteAdvancePayment}"/>
+                  </apex:outputText>
+                </th>
+            </tr>
+            <tr>
+                <th style="height: 30px;">VAT Deferment</th>
+                  <th style="height: 30px; text-align: right;">
+                      <apex:outputText value="{0,number,###,###}">
+                          <apex:param value="{!pdfWrapper.opportunityTaxDeferredAmount}"/>
+                      </apex:outputText>
+                  </th>
+            </tr>
+            <tr>
+              <th style="height: 30px;">Deffered payment</th>
+              <th style="height: 30px; text-align: right;">
+                <apex:outputText value="{0,number,###,###}">
+                      <apex:param value="{!pdfWrapper.opportunityPaymentDeferredAmount}"/>
+                  </apex:outputText>
+              </th>
+            </tr>
+            <tr>
+                <th style="height: 30px; font-weight: bold">Capital amount</th>
+                <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!pdfWrapper.loanAmount}"/>
+                    </apex:outputText>
+                </th>
+            </tr>
+            <tr>
+                <th style="height: 30px;">Capital VAT Deferment</th>
+                <th style="height: 30px; text-align: right;">
+                  <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!pdfWrapper.quoteCapitalDefermentAmount}"/>
+                  </apex:outputText>
+                </th>
+            </tr>
+            <tr>
+                <th style="height: 30px;">capital interest rate</th>
+                <th style="height: 30px; text-align: right;">
+                    <th style="text-align: right">
+                      <apex:outputText value="{!pdfWrapper.quoteDefaultInterestRate}" />%
+                    </th>
+                </th>
+            </tr>
+            <tr>
+                <th style="height: 30px;">Runtime</th>
+                <th style="height: 30px; text-align: right;">
+                  <apex:outputText value="{!pdfWrapper.quoteMonthDivideInputMonth}" /> Months
+                </th>
+            </tr>
+            <tr>
+                <th style="height: 30px;">Expected monthly installment</th>
+                <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!pdfWrapper.quoteMonthlyPayment}" />
+                    </apex:outputText>
+                </th>
+            </tr>
+          </table>
+
+          <table style="margin-top: 20px;">
+            <colgroup>
+                <col width="80%"/>
+                <col width="20%"/>
+            </colgroup>
+            <tr class="bottom-border">
+                <th colspan="4" style="height: 30px; font-size: 15px;">Additional purchase costs</th>
+            </tr>
+            <tr>
+              <th style="height: 30px;">VAT Deferment Notarization fee</th>
+              <th style="height: 30px; text-align: right;">
+                <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!pdfWrapper.quoteNotarizedFee}" />
+                </apex:outputText>
+              </th>
+            </tr>
+            <tr>
+              <th style="height: 30px;">Consignment fee</th>
+              <th style="height: 30px; text-align: right;">
+                <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!pdfWrapper.quoteConsignmentPrice}"/>
+                </apex:outputText>
+              </th>
+            </tr>
+            <tr>
+                <th style="height: 30px; text-align: left;">Registration fee</th>
+                <th style="height: 30px; text-align: right;">
+                  <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!pdfWrapper.quoteRegistrationTax}" />  
+                  </apex:outputText>
+              </th>
+            </tr>
+          </table>
+          <div class="watermark2">
+            <table class="watermarkTest">
+              <colgroup>
+                <col style="width: 10%;" />
+                <col style="width: 10%;" />
+                <col style="width: 40%;" />
+                <col style="width: 35%;" />
+                <col style="width: 5%;" />
+              </colgroup>
+              <tr class="bottom-border">
+                  <td>Seller</td>
+                  <td>Adderess</td>
+                  <td>57, Borahagal-ro, Giheung-gu, Yongin-si, Gyeonggi-do</td>
+                  <td>ANDERSSON LARS PETER MARTIN</td>  
+                  <td>
+                    <apex:image value="{!$Resource.ManStamp}" />
+                  </td>  
+              </tr>
+            </table>
+            <table class="watermarkTest">
+              <colgroup>
+                <col style="width: 10%;" />
+                <col style="width: 5%;" />
+                <col style="width: 35%;" />
+                <col style="width: 5%;" />
+                <col style="width: 25%;" />
+                <col style="width: 15%;" />
+                <col style="width: 10%;" />
+                <col style="width: 5%;" />
+              </colgroup>
+              <tr class="bottom-border">
+                <td>Customer</td>
+                <td>Adderess</td>  
+                <td>{!pdfWrapper.accountRoadAddress}</td>  
+                <td>Name</td>  
+                <td>{!pdfWrapper.accountName}</td>  
+                <td>Company Name</td>
+                <td>
+                  <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountName, '')}" />
+                </td>  
+                <td>(sign)</td>  
+              </tr>
+            </table>
+          </div> 
+        </div>
+      </apex:outputPanel>
+    </body>
+
+    <apex:image url="{!$Resource.ContractTemp}" styleClass="background-image"></apex:image>
+    <apex:image url="{!$Resource.ContractImg1}" styleClass="full-page-image"></apex:image>
+    <apex:image url="{!$Resource.ContractImg2}" styleClass="full-page-image"></apex:image>
+    <apex:image url="{!$Resource.ContractImg3}" styleClass="full-page-image"></apex:image>
+    
+    <apex:outputPanel rendered="{!selectedOption == 'all'}">
+      <div>
+        <apex:image url="{!$Resource.RIO_Image}" styleClass="full-page-image"></apex:image>
+        <apex:image url="{!$Resource.MDS_Image}" styleClass="full-page-image"></apex:image>
+      </div>
+    </apex:outputPanel>
+  </apex:outputPanel>
+  
+  <apex:outputPanel rendered="{!selectedOption == 'riomds'}">
+    <apex:image url="{!$Resource.RIO_Image}" styleClass="full-page-image"></apex:image>
+    <apex:image url="{!$Resource.MDS_Image}" styleClass="full-page-image"></apex:image>
+  </apex:outputPanel>
+<!-- RIO & MDS -->
+<!--  <apex:outputPanel rendered="{!selectedOption == 'all' || selectedOption == 'riomds'}">-->
+  <!-- <apex:outputPanel rendered="{!selectedOption == 'all'}">
+    <div class="page-break">
+      <apex:image url="{!$Resource.RIO_Image}" styleClass="full-page-image"></apex:image>
+      <apex:image url="{!$Resource.MDS_Image}" styleClass="full-page-image"></apex:image>
+    </div>
+  </apex:outputPanel>
+  <apex:outputPanel rendered="{!selectedOption == 'riomds'}">
+    <apex:image url="{!$Resource.RIO_Image}" styleClass="full-page-image"></apex:image>
+    <apex:image url="{!$Resource.MDS_Image}" styleClass="full-page-image"></apex:image>
+  </apex:outputPanel> -->
+</apex:page>

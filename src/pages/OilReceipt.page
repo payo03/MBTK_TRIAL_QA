@@ -1,0 +1,83 @@
+<!--
+ * @author : San.Kang
+ * @date : 2025-02-11
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-02-11      San.Kang          Initial Version
+-->
+<apex:page showHeader="false" sidebar="false" controller="OilReceiptController" standardStylesheets="false" renderAs="pdf">
+    <html>
+    <table align="center" border="0" cellpadding="1" cellspacing="0" style="margin-top:90px;width:700px; border-collapse:initial;">
+        <tr>
+            <td align="center"><apex:outputlabel value="주유상품권 수령증"  style="font-size:30px;font-family: Arial Unicode MS;"/></td>
+        </tr>
+        <tr>
+            <td align="center"><apex:outputlabel value="(Receipt)"  style="font-size:30px; font-family: Arial Unicode MS;"/></td>
+        </tr>
+    </table>
+    <br/><br/><br/>
+
+    <apex:outputlabel value="■지급 정보 (Information)"  style="font-size:20px;font-family: Arial Unicode MS;"/><br/><br/><br/>
+    <table align="center" border="1" cellpadding="1" cellspacing="0" style="width:650px; border-collapse:initial;">
+        <tr>
+            <td align="center" style="width:200px; height:46px;"><apex:outputlabel value="품명 (Item)"  style="font-family: Arial Unicode MS;"/></td>
+            <td align="center" style="height:46px;"><apex:outputlabel value="주유상품권 (Oil coupon)"  style="font-family: Arial Unicode MS;"/></td>
+        </tr>
+        <tr>
+            <td align="center" style="width:200px; height:46px;"><apex:outputlabel value="금액 (Amount)"  style="font-family: Arial Unicode MS;"/></td>
+            <td align="center" style="height:46px;">
+                <apex:outputText value="{!totalOilCouponAmt} 원"  style="font-family: Arial Unicode MS;"/>
+            </td>
+        </tr>
+        <tr>
+            <td align="center" style="width:200px; height:46px;"><apex:outputlabel value="계약자 (Customer)"  style="font-family: Arial Unicode MS;"/></td>
+            <td align="center" style="height:46px;"><apex:outputlabel value="{!opportunity.Account.Name}"  style="font-family: Arial Unicode MS;"/></td>
+        </tr>
+        <tr>
+            <td align="center" style="width:200px; height:46px;"><apex:outputlabel value="차종 (Car model)"  style="font-family: Arial Unicode MS;"/></td>
+<!--            <td align="center" style="height:46px;"><apex:outputlabel value="{!IF(truck.RealDeliveredVehicle__c==null,truck.Report_Spec__c,truck.RealDeliveredVehicle__r.Report_Spec__c)}"  style="font-family: Arial Unicode MS;"/></td>-->
+            <td align="center" style="height:46px;"><apex:outputlabel value="{!vehicleStock.Product__r.VehicleCategory__r.Report_Spec__c}"  style="font-family: Arial Unicode MS;"/></td>
+        </tr>
+        <tr>
+            <td align="center" style="width:200px; height:46px;"><apex:outputlabel value="차대번호 (VIN)"  style="font-family: Arial Unicode MS;"/></td>
+<!--            <td align="center" style="height:46px;"><apex:outputlabel value="{!IF(truck.RealDeliveredVehicle__c==null,truck.ChassisFrameNo__c,truck.RealDeliveredVehicle__r.ChassisFrameNo__c)} / {!IF(truck.RealDeliveredVehicle__c==null,truck.VehicleNo__c,truck.RealDeliveredVehicle__r.VehicleNo__c)}"  style="font-family: Arial Unicode MS;"/></td>-->
+            <td align="center" style="height:46px;"><apex:outputlabel value="{!vehicleStock.Name} / {!vehicleStock.VehicleNo__c}"  style="font-family: Arial Unicode MS;"/></td>
+        </tr>
+        <tr>
+            <td align="center" style="width:200px; height:46px;"><apex:outputlabel value="비고 (remarks)"  style="font-family: Arial Unicode MS;"/></td>
+            <td align="center" style="height:46px;"><apex:outputlabel value=""  style="font-family: Arial Unicode MS;"/></td>
+        </tr>
+
+
+    </table>
+    <br/><br/><br/><br/>
+    <table align="center" border="0" cellpadding="1" cellspacing="0" style="width:700px; border-collapse:initial;">
+        <tr>
+            <td align="center" colspan="2" style="height:46px;"><apex:outputlabel value="위 상품권 금액을 이상 없이 수령함"  style="font-family: Arial Unicode MS;"/></td>
+        </tr>
+        <tr>
+            <td align="center" colspan="2" style="height:46px;"><apex:outputlabel value="(I have received oil coupon as stated above.)"  style="font-family: Arial Unicode MS;"/><br/><br/></td>
+        </tr>
+        <tr>
+            <td style="height:46px;" colspan="2" >&nbsp;</td>
+        </tr>
+        <tr>
+            <td align="center" style="height:46px;" colspan="2" ><apex:outputlabel value="출 고 일 (Delivery date) :  {!YEAR(vehicleStock.WantedOutDT__c)}년 {!MONTH(vehicleStock.WantedOutDT__c)}월 {!DAY(vehicleStock.WantedOutDT__c)}일"  style="font-family: Arial Unicode MS;"/><br/></td>
+        </tr>
+        <tr>
+            <td align="right" style="height:46px;">
+                <apex:outputlabel value="수 령 인  서 명 (sign) : "  style="font-family: Arial Unicode MS;"/>
+            </td>
+            <td align="left">
+<!--                <apex:image url="{!sig.Url__c}" width="120" height="45" rendered="{!sig!=null}" />-->
+<!--                <apex:outputPanel style="width:120;height:45;" rendered="{!sig==null}" >-->
+<!--                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+<!--                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+<!--                </apex:outputPanel>-->
+            </td>
+        </tr>
+    </table>
+    </html>
+</apex:page>

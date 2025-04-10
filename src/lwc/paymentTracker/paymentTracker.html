@@ -1,0 +1,149 @@
+<template>
+    <div class="slds-card slds-p-horizontal_small box-wrap">
+
+        <div class="slds-page-header slds-page-header_record-home box-wrap">
+            <div class="slds-page-header__row">
+
+                <!-- Title Wrap Start -->
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <lightning-icon icon-name="standard:pricebook"></lightning-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h1>
+                                        <span
+                                            class="slds-page-header__title slds-truncate">고객 결제 현황 (Payment Tracker) </span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slds-page-header__col-actions">
+					<div class="slds-page-header__controls">
+						<div class="slds-page-header__control">
+							<ul class="slds-button-group-list">
+								<li>
+									<lightning-button
+										label="반제요청"
+										variant="Neutral"
+										data-id="salesNum"
+										onclick={handleButtonClick}
+										class="slds-button">
+									</lightning-button>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+            </div>
+        </div>
+
+        <div class="slds-m-vertical_small">
+            <div class="box-wrap">
+                <div class="slds-grid slds-wrap button-wrap">
+                    <div class="slds-grid">
+                        <lightning-input
+                            class="slds-p-right_x-small"
+                            label="영업사원"
+                            data-id="sa"
+                            value={filterMap.opportunityName}
+                            onchange={handleChange}
+                            placeholder="SA를 입력해주세요">
+                        </lightning-input>
+                        <lightning-combobox
+                            class="slds-p-right_x-small"
+                            name="status"
+                            label="상태"
+                            value={filterMap.status}
+                            placeholder="선택안함"
+                            options={filterOptions.status}
+                            onchange={handleChange}
+                            data-id="status">
+                        </lightning-combobox>
+                        <!-- <lightning-input
+                            class="slds-p-right_x-small"
+                            type="date"
+                            name="dueDate"
+                            label="결제 만기일"
+                            data-id="dueDate"
+                            onchange={handleChange}
+                            value={filterMap.dueDate}>
+                        </lightning-input> -->
+                        
+                        <div class="btn-wrap">
+                            <lightning-button-icon
+                                icon-name="utility:refresh" variant="border-filled"
+                                alternative-text="Refresh" class="slds-p-top_large slds-p-right_small"
+                                title="Refresh" onclick={handleSearch} data-id="refresh">
+                            </lightning-button-icon>
+                        
+                            <lightning-button
+                                data-id="search" variant="Neutral" label="Search" onclick={handleSearch} class="slds-p-top_large">
+                            </lightning-button>
+                        </div>
+
+                    </div>   
+                </div>
+
+                <div class="slds-m-vertical_small">
+                    <!-- <div style="overflow-x: auto; overflow-y: auto; width: 100%; max-width: 100%; max-height: 500px;"> -->
+                    <div class="custom-scroll">
+                        <lightning-datatable
+                            class="custom-datatable"
+                            key-field="id"
+                            data={masterData}
+                            columns={columns}
+                            onrowaction={handleRowAction}
+                            onrowselection={handleRowSelection}
+                            data-id="master">
+                            <!-- hide-checkbox-column = "true" -->
+                        </lightning-datatable>
+                    </div>
+
+                    <template lwc:if={isNoData}>
+                        <div class="slds-p-around_small">조건에 맞는 데이터가 없습니다.</div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <template if:true={isModalOpen}>
+        <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open slds-modal_small">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                            onclick={closeModal}>
+                        <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                    </button>
+                    <h2 class="slds-text-heading_medium">입금현황 종류 목록</h2>
+                </header>
+                <div class="slds-modal__content">
+                    <div class="slds-p-top_x-small">
+                        <lightning-datatable
+                            class="payment-datatable"
+                            key-field="id"
+                            data={paymentData}
+                            columns={paymentColumns}
+                            hide-checkbox-column = "true"
+                            data-id="payment">
+                        </lightning-datatable>
+                        <template lwc:if={ispaymentData}>
+                            <div class="slds-p-around_small">입금현황 종류가 존재하지 않습니다.</div>
+                        </template>
+                    </div>
+                </div>
+                <div class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" aria-label="Cancel and close" onclick={closeModal}>Cancel</button>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+    </template>
+    
+</template>

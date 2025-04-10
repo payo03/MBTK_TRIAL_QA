@@ -1,0 +1,43 @@
+<!--
+- @Author          : chaebeom.do
+- @Description 		 : 견적 레코드 상세 페이지에서 버튼 클릭시 기회 첨부파일 체크 후 계약서 레코드 생성
+- @Modification Log
+- Ver      Date            Author           Modification
+- ===================================================================================
+- 1.0      2025-01-06      chaebeom.do      Created
+-->
+<template>
+  <lightning-modal-header label="계약 생성">
+  </lightning-modal-header>
+  <lightning-modal-body>
+      <!-- modal content specified in LightningModal component -->
+      <div class="slds-m-around_small slds-align_absolute-center">
+        다음 항목들이 기회에 업로드 되어있는지 체크해주시기 바랍니다.
+      </div>
+      <div class="slds-grid slds-wrap">
+        <div class="slds-size_1-of-3">
+
+        </div>
+        <div class="slds-size_1-of-3 slds-m-around_small slds-p-around_large slds-grid slds-grid_vertical slds-wrap">
+          <lightning-input type="checkbox" label="주민등록증" name="jumin" checked={isJumin} disabled></lightning-input>
+          <lightning-input type="checkbox" label="사업자등록증" name="bizNo" checked={isBizNo} disabled></lightning-input>
+          <lightning-input type="checkbox" label="부가세후취 서류" name="VAT" checked={isVAT} disabled></lightning-input>
+        </div>
+        <div class="slds-size_1-of-3">
+
+        </div>
+      </div>
+  </lightning-modal-body>
+  <lightning-modal-footer>
+    <div class="slds-align_absolute-center">
+      <lightning-button
+        label="계약 생성하기"
+        onclick={createContract}
+        >
+      </lightning-button>
+    </div>
+  </lightning-modal-footer>
+  <template lwc:if={isLoading}>
+    <lightning-spinner alternative-text="Loading" variant="brand" size="medium"></lightning-spinner>
+  </template>
+</template>

@@ -1,0 +1,346 @@
+<!--
+- @Author            : payo03@solomontech.net
+- @Description 		 : 
+- @Target            : 
+- @Modification Log
+- Ver      Date            Author                           Modification
+- ===================================================================================
+- 1.0      2024-11-20      payo03@solomontech.net           Created
+-->
+<!-- Create Vehicle -->
+<template>
+    <section class={modalClass} role="dialog" tabindex="-1">
+        <div class="slds-modal__container">
+
+            <!-- Header -->
+            <header class="slds-modal__header">
+                <h2 class="slds-text-heading_medium">일괄 정보입력</h2>
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse custom-close-btn"
+                        title="Close" onclick={closeModal}>
+                    <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                </button>
+            </header>
+
+            <!-- Body -->
+            <div class="slds-modal__content slds-p-around_medium">
+
+                <!-- 1. 조회값 입력 -->
+                <template if:true={inputVisible}>
+
+                    <!-- ListView -->
+                    <template if:true={listViews}>
+                        <label for="listViewPickList">AvisOrderInfo</label>
+                        <select id="listViewPickList"
+                                onchange={handleListViewChange}
+                                class="custom-dropdown">
+                            <option value={paramFilterId}>{paramFilterName}</option>
+                            <template for:each={filterListViews} for:item="listView">
+                                <option key={listView.Id} value={listView.Id}>
+                                    {listView.Name}
+                                </option>
+                            </template>
+                        </select>
+                    </template>
+
+                    <div class="slds-m-bottom_x-small slds-text-align_right">
+                        <lightning-button label="세관정보 전송" onclick={handleCustomButton}></lightning-button>
+                    </div>
+
+                    <!-- 구분선 -->
+                    <div class="slds-m-vertical_x-small">
+                        <hr class="slds-m-top_x-small slds-m-bottom_x-small" />
+                    </div>
+
+                    <!-- 일괄 정보입력 -->
+                    <div class="slds-form">
+                        <div class="slds-form-element">
+                            <lightning-input
+                                    label="BL Document NO"
+                                    name="BLDocumentNo__c"
+                                    value={BLDocumentNo__c}
+                                    class="date-format-hide"
+                                    onchange={handleInputChange}>
+                            </lightning-input>
+                        </div>
+                        <div class="slds-form-element slds-grid">
+                            <lightning-input
+                                    label="BL Date"
+                                    name="BLDate__c"
+                                    value={BLDate__c}
+                                    type="date"
+                                    class="date-format-hide"
+                                    onchange={handleInputChange}>
+                            </lightning-input>
+                            <a href="#" class="slds-text-link" data-field="BLDate__c" onclick={setCurrentDate}>
+                                Today
+                            </a>
+                        </div>
+                        <!--
+                        <div class="slds-form-element slds-grid">
+                            <lightning-input
+                                    label="실출항일"
+                                    name="RealSailingDate__c"
+                                    value={RealSailingDate__c}
+                                    type="date"
+                                    class="date-format-hide"
+                                    onchange={handleInputChange}>
+                            </lightning-input>
+                            <a href="#" class="slds-text-link" data-field="RealSailingDate__c" onclick={setCurrentDate}>
+                                Today
+                            </a>
+                        </div>
+                        -->
+                        <div class="slds-form-element slds-grid">
+                            <lightning-input
+                                    label="실도착일"
+                                    name="RealArrivalDate__c"
+                                    value={RealArrivalDate__c}
+                                    type="date"
+                                    class="date-format-hide"
+                                    onchange={handleInputChange}>
+                            </lightning-input>
+                            <a href="#" class="slds-text-link" data-field="RealArrivalDate__c" onclick={setCurrentDate}>
+                                Today
+                            </a>
+                        </div>
+                        <template if:true={sendToPickList}>
+                            <lightning-combobox
+                                    name="SendTo__c"
+                                    label="Send To"
+                                    placeholder="Choose an option"
+                                    options={sendToPickList}
+                                    value={SendTo__c}
+                                    onchange={handleInputChange}>
+                            </lightning-combobox>
+                        </template>
+                        <template if:true={suffixPickList}>
+                            <lightning-combobox
+                                    name="Suffix__c"
+                                    label="Suffix"
+                                    placeholder="Choose an option"
+                                    options={suffixPickList}
+                                    value={Suffix__c}
+                                    onchange={handleInputChange}>
+                            </lightning-combobox>
+                        </template>
+                    </div>
+                    <div class="slds-form-element slds-grid">
+                        <lightning-input
+                                name="IsArrive__c"
+                                label="Mail 전송여부"
+                                type="checkbox"
+                                checked={IsArrive__c}
+                                onchange={handleInputCheckboxChange}>
+                        </lightning-input>
+                    </div>
+                </template>
+
+                <!-- 2. 결과 Return 후 데이터 수정 -->
+                <template if:false={inputVisible}>
+                    <div class="slds-table_edit_container" style="overflow-x: auto;">
+                        <table class="slds-table slds-table_bordered slds-table_striped">
+                            <thead>
+                                <tr>
+                                    <th class="slds-text-align_center"><span class="slds-text-title_caps">메일전송</span></th>
+                                    <th class="slds-text-align_center"><span class="slds-text-title_caps">차대번호</span></th>
+                                    <th class="slds-text-align_center"><span class="slds-text-title_caps">MODEL YEAR</span></th>
+                                    <th class="slds-text-align_center"><span class="slds-text-title_caps">FINAL SPEC</span></th>
+                                    <th class="slds-text-align_center"><span class="slds-text-title_caps">CAB</span></th>
+                                    <th class="slds-text-align_center"><span class="slds-text-title_caps">COLOR</span></th>
+                                    <th class="slds-text-align_center"><span class="slds-text-title_caps">SEGMENT</span></th>
+                                    <th class="slds-text-align_center"><span class="slds-text-title_caps">WB BEFORE MODI</span></th>
+                                    <th class="slds-text-align_center"><span class="slds-text-title_caps">도착항 코드</span></th>
+                                    <th class="slds-text-align_center"><span class="slds-text-title_caps">BL Document No</span></th>
+                                    <th class="slds-text-align_center"><span class="slds-text-title_caps">BL Date</span></th>
+                                    <th class="slds-text-align_center"><span class="slds-text-title_caps">출항일</span></th>
+                                    <!--
+                                    <th class="slds-text-align_center"><span class="slds-text-title_caps">Suffix</span></th>
+                                    <th class="slds-text-align_center"><span class="slds-text-title_caps">SendTo</span></th>
+                                    <th class="slds-text-align_center"><span class="slds-text-title_caps">도착 예정일</span></th>
+                                    -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={data} for:item="row">
+                                    <tr key={row.Id}>
+                                        <td>
+                                            <lightning-input
+                                                    label=""
+                                                    type="checkbox"
+                                                    name="IsMail__c"
+                                                    checked={row.IsMail__c}
+                                                    onchange={handleCheckboxChange}
+                                                    data-id={row.Id}>
+                                            </lightning-input>
+                                        </td>
+                                        <td>{row.ChassisFrameNo__c}</td>
+                                        <td>{row.ModelYear__c}</td>
+                                        <td>{row.fm_SpecShort__c}</td>
+                                        <td>
+                                            <lightning-combobox
+                                                    name="CabMarkLabel"
+                                                    value={row.CabMarkLabel}
+                                                    options={cabMarkPickList}
+                                                    onchange={handleChange}
+                                                    class="slds-input"
+                                                    data-id={row.Id}>
+                                            </lightning-combobox>
+                                        </td>
+                                        <td>
+                                            <lightning-combobox
+                                                    name="CarColorLabel"
+                                                    value={row.CarColorLabel}
+                                                    options={carColorPickList}
+                                                    onchange={handleChange}
+                                                    class="slds-input"
+                                                    data-id={row.Id}>
+                                            </lightning-combobox>
+                                        </td>
+                                        <td>{row.fm_Segment1__c}</td>
+                                        <!--
+                                        <td>
+                                            <lightning-combobox
+                                                    name="SegmentLabel"
+                                                    value={row.SegmentLabel}
+                                                    options={segment1PickList}
+                                                    onchange={handleChange}
+                                                    class="slds-input"
+                                                    data-id={row.Id}>
+                                            </lightning-combobox>
+                                        </td>
+                                        <td>
+                                            <lightning-combobox
+                                                    name="SuffixLabel"
+                                                    value={row.SuffixLabel}
+                                                    options={suffixPickList}
+                                                    onchange={handleChange}
+                                                    class="slds-input"
+                                                    data-id={row.Id}>
+                                            </lightning-combobox>
+                                        </td>
+                                        <td>
+                                            <lightning-combobox
+                                                    name="SendToLabel"
+                                                    value={row.SendToLabel}
+                                                    options={sendToPickList}
+                                                    onchange={handleChange}
+                                                    class="slds-input"
+                                                    data-id={row.Id}>
+                                            </lightning-combobox>
+                                        </td>
+                                        -->
+                                        <td>
+                                            <lightning-combobox
+                                                    name="WheelBaseLabel"
+                                                    value={row.WheelBaseLabel}
+                                                    options={wheelBasePickList}
+                                                    onchange={handleChange}
+                                                    class="slds-input"
+                                                    data-id={row.Id}>
+                                            </lightning-combobox>
+                                        </td>
+                                        <td>
+                                            <lightning-combobox
+                                                    name="ArrivalHarborLabel"
+                                                    value={row.ArrivalHarborLabel}
+                                                    options={arrivalHarborCodePickList}
+                                                    onchange={handleChange}
+                                                    class="slds-input"
+                                                    data-id={row.Id}>
+                                            </lightning-combobox>
+                                        </td>
+                                        <td>
+                                            <lightning-input
+                                                    label=""
+                                                    name="BLDocumentNo__c"
+                                                    value={row.BLDocumentNo__c}
+                                                    onchange={handleChange}
+                                                    class="slds-input"
+                                                    data-id={row.Id}>
+                                            </lightning-input>
+                                        </td>
+                                        <td>
+                                            <lightning-input
+                                                    type="date"
+                                                    label=""
+                                                    name="BLDate__c"
+                                                    value={row.BLDate__c}
+                                                    onchange={handleChange}
+                                                    class="slds-input date-format-hide"
+                                                    data-id={row.Id}>
+                                            </lightning-input>
+                                        </td>
+                                        <!--
+                                        <td>
+                                            <lightning-input
+                                                    type="date"
+                                                    label=""
+                                                    name="RealSailingDate__c"
+                                                    value={row.RealSailingDate__c}
+                                                    onchange={handleChange}
+                                                    class="slds-input date-format-hide"
+                                                    data-id={row.Id}>
+                                            </lightning-input>
+                                        </td>
+                                        -->
+                                        <td>
+                                            <lightning-input
+                                                    type="date"
+                                                    label=""
+                                                    name="RealArrivalDate__c"
+                                                    value={row.RealArrivalDate__c}
+                                                    onchange={handleChange}
+                                                    class="slds-input date-format-hide"
+                                                    data-id={row.Id}>
+                                            </lightning-input>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Footer -->
+            <footer class="slds-modal__footer">
+                <template if:true={inputVisible}>
+                    <lightning-button variant="brand" label="Next" onclick={nextButton}></lightning-button>
+                </template>
+
+                <template if:false={inputVisible}>
+                    <div class="slds-button-group">
+                        <!-- Previous Button -->
+                        <lightning-button
+                                variant="neutral"
+                                label="Previous"
+                                onclick={handlePrevious}>
+                        </lightning-button>
+
+                        <!-- Cancel Button -->
+                        <!--
+                        <div class="slds-m-left_small">
+                            <lightning-button
+                                    variant="destructive"
+                                    label="Refresh"
+                                    onclick={handleCancel}>
+                            </lightning-button>
+                        </div>
+                        -->
+
+                        <!-- Save Button -->
+                        <div class="slds-m-left_small">
+                            <lightning-button
+                                    variant="brand"
+                                    label="Save"
+                                    onclick={handleSave}>
+                            </lightning-button>
+                        </div>
+                    </div>
+                </template>
+            </footer>
+
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

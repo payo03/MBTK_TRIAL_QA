@@ -1,0 +1,186 @@
+<!--
+- @Author            : jh.jung
+- @Description 		 : 
+- @Target            : 
+- @Modification Log
+- Ver      Date            Author           Modification
+- ===================================================================================
+- 1.0      20f-02-03      jh.jung           Created
+-->
+<apex:page id="DepositReceiptPDF" controller="TaxInvoiceSchedulerController" applyHtmlTag="false" applyBodyTag="false" sidebar="false" showHeader="false" renderAs="advanced_pdf" docType="html-5.0" action="{!getVFInfo}">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+    <style type="text/css">
+        @page {
+          size: A4 portrait;
+          /*margin: 10mm;*/
+          margin: 0;
+        }
+
+        body {
+          font-family: Arial Unicode MS;
+          font-size: 12px;
+          text-align: center;
+          margin-top: 17.5em; /* 여백 조정 */
+        }
+
+        .title {
+          font-size: 20px;
+          font-weight: bold;
+          margin-bottom: 5px;
+        }
+
+        .subtitle {
+          font-size: 12px;
+          margin-bottom: 15px;
+        }
+
+        .table-container {
+          width: 80%;
+          margin: auto;
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 15px; /* 테이블 간격 조정 */
+          table-layout: fixed; /* 열 너비 균등 분배 */
+        }
+
+        th {
+            font-weight: bold;
+        }
+
+        th, td {
+          padding-bottom: 12px; /* 셀 간격 늘림 */
+          text-align: left; /* 중앙 정렬 */
+          line-height: 1; /* 텍스트 간격 조정 */
+          border-bottom: 1px solid gray;
+        }
+
+        .top-border td, .top-border th {
+            border-top: 2px solid black;
+        }
+        .bottom-border td, .bottom-border th {
+            border-bottom: 2px solid black;
+        }
+
+        .background-image {
+            display: block; /* 인라인 요소가 아니라 블록 요소로 설정 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 비율 유지하며 꽉 채움 */
+            z-index: -1; /* 테이블 아래 배치 */
+        }
+    </style>
+  </head>
+  <body>
+  <div class="title">입 금 표</div>
+  <div class="subtitle">(공급받는자 보관용)</div>
+
+  <div class="table-container">
+    <table>
+      <tr class="top-border bottom-border">
+        <th>계약번호</th>
+        <td>{!handover.Opportunity__r.Contract.ContractNumber}</td>
+        <th>입금일</th>
+        <td>
+<!--          <apex:outputText rendered="{!depositDate != null}" value="{0,date,yyyy-MM-dd}">-->
+<!--            <apex:param value="{!depositDate}"/>-->
+<!--          </apex:outputText>-->
+<!--          <apex:outputText rendered="{!depositDate == null}" value="없음"/>-->
+          <apex:outputText value="{0,date,yyyy-MM-dd}">
+            <apex:param value="{!paymentTracker.ru_RecentDepositDate__c}"/>
+          </apex:outputText>
+        </td>
+      </tr>
+    </table>
+
+    <table>
+      <tr class="bottom-border">
+        <th colspan="4">공급자</th>
+      </tr>
+      <tr>
+        <th>상호명</th>
+        <td>만트럭 상호명</td>
+        <th>사업자등록번호</th>
+        <td>만트럭 사업자등록번호</td>
+      </tr>
+      <tr>
+        <th>대표자명</th>
+        <td>만트럭 대표자명</td>
+        <th>사업장소재지</th>
+        <td>만트럭시 만트럭구 만트럭동 만트럭군 만트럭읍 만트럭면 만트럭리 123-45 6동 789호</td>
+      </tr>
+      <tr class="bottom-border">
+        <th>업태</th>
+        <td>만트럭 업태</td>
+        <th>종목</th>
+        <td>만트럭 종목</td>
+      </tr>
+    </table>
+
+    <table>
+      <tr class="bottom-border">
+        <th colspan="4">공급받는 자</th>
+      </tr>
+      <tr>
+        <th>고객명</th>
+<!--        <td></td>-->
+        <td>{!handover.Opportunity__r.Account.Name}</td>
+        <th>주민번호 (앞자리)</th>
+<!--        <td></td>-->
+        <td>{!handover.Opportunity__r.Account.IDNumber__pc}</td>
+      </tr>
+      <tr class="bottom-border">
+        <th>고객번호</th>
+<!--        <td></td>-->
+        <td>{!handover.Opportunity__r.Account.PersonMobilePhone}</td>
+        <th>사업자등록번호</th>
+        <td>{!handover.Opportunity__r.Account.BusinessNumber__c}</td>
+      </tr>
+    </table>
+
+    <table>
+      <tr class="bottom-border">
+        <th>입금내역</th>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <th>계약금</th>
+<!--        <td colspan="3">{!paymentMap['1_DEPOSIT']}원</td>-->
+        <td colspan="3">{!paymentMap['1_DEPOSIT']}원</td>
+      </tr>
+      <tr>
+        <th>인도금</th>
+        <td colspan="3">{!paymentMap['인도금 합계']}원</td>
+      </tr>
+      <tr>
+        <th>할부금</th>
+        <td colspan="3">{!paymentMap['99_LOAN']}원</td>
+      </tr>
+      <tr>
+        <th>입금 합계</th>
+        <td colspan="3">{!paymentMap['입금 합계']}원</td>
+<!--        <td colspan="3">{!paymentTracker.ru_DepositAmount__c}원</td>-->
+      </tr>
+      <tr class="top-border bottom-border" style="height: 100px;">
+        <th colspan="2" style="border-right: 2px solid black; padding-left: 3px;">
+          위 금액을 정히 영수함.<br/><br/>
+          ※ 본 입금표는 공급자 직인이 없는 경우 무효임.
+        </th>
+        <td colspan="2" style="padding-left: 3px;">
+          공급자직인 <br/><br/>
+          만트럭버스코리아(주)
+        </td>
+      </tr>
+    </table>
+  </div>
+  </body>
+  <apex:image url="{!$Resource.DepositReceipt}" styleClass="background-image"></apex:image>
+</apex:page>

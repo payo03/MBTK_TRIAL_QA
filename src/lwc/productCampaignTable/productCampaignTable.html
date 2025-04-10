@@ -1,0 +1,117 @@
+<template>
+<!--  Management 블럭-->
+  <template if:true={isCheckByManagement}>
+    <div>
+      <template if:true={isMatching}>
+        <span class="custom-heading-medium-bold">기존 선택한 모델명: {productNameByManagement}</span>
+      </template>
+<!--      <span class="custom-heading-medium-bold">기존 선택한 모델명: {productNameByManagement}</span>-->
+      <lightning-input
+        class="custom-checkbox"
+        type="checkbox"
+        label="차종 바꾸기"
+        checked={isProductChange}
+        onchange={handleCheckboxChange}>
+      </lightning-input>
+    </div>
+  </template>
+  <template if:true={isProductChange}>
+  <!-- 차종 데이터테이블 Start-->
+  <div class="slds-size_1-of-1 slds-p-around_x-small">
+    <div class="slds-size_1-of-1 slds-p-around_x-small custom-box">
+      <div class="slds-card__header slds-grid">
+        <header class="slds-media slds-media_center slds-has-flexi-truncate">
+          <div class="slds-media__body">
+            <h2 class="slds-card__header-title">
+              <span class="slds-card__header-link slds-truncate move-scroll-start" title="차종">
+                <span>차종</span>
+              </span>
+            </h2>
+          </div>
+        </header>
+      </div>
+      <div class="slds-card__body slds-card__body_inner">
+        <div class="slds-grid slds-wrap">
+          <lightning-combobox
+            class="slds-p-right_x-small"
+            name="progress"
+            label="세그먼트2"
+            value={filterMap.Segment2__c}
+            placeholder="선택안함"
+            options={filterOptions.segment}
+            onchange={handleFilter}
+            data-id="segment"
+          ></lightning-combobox>
+          <lightning-input
+            class="slds-p-right_x-small"
+            label="모델명"
+            data-id="name"
+            value={filterMap.Name}
+            onchange={handleFilter}
+            onkeypress={handleProductSearch}
+            placeholder="모델명을 입력해주세요."
+          ></lightning-input>
+          <div class="button-wrap">
+            <lightning-button-icon icon-name="utility:refresh" variant="border-filled"
+                                  alternative-text="Refresh" class="slds-m-horizontal_xx-small"
+                                  title="Refresh" onclick={handleProductSearch} data-id="refresh">
+            </lightning-button-icon>
+            <button class="slds-button slds-button_neutral" onclick={handleProductSearch} data-id="search">
+              <lightning-icon icon-name="utility:search" alternative-text="Utility search" size="x-small" title="search"></lightning-icon>
+              검색
+            </button>
+          </div>
+        </div>
+        <div class="product-table">
+          <lightning-datatable
+                  key-field="id"
+                  data={productData}
+                  columns={dynamicColumns}
+                  max-row-selection="1"
+                  selected-rows={selectedProductRowIds}												
+                  default-sort-direction={defaultSortDirection}
+                  sorted-direction={sortDirection}
+                  sorted-by={sortedBy}
+                  onsort={onHandleSort}
+                  onrowselection={handleRowSelect}
+                  data-type="product">
+          </lightning-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 차종 데이터테이블 End-->
+  </template>
+
+  <!-- 선택된 차종 캠페인 목록 데이터테이블 Start-->
+  <div class="slds-size_1-of-1 slds-p-around_x-small slds-p-top_none table-end">
+    <div class="slds-size_1-of-1 slds-p-around_x-small custom-box">
+      <div class="slds-card__header slds-grid">
+        <header class="slds-media slds-media_center slds-has-flexi-truncate">
+          <div class="slds-media__body">
+            <h2 class="slds-card__header-title">
+              <span class="slds-card__header-link slds-truncate" title="진행중 캠페인">
+                <span>진행중 캠페인</span>
+              </span>
+            </h2>
+          </div>
+        </header>
+      </div>
+      <div class="slds-card__body slds-card__body_inner">
+        <div class="campaign-table">
+          <lightning-datatable
+                  key-field="id"
+                  data={campaignData}
+                  columns={campaignColumns}
+                  selected-rows={selectedCampaignRowIds}
+                  resize-column-disabled
+                  onrowselection={handleRowSelect}
+                  data-type="campaign">
+          </lightning-datatable>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 선택된 차종 캠페인 목록 데이터테이블 End-->
+</template>

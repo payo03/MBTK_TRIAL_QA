@@ -1,0 +1,167 @@
+<!--
+- @Author            : payo03@solomontech.net
+- @Description 		 : 부가세 후취, 인도금 유예
+- @Target            : Opportunity Record Page
+- @Modification Log
+- Ver      Date            Author                           Modification
+- ===================================================================================
+- 1.0      2025-01-07      payo03@solomontech.net           Created
+-->
+
+<template>
+	<!-- Quick Action Panel -->
+	<lightning-quick-action-panel header={header} class="deferment-request-wrap">
+		<!-- Header -->
+		<!--		<div class="custom-header">-->
+		<!--			{header}-->
+		<!--		</div>-->
+		
+		<!-- Body -->
+		<div class="slds-card__body">
+			<template lwc:if={isSelectView}>
+				<lightning-datatable
+					key-field="Id"
+					columns={columns}
+					data={quoteList}
+					onrowselection={handleRowSelection}
+					selected-rows={selectedQuoteRowIdList}
+					max-row-selection="1"
+					column-widths-mode="auto"
+				></lightning-datatable>
+			</template>
+			<template lwc:else>
+				<!-- 안내 문구 -->
+				<div class="slds-grid slds-align-middle slds-p-bottom_small custom-layout">
+					<div class="checkbox-container">
+						<lightning-input
+							type="checkbox"
+							name="isCheck"
+							label=""
+							checked={isCheck}
+							class="custom-checkbox"
+							onchange={handleCheckChange}>
+						</lightning-input>
+					</div>
+					
+					<div class="text-container">
+						<!-- VAT 후취 요청 -->
+						<template if:true={isVATDeferred}>
+				            <span class="guide-text">
+					              본인은 해당 고객에게 차량 판매시 부가세 후취 조건으로 진행하되 <br>
+					              부가세 연체가 발생하지 않도록 관리할 것이며<br>
+					              납입 만기일로부터 30일 이상 연체되는 경우 <br>
+					              판매수수료 지급시 해당 연체 원금에 대한 공제에 동의합니다 <br>
+					              <span class="highlight">&lt;판매대리 계약서 제26조 참조&gt;</span>
+				            </span>
+						</template>
+						<!-- 인도금 유예 -->
+						<template if:false={isVATDeferred}>
+				            <span class="guide-text">
+					              해당 유예건과 관련한 일체의 <span class="highlight">책임</span>은<br>
+					              <span class="highlight">영업직원</span>에게 있음을 확인합니다.
+				            </span>
+						</template>
+					</div>
+				</div>
+				
+				<!-- 계약 총액 -->
+				<div class="info-text slds-p-bottom_small">
+					<strong>계약 총액:</strong>
+					<lightning-formatted-number value={selectedQuoteRow.fm_RealSellAmt__c}></lightning-formatted-number>
+					원
+					<!--{formattedRealSalesPrice} 원-->
+				</div>
+				
+				<!-- 유예 금액 -->
+				<div class="slds-p-bottom_small">
+					<template if:true={isVATDeferred}>
+						<p class="info-text">유예 금액:
+							<lightning-formatted-number value={selectedQuoteRow.fm_DefermentVAT__c}></lightning-formatted-number>
+							원
+						</p>
+					</template>
+					<template if:false={isVATDeferred}>
+						<lightning-input
+							type="number"
+							label="유예 금액"
+							name="fm_DefermentVAT__c"
+							value={selectedQuoteRow.fm_DefermentVAT__c}
+							class="custom-input"
+							onchange={handleChange}>
+						</lightning-input>
+					</template>
+				</div>
+				
+				
+				<!-- 부가세후취. 유예 요청일수 -->
+				<template if:true={isVATDeferred}>
+					<div>
+						<lightning-input
+							type="number"
+							label="유예일수"
+							name="RequestDays__c"
+							value={selectedQuoteRow.RequestDays__c}
+							class="custom-date-input"
+							onchange={handleChange}
+							min={minDays}
+							max={selectedQuoteRow.maxDays}
+							message-when-range-overflow={selectedQuoteRow.overflowMessage}
+							message-when-range-underflow={selectedQuoteRow.underflowMessage}
+						>
+						</lightning-input>
+					</div>
+				</template>
+				<!-- 인도금 유예. 유예일자 -->
+				<template if:false={isVATDeferred}>
+					<div>
+						<lightning-input
+							type="date"
+							label="유예 요청일자"
+							name="RequestDueDate__c"
+							value={selectedQuoteRow.RequestDueDate__c}
+							class="custom-date-input date-format-hide"
+							onchange={handleChange}>
+						</lightning-input>
+					</div>
+				</template>
+			</template>
+		</div>
+		
+		<!-- Footer -->
+		<div slot="footer" class="slds-text-align_center">
+			<template lwc:if={isSelectView}>
+				<lightning-button
+					class="slds-m-right_x-small"
+					label="취소"
+					variant="neutral"
+					data-name="cancel"
+					onclick={handleClick}>
+				</lightning-button>
+				<lightning-button
+					variant="brand"
+					label="다음"
+					data-name="next"
+					onclick={handleClick}>
+				</lightning-button>
+			</template>
+			<template lwc:else>
+				<lightning-button
+					class="slds-m-right_x-small"
+					label="취소"
+					variant="neutral"
+					data-name="prev"
+					onclick={handleClick}>
+				</lightning-button>
+				<lightning-button
+					variant="brand"
+					label="요청"
+					data-name="submit"
+					onclick={handleClick}>
+				</lightning-button>
+			</template>
+		</div>
+		<template lwc:if={isLoading}>
+			<lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+		</template>
+	</lightning-quick-action-panel>
+</template>

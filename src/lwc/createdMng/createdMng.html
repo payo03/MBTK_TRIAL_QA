@@ -1,0 +1,118 @@
+<!--
+ * @author : San.Kang
+ * @date : 2025-03-10
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-03-10      San.Kang       Initial Version
+-->
+<!-- created Mng -->
+<template>
+    <lightning-quick-action-panel header="제원관리/형식승인번호 선택">
+        <lightning-card title={cardTitle} icon-name="utility:filter_criteria" class="custom-card">
+            <div class="slds-box slds-size_1-of-1 slds-grid slds-wrap slds-vertical-align_start slds-m-top_large">
+                <div class=" slds-size_1-of-1 slds-grid slds-m-bottom_medium">
+                    <div class="slds-size_1-of-6 slds-p-right_small">
+                        <lightning-combobox
+                            name="filterModelYear"
+                            label="연식"
+                            value={filterMap.ModelYear__c}
+                            options={categoryOptions}
+                            placeholder="-선택-"
+                            data-id="modelYear"
+                            onchange={handleChange}
+                        ></lightning-combobox>
+                    </div>
+                    <div class="slds-size_1-of-6 slds-p-right_small">
+                        <lightning-input type="text" label="원동기 형식" value={filterMap.EngineType__c}
+                                         onchange={handleChange} data-id="engineType"></lightning-input>
+                    </div>
+                    <div class="slds-size_1-of-6 slds-p-right_small">
+                        <lightning-input type="text" label="특이사항1" value={filterMap.Remark__c}
+                                         onchange={handleChange} data-id="remark"></lightning-input>
+                    </div>
+                    <div class="slds-size_1-of-6 slds-p-right_small">
+                        <lightning-input type="text" label="특이사항2" value={filterMap.Remark2__c}
+                                         onchange={handleChange} data-id="remark2"></lightning-input>
+                    </div>
+                    <div class="slds-size_1-of-6 slds-p-right_small">
+                        <lightning-input type="text" label="특이사항3" value={filterMap.Remark3__c}
+                                         onchange={handleChange} data-id="remark3"></lightning-input>
+                    </div>
+                    <div class="slds-size_1-of-6 slds-grid slds-container_center slds-m-bottom_xx-small">
+                        <lightning-button-icon icon-name="utility:refresh" variant="border-filled"
+                                               alternative-text="Refresh" class="slds-m-horizontal_xx-small slds-align-bottom"
+                                               title="Refresh" onclick={handleRefresh} data-id="refresh">
+                        </lightning-button-icon>
+                        <div class="slds-align-bottom">
+                            <button class="slds-m-left_x-small slds-button slds-button_neutral slds-m-bottom_xx-small" onclick={handleSearch}>
+                                <lightning-icon icon-name="utility:search" alternative-text="Utility search"
+                                                size="x-small" title="search"></lightning-icon>&nbsp;검 색
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <template lwc:if={dataFlag}>
+                    <div class="slds-size_1-of-1 slds">
+                            <!-- 데이터 테이블 -->
+                        <lightning-datatable
+                            key-field="id"
+                            data-id="mng"
+                            data={resultList}
+                            columns={columns}
+                            onrowselection={handleRowSelection}
+                            selected-rows={selectedRowIds}
+                            onsort={handleSort}
+                            sorted-by={sortBy}
+                            sorted-direction={sortDirection}
+                            column-widths-mode="auto"
+                            min-column-width="50"
+                            max-row-selection="1"
+                        ></lightning-datatable>
+                        <!-- 선택된 레코드 표시 -->
+                    </div>
+                </template>
+                <template lwc:else>
+                    <div class="slds-size_1-of-1 slds slds-text-align_center slds-box" style="text-align:center;">
+                        🔍 형식에 맞는 <strong>제원관리번호 / 형식승인번호</strong>가 존재하지 않습니다.
+                    </div>
+                </template>
+            </div>
+        </lightning-card>
+<!--        <lightning-card title="선택" icon-name="utility:bookmark">-->
+<!--            <template if:true={specTypeNo.selectedRows}>-->
+<!--                <div class="slds-m-top_medium slds-p-around_xx-small slds-box slds slds-m-bottom_medium">-->
+<!--                    <p><strong>선택된 {specTypeNo.type}:  {specTypeNo.selectedMngNo}</strong></p>-->
+<!--                </div>-->
+<!--            </template>-->
+<!--            &lt;!&ndash; 데이터 테이블 &ndash;&gt;-->
+<!--            <lightning-datatable-->
+<!--                key-field="id"-->
+<!--                data-id="mng"-->
+<!--                data={specTypeNo.resultList}-->
+<!--                columns={specTypeNo.columns}-->
+<!--                onrowselection={handleRowSelection}-->
+<!--                onsort={handleSort}-->
+<!--                sorted-by={specTypeNo.sortBy}-->
+<!--                sorted-direction={specTypeNo.sortDirection}-->
+<!--                column-widths-mode="auto"-->
+<!--                min-column-width="50"-->
+<!--                max-row-selection="1"-->
+<!--            ></lightning-datatable>-->
+<!--            &lt;!&ndash; 선택된 레코드 표시 &ndash;&gt;-->
+<!--        </lightning-card>-->
+            <div slot="footer" class="slds-grid slds-grid_align-center slds-wrap">
+                <div class="slds-col slds-grid slds-grid_align-end">
+                    <lightning-button label="닫기" onclick={handleCancel}></lightning-button>
+                </div>
+                <div class="slds-col slds-grid slds-grid_align-end">
+                    <lightning-button label="선택" variant="brand" onclick={handleSave}></lightning-button>
+                </div>
+            </div>
+
+        </lightning-quick-action-panel>
+        <template lwc:if={isLoading}>
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </template>
+</template>

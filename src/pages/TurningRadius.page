@@ -1,0 +1,154 @@
+<!--
+ * @author : San.Kang
+ * @date : 2025-02-12
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-02-12      San.Kang          Initial Version
+-->
+<apex:page showHeader="false" applyBodyTag="false" applyHtmlTag="false" sidebar="false" renderAs="pdf" standardController="VehicleStock__c">
+    <head>
+        <style type="text/css" media="print">
+            @page{
+
+            }
+            body{
+            align:center;
+            }
+            td{
+            align:center;
+            padding:8px;
+            font-size:12pt;
+            }
+            table{
+            width:700px;
+            border-spacing: 0px;
+            border:1px solid;
+            }
+            tr{
+            align:center;
+            }
+        </style>
+    </head>
+    <body style="font-family: Arial Unicode MS;">
+    <div style="page-break-after:none;">
+        <table style="border:none;padding-right:0px;">
+            <tr style="padding-right:0px;">
+                <td align="left">
+                    <div style="font-size:16pt;">
+                        MAN Truck &amp; Bus (Korea) Ltd.
+                    </div>
+                    <div style="font-size:10pt;">
+                        3rd FL. 57, Borahagalro, GiHeung-gu, Yong-In Si, Gyeonggi-do, KOREA 17099
+                    </div>
+                </td>
+                <td align="right">
+                    <apex:image url="/servlet/servlet.FileDownload?file=015900000062Gu1" width="175" height="60"/>
+                </td>
+            </tr>
+        </table>
+        <br/>
+        <table style="border-left:none;border-right:none;">
+            <tr>
+                <td width="20%">
+                    수&nbsp;&nbsp;&nbsp;신&nbsp;:
+                </td>
+                <td width="60%">
+                    교통안전공단 검사소
+                </td>
+                <td width="20%">
+                    <apex:outputText value="{0,date,yyyy'. 'MM'. 'dd}">
+                        <apex:param value="{!TODAY()}" />
+                    </apex:outputText>
+                </td>
+            </tr>
+            <tr>
+                <td width="20%">
+                    참&nbsp;&nbsp;&nbsp;조&nbsp;:
+                </td>
+                <td width="60%">
+                    담당자
+                </td>
+                <td width="20%">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td width="20%">
+                    발&nbsp;&nbsp;&nbsp;신&nbsp;:
+                </td>
+                <td width="60%">
+                    만트럭버스코리아㈜ (Tel: 031-8014-5742)
+                </td>
+                <td width="20%">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td width="20%">
+                    제&nbsp;&nbsp;&nbsp;목&nbsp;:
+                </td>
+                <td width="60%">
+                    MAN 10X4 최소회전반경 적합 확인서
+                </td>
+                <td width="20%">
+                    &nbsp;
+                </td>
+            </tr>
+        </table>
+        <br/><br/><br/>
+        &nbsp;&nbsp;1. 귀 원의 무궁한 발전을 기원합니다.
+        <br/><br/>
+        &nbsp;&nbsp;2. 하기 {!LEFT(VehicleStock__c.SpecShort__c, 3)} 10X4(2+3, 축간거리 7,550mm) 차종의 최소회전반경이 적합함을 확인합니다.
+        <br/><br/><br/><br/>
+        ■ 확인 차량
+        <br/>
+        <br/>
+        <table style="border-collapse:collapse;">
+            <tr style="border-collapse:collapse;">
+                <td width="20%" style="border:1px solid;">
+                    차명
+                </td>
+                <td width="30%" style="border:1px solid;">
+                    형식
+                </td>
+                <td width="30%" style="border:1px solid;">
+                    차대
+                </td>
+                <td width="20%" style="border:1px solid;">
+                    비고
+                </td>
+            </tr>
+            <tr style="border-collapse:collapse;">
+                <td width="20%" style="border:1px solid;">
+                    {!LEFT(VehicleStock__c.SpecShort__c, 3)}
+                </td>
+                <td width="30%" style="border:1px solid;">
+                    {!VehicleStock__c.SpecShort__c}
+                </td>
+                <td width="30%" style="border:1px solid;">
+                    {!VehicleStock__c.Name}
+                </td>
+                <td width="20%" style="border:1px solid;">
+                    &nbsp;
+                </td>
+            </tr>
+        </table>
+        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+        <table style="border:none;padding-right:0px;">
+            <tr style="padding-right:0px;">
+                <td align="right" width="85%" >
+                    <div>
+                        만트럭버스코리아 주식회사<br/>
+                        대 표 이 사 &nbsp;&nbsp;&nbsp;토마스 헤머리히
+                    </div>
+                </td>
+                <td align="right" width="15%" >
+<!--                    <apex:image url="/servlet/servlet.FileDownload?file={!IF($Label.INSTANCE_TYPE=='SANDBOX','0150k000001CCBoAAO','0150o00000GUy8bAAD')}" width="80" height="80"/>-->
+                </td>
+            </tr>
+        </table>
+    </div>
+    </body>
+</apex:page>

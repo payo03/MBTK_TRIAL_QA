@@ -1,0 +1,34 @@
+/*************************************************************
+ * @author : th.kim
+ * @date : 2025-01-21
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-01-21      th.kim          Initial Version
+**************************************************************/
+@import "c/commonStyleUtil";
+
+.slds-modal__container {
+    padding-block-end: 0;
+}
+
+iframe {
+    width: 100%;
+    height: 80vh;
+    border: 0;
+}
+
+.btn-wrap {
+    margin-top: auto;
+    margin-bottom: 2px;
+}
+
+.filter-wrap > lightning-button-group {
+    margin-left: auto;
+    margin-top: auto;
+}
+
+.table-btn {
+    line-height: 0;
+}

@@ -1,0 +1,595 @@
+<!--
+ * @author : chaebeom.do
+ * @date : 2024-12-24
+ * @description : MTBK 견적서 양식에 맞는 화면을 출력하는 Visualforce 페이지
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2024-12-24      chaebeom.do     Created
+-->
+<apex:page standardController="Quote" extensions="PDFController"
+           applyHtmlTag="false"
+           sidebar="false"
+           showHeader="false"
+           renderAs="advanced_pdf"
+           docType="html-5.0"
+           action="{!getImgList}">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+        <style type="text/css">
+            body { 
+                font-family: Arial Unicode MS; 
+            }
+
+            @page {
+                size: A4 portrait;
+                border: 1px gray;
+                @bottom-center {
+                    content: "Page " counter(page) " of " counter(pages);
+                }
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            
+            p {
+                font-size: 14px;
+            }
+
+            table, th, td {
+                border: 1px solid gray;
+                /* text-align: center; */
+                font-size: 15px;
+                /* font-weight: bold; */
+                /* height: 200px; */
+            }
+            td {
+                /* height: 200px; */
+            }
+            img {
+                width: 100%;
+                height: 100%;
+            }
+            .watermark {
+                position: fixed;
+                top: 90%;
+                right: 0;
+                color: #d9d9d9;
+                font-size: 12px;
+                opacity: 0.1;
+                z-index: 1000;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- <div class="watermark">
+            고객명: {!acc.Name}
+            <br/>
+            견적번호: 
+            <br/>
+            Page: 
+        </div> -->
+        <div style="height: 29.7cm">
+            <apex:image url="{!$Resource.landingPageHeaderTest}" height="auto"></apex:image>
+            <div style="height: 5cm">
+            </div>
+            <apex:form >
+                <apex:outputPanel layout="block" rendered="{!lan == 'KR'}">
+                    <p style="text-align: left; padding: 10px;">
+                        Initial Proposal - Quotation Name: {!quote.Name}
+                        <br/>
+                        <br/>
+                        친애하는 고객님께, 
+                        <br/>
+                        MAN 제품에 관심을 가져 주셔서 감사합니다. 
+                        <br/>
+                        <br/>
+                        다음 페이지에서 {!product.Name} 차량의 <br/>차량금품정보에 대한 자세한 설명과 귀하의 필요에 맞는 견적을 확인하실 수 있습니다.  
+                        <br/>
+                        귀하께서 선택해 주신 차량은 {!vehicleStock.HorsePower__c}마력의 {!vehicleStock.EngineRange__c} 엔진과 배기가스 배출 등급 {!product.EmissionLevel__c}를 장착하고 있습니다.  
+                        <br/>
+                        또한 귀하의 차량 구매와 적합한 맞춤형 금융 솔루션을 만파이낸셜서비스를 통해 제공하게 되어 기쁘게 생각합니다. 
+                        <br/>
+                        관심 있으실 경우 해당 영업대리점에 말씀해 주시기 바라며,  
+                        <br/>
+                        추가 문의 사항이 있으시면 언제든지 저희에게 연락 주시기 바랍니다. 
+                        <br/>
+                        감사합니다.  
+                        <br/>
+                        <br/>
+                        <br/>
+                        영업직원 {!$User.LastName} 배상
+                        <br/>
+                    </p>
+                    <h2 style="text-align: center; margin-top: 100px">
+                        만트럭버스코리아(주)
+                        <br/>
+                        대표이사 PETER ANDERSSON
+                    </h2>
+                    <hr/>
+                </apex:outputPanel>
+                <apex:outputPanel layout="block" rendered="{!lan == 'EN'}">
+                    <p style="text-align: left; padding: 10px;">
+                        Initial Proposal - Quotation Number: {!quote.Name}
+                        <br/>
+                        <br/>
+                        Dear Customer, 
+                        <br/>
+                        Thank you for your interest in MAN products.
+                        <br/>
+                        <br/>
+                        On the following pages you will find a detailed description of the {!product.Name} vehicle and a quotation tailored to your needs.  
+                        <br/>
+                        The vehicle you have selected is equipped with a {!vehicleStock.EngineRange__c} engine with {!vehicleStock.HorsePower__c} hp and an emission class of {!product.EmissionLevel__c}.
+                        <br/>
+                        We are also pleased to offer you a customized financing solution for your vehicle purchase through MAN Financial Services.
+                        <br/>
+                        If you are interested, please speak to your dealer. 
+                        <br/>
+                        And if you have any further questions, please do not hesitate to contact us. 
+                        <br/>
+                        Thank you.
+                        <br/>
+                        <br/>
+                        <br/>
+                        From Salesperson {!$User.LastName}.
+                        <br/>
+                    </p>
+                    <h2 style="text-align: center; margin-top: 100px">
+                        MAN Truck Bus Korea Co.
+                        <br/>
+                        CEO PETER ANDERSSON
+                    </h2>
+                    <hr/>
+                </apex:outputPanel>
+            </apex:form>
+        </div>
+        
+        <h3 style="text-align: center;">
+            Vehicle Specifications
+        </h3>
+        <br/>
+        <table>
+            <colgroup>
+                <col width="20%"/>
+                <col width="25%"/>
+                <col width="30%"/>
+                <col width="25%"/>
+            </colgroup>
+            <tr>
+                <!-- <th colspan="4" style="height: 30px;">Initial proposal - Quotation number: xxxxx</th> -->
+                <th colspan="4" style="height: 30px; text-align: left; background-color: #DCDCDC;">Order Configuration</th>
+            </tr>
+            <tr style="background-color: #DC143C; color: #FFFFFF">
+                <th style="height: 30px;">Product Family</th>
+                <th style="height: 30px;">Product Name</th>
+                <th colspan="2" style="height: 30px;">Product Description</th>
+            </tr>
+            <tr>
+                <td style="height: 30px;">Vehicle</td>
+                <td style="height: 30px;">{!IF(product.Name == null, '차량이 선택되지 않았습니다.', product.Name)}</td>
+                <td colspan="2" style="height: 30px;"></td>
+            </tr>
+            <apex:repeat value="{!optionList}" var="option">
+                <tr>
+                    <td style="height: 30px;">+ Option</td>
+                    <td style="height: 30px;">{!option.VehicleOptionMaster__r.FamliyName__c}</td>
+                    <td colspan="2" style="height: 30px;">{!option.Name}</td>
+                </tr>
+            </apex:repeat>
+            <apex:repeat value="{!accyList}" var="accy">
+                <tr>
+                    <td style="height: 30px;">Accessory</td>
+                    <td style="height: 30px;">{!accy.VehicleOptionMaster__r.FamliyName__c}</td>
+                    <td colspan="2" style="height: 30px;">{!accy.Name}</td>
+                </tr>
+            </apex:repeat>
+            <apex:repeat value="{!warrantyList}" var="warranty">
+                <tr>
+                    <td style="height: 30px;">Warranty</td>
+                    <td style="height: 30px;">{!warranty.VehicleOptionMaster__r.ServiceItemsMaster__r.Name}</td>
+                    <td colspan="2" style="height: 30px;">{!warranty.Name}</td>
+                </tr>
+            </apex:repeat>
+        </table>
+        <table style="margin-top: 20px; page-break-before: auto;">
+            <colgroup>
+                <col width="25%"/>
+                <col width="25%"/>
+                <col width="25%"/>
+                <col width="25%"/>
+            </colgroup>
+            <tr>
+                <th colspan="4" style="height: 30px; text-align: left; background-color: #DCDCDC;">Basic Vehicle Specifications</th>
+            </tr>
+            <apex:outputPanel rendered="{!ISBLANK(productCv)}">
+                <tr>
+                    <th colspan="4" style="height: 30px; text-align: left;">No image</th>
+                </tr>
+            </apex:outputPanel>
+            <apex:repeat value="{!productCv}" var="imgUrl">
+                <tr>
+                    <td colspan="4" height="100%">
+                        <apex:image url="{!imgUrl.VersionDataURL}" height="auto"></apex:image>
+                    </td>
+                </tr>
+            </apex:repeat>
+        </table>
+        <table style="margin-top: 20px;">
+            <colgroup>
+                <col width="25%"/>
+                <col width="25%"/>
+                <col width="25%"/>
+                <col width="25%"/>
+            </colgroup>
+            <tr>
+                <th colspan="4" style="height: 30px; text-align: left; background-color: #DCDCDC;">Option Specifications</th>
+            </tr>
+            <apex:outputPanel rendered="{!optionCv.size == 0}">
+                <tr>
+                    <th colspan="4" style="height: 30px; text-align: left;">No image</th>
+                </tr>
+            </apex:outputPanel>
+            <apex:repeat value="{!optionCv}" var="imgUrl">
+                <tr>
+                    <td colspan="4" height="100%">
+                        <apex:image url="{!imgUrl.VersionDataURL}" height="auto"></apex:image>
+                    </td>
+                </tr>
+            </apex:repeat>
+        </table>
+        <table style="margin-top: 20px; page-break-before: always;">
+            <colgroup>
+                <col width="80%"/>
+                <col width="20%"/>
+            </colgroup>
+            <tr>
+                <th colspan="2" style="height: 30px; text-align: left; background-color: #DCDCDC;">Service Offering</th>
+            </tr>
+            <apex:outputPanel rendered="{!OR(warrantyList.size == 0, ISNULL(warrantyList))}">
+                <tr>
+                    <td colspan="2">서비스가 선택되지 않았습니다.</td>
+                </tr>
+            </apex:outputPanel>
+            <!-- 1. 워런티 리스트(옵션마스터)는 선택했는데
+             2. 옵션마스터의 서비스 품목의 name 필드가 없음 -->
+            <apex:outputPanel rendered="{!AND(NOT(ISNULL(warrantyList)), AND(warrantyList.size > 0 , ISNULL(warrantyList[0].VehicleOptionMaster__r.ServiceItemsMaster__r.Name)))}">
+                <tr>
+                    <td colspan="2" style="text-align: left;">{!warrantyList[0].Name}
+                        <br/>
+                        <br/>
+                        유지보수 세부내용
+                        <br/>
+                        No Carefree를 선택하셨습니다.
+                    </td>
+                </tr>
+            </apex:outputPanel>
+            <apex:outputPanel layout="none" rendered="{!AND(NOT(ISNULL(warrantyList)), AND(warrantyList.size > 0 , NOT(ISNULL(warrantyList[0].VehicleOptionMaster__r.ServiceItemsMaster__r.Name))))}">
+                <tr>
+                    <td colspan="2" style="text-align: left;">{!warrantyList[0].VehicleOptionMaster__r.ServiceItemsMaster__r.Name}: 
+                        {!warrantyList[0].VehicleOptionMaster__r.ServiceItemsMaster__r.Description__c}
+                        <br/>
+                        <br/>
+                        유지보수 세부내용
+                        <br/>
+                        {!warrantyList[0].VehicleOptionMaster__r.ServiceItemsMaster__r.Name}
+                        <br/>
+                        <br/>
+                    </td>
+                </tr>
+                <apex:repeat value="{!warrantyDetail}" var="entry">
+                    <apex:outputPanel layout="none" rendered="{!ISNULL(warrantyDetail[entry])}">
+                        <tr>
+                            <td colspan="2">Data not Found</td>
+                        </tr>
+                    </apex:outputPanel>
+                    <apex:outputPanel layout="none" rendered="{!NOT(ISNULL(warrantyDetail[entry]))}">
+                        <tr>
+                            <td style="text-align: left; ">{!entry}</td>
+                            <td style="text-align: right;">{!warrantyDetail[entry]}</td>
+                        </tr>
+                    </apex:outputPanel>
+                </apex:repeat>
+            </apex:outputPanel>
+        </table>
+        <table style="margin-top: 20px;">
+            <h3 style="text-align: left;">
+                Price Break Down
+            </h3>
+            <colgroup>
+                <col width="80%"/>
+                <col width="20%"/>
+            </colgroup>
+            <tr>
+                <th style="height: 30px; text-align: left; background-color: #DCDCDC;">Vehicle</th>
+                <th style="height: 30px; text-align: right; background-color: #DCDCDC;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!totalPrice}" />
+                    </apex:outputText>원
+                </th>
+            </tr>
+            <tr>
+                <td style="text-align: left; ">{!quoteDetail['product']['name']}</td>
+                <td style="text-align: right; ">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!IF(ISNULL(quoteDetail['product']['price']), 0, quoteDetail['product']['price'])}" />
+                    </apex:outputText>원
+                </td>
+            </tr>
+            <apex:repeat value="{!quoteDetail['option']}" var="item">
+                <tr>
+                    <td style="text-align: left; ">{!item['name']}</td>
+                    <td style="text-align: right; ">
+                        <apex:outputText value="{0,number,###,###}">
+                            <apex:param value="{!item['price']}" />
+                        </apex:outputText>원
+                    </td>
+                </tr>
+            </apex:repeat>
+        </table>
+        <table style="margin-top: 20px;">
+            <colgroup>
+                <col width="80%"/>
+                <col width="20%"/>
+            </colgroup>
+            <tr>
+                <th style="height: 30px; text-align: left; background-color: #DCDCDC;">총 할인 가격</th>
+                <th style="height: 30px; text-align: right; background-color: #DCDCDC;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!prTotalPrice}" />
+                    </apex:outputText>원
+                </th>
+            </tr>
+            <tr>
+                <td style="text-align: left; ">기준 할인 금액</td>
+                <td style="text-align: right; ">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!IF(baseDiscount == null, 0, (quoteDetail['product']['price'] * baseDiscount / 100))}" />
+                    </apex:outputText>원
+                </td>
+            </tr>
+            <apex:repeat value="{!quoteDetail['promotion']}" var="item">
+                <tr>
+                    <td style="text-align: left; ">{!item['name']}</td>
+                    <td style="text-align: right; ">
+                        <apex:outputText value="{0,number,###,###}">
+                            <apex:param value="{!IF(item['discountPrice'] == null, (quoteDetail['product']['price'] * item['discountRate']) , item['discountPrice'])}" />
+                        </apex:outputText>원
+                    </td>
+                </tr>
+            </apex:repeat>
+        </table>
+        <table style="margin-top: 20px;">
+            <colgroup>
+                <col width="80%"/>
+                <col width="20%"/>
+            </colgroup>
+            <tr>
+                <th style="height: 30px; text-align: left;">주유상품권 : {!quoteDetail['oilCouponCount']}장</th>
+                <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!quoteDetail['oilCouponCount']* 100000}" />
+                    </apex:outputText>원
+                </th>
+            </tr>
+        </table>
+        <table style="margin-top: 10px;">
+            <colgroup>
+                <col width="80%"/>
+                <col width="20%"/>
+            </colgroup>
+            <tr>
+                <th style="height: 30px; text-align: left; background-color: #DCDCDC;">실 판매가격</th>
+                <th style="height: 30px; text-align: right; background-color: #DCDCDC;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!totalPrice - prTotalPrice + (quoteDetail['oilCouponCount']* 100000)}" />
+                    </apex:outputText>원
+                </th>
+            </tr>
+        </table>
+        <table style="margin-top: 10px;">
+            <colgroup>
+                <col width="80%"/>
+                <col width="20%"/>
+            </colgroup>
+            <tr>
+                <th style="height: 30px; text-align: left;">특장 (BB Use Case)</th>
+            </tr>
+            <apex:repeat value="{!quoteDetail['special']}" var="item">
+                <tr>
+                    <td style="text-align: left; ">{!item['subOption']}</td>
+                    <td style="text-align: right; ">
+                        <apex:outputText value="{0,number,###,###}">
+                            <apex:param value="{!item['price']}" />
+                        </apex:outputText>원
+                    </td>
+                </tr>
+            </apex:repeat>
+        </table>
+        <table style="margin-top: 20px;">
+            <colgroup>
+                <col width="80%"/>
+                <col width="20%"/>
+            </colgroup>
+            <tr>
+                <th style="height: 30px; text-align: left; background-color: #FAFAD2">실 판매가격+특장비용 (VAT 포함) (total price)</th>
+                <th style="height: 30px; text-align: right; background-color: #FAFAD2">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!totalPrice - prTotalPrice + (quoteDetail['oilCouponCount']* 100000) + spTotalPrice}" />
+                    </apex:outputText>원
+                </th>
+            </tr>
+        </table>
+        <table style="margin-top: 20px;">
+            <colgroup>
+                <col width="80%"/>
+                <col width="20%"/>
+            </colgroup>
+            <tr>
+                <th style="height: 30px; text-align: left; background-color: #DCDCDC;">Financing – Based on [individual offering of MFS / other banks] [lump sum] </th>
+            </tr>
+            <tr>
+                <th style="height: 30px; text-align: left;">계약금 (Down payment)</th>
+                <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!IF(quoteDetail['financial']['deposit'] == null, 0 , quoteDetail['financial']['deposit'])}" />
+                    </apex:outputText>원
+                </th>
+            </tr>
+            <tr>
+                <th style="height: 30px; text-align: left;">인도금 (Delivery money)</th>
+                <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!IF(quoteDetail['financial']['deliveryPrice'] == null, 0 , quoteDetail['financial']['deliveryPrice'])}" />
+                    </apex:outputText>원
+                </th>
+            </tr>
+            <tr>
+                <th style="height: 30px; text-align: left;">부가세 유예 (Value added tax deferred payment)</th>
+                <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!IF(opp.VATDefermentStatus__c == '승인됨', ROUND(((totalPrice - prTotalPrice + (quoteDetail['oilCouponCount']* 100000)) / 1.1 * 0.1), 0) , 0)}" />
+                    </apex:outputText>원
+                </th>
+            </tr>
+            <tr>
+                <th style="height: 30px; text-align: left;">할부원금 (Instalment principal)</th>
+                <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!IF(quoteDetail['financial']['loanAmount'] == null, 0 , quoteDetail['financial']['loanAmount'])}" />
+                    </apex:outputText>원
+                </th>
+            </tr>
+            <tr>
+                <th style="height: 30px; text-align: left;">적용금리 (Applicable interest rate)</th>
+                <th style="height: 30px; text-align: right;">
+                    {!IF(quoteDetail['financial']['interestRate'] == null, 0 , quoteDetail['financial']['interestRate'])}%
+                </th>
+            </tr>
+            <tr>
+                <th style="height: 30px; text-align: left;">개월 수 (Runtime)</th>
+                <th style="height: 30px; text-align: right;">
+                    {!IF(quoteDetail['financial']['loanTermMonth'] == null, 0 , quoteDetail['financial']['loanTermMonth'])} Months
+                </th>
+            </tr>
+            <tr>
+                <th style="height: 30px; text-align: left; background-color: #FAFAD2">예상 월 할부금 (Expected monthly installment)</th>
+                <th style="height: 30px; text-align: right; background-color: #FAFAD2">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!monthlyPayment}" />
+                    </apex:outputText>원
+                </th>
+            </tr>
+        </table>
+        <table style="margin-top: 20px;">
+            <colgroup>
+                <col width="80%"/>
+                <col width="20%"/>
+            </colgroup>
+            <tr>
+                <th style="height: 30px; text-align: left; background-color: #DCDCDC;">Additional purchase costs</th>
+            </tr>
+            <tr>
+                <th style="height: 30px; text-align: left;">탁송료 (Consignment fee)</th>
+                <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!IF(quoteDetail['extraExpenses']['consignment'] == null, 0 , quoteDetail['extraExpenses']['consignment'])}" />
+                    </apex:outputText>원
+                </th>
+            </tr>
+            <tr>
+                <th style="height: 30px; text-align: left;">출고보험료 (Factory insurance)</th>
+                <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!IF(quoteDetail['extraExpenses']['insurance'] == null, 0 , quoteDetail['extraExpenses']['insurance'])}" />
+                    </apex:outputText>원
+                </th>
+            </tr>
+            <apex:outputPanel layout="none" rendered="{!AND(NOT(ISNULL(quoteDetail['extraExpenses']['isStampDuty'])),
+                 quoteDetail['extraExpenses']['isStampDuty'])}">
+                <tr>
+                    <th style="height: 30px; text-align: left;">인지대 (Stamp Duty)</th>
+                    <th style="height: 30px; text-align: right;">
+                        <apex:outputText value="{0,number,###,###}">
+                            <apex:param value="{!quoteDetail['extraExpenses']['stampDuty']}" />
+                        </apex:outputText>원
+                    </th>
+                </tr>
+            </apex:outputPanel>
+            <tr>
+                <th style="height: 30px; text-align: left;">공증료 (Notarized fee)</th>
+                <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!IF(opp.VATDefermentStatus__c == '승인됨', 
+                            ROUND((ROUND(((totalPrice - prTotalPrice + (quoteDetail['oilCouponCount']* 100000)) / 1.1 * 0.1), 0) * 1.3 * 0.0015) + 21500, -1) , 
+                            0)}" />
+                    </apex:outputText>원
+                </th>
+            </tr>
+            <tr>
+                <th style="height: 30px; text-align: left;">합계</th>
+                <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!IF(quoteDetail['extraExpenses']['consignment'] == null, 0 , quoteDetail['extraExpenses']['consignment']) 
+                        + IF(quoteDetail['extraExpenses']['insurance'] == null, 0 , quoteDetail['extraExpenses']['insurance'])
+                        + IF(quoteDetail['extraExpenses']['isStampDuty'], quoteDetail['extraExpenses']['stampDuty'] , 0)
+                        + IF(opp.VATDefermentStatus__c == '승인됨', ROUND((ROUND(((totalPrice - prTotalPrice + (quoteDetail['oilCouponCount']* 100000)) / 1.1 * 0.1), 0) * 1.3 * 0.0015) + 21500, -1) , 0)
+                        }" />
+                    </apex:outputText>원
+                </th>
+            </tr>
+            <tr>
+                <th style="height: 30px; text-align: left;">취등록세 (Registration fee)</th>
+                <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                        <apex:param value="{!IF(quoteDetail['product']['segment'] == 'TPP', 
+                        ROUND(((totalPrice - prTotalPrice + (quoteDetail['oilCouponCount']* 100000) + spTotalPrice) / 1.1 * 0.03) , 0) ,
+                        ROUND(((totalPrice - prTotalPrice + (quoteDetail['oilCouponCount']* 100000) + spTotalPrice) / 1.1 * 0.04) , 0) )}" />
+                    </apex:outputText>원
+                </th>
+            </tr>
+        </table> 
+        <table style="margin-top: 20px;">
+            <colgroup>
+                <col width="25%"/>
+                <col width="25%"/>
+                <col width="25%"/>
+                <col width="25%"/>
+            </colgroup>
+            <apex:outputPanel layout="block" rendered="{!lan == 'KR'}">
+                <tr>
+                    <th colspan="4" style="height: 30px; text-align: left; background-color: #DCDCDC;">Further Information</th>
+                </tr>
+                <tr>
+                    <td colspan="4" style="text-align: left;">인도일: 고객님이 지정한 날짜에 배송이 가능합니다.
+                        <br/>
+                        <br/>
+                        결제 및 인도 조항: 차량 인도일 하루 전까지 차량 대금 전액(금융사 대출금 포함)을 만트럭버스코리아(주)에 입금해야만 인도가 가능합니다. 
+                        <br/>
+                        <br/>
+                        견적 유효 기간: 해당 견적은 월말까지 유효합니다.
+                    </td>
+                </tr>
+            </apex:outputPanel>
+            <apex:outputPanel layout="block" rendered="{!lan == 'EN'}">
+                <tr>
+                    <th colspan="4" style="height: 30px; text-align: left;">Further Information</th>
+                </tr>
+                <tr>
+                    <td colspan="4" style="text-align: left;">Handover Date: Delivery is possible on the date specified by the customer.
+                        <br/>
+                        <br/>
+                        Payment &amp; delivery clause: The handover is possible only when the full amount of the vehicle (including loan amount from financial companies) is deposited to the MTBK one day before the handover date. 
+                        <br/>
+                        <br/>
+                        Validity of the offer: The offer is valid until the end of the month.
+                    </td>
+                </tr>
+            </apex:outputPanel>
+        </table>
+
+
+    </body>
+</apex:page>
