@@ -1,0 +1,30 @@
+name: Deploy IC2 Metadata to Dev Sandbox
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Salesforce CLI
+        run: npm install -g sfdx-cli
+
+      - name: Authenticate to Dev Sandbox
+        run: |
+          echo "${{ secrets.SFDX_AUTH_URL }}" > sfdx_auth.txt
+          sfdx auth:sfdxurl:store -f sfdx_auth.txt -a DevSandbox
+
+      - name: Convert Metadata (IC2 src → SFDX format)
+        run: |
+          sfdx force:mdapi:convert -r src -d converted
+
+      - name: Deploy to Dev Sandbox
+        run: |
+          sfdx force:source:deploy -p converted -u DevSandbox --testlevel RunLocalTests
