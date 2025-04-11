@@ -79,13 +79,12 @@ jobs:
 
       - name: Create deploy ZIP
         run: |
-          mkdir -p deploy_zip/unpackaged
+          mkdir -p deploy_zip/unpackaged/classes
           cp package.xml deploy_zip/unpackaged/
 
           while read -r file; do
-            if [ -f "$file" ]; then
-              mkdir -p "deploy_zip/unpackaged/$(dirname "$file")"
-              cp "$file" "deploy_zip/unpackaged/$file"
+            if [[ "$file" == src/classes/*.cls || "$file" == src/classes/*.cls-meta.xml ]]; then
+              cp "$file" deploy_zip/unpackaged/classes/
             fi
           done < changed_files.txt
 
