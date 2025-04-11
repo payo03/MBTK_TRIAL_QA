@@ -8,7 +8,7 @@
   1.0      2025-03-26      payo03@solomontech.net           Created
 */
 public with sharing class AccountInterface {
-
+// Test
     @AuraEnabled
     public static Account fetchRecord(String recordId) {
         return [
