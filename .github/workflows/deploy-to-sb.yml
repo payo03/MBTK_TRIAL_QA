@@ -38,9 +38,9 @@ jobs:
             if [[ "$file" =~ \.js$ || "$file" =~ \.html$ || "$file" =~ \.css$ ]]; then
               # js, html, css 파일이 변경되었으면 해당 파일들 추가
               bundle_dir=$(echo "$file" | cut -d/ -f1-5)
-              
+
               # js, html, css 파일이 존재하는지 확인 후 추가
-              for ext in js html css js-meta.xml; do
+              for ext in js html js-meta.xml; do
                 for target in "$bundle_dir"/*."$ext"; do
                   if [ -f "$target" ]; then
                     echo "📄 추가됨: $target"
@@ -48,6 +48,16 @@ jobs:
                   fi
                 done
               done
+
+              # css 파일이 있을 경우만 추가
+              if [ -f "$bundle_dir"/*.css ]; then
+                for css_file in "$bundle_dir"/*.css; do
+                  if [ -f "$css_file" ]; then
+                    echo "📄 추가됨: $css_file"
+                    echo "$css_file" >> changed_files.txt
+                  fi
+                done
+              fi
             fi
           done < changed_files.txt
 
