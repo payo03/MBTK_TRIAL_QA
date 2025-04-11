@@ -20,7 +20,7 @@ jobs:
       - name: Authenticate to MTBK_SB
         run: |
           echo "${{ secrets.SFDX_AUTH_URL }}" > sfdx_auth.txt
-          sfdx auth:sfdxurl:store -f sfdx_auth.txt -a MTBK_SB
+          sfdx force:auth:sfdxurl:store -f sfdx_auth.txt -a MTBK_SB
 
       - name: Convert Metadata (IC2 src → SFDX format)
         run: |
