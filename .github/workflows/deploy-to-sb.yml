@@ -36,8 +36,7 @@ jobs:
           echo "🔍 origin/master 와 HEAD 간의 diff 확인"
           CHANGED_CLASSES=$(git log -1 --name-only | grep '\.cls$' | grep -v '_test.cls' || true)
           echo "🔍 최근 커밋에서 변경된 Apex 클래스 추출"
-  
-  
+
           echo "🎯 Push된 Apex 클래스 목록:"
           echo "$CHANGED_CLASSES"
 
@@ -45,7 +44,7 @@ jobs:
           for class_file in $CHANGED_CLASSES; do
             base=$(basename "$class_file" .cls)
             test_file="converted/main/default/classes/${base}_test.cls"
-          
+
             if [ -f "$test_file" ]; then
               TEST_CLASSES+="${base}_test,"
             else
@@ -58,19 +57,22 @@ jobs:
               fi
             fi
           done
-          
+
           TEST_CLASSES=$(echo "$TEST_CLASSES" | sed 's/,$//')
+
           if [ -n "$TEST_CLASSES" ]; then
             echo "✅ 실행할 테스트 클래스: $TEST_CLASSES"
             sfdx force:source:deploy \
               -p converted \
               -u MTBK_SB \
               --testlevel RunSpecifiedTests \
-              --runtests "$TEST_CLASSES"
+              --runtests "$TEST_CLASSES" \
+              --ignorewarnings
           else
             echo "ℹ️ Push된 Apex 클래스는 없거나 테스트 클래스 없음 → 테스트 생략"
             sfdx force:source:deploy \
               -p converted \
               -u MTBK_SB \
-              --testlevel NoTestRun
+              --testlevel NoTestRun \
+              --ignorewarnings
           fi
