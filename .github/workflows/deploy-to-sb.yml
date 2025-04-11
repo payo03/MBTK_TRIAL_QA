@@ -43,8 +43,11 @@ jobs:
               for ext in js html js-meta.xml; do
                 for target in "$bundle_dir"/*."$ext"; do
                   if [ -f "$target" ]; then
-                    echo "📄 추가됨: $target"
-                    echo "$target" >> changed_files.txt
+                    # 중복 방지: 이미 추가된 파일이면 다시 추가하지 않음
+                    if ! grep -Fxq "$target" changed_files.txt; then
+                      echo "📄 추가됨: $target"
+                      echo "$target" >> changed_files.txt
+                    fi
                   fi
                 done
               done
@@ -53,8 +56,11 @@ jobs:
               if [ -f "$bundle_dir"/*.css ]; then
                 for css_file in "$bundle_dir"/*.css; do
                   if [ -f "$css_file" ]; then
-                    echo "📄 추가됨: $css_file"
-                    echo "$css_file" >> changed_files.txt
+                    # 중복 방지
+                    if ! grep -Fxq "$css_file" changed_files.txt; then
+                      echo "📄 추가됨: $css_file"
+                      echo "$css_file" >> changed_files.txt
+                    fi
                   fi
                 done
               fi
