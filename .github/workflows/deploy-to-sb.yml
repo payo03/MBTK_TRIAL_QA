@@ -20,12 +20,12 @@ jobs:
       - name: Authenticate to Dev Sandbox
         run: |
           echo "${{ secrets.SFDX_AUTH_URL }}" > sfdx_auth.txt
-          sfdx auth:sfdxurl:store -f sfdx_auth.txt -a DevSandbox
+          sfdx auth:sfdxurl:store -f sfdx_auth.txt -a MTBK_SB
 
       - name: Convert Metadata (IC2 src → SFDX format)
         run: |
           sfdx force:mdapi:convert -r src -d converted
 
-      - name: Deploy to Dev Sandbox
+      - name: Deploy to MTBK_SB
         run: |
           sfdx force:source:deploy -p converted -u DevSandbox --testlevel RunLocalTests
