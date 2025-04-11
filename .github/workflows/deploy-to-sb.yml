@@ -39,22 +39,26 @@ jobs:
           while read -r file; do
             if [ -f "$file" ]; then
               # ⚡ LWC 번들 전체 복사
-              if [[ "$file" == force-app/main/default/lwc/* ]]; then
-                bundle_dir=$(echo "$file" | cut -d/ -f1-5)
-                echo "🔁 LWC 번들 복사: $bundle_dir"
-                if [ -d "$bundle_dir" ]; then
-                  mkdir -p "deploy_src/$bundle_dir"
-                  cp -r "$bundle_dir"/* "deploy_src/$bundle_dir/"
+              if [[ "$file" == force-app/main/default/lwc/*/* ]]; then
+                top_bundle=$(echo "$file" | cut -d/ -f1-5)
+                echo "🔁 LWC 번들 복사: $top_bundle"
+                if [ -d "$top_bundle" ]; then
+                  mkdir -p "deploy_src/$top_bundle"
+                  cp -r "$top_bundle"/* "deploy_src/$top_bundle/"
                 else
-                  echo "⚠️ 디렉토리 없음: $bundle_dir"
+                  echo "⚠️ LWC 디렉토리 없음: $top_bundle"
                 fi
-          
+
               # ⚡ Aura 번들 전체 복사
-              elif [[ "$file" == force-app/main/default/aura/* ]]; then
-                bundle_dir=$(echo "$file" | cut -d/ -f1-5)
-                echo "🔁 Aura 번들 복사: $bundle_dir"
-                mkdir -p "deploy_src/$bundle_dir"
-                cp -r "$bundle_dir"/* "deploy_src/$bundle_dir/"
+              elif [[ "$file" == force-app/main/default/aura/*/* ]]; then
+                top_bundle=$(echo "$file" | cut -d/ -f1-5)
+                echo "🔁 Aura 번들 복사: $top_bundle"
+                if [ -d "$top_bundle" ]; then
+                  mkdir -p "deploy_src/$top_bundle"
+                  cp -r "$top_bundle"/* "deploy_src/$top_bundle/"
+                else
+                  echo "⚠️ Aura 디렉토리 없음: $top_bundle"
+                fi
 
               # 📦 기타 메타데이터 파일 복사 (Apex, VF Page 등)
               else
@@ -72,7 +76,7 @@ jobs:
           done < changed_files.txt
 
           echo "✅ deploy_src 디렉토리 구성 완료"
-          find deploy_src
+          find deploy_src || echo "🚫 복사된 파일 없음!"
 
       - name: Append deploy_src to sfdx-project.json
         run: |
