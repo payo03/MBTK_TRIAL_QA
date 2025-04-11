@@ -18,7 +18,7 @@ import selectConfigDetailById from '@salesforce/apex/ConfigMasterController.sele
 import upsertConfigMaster from '@salesforce/apex/ConfigMasterController.upsertConfigMaster';
 import upsertConfigDetail from '@salesforce/apex/ConfigMasterController.upsertConfigDetail';
 import deleteConfigDetail from '@salesforce/apex/ConfigMasterController.deleteConfigDetail';
-// Test
+
 // Test용 함수
 import signRequestByTemplate from '@salesforce/apex/InterfaceModuSign.doCallOutSignRequestByTemplate';
 import kakaoAlimTalk from '@salesforce/apex/InterfaceKakao.doCallOutKakaoAlimTalk';
