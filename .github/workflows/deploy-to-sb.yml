@@ -32,29 +32,36 @@ jobs:
 
       - name: Copy Changed Files to deploy_src
         run: |
-          echo "📁 변경된 파일들을 deploy_src로 복사 중..."
           mkdir -p deploy_src
-          
+          echo "📁 복사 대상 목록:"
+          cat changed_files.txt
+
           while read -r file; do
             if [ -f "$file" ]; then
               mkdir -p "deploy_src/$(dirname "$file")"
               cp "$file" "deploy_src/$file"
-              echo "✅ 복사됨: $file"
 
-              # 관련된 meta 파일도 함께 복사
-              if [[ "$file" =~ \.(cls|trigger|page|component|resource|app)$ ]]; then
+              # 메타파일 같이 복사
+              if [[ "$file" =~ \.(cls|trigger|page|component|resource|app|cmp|evt|design|tokens|svg)$ ]]; then
                 if [ -f "$file-meta.xml" ]; then
                   cp "$file-meta.xml" "deploy_src/$file-meta.xml"
-                  echo "🧩 메타파일 복사됨: $file-meta.xml"
                 fi
               fi
-            else
-              echo "⚠️ 누락됨 (파일 없음): $file"
             fi
           done < changed_files.txt
 
-          echo "📂 deploy_src 디렉토리 구조:"
+          echo "✅ deploy_src 디렉토리 구성 완료"
           find deploy_src
+
+      - name: Prepare deploy_src as SFDX source folder
+        run: |
+          echo "🔧 sfdx-project.json에 deploy_src 경로 임시 추가..."
+          cp sfdx-project.json sfdx-project.original.json
+
+          jq '.packageDirectories += [{"path":"deploy_src","default":false}]' sfdx-project.original.json > sfdx-project.json
+
+          echo "✅ 현재 sfdx-project.json:"
+          cat sfdx-project.json
 
       - name: Convert to Metadata API Format
         run: |
