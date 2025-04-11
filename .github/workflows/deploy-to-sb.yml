@@ -39,7 +39,8 @@ jobs:
             if [[ "$file" =~ \.js$ || "$file" =~ \.html$ || "$file" =~ \.css$ ]]; then
               echo "🔨 js, html, css 파일 변경됨: $file"
               # js, html, css 파일이 변경되었으면 해당 파일들 추가
-              bundle_dir=$(echo "$file" | cut -d/ -f1-5)
+              bundle_name=$(basename "$file" | cut -d. -f1)  # 파일명만 추출 (확장자 제외)
+              bundle_dir=$(dirname "$file")  # 디렉토리 경로 추출
               echo "📂 해당 디렉토리: $bundle_dir"
 
               # js, html, css 파일이 존재하는지 확인 후 추가
