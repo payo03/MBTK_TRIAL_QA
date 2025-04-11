@@ -33,6 +33,27 @@ jobs:
           git log -1 --name-only --pretty=format: > changed_files.txt
           cat changed_files.txt
 
+          # js, html, css 파일이 변경되었으면 4종셋트를 추가
+          while read -r file; do
+            if [[ "$file" =~ \.js$ || "$file" =~ \.html$ || "$file" =~ \.css$ ]]; then
+              # js, html, css 파일이 변경되었으면 해당 파일들 추가
+              bundle_dir=$(echo "$file" | cut -d/ -f1-5)
+              
+              # js, html, css 파일이 존재하는지 확인 후 추가
+              for ext in js html css js-meta.xml; do
+                for target in "$bundle_dir"/*."$ext"; do
+                  if [ -f "$target" ]; then
+                    echo "📄 추가됨: $target"
+                    echo "$target" >> changed_files.txt
+                  fi
+                done
+              done
+            fi
+          done < changed_files.txt
+
+          echo "✅ 변경된 파일 목록: "
+          cat changed_files.txt
+
       - name: Copy Changed Files to deploy_src (All Metadata Types)
         run: |
           mkdir -p deploy_src
