@@ -38,27 +38,19 @@ jobs:
 
           while read -r file; do
             if [ -f "$file" ]; then
-              # ⚡ LWC 번들 전체 복사
+              # LWC
               if [[ "$file" == force-app/main/default/lwc/*/* ]]; then
-                top_bundle=$(echo "$file" | cut -d/ -f1-5)
-                echo "🔁 LWC 번들 복사: $top_bundle"
-                if [ -d "$top_bundle" ]; then
-                  mkdir -p "deploy_src/$top_bundle"
-                  cp -r "$top_bundle"/* "deploy_src/$top_bundle/"
-                else
-                  echo "⚠️ LWC 디렉토리 없음: $top_bundle"
-                fi
+                bundle_dir=$(echo "$file" | cut -d/ -f1-5)
+                echo "🔁 LWC 번들 복사: $bundle_dir"
+                mkdir -p "deploy_src/$bundle_dir"
+                cp -r "$bundle_dir"/* "deploy_src/$bundle_dir/"
 
-              # ⚡ Aura 번들 전체 복사
+              # Aura
               elif [[ "$file" == force-app/main/default/aura/*/* ]]; then
-                top_bundle=$(echo "$file" | cut -d/ -f1-5)
-                echo "🔁 Aura 번들 복사: $top_bundle"
-                if [ -d "$top_bundle" ]; then
-                  mkdir -p "deploy_src/$top_bundle"
-                  cp -r "$top_bundle"/* "deploy_src/$top_bundle/"
-                else
-                  echo "⚠️ Aura 디렉토리 없음: $top_bundle"
-                fi
+                bundle_dir=$(echo "$file" | cut -d/ -f1-5)
+                echo "🔁 Aura 번들 복사: $bundle_dir"
+                mkdir -p "deploy_src/$bundle_dir"
+                cp -r "$bundle_dir"/* "deploy_src/$bundle_dir/"
 
               # 📦 기타 메타데이터 파일 복사 (Apex, VF Page 등)
               else
