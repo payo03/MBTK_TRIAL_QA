@@ -27,10 +27,8 @@ jobs:
       - name: Find Changed Files
         id: diff
         run: |
-          echo "🔍 origin/master 와 HEAD 간의 변경 파일 추출 중..."
-          git fetch origin master
-          git diff --name-only FETCH_HEAD > changed_files.txt
-          echo "📂 변경된 파일 목록:"
+          echo "🔍 최근 커밋에서 변경된 파일 추출 중..."
+          git log -1 --name-only --pretty=format: > changed_files.txt
           cat changed_files.txt
 
       - name: Identify Test Classes & Create package.xml
