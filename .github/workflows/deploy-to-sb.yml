@@ -30,7 +30,7 @@ jobs:
           git log -1 --name-only --pretty=format: > changed_files.txt
           cat changed_files.txt
 
-      - name: Copy Changed Files to deploy_src (all types)
+      - name: Copy Changed Files to deploy_src (All Metadata Types)
         run: |
           mkdir -p deploy_src
           echo "📁 복사 대상 목록:"
@@ -38,27 +38,27 @@ jobs:
 
           while read -r file; do
             if [ -f "$file" ]; then
-              # LWC 번들 처리
+              # ⚡ LWC 번들 전체 복사
               if [[ "$file" == force-app/main/default/lwc/*/* ]]; then
                 bundle_dir=$(echo "$file" | cut -d/ -f1-5)
                 echo "🔁 LWC 번들 복사: $bundle_dir"
                 mkdir -p "deploy_src/$bundle_dir"
                 cp -r "$bundle_dir"/* "deploy_src/$bundle_dir/"
-          
-              # Aura 번들 처리
+
+              # ⚡ Aura 번들 전체 복사
               elif [[ "$file" == force-app/main/default/aura/*/* ]]; then
                 bundle_dir=$(echo "$file" | cut -d/ -f1-5)
                 echo "🔁 Aura 번들 복사: $bundle_dir"
                 mkdir -p "deploy_src/$bundle_dir"
                 cp -r "$bundle_dir"/* "deploy_src/$bundle_dir/"
 
-              # 나머지 일반 파일 처리
+              # 📦 기타 메타데이터 파일 복사 (Apex, VF Page 등)
               else
                 mkdir -p "deploy_src/$(dirname "$file")"
                 cp "$file" "deploy_src/$file"
 
-                # 메타파일 복사
-                if [[ "$file" =~ \.(cls|trigger|page|component|resource|app|cmp|evt|design|tokens|svg)$ ]]; then
+                # 메타파일 함께 복사
+                if [[ "$file" =~ \.(cls|trigger|page|component|resource|app|cmp|evt|design|tokens|svg|xml)$ ]]; then
                   if [ -f "$file-meta.xml" ]; then
                     cp "$file-meta.xml" "deploy_src/$file-meta.xml"
                   fi
@@ -70,14 +70,11 @@ jobs:
           echo "✅ deploy_src 디렉토리 구성 완료"
           find deploy_src
 
-      - name: Prepare deploy_src as SFDX source folder
+      - name: Append deploy_src to sfdx-project.json
         run: |
-          echo "🔧 sfdx-project.json에 deploy_src 경로 임시 추가..."
+          echo "🔧 sfdx-project.json에 deploy_src 경로 추가"
           cp sfdx-project.json sfdx-project.original.json
-
           jq '.packageDirectories += [{"path":"deploy_src","default":false}]' sfdx-project.original.json > sfdx-project.json
-
-          echo "✅ 현재 sfdx-project.json:"
           cat sfdx-project.json
 
       - name: Convert to Metadata API Format
@@ -88,7 +85,7 @@ jobs:
             --rootdir deploy_src \
             --outputdir deploy_zip/mdapi
 
-          echo "📂 변환 결과:"
+          echo "📂 변환 결과 파일:"
           find deploy_zip/mdapi
 
       - name: Deploy to MTBK_SB
