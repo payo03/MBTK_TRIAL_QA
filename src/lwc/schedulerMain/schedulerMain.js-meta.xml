@@ -6,7 +6,6 @@
     <masterLabel>schedulerMain</masterLabel>
     <targets>
         <target>lightning__Tab</target>
-<!--        <target>lightning__AppPage</target>-->
-        <target>lightning__HomePage</target>
+        <!--        <target>lightning__AppPage</target>--><target>lightning__HomePage</target>
     </targets>
 </LightningComponentBundle>

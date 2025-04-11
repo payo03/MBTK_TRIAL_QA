@@ -6,7 +6,7 @@
         <target>lightning__RecordAction</target>
         <target>lightning__RecordPage</target>
         <target>lightning__AppPage</target>
-        <target>lightning__HomePage</target> 
+        <target>lightning__HomePage</target>
         <target>lightning__UrlAddressable</target>
     </targets>
     <targetConfigs>

@@ -9,11 +9,11 @@
         <target>lightning__AppPage</target>
         <target>lightning__Tab</target>
         <target>lightning__UrlAddressable</target>
-        <target>lightning__HomePage</target> 
+        <target>lightning__HomePage</target>
     </targets>
     <targetConfigs>
         <targetConfig targets="lightning__RecordAction">
             <actionType>ScreenAction</actionType>
         </targetConfig>
-    </targetConfigs>    
+    </targetConfigs>
 </LightningComponentBundle>

@@ -11,7 +11,7 @@
 */
 public without sharing class Product2_tr extends TriggerHandler {
     
-    private List<Product2>    newList { get; set; } // Test23
+    private List<Product2>    newList { get; set; }
     private List<Product2>    oldList { get; set; }
     private Map<Id, Product2> newMap  { get; set; }
     private Map<Id, Product2> oldMap  { get; set; }
