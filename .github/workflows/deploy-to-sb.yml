@@ -37,18 +37,30 @@ jobs:
 
           declare -A types_map
           while read -r file; do
-            # 타입 추출
             case "$file" in
-              *classes/*.cls)          types_map["ApexClass"]+=$(basename "$file" .cls)" " ;;
-              *triggers/*.trigger)     types_map["ApexTrigger"]+=$(basename "$file" .trigger)" " ;;
-              *pages/*.page)           types_map["ApexPage"]+=$(basename "$file" .page)" " ;;
-              *components/*.component) types_map["ApexComponent"]+=$(basename "$file" .component)" " ;;
-              *staticresources/*.resource) types_map["StaticResource"]+=$(basename "$file" .resource)" " ;;
-              *lwc/*/*)                lwcName=$(echo "$file" | cut -d/ -f2); types_map["LightningComponentBundle"]+="$lwcName " ;;
-              *aura/*/*)               auraName=$(echo "$file" | cut -d/ -f2); types_map["AuraDefinitionBundle"]+="$auraName " ;;
-              *objects/*object-meta.xml) objName=$(basename "$file" -meta.xml); types_map["CustomObject"]+="$objName " ;;
-              *layouts/*.layout)       layoutName=$(basename "$file" .layout); types_map["Layout"]+="$layoutName " ;;
-              *flows/*.flow-meta.xml)  flowName=$(basename "$file" -meta.xml); types_map["Flow"]+="$flowName " ;;
+              force-app/main/default/classes/*.cls)
+                types_map["ApexClass"]+=$(basename "$file" .cls)" "
+                ;;
+              force-app/main/default/triggers/*.trigger)
+                types_map["ApexTrigger"]+=$(basename "$file" .trigger)" "
+                ;;
+              force-app/main/default/pages/*.page)
+                types_map["ApexPage"]+=$(basename "$file" .page)" "
+                ;;
+              force-app/main/default/components/*.component)
+                types_map["ApexComponent"]+=$(basename "$file" .component)" "
+                ;;
+              force-app/main/default/staticresources/*.resource)
+                types_map["StaticResource"]+=$(basename "$file" .resource)" "
+                ;;
+              force-app/main/default/lwc/*/*)
+                lwcName=$(echo "$file" | cut -d/ -f5)
+                types_map["LightningComponentBundle"]+="$lwcName "
+                ;;
+              force-app/main/default/aura/*/*)
+                auraName=$(echo "$file" | cut -d/ -f5)
+                types_map["AuraDefinitionBundle"]+="$auraName "
+                ;;
             esac
           done < changed_files.txt
 
@@ -63,38 +75,18 @@ jobs:
 
           echo "  <version>57.0</version>" >> package.xml
           echo "</Package>" >> package.xml
-          echo "📦 생성된 package.xml:"
-          cat package.xml
 
-      - name: Create Deployment ZIP
+      - name: Convert to Metadata API Format
         run: |
-          mkdir -p deploy_zip/unpackaged
-          cp package.xml deploy_zip/unpackaged/
-
-          while read -r file; do
-            if [ -f "$file" ]; then
-              mkdir -p "deploy_zip/unpackaged/$(dirname "$file")"
-              cp "$file" "deploy_zip/unpackaged/$file"
-              # 메타파일이 있으면 함께 복사
-              if [[ "$file" =~ \.(cls|trigger|page|component|resource)$ ]]; then
-                metafile="${file}-meta.xml"
-                if [ -f "$metafile" ]; then
-                  cp "$metafile" "deploy_zip/unpackaged/$metafile"
-                fi
-              fi
-            fi
-          done < changed_files.txt
-
-          cd deploy_zip
-          zip -r deploy.zip unpackaged > /dev/null
-          cd ..
+          mkdir -p deploy_zip/mdapi
+          sfdx force:source:convert -r force-app -d deploy_zip/mdapi -x package.xml
 
       - name: Deploy to MTBK_SB
         run: |
           if [[ -s changed_files.txt ]]; then
             echo "🚀 변경된 파일만 배포 중..."
             sfdx force:mdapi:deploy \
-              -f deploy_zip/deploy.zip \
+              -d deploy_zip/mdapi \
               -u MTBK_SB \
               --testlevel NoTestRun \
               --ignorewarnings \
