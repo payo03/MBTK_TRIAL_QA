@@ -95,7 +95,7 @@ jobs:
         run: |
           if [ -d deploy_zip/mdapi/lwc ]; then
             echo "📦 LWC 디렉토리 이름 변경 → lightningComponentBundles"
-            mv deploy_zip/mdapi/lwc deploy_zip/mdapi/lightningComponentBundles
+            mv deploy_zip/mdapi/lwc deploy_zip/mdapi/lightningComponentBundle
             ls -R deploy_zip/mdapi
           fi
 
