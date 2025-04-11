@@ -32,36 +32,55 @@ jobs:
           git diff --name-only origin/master HEAD > changed_files.txt
           cat changed_files.txt
 
-      - name: Identify Test Classes
-        id: tests
+      - name: Identify Test Classes & Create package.xml
+        id: detect
         run: |
-          TEST_CLASSES=""
-          while read -r file; do
-            # Apex 클래스만 검사
-            if [[ "$file" == *.cls && "$file" != *_test.cls ]]; then
-              base=$(basename "$file" .cls)
-              test_file="$(dirname "$file")/${base}_test.cls"
+          echo "📦 package.xml 생성 및 테스트 클래스 식별 중..."
 
-              if [ -f "$test_file" ]; then
-                echo "✅ 테스트 클래스 발견: ${base}_test"
-                TEST_CLASSES+="${base}_test,"
-              else
-                target=$(grep -m1 "@Target" "$file" | sed -E 's/.*@Target[[:space:]]*:[[:space:]]*//;s/\.cls[[:space:]]*$//' | xargs)
-                if [ -n "$target" ] && [ -f "$(dirname "$file")/${target}_test.cls" ]; then
-                  echo "💡 어노테이션 기반 테스트 클래스: ${target}_test"
-                  TEST_CLASSES+="${target}_test,"
+          TEST_CLASSES=""
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > package.xml
+          echo '<Package xmlns="http://soap.sforce.com/2006/04/metadata">' >> package.xml
+
+          CLASS_MEMBERS=""
+          while read -r file; do
+            if [[ "$file" == *.cls ]]; then
+              class_name=$(basename "$file" .cls)
+              CLASS_MEMBERS+="    <members>${class_name}</members>\n"
+
+              if [[ "$file" != *_test.cls ]]; then
+                # 연결된 테스트 클래스 확인
+                test_file="$(dirname "$file")/${class_name}_test.cls"
+                if [ -f "$test_file" ]; then
+                  echo "✅ 테스트 클래스 발견: ${class_name}_test"
+                  TEST_CLASSES+="${class_name}_test,"
+                else
+                  # @Target 기반 탐색
+                  target=$(grep -m1 "@Target" "$file" | sed -E 's/.*@Target[[:space:]]*:[[:space:]]*//;s/\.cls[[:space:]]*$//' | xargs)
+                  if [ -n "$target" ] && [ -f "$(dirname "$file")/${target}_test.cls" ]; then
+                    echo "💡 어노테이션 기반 테스트 클래스: ${target}_test"
+                    TEST_CLASSES+="${target}_test,"
+                  fi
                 fi
               fi
             fi
           done < changed_files.txt
 
-          TEST_CLASSES=$(echo "$TEST_CLASSES" | sed 's/,$//')
-          echo "TEST_CLASSES=$TEST_CLASSES" >> $GITHUB_ENV
+          if [[ -n "$CLASS_MEMBERS" ]]; then
+            echo -e "$CLASS_MEMBERS" >> package.xml
+            echo "    <name>ApexClass</name>" >> package.xml
+          fi
 
-      - name: Create deploy ZIP with changed files
+          echo '    <version>57.0</version>' >> package.xml
+          echo '</Package>' >> package.xml
+
+          echo "TEST_CLASSES=$(echo $TEST_CLASSES | sed 's/,$//')" >> $GITHUB_ENV
+          echo "✅ 생성된 package.xml:"
+          cat package.xml
+
+      - name: Create deploy ZIP
         run: |
           mkdir -p deploy_zip/unpackaged
-          cp selective-deploy/package.xml deploy_zip/unpackaged/
+          cp package.xml deploy_zip/unpackaged/
 
           while read -r file; do
             if [ -f "$file" ]; then
@@ -71,7 +90,7 @@ jobs:
           done < changed_files.txt
 
           cd deploy_zip
-          zip -r deploy.zip unpackaged
+          zip -r deploy.zip unpackaged > /dev/null
           cd ..
 
       - name: Deploy to MTBK_SB (Selective Deploy)
