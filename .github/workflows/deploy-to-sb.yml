@@ -28,7 +28,8 @@ jobs:
         id: diff
         run: |
           echo "🔍 최근 커밋에서 변경된 파일 추출 중..."
-          git log -1 --name-only --pretty=format: > changed_files.txt
+          git fetch origin master:refs/remotes/origin/master
+          git diff --name-only origin/master HEAD > changed_files.txt
           cat changed_files.txt
 
       - name: Identify Test Classes & Create package.xml
@@ -44,19 +45,19 @@ jobs:
 
           has_class=false
           while read -r file; do
-            if [[ "$file" == *.cls ]]; then
+            if [[ "$file" == src/classes/*.cls ]]; then
               class_name=$(basename "$file" .cls)
               echo "    <members>${class_name}</members>" >> package.xml
               has_class=true
 
               if [[ "$file" != *_test.cls ]]; then
-                test_file="$(dirname "$file")/${class_name}_test.cls"
+                test_file="src/classes/${class_name}_test.cls"
                 if [ -f "$test_file" ]; then
                   echo "✅ 테스트 클래스 발견: ${class_name}_test"
                   TEST_CLASSES+="${class_name}_test,"
                 else
-                  target=$(grep -m1 "@Target" "$file" | sed -E 's/.*@Target[[:space:]]*:[[:space:]]*//;s/\.cls[[:space:]]*$//' | xargs)
-                  if [ -n "$target" ] && [ -f "$(dirname "$file")/${target}_test.cls" ]; then
+                  target=$(grep -m1 "@Target" "$file" | sed -E 's/.*@Target[[:space:]]*:[[:space:]]*//;s/\\.cls[[:space:]]*$//' | xargs)
+                  if [ -n "$target" ] && [ -f "src/classes/${target}_test.cls" ]; then
                     echo "💡 어노테이션 기반 테스트 클래스: ${target}_test"
                     TEST_CLASSES+="${target}_test,"
                   fi
@@ -70,8 +71,8 @@ jobs:
             echo "  </types>" >> package.xml
           fi
 
-          echo "  <version>57.0</version>" >> package.xml
-          echo "</Package>" >> package.xml
+          echo '  <version>57.0</version>' >> package.xml
+          echo '</Package>' >> package.xml
 
           echo "TEST_CLASSES=$(echo $TEST_CLASSES | sed 's/,$//')" >> $GITHUB_ENV
           echo "✅ 최종 package.xml 내용:"
