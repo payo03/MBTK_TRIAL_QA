@@ -1,4 +1,4 @@
-name: Deploy IC2 Metadata to Dev Sandbox
+name: Deploy IC2 Metadata to MTBK_SB
 
 on:
   workflow_dispatch:
@@ -28,4 +28,4 @@ jobs:
 
       - name: Deploy to MTBK_SB
         run: |
-          sfdx force:source:deploy -p converted -u DevSandbox --testlevel RunLocalTests
+          sfdx force:source:deploy -p converted -u MTBK_SB --testlevel RunLocalTests
