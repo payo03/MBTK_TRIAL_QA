@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # 🔥 전체 Git 이력까지 fetch
 
       - name: Install Salesforce CLI
         run: npm install -g sfdx-cli
@@ -31,7 +29,7 @@ jobs:
       - name: Deploy to MTBK_SB (Test only for pushed Apex classes)
         run: |
           # main 기준으로 Push된 Apex Class (.cls) 파일 추출 (테스트 클래스 제외)
-          git fetch origin master
+          git fetch origin
           CHANGED_CLASSES=$(git diff --name-only origin/master...HEAD | grep '\.cls$' | grep -v '_test.cls')
 
           echo "🎯 Push된 Apex 클래스 목록:"
