@@ -37,23 +37,24 @@ jobs:
           echo "📦 package.xml 생성 및 테스트 클래스 식별 중..."
 
           TEST_CLASSES=""
+
           echo '<?xml version="1.0" encoding="UTF-8"?>' > package.xml
           echo '<Package xmlns="http://soap.sforce.com/2006/04/metadata">' >> package.xml
+          echo '  <types>' >> package.xml
 
-          CLASS_MEMBERS=""
+          has_class=false
           while read -r file; do
             if [[ "$file" == *.cls ]]; then
               class_name=$(basename "$file" .cls)
-              CLASS_MEMBERS+="    <members>${class_name}</members>\n"
+              echo "    <members>${class_name}</members>" >> package.xml
+              has_class=true
 
               if [[ "$file" != *_test.cls ]]; then
-                # 연결된 테스트 클래스 확인
                 test_file="$(dirname "$file")/${class_name}_test.cls"
                 if [ -f "$test_file" ]; then
                   echo "✅ 테스트 클래스 발견: ${class_name}_test"
                   TEST_CLASSES+="${class_name}_test,"
                 else
-                  # @Target 기반 탐색
                   target=$(grep -m1 "@Target" "$file" | sed -E 's/.*@Target[[:space:]]*:[[:space:]]*//;s/\.cls[[:space:]]*$//' | xargs)
                   if [ -n "$target" ] && [ -f "$(dirname "$file")/${target}_test.cls" ]; then
                     echo "💡 어노테이션 기반 테스트 클래스: ${target}_test"
@@ -64,16 +65,16 @@ jobs:
             fi
           done < changed_files.txt
 
-          if [[ -n "$CLASS_MEMBERS" ]]; then
-            echo -e "$CLASS_MEMBERS" >> package.xml
+          if [ "$has_class" = true ]; then
             echo "    <name>ApexClass</name>" >> package.xml
+            echo "  </types>" >> package.xml
           fi
 
-          echo '    <version>57.0</version>' >> package.xml
-          echo '</Package>' >> package.xml
+          echo "  <version>57.0</version>" >> package.xml
+          echo "</Package>" >> package.xml
 
           echo "TEST_CLASSES=$(echo $TEST_CLASSES | sed 's/,$//')" >> $GITHUB_ENV
-          echo "✅ 생성된 package.xml:"
+          echo "✅ 최종 package.xml 내용:"
           cat package.xml
 
       - name: Create deploy ZIP
