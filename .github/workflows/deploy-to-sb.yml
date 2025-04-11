@@ -29,7 +29,7 @@ jobs:
       - name: Deploy to MTBK_SB (Test only for pushed Apex classes)
         run: |
           echo "📦 Git fetch 중..."
-          git fetch origin
+          git fetch origin master:refs/remotes/origin/master
 
           echo "🔍 origin/master 와 HEAD 간의 diff 확인"
           CHANGED_CLASSES=$(git diff --name-only origin/master...HEAD 2>/dev/null | grep '\.cls$' | grep -v '_test.cls' || true)
@@ -46,20 +46,12 @@ jobs:
             fi
           done
 
-          # 콤마 제거
           TEST_CLASSES=$(echo "$TEST_CLASSES" | sed 's/,$//')
 
           if [ -n "$TEST_CLASSES" ]; then
             echo "✅ 실행할 테스트 클래스: $TEST_CLASSES"
-            sfdx force:source:deploy \
-              -p converted \
-              -u MTBK_SB \
-              --testlevel RunSpecifiedTests \
-              --runtests "$TEST_CLASSES"
+            sfdx force:source:deploy               -p converted               -u MTBK_SB               --testlevel RunSpecifiedTests               --runtests "$TEST_CLASSES"
           else
             echo "ℹ️ Push된 Apex 클래스는 없거나 테스트 클래스 없음 → 테스트 생략"
-            sfdx force:source:deploy \
-              -p converted \
-              -u MTBK_SB \
-              --testlevel NoTestRun
+            sfdx force:source:deploy               -p converted               -u MTBK_SB               --testlevel NoTestRun
           fi
