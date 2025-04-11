@@ -36,6 +36,7 @@ export default class SendFilePublicLink extends NavigationMixin(LightningElement
   accId;
   domain = '';
   publicUrl = '';
+  pdfUrl;
 
   @wire(CurrentPageReference)
   getStateParameters(currentPageReference) {
@@ -52,6 +53,7 @@ export default class SendFilePublicLink extends NavigationMixin(LightningElement
       console.log('res:: ' + res);
       this.quoteName = res.name;
       this.accId = res.acc;
+      this.pdfUrl = '/apex/QuotePdf?id=' + this.recordId + '&language=' + this.selectedValue;
     });
   }
 

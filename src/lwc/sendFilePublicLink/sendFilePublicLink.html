@@ -34,6 +34,11 @@
           onclick={handleOpenPdf}
           >
         </lightning-button>
+        <button><lightning-formatted-url
+          value={pdfUrl}
+          label="PDF 보기"
+          target="_blank"
+        ></lightning-formatted-url></button>
         <lightning-button
           variant="brand"
           size="large"
