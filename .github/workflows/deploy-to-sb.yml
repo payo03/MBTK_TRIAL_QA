@@ -30,7 +30,7 @@ jobs:
           git log -1 --name-only --pretty=format: > changed_files.txt
           cat changed_files.txt
 
-      - name: Copy Changed Files to deploy_src
+      - name: Copy Changed Files to deploy_src (all types)
         run: |
           mkdir -p deploy_src
           echo "📁 복사 대상 목록:"
@@ -38,13 +38,30 @@ jobs:
 
           while read -r file; do
             if [ -f "$file" ]; then
-              mkdir -p "deploy_src/$(dirname "$file")"
-              cp "$file" "deploy_src/$file"
+              # LWC 번들 처리
+              if [[ "$file" == force-app/main/default/lwc/*/* ]]; then
+                bundle_dir=$(echo "$file" | cut -d/ -f1-5)
+                echo "🔁 LWC 번들 복사: $bundle_dir"
+                mkdir -p "deploy_src/$bundle_dir"
+                cp -r "$bundle_dir"/* "deploy_src/$bundle_dir/"
+          
+              # Aura 번들 처리
+              elif [[ "$file" == force-app/main/default/aura/*/* ]]; then
+                bundle_dir=$(echo "$file" | cut -d/ -f1-5)
+                echo "🔁 Aura 번들 복사: $bundle_dir"
+                mkdir -p "deploy_src/$bundle_dir"
+                cp -r "$bundle_dir"/* "deploy_src/$bundle_dir/"
 
-              # 메타파일 같이 복사
-              if [[ "$file" =~ \.(cls|trigger|page|component|resource|app|cmp|evt|design|tokens|svg)$ ]]; then
-                if [ -f "$file-meta.xml" ]; then
-                  cp "$file-meta.xml" "deploy_src/$file-meta.xml"
+              # 나머지 일반 파일 처리
+              else
+                mkdir -p "deploy_src/$(dirname "$file")"
+                cp "$file" "deploy_src/$file"
+
+                # 메타파일 복사
+                if [[ "$file" =~ \.(cls|trigger|page|component|resource|app|cmp|evt|design|tokens|svg)$ ]]; then
+                  if [ -f "$file-meta.xml" ]; then
+                    cp "$file-meta.xml" "deploy_src/$file-meta.xml"
+                  fi
                 fi
               fi
             fi
