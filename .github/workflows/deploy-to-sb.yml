@@ -30,28 +30,58 @@ jobs:
           git log -1 --name-only --pretty=format: > changed_files.txt
           cat changed_files.txt
 
-      - name: Copy Changed Files to temp source
+      - name: Generate package.xml
         run: |
-          mkdir -p deploy_src
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > package.xml
+          echo '<Package xmlns="http://soap.sforce.com/2006/04/metadata">' >> package.xml
 
+          declare -A types_map
           while read -r file; do
-            if [ -f "$file" ]; then
-              mkdir -p "deploy_src/$(dirname "$file")"
-              cp "$file" "deploy_src/$file"
-
-              # meta 파일도 함께 복사
-              if [[ "$file" =~ \.(cls|trigger|page|component|resource|app)$ ]]; then
-                if [ -f "$file-meta.xml" ]; then
-                  cp "$file-meta.xml" "deploy_src/$file-meta.xml"
-                fi
-              fi
-            fi
+            case "$file" in
+              src/classes/*.cls)
+                types_map["ApexClass"]+="$(basename "$file" .cls) "
+                ;;
+              src/triggers/*.trigger)
+                types_map["ApexTrigger"]+="$(basename "$file" .trigger) "
+                ;;
+              src/pages/*.page)
+                types_map["ApexPage"]+="$(basename "$file" .page) "
+                ;;
+              src/components/*.component)
+                types_map["ApexComponent"]+="$(basename "$file" .component) "
+                ;;
+              src/staticresources/*.resource)
+                types_map["StaticResource"]+="$(basename "$file" .resource) "
+                ;;
+              src/lwc/*/*)
+                lwcName=$(echo "$file" | cut -d/ -f3)
+                types_map["LightningComponentBundle"]+="$lwcName "
+                ;;
+              src/aura/*/*)
+                auraName=$(echo "$file" | cut -d/ -f3)
+                types_map["AuraDefinitionBundle"]+="$auraName "
+                ;;
+            esac
           done < changed_files.txt
 
-      - name: Convert to Metadata API format
+          for metaType in "${!types_map[@]}"; do
+            echo "  <types>" >> package.xml
+            for member in ${types_map[$metaType]}; do
+              echo "    <members>$member</members>" >> package.xml
+            done
+            echo "    <name>$metaType</name>" >> package.xml
+            echo "  </types>" >> package.xml
+          done
+
+          echo "  <version>57.0</version>" >> package.xml
+          echo "</Package>" >> package.xml
+          echo "📦 생성된 package.xml:"
+          cat package.xml
+
+      - name: Convert to Metadata API Format
         run: |
           mkdir -p deploy_zip/mdapi
-          sfdx force:source:convert -r deploy_src -d deploy_zip/mdapi
+          sfdx force:source:convert -r src -d deploy_zip/mdapi
 
       - name: Deploy to MTBK_SB
         run: |
