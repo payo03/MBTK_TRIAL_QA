@@ -29,56 +29,35 @@ jobs:
 
       - name: Get Changed Files from Last Commit
         run: |
-          echo "🔍 최근 커밋에서 변경된 파일 추출 중..."
           git log -1 --name-only --pretty=format: > changed_files.txt
           cat changed_files.txt
 
           # js, html, css 파일이 변경되었으면 4종셋트를 추가
           while read -r file; do
-            echo "🔍 확인 중: $file"
             if [[ "$file" =~ \.js$ || "$file" =~ \.html$ || "$file" =~ \.css$ ]]; then
-              echo "🔨 js, html, css 파일 변경됨: $file"
               # js, html, css 파일이 변경되었으면 해당 파일들 추가
               bundle_name=$(basename "$file" | cut -d. -f1)  # 파일명만 추출 (확장자 제외)
               bundle_dir=$(dirname "$file")  # 디렉토리 경로 추출
-              echo "📂 해당 디렉토리: $bundle_dir"
 
               # js, html, css 파일이 존재하는지 확인 후 추가
               for ext in js html js-meta.xml; do
-                echo "🔍 확장자 확인: $ext"
-                for target in "$bundle_dir"/*."$ext"; do
-                  if [ -f "$target" ]; then
-                    echo "📄 확인된 파일: $target"
-                    # 중복 방지: 이미 추가된 파일이면 다시 추가하지 않음
-                    if ! grep -Fxq "$target" changed_files.txt; then
-                      echo "📄 추가됨: $target"
-                      echo "$target" >> changed_files.txt
-                    else
-                      echo "📄 이미 추가된 파일: $target"
-                    fi
+                target="$bundle_dir/$bundle_name.$ext"
+                if [ -f "$target" ]; then
+                  # 중복 방지: 이미 추가된 파일이면 다시 추가하지 않음
+                  if ! grep -Fxq "$target" changed_files.txt; then
+                    echo "$target" >> changed_files.txt
                   fi
-                done
+                fi
               done
 
               # css 파일이 있을 경우만 추가
-              if [ -f "$bundle_dir"/*.css ]; then
-                for css_file in "$bundle_dir"/*.css; do
-                  if [ -f "$css_file" ]; then
-                    echo "📄 css 파일 확인됨: $css_file"
-                    # 중복 방지
-                    if ! grep -Fxq "$css_file" changed_files.txt; then
-                      echo "📄 추가됨: $css_file"
-                      echo "$css_file" >> changed_files.txt
-                    else
-                      echo "📄 이미 추가된 css 파일: $css_file"
-                    fi
-                  fi
-                done
-              else
-                echo "❌ css 파일이 없습니다."
+              css_file="$bundle_dir/$bundle_name.css"
+              if [ -f "$css_file" ]; then
+                # 중복 방지
+                if ! grep -Fxq "$css_file" changed_files.txt; then
+                  echo "$css_file" >> changed_files.txt
+                fi
               fi
-            else
-              echo "❌ js, html, css 파일이 아님: $file"
             fi
           done < changed_files.txt
 
