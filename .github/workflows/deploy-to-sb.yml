@@ -24,6 +24,40 @@ jobs:
           echo "${{ secrets.SFDX_AUTH_URL }}" > sfdx_auth.txt
           sfdx force:auth:sfdxurl:store -f sfdx_auth.txt -a MTBK_SB
 
+      - name: Find Changed Files
+        id: diff
+        run: |
+          echo "🔍 origin/master 와 HEAD 간의 변경 파일 추출 중..."
+          git fetch origin master:refs/remotes/origin/master
+          git diff --name-only origin/master HEAD > changed_files.txt
+          cat changed_files.txt
+
+      - name: Identify Test Classes
+        id: tests
+        run: |
+          TEST_CLASSES=""
+          while read -r file; do
+            # Apex 클래스만 검사
+            if [[ "$file" == *.cls && "$file" != *_test.cls ]]; then
+              base=$(basename "$file" .cls)
+              test_file="$(dirname "$file")/${base}_test.cls"
+
+              if [ -f "$test_file" ]; then
+                echo "✅ 테스트 클래스 발견: ${base}_test"
+                TEST_CLASSES+="${base}_test,"
+              else
+                target=$(grep -m1 "@Target" "$file" | sed -E 's/.*@Target[[:space:]]*:[[:space:]]*//;s/\.cls[[:space:]]*$//' | xargs)
+                if [ -n "$target" ] && [ -f "$(dirname "$file")/${target}_test.cls" ]; then
+                  echo "💡 어노테이션 기반 테스트 클래스: ${target}_test"
+                  TEST_CLASSES+="${target}_test,"
+                fi
+              fi
+            fi
+          done < changed_files.txt
+
+          TEST_CLASSES=$(echo "$TEST_CLASSES" | sed 's/,$//')
+          echo "TEST_CLASSES=$TEST_CLASSES" >> $GITHUB_ENV
+
       - name: Create deploy ZIP with changed files
         run: |
           mkdir -p deploy_zip/unpackaged
@@ -44,12 +78,24 @@ jobs:
         run: |
           if [[ -s changed_files.txt ]]; then
             echo "🚀 변경된 파일만 배포 시작..."
-            sfdx force:mdapi:deploy \
-              -f deploy_zip/deploy.zip \
-              -u MTBK_SB \
-              --testlevel RunLocalTests \
-              --ignorewarnings \
-              -w 10
+            if [[ -n "$TEST_CLASSES" ]]; then
+              echo "✅ 실행할 테스트 클래스: $TEST_CLASSES"
+              sfdx force:mdapi:deploy \
+                -f deploy_zip/deploy.zip \
+                -u MTBK_SB \
+                --testlevel RunSpecifiedTests \
+                --runtests "$TEST_CLASSES" \
+                --ignorewarnings \
+                -w 10
+            else
+              echo "ℹ️ 테스트 클래스 없음 → RunLocalTests"
+              sfdx force:mdapi:deploy \
+                -f deploy_zip/deploy.zip \
+                -u MTBK_SB \
+                --testlevel RunLocalTests \
+                --ignorewarnings \
+                -w 10
+            fi
           else
             echo "✅ 변경된 파일 없음, 배포 생략"
           fi
