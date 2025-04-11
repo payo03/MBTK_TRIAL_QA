@@ -72,20 +72,12 @@ jobs:
 
       - name: Create Deployment ZIP
         run: |
-          mkdir -p deploy_zip/unpackaged
+          mkdir -p deploy_zip/unpackaged/classes
           cp package.xml deploy_zip/unpackaged/
 
           while read -r file; do
-            if [ -f "$file" ]; then
-              mkdir -p "deploy_zip/unpackaged/$(dirname "$file")"
-              cp "$file" "deploy_zip/unpackaged/$file"
-            fi
-
-            # 관련 메타파일도 함께 복사
-            if [[ "$file" =~ \.cls$ || "$file" =~ \.trigger$ || "$file" =~ \.page$ || "$file" =~ \.component$ || "$file" =~ \.resource$ ]]; then
-              if [ -f "${file}-meta.xml" ]; then
-                cp "${file}-meta.xml" "deploy_zip/unpackaged/${file}-meta.xml"
-              fi
+            if [[ "$file" == src/classes/*.cls || "$file" == src/classes/*.cls-meta.xml ]]; then
+              cp "$file" deploy_zip/unpackaged/classes/
             fi
           done < changed_files.txt
 
