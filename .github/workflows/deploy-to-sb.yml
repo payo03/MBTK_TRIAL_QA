@@ -24,35 +24,32 @@ jobs:
           echo "${{ secrets.SFDX_AUTH_URL }}" > sfdx_auth.txt
           sfdx force:auth:sfdxurl:store -f sfdx_auth.txt -a MTBK_SB
 
-      - name: Get Changed Files (last commit 기준)
+      - name: Get Changed Files from Last Commit
         run: |
-          echo "🔍 마지막 커밋에서 변경된 파일 추출 중..."
+          echo "🔍 최근 커밋에서 변경된 파일 추출 중..."
           git log -1 --name-only --pretty=format: > changed_files.txt
           cat changed_files.txt
 
-      - name: Generate Package.xml
+      - name: Generate package.xml
         run: |
           echo '<?xml version="1.0" encoding="UTF-8"?>' > package.xml
           echo '<Package xmlns="http://soap.sforce.com/2006/04/metadata">' >> package.xml
 
           declare -A types_map
-
           while read -r file; do
-            if [[ "$file" == *.cls || "$file" == *.trigger || "$file" == *.page || "$file" == *.component || "$file" == *.resource ]]; then
-              name=$(basename "$file")
-              metaType=""
-              if [[ "$file" == *".cls" ]]; then metaType="ApexClass"
-              elif [[ "$file" == *".trigger" ]]; then metaType="ApexTrigger"
-              elif [[ "$file" == *".page" ]]; then metaType="ApexPage"
-              elif [[ "$file" == *".component" ]]; then metaType="ApexComponent"
-              elif [[ "$file" == *".resource" ]]; then metaType="StaticResource"
-              fi
-
-              if [[ -n "$metaType" ]]; then
-                name=${name%%.*}  # Strip extension
-                types_map["$metaType"]+="${name} "
-              fi
-            fi
+            # 타입 추출
+            case "$file" in
+              *classes/*.cls)          types_map["ApexClass"]+=$(basename "$file" .cls)" " ;;
+              *triggers/*.trigger)     types_map["ApexTrigger"]+=$(basename "$file" .trigger)" " ;;
+              *pages/*.page)           types_map["ApexPage"]+=$(basename "$file" .page)" " ;;
+              *components/*.component) types_map["ApexComponent"]+=$(basename "$file" .component)" " ;;
+              *staticresources/*.resource) types_map["StaticResource"]+=$(basename "$file" .resource)" " ;;
+              *lwc/*/*)                lwcName=$(echo "$file" | cut -d/ -f2); types_map["LightningComponentBundle"]+="$lwcName " ;;
+              *aura/*/*)               auraName=$(echo "$file" | cut -d/ -f2); types_map["AuraDefinitionBundle"]+="$auraName " ;;
+              *objects/*object-meta.xml) objName=$(basename "$file" -meta.xml); types_map["CustomObject"]+="$objName " ;;
+              *layouts/*.layout)       layoutName=$(basename "$file" .layout); types_map["Layout"]+="$layoutName " ;;
+              *flows/*.flow-meta.xml)  flowName=$(basename "$file" -meta.xml); types_map["Flow"]+="$flowName " ;;
+            esac
           done < changed_files.txt
 
           for metaType in "${!types_map[@]}"; do
@@ -66,18 +63,25 @@ jobs:
 
           echo "  <version>57.0</version>" >> package.xml
           echo "</Package>" >> package.xml
-
           echo "📦 생성된 package.xml:"
           cat package.xml
 
       - name: Create Deployment ZIP
         run: |
-          mkdir -p deploy_zip/unpackaged/classes
+          mkdir -p deploy_zip/unpackaged
           cp package.xml deploy_zip/unpackaged/
 
           while read -r file; do
-            if [[ "$file" == src/classes/*.cls || "$file" == src/classes/*.cls-meta.xml ]]; then
-              cp "$file" deploy_zip/unpackaged/classes/
+            if [ -f "$file" ]; then
+              mkdir -p "deploy_zip/unpackaged/$(dirname "$file")"
+              cp "$file" "deploy_zip/unpackaged/$file"
+              # 메타파일이 있으면 함께 복사
+              if [[ "$file" =~ \.(cls|trigger|page|component|resource)$ ]]; then
+                metafile="${file}-meta.xml"
+                if [ -f "$metafile" ]; then
+                  cp "$metafile" "deploy_zip/unpackaged/$metafile"
+                fi
+              fi
             fi
           done < changed_files.txt
 
