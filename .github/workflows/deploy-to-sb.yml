@@ -28,8 +28,9 @@ jobs:
         id: diff
         run: |
           echo "🔍 origin/master 와 HEAD 간의 변경 파일 추출 중..."
-          git fetch origin master:refs/remotes/origin/master
-          git diff --name-only origin/master HEAD > changed_files.txt
+          git fetch origin master
+          git diff --name-only FETCH_HEAD > changed_files.txt
+          echo "📂 변경된 파일 목록:"
           cat changed_files.txt
 
       - name: Identify Test Classes & Create package.xml
