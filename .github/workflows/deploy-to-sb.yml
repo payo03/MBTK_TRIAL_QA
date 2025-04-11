@@ -51,7 +51,7 @@ jobs:
       - name: Convert to Metadata API Format
         run: |
           mkdir -p deploy_zip/mdapi
-          sfdx force:source:convert -d deploy_zip/mdapi
+          sfdx force:source:convert --sourcepath deploy_src --outputdir deploy_zip/mdapi
 
       - name: Deploy to MTBK_SB
         run: |
