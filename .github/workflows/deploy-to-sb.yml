@@ -44,23 +44,22 @@ jobs:
           TEST_CLASSES=""
           for class_file in $CHANGED_CLASSES; do
             base=$(basename "$class_file" .cls)
-            test_file="converted/classes/${base}_test.cls"
-
+            test_file="converted/main/default/classes/${base}_test.cls"
+          
             if [ -f "$test_file" ]; then
               TEST_CLASSES+="${base}_test,"
             else
               # 어노테이션 기반 테스트 추적
-              target=$(grep "@Target" "$class_file" | sed -E 's/.*@Target[[:space:]]*:[[:space:]]*//;s/\\.cls[[:space:]]*$//' | xargs)
-              target_file="converted/classes/${target}.cls"
+              target=$(grep "@Target" "$class_file" | head -1 | sed -E 's/.*@Target[[:space:]]*:[[:space:]]*//;s/\\.cls[[:space:]]*$//' | xargs)
+              target_file="converted/main/default/classes/${target}.cls"
               if [ -f "$target_file" ]; then
                 echo "💡 어노테이션 기반 테스트 클래스 발견: ${target}"
                 TEST_CLASSES+="${target},"
               fi
             fi
           done
-
+          
           TEST_CLASSES=$(echo "$TEST_CLASSES" | sed 's/,$//')
-
           if [ -n "$TEST_CLASSES" ]; then
             echo "✅ 실행할 테스트 클래스: $TEST_CLASSES"
             sfdx force:source:deploy \
