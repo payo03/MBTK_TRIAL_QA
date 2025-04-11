@@ -9,7 +9,7 @@
 */
 public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Database.AllowsCallouts {
 
-    private static final Integer VAT_RATE = 11;
+    private static final Integer VAT_RATE = 10;
     private static final String LOG_TYPE = 'TAX_INVOICE';
     private static final String IF_ID = InterfaceSAP.IF_SMS013;
 
