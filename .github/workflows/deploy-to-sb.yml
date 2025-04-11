@@ -78,7 +78,7 @@ jobs:
                 echo "🔁 LWC 번들 복사: $bundle_dir"
                 mkdir -p "deploy_src/$bundle_dir"
 
-                # 반드시 포함할 확장자들 (js, html, css, js-meta.xml)
+                # js, html, js-meta.xml, css 파일 복사
                 for ext in js html js-meta.xml; do
                   for target in "$bundle_dir"/*."$ext"; do
                     if [ -f "$target" ]; then
@@ -86,14 +86,6 @@ jobs:
                       echo "📄 포함됨: $target"
                     fi
                   done
-                done
-
-                # css 파일이 있는 경우만 복사
-                for css_file in "$bundle_dir"/*.css; do
-                  if [ -f "$css_file" ]; then
-                    cp "$css_file" "deploy_src/$bundle_dir/"
-                    echo "📄 포함됨: $css_file"
-                  fi
                 done
 
               # Aura
@@ -102,7 +94,7 @@ jobs:
                 echo "🔁 Aura 번들 복사: $bundle_dir"
                 mkdir -p "deploy_src/$bundle_dir"
 
-                # 반드시 포함할 확장자들 (js, html, css, js-meta.xml)
+                # js, html, js-meta.xml, css 파일 복사
                 for ext in js html js-meta.xml; do
                   for target in "$bundle_dir"/*."$ext"; do
                     if [ -f "$target" ]; then
@@ -110,14 +102,6 @@ jobs:
                       echo "📄 포함됨: $target"
                     fi
                   done
-                done
-
-                # css 파일이 있는 경우만 복사
-                for css_file in "$bundle_dir"/*.css; do
-                  if [ -f "$css_file" ]; then
-                    cp "$css_file" "deploy_src/$bundle_dir/"
-                    echo "📄 포함됨: $css_file"
-                  fi
                 done
 
               # 📦 기타 메타데이터 파일 복사 (Apex, VF Page 등)
