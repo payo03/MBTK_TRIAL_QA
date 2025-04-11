@@ -88,16 +88,15 @@ jobs:
           echo "📂 변환 결과 파일:"
           find deploy_zip/mdapi
 
-      - name: Deploy to MTBK_SB
+      - name: Deploy using source:deploy
         run: |
           if [[ -s changed_files.txt ]]; then
-            echo "🚀 변경된 파일만 배포 중..."
-            sfdx force:mdapi:deploy \
-              -d deploy_zip/mdapi \
+            echo "🚀 변경된 파일 배포 중 (source:deploy)..."
+            sfdx force:source:deploy \
+              -p deploy_src \
               -u MTBK_SB \
-              --testlevel NoTestRun \
               --ignorewarnings \
-              -w 10
+              --loglevel fatal
           else
             echo "✅ 변경된 파일 없음 → 배포 생략"
           fi
