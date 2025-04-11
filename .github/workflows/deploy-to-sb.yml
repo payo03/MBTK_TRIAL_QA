@@ -28,8 +28,8 @@ jobs:
       - name: Get Changed Files from Last Commit
         run: |
           echo "🔍 최근 커밋에서 변경된 파일 추출 중..."
-          # 'git diff'를 사용하여 변경된 파일만 추출 (AM: Added, Modified)
-          git diff --name-only --diff-filter=AM HEAD^ HEAD > changed_files.txt
+          # 이전 커밋과 현재 커밋을 비교하기 위해 HEAD~1을 사용
+          git diff --name-only --diff-filter=AM HEAD~1 HEAD > changed_files.txt
           cat changed_files.txt
 
       - name: Copy Changed Files to deploy_src (All Metadata Types)
