@@ -1,7 +1,7 @@
 /**
 * @Author            : payo03@solomontech.net
 * @Description 		 : PurchaseInvoice Queue Job
-* @Target            : CreateVehicleStock_ba
+* @Target            : FetchSAPResult_ba_test
 * @Modification Log
   Ver      Date            Author                           Modification
   ===================================================================================

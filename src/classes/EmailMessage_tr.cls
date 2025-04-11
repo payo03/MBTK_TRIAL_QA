@@ -2,7 +2,7 @@
 * Author            : payo03@solomontech.net
 * File Name   		: EmailMessage_tr
 * Description 		: Email Trigger
-* Test Class        : EmailConfigController_test
+* Target            : EmailConfigController_test
 * Modification Log
 * Ver      Date            Author                           Modification
 * ===================================================================================

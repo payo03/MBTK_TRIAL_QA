@@ -1,7 +1,7 @@
 /**
 * @Author            : payo03@solomontech.net
-* @Description 		 : 재고이동요청 Queue Job
-* @Target            : PDI Step4. 재고이동요청
+* @Description 		 : 재고이동요청 Queue Job, PDI Step4. 재고이동요청
+* @Target            : Opportunity_tr_test
 * @Modification Log
   Ver      Date            Author                           Modification
   ===================================================================================

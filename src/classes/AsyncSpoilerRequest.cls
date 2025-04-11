@@ -1,7 +1,7 @@
 /**
 * @Author            : payo03@solomontech.net
-* @Description 		 : 재고이동요청 Queue Job
-* @Target            : PDI Step4. Spoiler 장착
+* @Description 		 : 재고이동요청 Queue Job, PDI Step4. Spoiler 장착
+* @Target            : AsyncInterface_test
 * @Modification Log
   Ver      Date            Author                           Modification
   ===================================================================================

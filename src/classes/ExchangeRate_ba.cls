@@ -1,7 +1,7 @@
 /**
 * @Author            : payo03@solomontech.net
 * @Description 		 : 환율정보 생성 batch
-* @Target            : CustomCalendar
+* @Target            : CustomCalendar_ba_test
 * @Modification Log
   Ver      Date            Author                           Modification
   ===================================================================================

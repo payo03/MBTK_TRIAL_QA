@@ -1,7 +1,7 @@
 /**
 * @Author            : payo03@solomontech.net
-* @Description 		 : 반제처리 요청
-* @Target            : Opportunity 반제처리 요청시 / AsyncInterface_test
+* @Description 		 : 반제처리 요청, Opportunity 반제처리 요청시
+* @Target            : AsyncInterface_test
 * @Modification Log
   Ver      Date            Author                           Modification
   ===================================================================================

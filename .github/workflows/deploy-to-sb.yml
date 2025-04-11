@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Install Salesforce CLI
         run: npm install -g sfdx-cli
@@ -26,7 +28,7 @@ jobs:
         run: |
           sfdx force:mdapi:convert -r src -d converted
 
-      - name: Deploy to MTBK_SB (Test only for pushed Apex classes)
+      - name: Deploy to MTBK_SB (Smart Test Matching)
         run: |
           echo "📦 Git fetch 중..."
           git fetch origin master:refs/remotes/origin/master
@@ -41,8 +43,17 @@ jobs:
           for class_file in $CHANGED_CLASSES; do
             base=$(basename "$class_file" .cls)
             test_file="converted/classes/${base}_test.cls"
+
             if [ -f "$test_file" ]; then
               TEST_CLASSES+="${base}_test,"
+            else
+              # 어노테이션 기반 테스트 추적
+              target=$(grep "@Target" "$class_file" | sed -E 's/.*@Target[[:space:]]*:[[:space:]]*//;s/\\.cls[[:space:]]*$//' | xargs)
+              target_file="converted/classes/${target}.cls"
+              if [ -f "$target_file" ]; then
+                echo "💡 어노테이션 기반 테스트 클래스 발견: ${target}"
+                TEST_CLASSES+="${target},"
+              fi
             fi
           done
 
@@ -50,8 +61,15 @@ jobs:
 
           if [ -n "$TEST_CLASSES" ]; then
             echo "✅ 실행할 테스트 클래스: $TEST_CLASSES"
-            sfdx force:source:deploy               -p converted               -u MTBK_SB               --testlevel RunSpecifiedTests               --runtests "$TEST_CLASSES"
+            sfdx force:source:deploy \
+              -p converted \
+              -u MTBK_SB \
+              --testlevel RunSpecifiedTests \
+              --runtests "$TEST_CLASSES"
           else
             echo "ℹ️ Push된 Apex 클래스는 없거나 테스트 클래스 없음 → 테스트 생략"
-            sfdx force:source:deploy               -p converted               -u MTBK_SB               --testlevel NoTestRun
+            sfdx force:source:deploy \
+              -p converted \
+              -u MTBK_SB \
+              --testlevel NoTestRun
           fi

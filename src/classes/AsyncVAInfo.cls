@@ -1,7 +1,7 @@
 /**
 * @Author            : payo03@solomontech.net
-* @Description 		 : 가상계좌 정보 전송
-* @Target            : AsyncCustomerInfo Chaining Queue
+* @Description 		 : 가상계좌 정보 전송, AsyncCustomerInfo Chaining Queue
+* @Target            : AsyncInterface_test
 * @Modification Log
   Ver      Date            Author                           Modification
   ===================================================================================

@@ -1,7 +1,7 @@
 /**
 * @Author            : payo03@solomontech.net
 * @Description 		 : ModuSign Template Job
-* @Target            : Template_ba
+* @Target            : Template_ba_test
 * @Modification Log
   Ver      Date            Author                           Modification
   ===================================================================================

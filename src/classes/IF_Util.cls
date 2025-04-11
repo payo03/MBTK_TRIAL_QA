@@ -3,7 +3,7 @@
  * @date            : 2024-11-08
  * @description     :
  * @TestClass       : InterfaceSAP_test
- * @target : 
+ * @target : Template_ba_test
 ==============================================================
  * Ver          Date            Author                  Modification
  * 1.0          2024-11-08      th.kim                  Created

@@ -1,7 +1,7 @@
 /**
 * @Author            : payo03@solomontech.net
 * @Description 		 : 고객정보 전송
-* @Target            : User_Tr
+* @Target            : AsyncInterface_test
 * @Modification Log
   Ver      Date            Author                           Modification
   ===================================================================================

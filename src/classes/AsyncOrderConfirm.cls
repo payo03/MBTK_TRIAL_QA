@@ -1,7 +1,7 @@
 /**
 * @Author            : payo03@solomontech.net
 * @Description 		 : OrderConfirm Queue Job
-* @Target            : CreateVehicleStock_ba
+* @Target            : CreateVehicleStock_ba_test
 * @Modification Log
   Ver      Date            Author                           Modification
   ===================================================================================
