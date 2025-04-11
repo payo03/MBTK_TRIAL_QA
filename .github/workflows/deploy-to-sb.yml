@@ -34,8 +34,10 @@ jobs:
           git fetch origin master:refs/remotes/origin/master
 
           echo "🔍 origin/master 와 HEAD 간의 diff 확인"
-          CHANGED_CLASSES=$(git diff --name-only origin/master..HEAD | grep '\.cls$' | grep -v '_test.cls' || true)
-
+          CHANGED_CLASSES=$(git log -1 --name-only | grep '\.cls$' | grep -v '_test.cls' || true)
+          echo "🔍 최근 커밋에서 변경된 Apex 클래스 추출"
+  
+  
           echo "🎯 Push된 Apex 클래스 목록:"
           echo "$CHANGED_CLASSES"
 
