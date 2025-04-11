@@ -24,10 +24,10 @@ jobs:
           echo "${{ secrets.SFDX_AUTH_URL }}" > sfdx_auth.txt
           sfdx force:auth:sfdxurl:store -f sfdx_auth.txt -a MTBK_SB
 
-      - name: Get Changed Files (diff from origin/master)
+      - name: Get Changed Files (last commit 기준)
         run: |
-          git fetch origin master:refs/remotes/origin/master
-          git diff --name-only origin/master HEAD > changed_files.txt
+          echo "🔍 마지막 커밋에서 변경된 파일 추출 중..."
+          git log -1 --name-only --pretty=format: > changed_files.txt
           cat changed_files.txt
 
       - name: Generate Package.xml
