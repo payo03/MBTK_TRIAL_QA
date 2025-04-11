@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Install Salesforce CLI
         run: npm install -g sfdx-cli
@@ -28,6 +26,9 @@ jobs:
         run: |
           echo "🔍 최근 커밋에서 변경된 파일 추출 중..."
           git log -1 --name-only --pretty=format: > changed_files.txt
+          # .github 폴더 제외
+          grep -v '^\.github' changed_files.txt > changed_files_filtered.txt
+          mv changed_files_filtered.txt changed_files.txt
           cat changed_files.txt
 
       - name: Copy Changed Files to deploy_src (All Metadata Types)
@@ -94,8 +95,18 @@ jobs:
             echo "📦 LWC 디렉토리 이름 변경 → lightningComponentBundles"
             mv deploy_zip/mdapi/lwc deploy_zip/mdapi/lightningComponentBundles
 
+            echo "🔍 변경된 디렉토리 상태:"
+            ls -R deploy_zip/mdapi
+
             # package.xml에서 LWC 경로를 lightningComponentBundles로 변경
+            echo "🔧 package.xml 수정 전 내용:"
+            cat deploy_zip/mdapi/package.xml
+
             sed -i 's|<members>lwc/configView</members>|<members>lightningComponentBundles/configView</members>|' deploy_zip/mdapi/package.xml
+
+            # 수정 후 package.xml 내용 출력 (디버깅)
+            echo "🔧 package.xml 수정 후 내용:"
+            cat deploy_zip/mdapi/package.xml
           fi
 
       - name: Deploy to MTBK_SB
