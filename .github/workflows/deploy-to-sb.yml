@@ -24,57 +24,29 @@ jobs:
           echo "${{ secrets.SFDX_AUTH_URL }}" > sfdx_auth.txt
           sfdx force:auth:sfdxurl:store -f sfdx_auth.txt -a MTBK_SB
 
-      - name: Generate package.xml for changed files only
+      - name: Create deploy ZIP with changed files
         run: |
-          mkdir -p selective-deploy
-          echo "📦 Git fetch 중..."
-          git fetch origin master
-
-          echo "🔍 origin/master 와 HEAD 간의 diff 확인"
-          CHANGED_FILES=$(git diff --name-only origin/master HEAD | grep -E '\.(cls|trigger|page|component|xml)$' || true)
-          echo "$CHANGED_FILES" > changed_files.txt
-
-          echo "🎯 변경된 파일 목록:"
-          cat changed_files.txt
-
-          echo '<?xml version="1.0" encoding="UTF-8"?>' > selective-deploy/package.xml
-          echo '<Package xmlns="http://soap.sforce.com/2006/04/metadata">' >> selective-deploy/package.xml
-
-          declare -A types
+          mkdir -p deploy_zip/unpackaged
+          cp selective-deploy/package.xml deploy_zip/unpackaged/
 
           while read -r file; do
-            if [[ "$file" =~ classes/(.+)\.cls$ ]]; then
-              types["ApexClass"]+="${BASH_REMATCH[1]} "
-            elif [[ "$file" =~ triggers/(.+)\.trigger$ ]]; then
-              types["ApexTrigger"]+="${BASH_REMATCH[1]} "
-            elif [[ "$file" =~ pages/(.+)\.page$ ]]; then
-              types["ApexPage"]+="${BASH_REMATCH[1]} "
-            elif [[ "$file" =~ components/(.+)\.component$ ]]; then
-              types["ApexComponent"]+="${BASH_REMATCH[1]} "
+            if [ -f "$file" ]; then
+              mkdir -p "deploy_zip/unpackaged/$(dirname "$file")"
+              cp "$file" "deploy_zip/unpackaged/$file"
             fi
           done < changed_files.txt
 
-          for type in "${!types[@]}"; do
-            members=${types[$type]}
-            echo "  <types>" >> selective-deploy/package.xml
-            for member in $members; do
-              echo "    <members>$member</members>" >> selective-deploy/package.xml
-            done
-            echo "    <name>$type</name>" >> selective-deploy/package.xml
-            echo "  </types>" >> selective-deploy/package.xml
-          done
-
-          echo '  <version>57.0</version>' >> selective-deploy/package.xml
-          echo '</Package>' >> selective-deploy/package.xml
+          cd deploy_zip
+          zip -r deploy.zip unpackaged
+          cd ..
 
       - name: Deploy to MTBK_SB (Selective Deploy)
         run: |
           if [[ -s changed_files.txt ]]; then
             echo "🚀 변경된 파일만 배포 시작..."
             sfdx force:mdapi:deploy \
-              -d src \
+              -f deploy_zip/deploy.zip \
               -u MTBK_SB \
-              -x selective-deploy/package.xml \
               --testlevel RunLocalTests \
               --ignorewarnings \
               -w 10
