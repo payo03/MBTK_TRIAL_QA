@@ -29,9 +29,6 @@ jobs:
         run: |
           echo "🔍 최근 커밋에서 변경된 파일 추출 중..."
           git log -1 --name-only --pretty=format: > changed_files.txt
-          # .iml 파일 제외
-          grep -v '\.iml' > changed_files_filtered.txt
-          mv changed_files_filtered.txt changed_files.txt
           cat changed_files.txt
 
       - name: Copy Changed Files to deploy_src (All Metadata Types)
