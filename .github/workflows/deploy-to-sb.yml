@@ -28,31 +28,28 @@ jobs:
         run: |
           echo "🔍 최근 커밋에서 변경된 파일 추출 중..."
           git log -1 --name-only --pretty=format: > changed_files.txt
-          echo "📄 변경된 파일 목록:"
           cat changed_files.txt
 
-      - name: Copy Changed Files to temp source
+      - name: Copy Changed Files to deploy_src
         run: |
+          echo "📁 변경된 파일들을 deploy_src로 복사 중..."
           mkdir -p deploy_src
-
-          echo "📂 파일 복사 시작..."
+          
           while read -r file; do
             if [ -f "$file" ]; then
               mkdir -p "deploy_src/$(dirname "$file")"
               cp "$file" "deploy_src/$file"
               echo "✅ 복사됨: $file"
 
-              # 관련 meta 파일도 복사
+              # 관련된 meta 파일도 함께 복사
               if [[ "$file" =~ \.(cls|trigger|page|component|resource|app)$ ]]; then
                 if [ -f "$file-meta.xml" ]; then
                   cp "$file-meta.xml" "deploy_src/$file-meta.xml"
                   echo "🧩 메타파일 복사됨: $file-meta.xml"
-                else
-                  echo "⚠️ 메타파일 없음: $file-meta.xml"
                 fi
               fi
             else
-              echo "⛔ 파일 존재하지 않음: $file"
+              echo "⚠️ 누락됨 (파일 없음): $file"
             fi
           done < changed_files.txt
 
@@ -61,17 +58,14 @@ jobs:
 
       - name: Convert to Metadata API Format
         run: |
+          echo "🔁 deploy_src → Metadata API 포맷 변환 시작..."
           mkdir -p deploy_zip/mdapi
+          sfdx force:source:convert \
+            --rootdir deploy_src \
+            --outputdir deploy_zip/mdapi
 
-          if [ -d deploy_src ] && [ "$(ls -A deploy_src)" ]; then
-            echo "🔁 변환 시작..."
-            sfdx force:source:convert --sourcepath deploy_src --outputdir deploy_zip/mdapi
-            echo "📦 변환된 결과:"
-            find deploy_zip/mdapi
-          else
-            echo "❌ deploy_src가 비어있습니다. 변환을 건너뜁니다."
-            exit 1
-          fi
+          echo "📂 변환 결과:"
+          find deploy_zip/mdapi
 
       - name: Deploy to MTBK_SB
         run: |
