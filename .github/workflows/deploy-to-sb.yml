@@ -24,55 +24,60 @@ jobs:
           echo "${{ secrets.SFDX_AUTH_URL }}" > sfdx_auth.txt
           sfdx force:auth:sfdxurl:store -f sfdx_auth.txt -a MTBK_SB
 
-      - name: Convert Metadata (IC2 src → SFDX format)
+      - name: Generate package.xml for changed files only
         run: |
-          sfdx force:mdapi:convert -r src -d converted
-
-      - name: Deploy to MTBK_SB (Smart Test Matching)
-        run: |
+          mkdir -p selective-deploy
           echo "📦 Git fetch 중..."
-          git fetch origin master:refs/remotes/origin/master
+          git fetch origin master
 
           echo "🔍 origin/master 와 HEAD 간의 diff 확인"
-          CHANGED_CLASSES=$(git log -1 --name-only | grep '\.cls$' | grep -v '_test.cls' || true)
-          echo "🔍 최근 커밋에서 변경된 Apex 클래스 추출"
+          CHANGED_FILES=$(git diff --name-only origin/master HEAD | grep -E '\.(cls|trigger|page|component|xml)$' || true)
+          echo "$CHANGED_FILES" > changed_files.txt
 
-          echo "🎯 Push된 Apex 클래스 목록:"
-          echo "$CHANGED_CLASSES"
+          echo "🎯 변경된 파일 목록:"
+          cat changed_files.txt
 
-          TEST_CLASSES=""
-          for class_file in $CHANGED_CLASSES; do
-            base=$(basename "$class_file" .cls)
-            test_file="converted/main/default/classes/${base}_test.cls"
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > selective-deploy/package.xml
+          echo '<Package xmlns="http://soap.sforce.com/2006/04/metadata">' >> selective-deploy/package.xml
 
-            if [ -f "$test_file" ]; then
-              TEST_CLASSES+="${base}_test,"
-            else
-              # 어노테이션 기반 테스트 추적
-              target=$(grep "@Target" "$class_file" | head -1 | sed -E 's/.*@Target[[:space:]]*:[[:space:]]*//;s/\\.cls[[:space:]]*$//' | xargs)
-              target_file="converted/main/default/classes/${target}.cls"
-              if [ -f "$target_file" ]; then
-                echo "💡 어노테이션 기반 테스트 클래스 발견: ${target}"
-                TEST_CLASSES+="${target},"
-              fi
+          declare -A types
+
+          while read -r file; do
+            if [[ "$file" =~ classes/(.+)\.cls$ ]]; then
+              types["ApexClass"]+="${BASH_REMATCH[1]} "
+            elif [[ "$file" =~ triggers/(.+)\.trigger$ ]]; then
+              types["ApexTrigger"]+="${BASH_REMATCH[1]} "
+            elif [[ "$file" =~ pages/(.+)\.page$ ]]; then
+              types["ApexPage"]+="${BASH_REMATCH[1]} "
+            elif [[ "$file" =~ components/(.+)\.component$ ]]; then
+              types["ApexComponent"]+="${BASH_REMATCH[1]} "
             fi
+          done < changed_files.txt
+
+          for type in "${!types[@]}"; do
+            members=${types[$type]}
+            echo "  <types>" >> selective-deploy/package.xml
+            for member in $members; do
+              echo "    <members>$member</members>" >> selective-deploy/package.xml
+            done
+            echo "    <name>$type</name>" >> selective-deploy/package.xml
+            echo "  </types>" >> selective-deploy/package.xml
           done
 
-          TEST_CLASSES=$(echo "$TEST_CLASSES" | sed 's/,$//')
+          echo '  <version>57.0</version>' >> selective-deploy/package.xml
+          echo '</Package>' >> selective-deploy/package.xml
 
-          if [ -n "$TEST_CLASSES" ]; then
-            echo "✅ 실행할 테스트 클래스: $TEST_CLASSES"
-            sfdx force:source:deploy \
-              -p converted \
+      - name: Deploy to MTBK_SB (Selective Deploy)
+        run: |
+          if [[ -s changed_files.txt ]]; then
+            echo "🚀 변경된 파일만 배포 시작..."
+            sfdx force:mdapi:deploy \
+              -d src \
               -u MTBK_SB \
-              --testlevel RunSpecifiedTests \
-              --runtests "$TEST_CLASSES" \
-              --ignorewarnings
+              -x selective-deploy/package.xml \
+              --testlevel RunLocalTests \
+              --ignorewarnings \
+              -w 10
           else
-            echo "ℹ️ Push된 Apex 클래스는 없거나 테스트 클래스 없음 → 테스트 생략"
-            sfdx force:source:deploy \
-              -p converted \
-              -u MTBK_SB \
-              --testlevel NoTestRun \
-              --ignorewarnings
+            echo "✅ 변경된 파일 없음, 배포 생략"
           fi
