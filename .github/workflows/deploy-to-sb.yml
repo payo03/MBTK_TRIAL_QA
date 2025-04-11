@@ -39,7 +39,7 @@ jobs:
           while read -r file; do
             if [ -f "$file" ]; then
               # ⚡ LWC 번들 전체 복사
-              if [[ "$file" == force-app/main/default/lwc/*/* ]]; then
+              if [[ "$file" == force-app/main/default/lwc/* ]]; then
                 bundle_dir=$(echo "$file" | cut -d/ -f1-5)
                 echo "🔁 LWC 번들 복사: $bundle_dir"
                 if [ -d "$bundle_dir" ]; then
@@ -50,7 +50,7 @@ jobs:
                 fi
           
               # ⚡ Aura 번들 전체 복사
-              elif [[ "$file" == force-app/main/default/aura/*/* ]]; then
+              elif [[ "$file" == force-app/main/default/aura/* ]]; then
                 bundle_dir=$(echo "$file" | cut -d/ -f1-5)
                 echo "🔁 Aura 번들 복사: $bundle_dir"
                 mkdir -p "deploy_src/$bundle_dir"
