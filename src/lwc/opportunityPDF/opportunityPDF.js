@@ -68,7 +68,8 @@ export default class OpportunityPDF extends NavigationMixin(LightningElement) {
             const checkProduct = res?.opportunity?.[0]?.VehicleStock__r?.Product__c == null;
             const checkPaymentTracker = res.paymentTracker === null;
             const checkPaymentType = res.paymentTracker?.[0]?.PaymentTypes__r === null;
-            console.log('>>>>');
+            if(res.checkSAPermission) this.filteredDocuments = this.filteredDocuments.filter(doc => doc.label !== '판매정산결과 REPORT');
+            console.log('>>>>',res.checkSAPermission);
 
             Object.assign(this.exceptionMap, {
                 ['최종 견적서']: this.quoteId == null,

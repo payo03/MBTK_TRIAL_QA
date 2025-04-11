@@ -337,7 +337,7 @@
 									                       onclick={handleRefresh}></lightning-button-icon>
 									<div class="slds-card__body slds-p-around_small slds-p-top_none">
 										<div class="slds-scrollable_y campaign-table-wrap">
-											<lightning-datatable
+											<c-custom-data-table
 												key-field="id"
 												data-name="campaign"
 												data={campaignData}
@@ -345,7 +345,7 @@
 												onrowselection={handleRowSelection}
 												selected-rows={selectedCampaignIdList}
 												column-widths-mode="auto">
-											</lightning-datatable>
+											</c-custom-data-table>
 										</div>
 									</div>
 								</lightning-card>
@@ -466,12 +466,12 @@
 									<lightning-input type="text" label="이자율 범위" disabled
 									                 value={tableDataMap.financial.interestRateRange}
 									></lightning-input>
-									<lightning-input type="number" label="선수금" onchange={handleChange}
+									<lightning-input type="number" label="인도금" onchange={handleChange}
 									                 data-name="advancePayment" formatter="currency"
 									                 value={tableDataMap.financial.advancePayment}
-									                 max={summaryData.realSalesPrice} min="0"
-									                 message-when-range-overflow="최대 선수금을 초과하였습니다."
-									                 message-when-range-underflow="0 이상의 금액을 입력해주세요."
+									                 max={summaryData.realSalesPrice} min={tableDataMap.financial.minAdvancePayment}
+									                 message-when-range-overflow="실판매가를 초과하였습니다."
+									                 message-when-range-underflow="계약금, 부가세유예금, 인도금유예금 이상의 금액을 입력해주세요."
 									></lightning-input>
 									<lightning-input type="number" label="총 대출금액" onchange={handleChange}
 									                 data-name="loanAmount" formatter="currency"
@@ -641,12 +641,12 @@
 											<lightning-input type="text" label="이자율 범위" disabled
 											                 value={finance.interestRateRange} data-idx={idx}
 											></lightning-input>
-											<lightning-input type="number" label="선수금" onchange={handleCompareChange}
+											<lightning-input type="number" label="인도금" onchange={handleCompareChange}
 											                 data-name="advancePayment" formatter="currency"
 											                 value={finance.advancePayment} data-idx={idx}
-											                 max={summaryData.realSalesPrice} min="0"
-											                 message-when-range-overflow="최대 선수금을 초과하였습니다."
-											                 message-when-range-underflow="0 이상의 금액을 입력해주세요."
+											                 max={summaryData.realSalesPrice} min={tableDataMap.financial.minAdvancePayment}
+											                 message-when-range-overflow="실판매가를 초과하였습니다."
+											                 message-when-range-underflow="계약금, 부가세유예금, 인도금유예금 이상의 금액을 입력해주세요."
 											></lightning-input>
 											<lightning-input type="number" label="대출금액" onchange={handleCompareChange}
 											                 data-name="loanAmount" formatter="currency"

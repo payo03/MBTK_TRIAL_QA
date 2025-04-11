@@ -31,12 +31,14 @@
 
 		// 폼 팩터 타입
 		let formFactor;
+		let target;
 
 		// LWC에서 이벤트 호출 시 실행 함수
 		window.addEventListener('message', function(e) {
 			if (lightningHost !== e.origin) return;
-			if (e.data.target !== 'address') return;
+			if (!e.data.target.includes('address')) return;
 			formFactor = e.data.formFactor;
+			target = e.data.target;
 			// alert('formFactor :: ' + formFactor);
 
 			// 모바일 화면 맞춤
@@ -76,7 +78,7 @@
 		// LWC로 데이터 전송
 		function postToParent(data) {
 			console.log('data :: ', data);
-			data.target = 'address';
+			data.target = target;
 			parent.postMessage(data, lightningHost);
 		}
 

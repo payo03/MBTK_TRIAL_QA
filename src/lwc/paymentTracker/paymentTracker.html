@@ -27,15 +27,17 @@
 					<div class="slds-page-header__controls">
 						<div class="slds-page-header__control">
 							<ul class="slds-button-group-list">
-								<li>
-									<lightning-button
-										label="반제요청"
-										variant="Neutral"
-										data-id="salesNum"
-										onclick={handleButtonClick}
-										class="slds-button">
-									</lightning-button>
-								</li>
+                                <template if:false={isSA}>
+                                    <li>
+                                        <lightning-button
+                                            label="반제요청"
+                                            variant="Neutral"
+                                            data-id="salesNum"
+                                            onclick={handleButtonClick}
+                                            class="slds-button">
+                                        </lightning-button>
+                                    </li>
+                                </template>
 							</ul>
 						</div>
 					</div>
@@ -47,14 +49,16 @@
             <div class="box-wrap">
                 <div class="slds-grid slds-wrap button-wrap">
                     <div class="slds-grid">
-                        <lightning-input
-                            class="slds-p-right_x-small"
-                            label="영업사원"
-                            data-id="sa"
-                            value={filterMap.opportunityName}
-                            onchange={handleChange}
-                            placeholder="SA를 입력해주세요">
-                        </lightning-input>
+                        <template if:false={isSA}>
+                            <lightning-input
+                                class="slds-p-right_x-small"
+                                label="영업사원"
+                                data-id="sa"
+                                value={filterMap.opportunityName}
+                                onchange={handleChange}
+                                placeholder="SA를 입력해주세요">
+                            </lightning-input>
+                        </template>
                         <lightning-combobox
                             class="slds-p-right_x-small"
                             name="status"

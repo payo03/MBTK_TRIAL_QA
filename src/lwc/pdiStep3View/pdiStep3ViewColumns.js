@@ -157,8 +157,8 @@ const stockColumns = [
 		hideDefaultActions: true
 	},
 	{
-		label: "STEP",
-		fieldName: "fm_Step__c",
+		label: "진행할 단계",
+		fieldName: "fm_PdiNextStep__c",
 		type: "text",
 		hideDefaultActions: true
 	},

@@ -170,7 +170,7 @@ export default class DynamicExcelDatatable extends LightningElement {
         importExcelData({ excelList: this.excelMap.gridData }).then(res => {
             console.log("res 데이터 확인:", JSON.stringify(res, null, 2));
 
-            let keyOrder = {};
+            let keyOrder = {Id: -1};
 
             res.forEach(obj => {
                 if (!obj) return;

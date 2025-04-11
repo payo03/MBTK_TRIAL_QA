@@ -7,5 +7,878 @@
  * Ver          Date            Author          Modification
  * 1.0          2025-02-13      San.Kang          Initial Version
 -->
-<apex:page id="SalesResultReport_EN">
+<apex:page showHeader="false" sidebar="false" applyBodyTag="false" applyHtmlTag="false" renderAs="pdf">
+<!--    <head>-->
+<!--        <style>-->
+<!--            @page{-->
+<!--            margin-top: 0.05cm;-->
+<!--            margin-bottom: 0.05cm;-->
+<!--            margin-left: 0.5cm;-->
+<!--            margin-right: 0.5cm;-->
+<!--            }-->
+<!--            td{-->
+<!--            white-space:nowrap;-->
+<!--            overflow:hidden;-->
+<!--            bordercolor:#FFFFFF;-->
+<!--            border:0.7px solid;-->
+<!--            }-->
+<!--            .slash {-->
+<!--            background: url("{!URLFOR($Resource.slash,'slash.png')}");-->
+<!--            background-position: center;-->
+<!--            background-repeat: no-repeat;-->
+<!--            background-size: 100% 100%;-->
+<!--            text-align: left;-->
+<!--            }-->
+<!--            .backslash {-->
+<!--            background: url("{!URLFOR($Resource.slash,'backslash.png')}");-->
+<!--            background-size: 100%;-->
+<!--            text-align: left;-->
+<!--            }-->
+<!--            .slash div, .backslash div { text-align: right; }-->
+<!--            <head>-->
+<!--        </head>-->
+<!--        </style>-->
+<!--    </head>-->
+<!--    <div style="height:100%;">-->
+<!--        <table align="center" border="1" bordercolor="black" cellpadding="0" cellspacing="0" style="width:700px;border-top:none;border-left:none;border-right:none;border-bottom:none;">-->
+<!--            <tbody>-->
+<!--            <tr align="right">-->
+<!--                <td colspan="8" style="border:none; align:right;">-->
+<!--                    <apex:outputText value="{0,date,yyyy'. 'M'. 'd}" style="font-family: Arial Unicode MS; font-size: 7pt">-->
+<!--                        <apex:param value="{!TODAY()}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr>-->
+<!--                <td style="border:1.5px solid; border-bottom:none;border-right:none;" colspan="4" align="center" valign="top">-->
+<!--&lt;!&ndash;                    <apex:outputLabel value="Sales Result Report" style="font-family: Arial Unicode MS; font-size: 12pt" rendered="{!mode=='r'}"/>&ndash;&gt;-->
+<!--                </td>-->
+<!--                <td style="border:1.5px solid; width:30%;border-right:none;border-bottom:none;border-left:none;" colspan="2">-->
+<!--                    <apex:outputText value="Customer Name : {!opportunity.Account.Name}" style="font-family: Arial Unicode MS; font-size: 8pt;"/>-->
+<!--                </td>-->
+<!--                <td style="border:1.5px solid; width:30%;border-bottom:none;border-left:none;" colspan="2">-->
+<!--                    <apex:outputText value="{!opportunity.Account.RecordType.Name}" style="font-family: Arial Unicode MS; font-size: 8pt;"/>-->
+<!--                    &nbsp;&nbsp;&nbsp;-->
+<!--&lt;!&ndash;                    <apex:outputText value="Credit Lating : {!ac.CreditLayer__c}" style="font-family: Arial Unicode MS; font-size: 8pt;"/>&ndash;&gt;-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr>-->
+<!--                <td style="border:1.5px solid; border-right:none;border-top:none;border-bottom:none;" rowspan="4" colspan="4" align="center" valign="middle">-->
+<!--                    <apex:image url="/servlet/servlet.FileDownload?file={!docImage1}" width="125" height="40"/>-->
+<!--                </td>-->
+
+<!--                <td style="border:none;" colspan="2">-->
+<!--                    <apex:outputText value="Resident Registration (Business) Number : {!opportunity.Account.IDNumber__pc + '-XXXXXXX'}" style="font-family: Arial Unicode MS; font-size: 8pt;"/>-->
+<!--                </td>-->
+<!--                <td style="border:1.5px solid; border-left:none;border-top:none;border-bottom:none;" colspan="2">-->
+<!--                    <apex:outputLabel value="Tax Name : {!opportunity.Account.Name}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr>-->
+<!--                <td style="border:none;" colspan="2">-->
+<!--                    <apex:outputLabel value="Business No. : {!opportunity.Account.BusinessNumber__c}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td style="border:1.5px solid; border-left:none;border-top:none;border-bottom:none;" colspan="2">-->
+<!--                    <apex:outputLabel value="Contact HP : {!opportunity.Account.PersonMobilePhone}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr>-->
+<!--                <td style="border:none;" colspan="2">-->
+<!--                    <apex:outputLabel value="Real Car Owner : {!opportunity.Account.RealDriver__pc}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td style="border:1.5px solid; border-left:none;border-top:none;border-bottom:none;" colspan="2">-->
+<!--                    <apex:outputLabel value="Address :{!opportunity.Account.RoadAddress__c + account.DetailAddress__c}" style="font-family: Arial Unicode MS; font-size: 6pt"/>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr>-->
+<!--                <td style="border:none;" colspan="2">-->
+<!--                    <apex:outputText value="Hand Over Date : {0,date,yyyy'년 'M'월 'd'일'}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!IF(opportunity.VehicleStock__r.WantedOutDT__c!=null,opportunity.VehicleStock__r.WantedOutDT__c,opportunity.HandoverDate__c)}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--                <td style="border:1.5px solid; border-left:none;border-top:none;border-bottom:none;" colspan="2">-->
+<!--&lt;!&ndash;                    <apex:outputLabel value="Business Address :{!op.bAddr__r.Name} {!IF(op.bAddrDetail__c!=null,op.bAddrDetail__c,'')}" style="font-family: Arial Unicode MS; font-size: 6pt"/>&ndash;&gt;-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr>-->
+<!--                <td style="border:1.5px solid; border-right:none;border-top:none;border-bottom:none;" colspan="4" align="center">-->
+<!--                    <apex:outputLabel value="Agency : {!opportunity.Account.Owner.Agency__c}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td style="border:none;" colspan="2">-->
+<!--&lt;!&ndash;                    <apex:outputLabel value="Working Area : {!op.WorkingArea__c}" style="font-family: Arial Unicode MS; font-size: 8pt"/>&ndash;&gt;-->
+<!--                </td>-->
+<!--                <td style="border:1.5px solid; border-left:none;border-top:none;border-bottom:none;" colspan="2">-->
+<!--                    &lt;!&ndash;<apex:outputLabel value="Delivery No. : {!op.DnNo__c}" style="font-family: Arial Unicode MS; font-size: 8pt"/>&ndash;&gt;-->
+
+<!--                    <apex:outputLabel value="Opportunity ID : {!$CurrentPage.parameters.Id}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr>-->
+
+<!--                <td style="border:1.5px solid; border-right:none;border-top:none;" colspan="4" align="center">-->
+<!--                    <apex:outputLabel value="Opportunity Owner : {!opportunity.Account.Owner.Name}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td style="border:1.5px solid; border-right:none;border-top:none;border-left:none;" colspan="2">-->
+<!--                    <apex:outputLabel value="Purpose : {!opportunity.VehicleStock__r.Product__r.Segment2__c}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td style="border:1.5px solid; border-left:none;border-top:none;" colspan="2">-->
+<!--                    <apex:outputLabel value="VIN : {!opportunity.VehicleStock__r.Name}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr style="height:5.65pt">-->
+<!--            </tr>-->
+<!--            <tr>-->
+<!--                <td colspan="8" align="center" style="height:16px;border:1.5px solid;">-->
+<!--                    <table align="center" border="0" bordercolor="black" cellpadding="0" cellspacing="0" style="width:100%">-->
+<!--                        <tr>-->
+<!--                            <td style="width:10%;" align="center">-->
+<!--                                <apex:outputLabel value="Car Model" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                            </td>-->
+<!--                            <td align="center">-->
+<!--                                <apex:outputLabel value="{!opportunity.VehicleStock__r.Product__r.Name}" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                                <apex:outputLabel value="/ {!opportunity.VehicleStock__r.CarColor__c}" style="font-family: Arial Unicode MS; font-size: 7pt" rendered="{!opportunity.VehicleStock__r.CarColor__c!=null}" />-->
+<!--                            </td>-->
+<!--                        </tr>-->
+<!--                    </table>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            </tbody>-->
+<!--        </table>-->
+<!--        <table align="center" border="1" bordercolor="black" cellpadding="0" cellspacing="0" style="width:700px;border-top:none;border-left:none;border-right:none;border-bottom:none;">-->
+<!--            <tbody>-->
+<!--            <tr align="center" >-->
+<!--                <td rowspan="9" style="height:12px;border-right:none;border-top:none;">-->
+<!--                    <apex:outputLabel value="P" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="R" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="I" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="C" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="E" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="3" style="width:500px;height:12px;border-right:none;border-top:none;">-->
+<!--                    <apex:outputLabel value="P" style="font-family: Arial Unicode MS; font-size: 8pt"/>&nbsp;&nbsp;-->
+<!--                    <apex:outputLabel value="R" style="font-family: Arial Unicode MS; font-size: 8pt"/>&nbsp;&nbsp;-->
+<!--                    <apex:outputLabel value="I" style="font-family: Arial Unicode MS; font-size: 8pt"/>&nbsp;&nbsp;-->
+<!--                    <apex:outputLabel value="C" style="font-family: Arial Unicode MS; font-size: 8pt"/>&nbsp;&nbsp;-->
+<!--                    <apex:outputLabel value="E" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="1" style="height:12px;border-top:none;">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!opportunity.CarAmt__c}" />-->
+<!--                    </apex:outputText>-->
+
+<!--                </td>-->
+<!--                <td rowspan="20" style="width:10px; line-height:10px;border-left:none;border-right:none;border-top:none;">-->
+<!--                    <apex:outputLabel value="F" style="font-family: Arial Unicode MS; font-size: 6pt"/><br />-->
+<!--                    <apex:outputLabel value="I" style="font-family: Arial Unicode MS; font-size: 6pt"/><br />-->
+<!--                    <apex:outputLabel value="N" style="font-family: Arial Unicode MS; font-size: 6pt"/><br />-->
+<!--                    <apex:outputLabel value="A" style="font-family: Arial Unicode MS; font-size: 6pt"/><br />-->
+<!--                    <apex:outputLabel value="N" style="font-family: Arial Unicode MS; font-size: 6pt"/><br />-->
+<!--                    <apex:outputLabel value="C" style="font-family: Arial Unicode MS; font-size: 6pt"/><br />-->
+<!--                    <apex:outputLabel value="E" style="font-family: Arial Unicode MS; font-size: 6pt"/>-->
+<!--                </td>-->
+
+<!--                <td rowspan="5" colspan="4" align="left" valign="top" style="width:34%;border-top:none;">-->
+<!--                    <table align="center" border="1" bordercolor="black" cellpadding="0" cellspacing="0" style="width:100%;border-top:none;border-left:none;border-right:none;border-bottom:none;">-->
+<!--                        <tr>-->
+<!--                            <td colspan="3" align="center" style="border-left:none;border-right:none;border-top:none;">-->
+<!--                                <apex:outputLabel value="Promotion Name" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                            </td>-->
+<!--                            <td colspan="4" align="center" style="border-right:none;border-top:none;">-->
+<!--                                <apex:outputLabel value="PRICE" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                            </td>-->
+<!--                        </tr>-->
+<!--                        <tr>-->
+<!--                            <td colspan="3" align="center" style="border-left:none;border-top:none;border-right:none;">-->
+<!--                                <apex:outputLabel value="Deferred VAT Payment" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                            </td>-->
+<!--                            <td colspan="4" align="center" style="border-top:none;border-left:none;border-right:none;">-->
+<!--                                <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                                    <apex:param value="{!opportunity.TaxDeferredAmount__c}" />-->
+<!--                                </apex:outputText>-->
+<!--                            </td>-->
+<!--                        </tr>-->
+<!--                        <tr>-->
+<!--                            <td colspan="3" align="center" style="border-left:none;border-top:none;border-right:none;">-->
+<!--                                <apex:outputLabel value="Capital Interest" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                            </td>-->
+<!--                            <td colspan="4" align="center" style="border-top:none;border-left:none;border-right:none;">-->
+<!--                                <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                                    <apex:param value="{!TotIntAmt}" />-->
+<!--                                </apex:outputText>-->
+<!--                            </td>-->
+<!--                        </tr>-->
+<!--                    </table>-->
+<!--                </td>-->
+<!--            </tr>-->
+
+<!--            <apex:repeat value="{!defaultWrappers}" var="item" first="0" rows="4">-->
+<!--                <tr align="center">-->
+<!--                    <td colspan="1" style="width:90px;height:12px; border-top:none;border-bottom:none;border-right:none;">-->
+<!--                        <apex:outputLabel value="ITEM {!item.index}" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                    </td>-->
+<!--                    <td colspan="2" style="width:40%;height:12px; border-top:none;border-bottom:none;border-right:none;">-->
+<!--                        <apex:outputLabel value="{!item.productOption.VehicleOptionMaster__r.Name}" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                    </td>-->
+<!--                    <td colspan="1" style="height:12px; border-top:none;border-bottom:none;">-->
+<!--                        <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 7pt">-->
+<!--                            <apex:param value="{!item.productOption.VehicleOptionMaster__r.Price__c}" />-->
+<!--                        </apex:outputText>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--            </apex:repeat>-->
+
+<!--            <tr align="center">-->
+<!--                <td colspan="3" style="width:385px;height:17px; border-top:none;border-bottom:none;border-right:none;">-->
+<!--                    <apex:outputLabel value="<<Total Car Price with Option>>" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="1" style="width:213px;height:17px; border-top:none;border-bottom:none;">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 7pt">-->
+<!--                        <apex:param value="{!optionAmt}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--                <td colspan="2" align="center" style="border-top:none;border-right:none;border-bottom:1.5px solid;">-->
+<!--                    <apex:outputLabel value="Fianacial Promotion Amount" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="2" align="center" style="border-top:none;border-bottom:1.5px solid;">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!opportunity.TaxDeferredAmount__c + TotIntAmt}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr>-->
+<!--                <td colspan="3" style="width:385px;height:12px; border-top:none;border-bottom:none;border-right:none;">-->
+<!--                    <apex:outputLabel value="Discount" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="1" align="center" style="width:213px;height:12px; border-top:none;border-bottom:none;">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!opportunity.DiscountAmt__c}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--                <td colspan="2" rowspan="2" align="center" style="border:1.5px solid;border-top:none;border-right:none;">-->
+<!--                    <apex:outputLabel value="Total Discount" style="font-family: Arial Unicode MS; font-size: 7pt"/><br />-->
+<!--                    <apex:outputLabel value="(Price Discount+Promotion+Financial Promotion)" style="font-family: Arial Unicode MS; font-size: 6pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="2" rowspan="2" align="center" style="border:1.5px solid; background-color:#CFCFCF;border-top:none;">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!opportunity.DiscountAmt__c + opportunity.SalesconditionDiscountAmt__c}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr align="center">-->
+<!--                <td colspan="3" style="border:1.5px solid; width:385px;height:18px;border-right:none;">-->
+<!--                    <apex:outputLabel value="Real Sales Amount (VAT Included)" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="1" style="border:1.5px solid; width:213px;height:18px;border:1.5px solid;background-color:#CFCFCF">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!opportunity.fm_RealSellAmt__c}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            </tbody>-->
+<!--        </table>-->
+<!--        <table align="center" border="1" bordercolor="black" cellpadding="0" cellspacing="0" style="width:700px;border-top:none;border-left:none;border-right:none;border-bottom:none;">-->
+<!--            <tbody>-->
+<!--            <tr align="center" style="height:5.65pt"></tr>-->
+
+<!--            <tr align="center">-->
+<!--                <td rowspan="9" style="width:10px; line-height:15px; border-right:none;border-bottom:none;">-->
+<!--                    <apex:outputLabel value="P" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="R" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="O" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="M" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="O" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="T" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="I"  style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="O"  style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="N" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="1" style="border-right:none;border-bottom:none;">-->
+<!--                    <apex:outputLabel value="Promotion {!otherWrappers[0].index}" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="2" style="border-right:none;border-bottom:none;">-->
+<!--                    <apex:outputLabel value="{!otherWrappers[0].productOption.VehicleOptionMaster__r.Name}" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--&lt;!&ndash;                    <apex:outputLabel value=": {!pols[0].policy.ItemCount__c}" style="font-family: Arial Unicode MS; font-size: 7pt" rendered="{!pols[0].policy.ItemCount__c!=null}" />&ndash;&gt;-->
+<!--                </td>-->
+<!--                <td colspan="3" style="border-left:none;border-bottom:none;">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 7pt">-->
+<!--                        <apex:param value="{!otherWrappers[0].productOption.VehicleOptionMaster__r.Price__c}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--                <td rowspan="13" style="width:10px; line-height:10px ;border-left:none;border-right:none;">-->
+<!--                    <apex:outputLabel value="P" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="A" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="Y" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="M" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="E" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="N" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="T" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="H" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="I" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="S" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="T" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="O" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="R" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="Y" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+
+<!--                <td rowspan="12" colspan="4" width="34%" align="left" valign="top" style="border-bottom:none;">-->
+<!--                    <table align="center" border="1" bordercolor="black" cellpadding="0" cellspacing="0" style="width:100%;border-top:none;border-left:none;border-right:none;border-bottom:none;">-->
+<!--                        <tr>-->
+<!--                            <td colspan="2" align="center" style="border:1.5px solid;">-->
+<!--                                <apex:outputLabel value="Payment Status" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                            </td>-->
+<!--                            <td colspan="5" align="center" style="border:1.5px solid;">-->
+<!--                                <apex:outputLabel value="{!paymentStatus}" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                            </td>-->
+<!--                        </tr>-->
+<!--                        <tr>-->
+<!--                            <td colspan="2" align="center" style="border-left:none;border-right:none;">-->
+<!--                                <apex:outputLabel value="Category" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                            </td>-->
+<!--                            <td colspan="2" align="center" style="border-right:none;">-->
+<!--                                <apex:outputLabel value="Depositor" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                            </td>-->
+<!--                            <td align="center" style="border-right:none;">-->
+<!--                                <apex:outputLabel value="Date of Deposit" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                            </td>-->
+<!--                            <td colspan="2" align="center" style="border-right:none;">-->
+<!--                                <apex:outputLabel value="Amount" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                            </td>-->
+<!--                        </tr>-->
+<!--                        <tr>-->
+<!--                            <td colspan="2" align="center" style="border-top:none;border-left:none;border-right:none;">-->
+<!--                                <apex:outputLabel value="{!paymentTracker.Status__c}" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                            </td>-->
+<!--                            <td colspan="2" align="center" style="border-top:none;border-right:none;">-->
+<!--                                <apex:outputLabel value="{!paymentTracker.Account__r.Name}" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                            </td>-->
+<!--                            <td align="center" style="border-top:none;border-right:none;">-->
+<!--                                <apex:outputText value="{0,date,yy'. 'M'. 'd}" style="font-family: Arial Unicode MS; font-size: 7pt">-->
+<!--                                    <apex:param value="{!paymentTracker.ru_RecentDepositDate__c}" />-->
+<!--                                </apex:outputText>-->
+<!--                            </td>-->
+<!--                            <td colspan="2" align="center" style="border-top:none;border-right:none;">-->
+<!--                                <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 7pt">-->
+<!--                                    <apex:param value="{!paymentTracker.ru_DepositAmount__c}" />-->
+<!--                                </apex:outputText>-->
+<!--                            </td>-->
+<!--                        </tr>-->
+
+
+
+<!--                        <apex:repeat >-->
+<!--                            <apex:outputLabel value="- {!paymentTracker.Account__r.Name}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                            &nbsp;:&nbsp;-->
+<!--                            <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                                <apex:param value="{!paymentTracker.ru_DepositAmount__c}" />-->
+<!--                            </apex:outputText><br />-->
+<!--                            &nbsp;-->
+<!--                            <apex:outputLabel value="({!paymentType.Type__c}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                            &nbsp;:&nbsp;-->
+<!--                            <apex:outputText value="{0,date,yy'. 'M'. 'd})" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                                <apex:param value="{!paymentTracker.ru_RecentDepositDate__c}" />-->
+<!--                            </apex:outputText>-->
+<!--                        </apex:repeat>-->
+
+<!--                    </table>-->
+<!--                </td>-->
+<!--            </tr>-->
+
+<!--            <apex:repeat value="{!otherWrappers}" var="item" first="1" rows="7">-->
+<!--                <tr align="center">-->
+<!--                    <td colspan="1" style="height:12px; border-top:none;border-bottom:none;border-right:none;">-->
+<!--                        <apex:outputLabel value="Promotion {!item.index}" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                    </td>-->
+<!--                    <td colspan="2" style="height:12px; border-right:none;border-top:none;border-bottom:none;">-->
+<!--                        <apex:outputLabel value="{!item.productOption.VehicleOptionMaster__r.Name}" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--&lt;!&ndash;                        <apex:outputLabel value=": {!item.policy.ItemCount__c}" style="font-family: Arial Unicode MS; font-size: 7pt" rendered="{!item.policy.ItemCount__c!=null}" />&ndash;&gt;-->
+<!--                    </td>-->
+<!--                    <td colspan="3" style="height:12px; border-left:none;border-top:none;border-bottom:none;">-->
+<!--                        <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 7pt">-->
+<!--                            <apex:param value="{!item.productOption.VehicleOptionMaster__r.Price__c}" />-->
+<!--                        </apex:outputText>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--            </apex:repeat>-->
+<!--            &lt;!&ndash;-->
+<!--            <tr align="center">-->
+<!--                <td colspan="1" style="height:12px; border-top:none;border-bottom:none;border-right:none;">-->
+<!--                    <apex:outputLabel value="첨단안전장치" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="2" style="height:12px; border-right:none;border-top:none;border-bottom:none;">-->
+<!--                    &nbsp;-->
+<!--                </td>-->
+<!--                <td colspan="3" style="height:12px; border-left:none;border-top:none;border-bottom:none;">-->
+<!--                    &nbsp;-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            &ndash;&gt;-->
+<!--            &lt;!&ndash;-->
+<!--            <tr align="center">-->
+<!--                <td colspan="6" style="height:18px; border-top:none;border-bottom:none;">-->
+<!--                    <apex:outputLabel value="3years/450,000km 플래티늄쿠폰 기본제공" style="font-family: Arial Unicode MS; font-size: 8pt" rendered="{!isTractor62540}" />-->
+<!--                </td>-->
+<!--            </tr>&ndash;&gt;-->
+<!--            <tr align="center">-->
+<!--                <td colspan="3" style="height:15px;border-bottom:none;border-right:none;">-->
+<!--                    <apex:outputLabel value="Promotion Amount" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="3" style="height:15px;border-bottom:none;">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!defaultProductAmt}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr align="center">-->
+<!--                <td colspan="2" style="border:1.5px solid;height:15px;border-bottom:none;border-right:none;">-->
+<!--                    <apex:outputLabel value="Defered VAT Payment" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td style="border:1.5px solid; background-color:#CFCFCF; height:15px;border-bottom:none;border-right:none;">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!opportunity.TaxDeferredAmount__c}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--                <td style="border:1.5px solid; background-color:#CFCFCF; height:15px;border-bottom:none;border-right:none;">-->
+<!--&lt;!&ndash;                    <apex:outputLabel value="{!op.SurtaxDelayCond__c}" style="font-family: Arial Unicode MS; font-size: 8pt"/>&ndash;&gt;-->
+<!--                </td>-->
+<!--                <td colspan="3" style="border:1.5px solid;height:15px;border-bottom:none;">-->
+<!--                    <apex:outputText value="{0,date,yyyy' (M)'M' (D)'d''}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!paymentTracker.ru_RecentDepositDate__c}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr align="center">-->
+<!--                <td colspan="2" style="height:16px;border-top:1.5px solid;border-right:none;border-bottom:none;">-->
+<!--                    <apex:outputLabel value="Deposit" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td style="height:16px;border-top:1.5px solid;border-right:none;border-bottom:none;">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!opportunity.ContractAmount__c}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--                <td colspan="1" style="height:16px;border-top:1.5px solid;border-bottom:none;border-right:none;">-->
+<!--                    <apex:outputLabel value="Down Payment" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="3" style="height:16px;border-top:1.5px solid;border-bottom:none;">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!paymentTracker.ru_DepositAmount__c}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr align="center">-->
+<!--                <td colspan="2" style="height:16px;border-bottom:none;border-right:none;">-->
+<!--                    <apex:outputLabel value="Outstanding" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="1" style="height:16px;border-bottom:none;border-right:none;">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!quote.DeliveryPrice__c}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--                <td style="height:16px;border-right:none;border-bottom:none;">-->
+<!--                    <apex:outputLabel value="Down Payament Rate" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="3" style="height:16px;border-bottom:none;">-->
+<!--                    <apex:outputText value="{!collectRate} %" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr align="center">-->
+<!--                <td colspan="2" style="border-right:none;">-->
+<!--                    <apex:outputLabel value="Advanced Payment" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td style="border-right:none;">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!quote.FirstAmt__c}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--                <td colspan="1" style="height:16px;border-right:none;">-->
+<!--                    <apex:outputLabel value="Advanced Payment Rate" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="3" style="height:16px;">-->
+<!--                    <apex:outputLabel value="{!firstRate} %" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="1">-->
+<!--                    <apex:outputLabel value="Deposit Amount" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="3">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!paymentTracker.ru_DepositAmount__c}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            </tbody>-->
+<!--        </table>-->
+<!--        <table align="center" border="1" bordercolor="black" cellpadding="0" cellspacing="0" style="width:700px;border-top:none;border-left:none;border-right:none;border-bottom:none;">-->
+<!--            <tbody>-->
+<!--            <tr align="center"  style="height:5.65pt"></tr>-->
+
+<!--            <tr align="center">-->
+<!--                <td rowspan="7" style="width:10px;height:19px;border-right:none;">-->
+<!--                    <apex:outputLabel value="L:" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="O" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="A" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="N" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="2" style="width:130px;height:19px;border:1.5px solid;border-right:none;">-->
+<!--                    <apex:outputLabel value="Loan Company" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+
+<!--                <td colspan="2" style="border:1.5px solid; background-color:#CFCFCF; width:255px;height:19px;border:1.5px solid;border-right:none;">-->
+<!--                    <apex:outputLabel value="{!IF(quote.Finance__c != null, quote.Finance__r.FScompany__c, 0)}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+
+<!--                <td colspan="5" style="height:19px;border:1.5px solid;border-right:none;">-->
+<!--                    <apex:outputLabel value="Installment Interest Rate" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="2" style="width:115px;height:19px;border:1.5px solid;">-->
+<!--&lt;!&ndash;                    <apex:outputLabel value="{!IF(quote.Finance__r.InterestRate__c != null, quote.Finance__r.InterestRate__c, 0)}%" style="font-family: Arial Unicode MS; font-size: 8pt"/>&ndash;&gt;-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr align="center">-->
+<!--                <td colspan="2" rowspan="2" style="width:130px;height:16px;border-right:none;">-->
+<!--                    <apex:outputLabel value="Installment Principal" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="2" style="width:255px;height:16px;border-right:none;border-bottom:none;">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!quote.fm_TotalLoan__c}" />-->
+<!--                    </apex:outputText>-->
+
+<!--                </td>-->
+<!--                <td colspan="8" style="width:213px;height:16px;border-bottom:none;">-->
+<!--&lt;!&ndash;                    <apex:outputLabel value="{!op.MonthDivideCond__c}" style="font-family: Arial Unicode MS; font-size: 8pt"/>&ndash;&gt;-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr align="center">-->
+<!--                <td style="width:137px;height:16px;border-right:none;">-->
+<!--                    <apex:outputLabel value="Monthly Payment" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td style="width:118px;height:16px;border-right:none;">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!quote.fm_MonthDivideEachAmt__c}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--                <td colspan="8" style="width:213px;height:16px;">-->
+<!--                    <apex:outputText value="{0,date,yyyy' (M)'M' (D)'d''}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!quote.Finance__r.StartDate__c}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr align="center">-->
+<!--                <td colspan="2" style="width:130px;height:12px;border-top:none;border-bottom:none;border-right:none;">-->
+<!--                    <apex:outputLabel value="Amount of Defered Capital" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td style="width:137px;height:12px;border-top:none;border-bottom:none;border-right:none;">-->
+<!--&lt;!&ndash;                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <apex:param value="{!IF(op.CapitalDelayAmt1__c!=null&&op.CapitalDelayAmt1__c>0,op.CapitalDelayAmt1__c,'')}" />&ndash;&gt;-->
+<!--&lt;!&ndash;                    </apex:outputText>&ndash;&gt;-->
+<!--                </td>-->
+<!--                <td style="width:118px;height:12px;border-top:none;border-bottom:none;border-right:none;">-->
+<!--&lt;!&ndash;                    <apex:outputLabel value="{!op.CapitalDelay1Cond__c}" style="font-family: Arial Unicode MS; font-size: 8pt"/>&ndash;&gt;-->
+<!--                </td>-->
+<!--                <td colspan="4" style="width:118px;height:12px;border-top:none;border-bottom:none;border-right:none;">-->
+<!--&lt;!&ndash;                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <apex:param value="{!op.CapitalDelay1EachAmt__c}" />&ndash;&gt;-->
+<!--&lt;!&ndash;                    </apex:outputText>&ndash;&gt;-->
+<!--                </td>-->
+<!--                <td colspan="4" style="width:213px;height:12px;border-top:none;border-bottom:none;">-->
+<!--&lt;!&ndash;                    <apex:outputText value="{0,date,yyyy' (M)'M' (D)'d''}" style="font-family: Arial Unicode MS; font-size: 8pt">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <apex:param value="{!op.CapitalDelay1Date__c}" />&ndash;&gt;-->
+<!--&lt;!&ndash;                    </apex:outputText>&ndash;&gt;-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr align="center">-->
+<!--                <td colspan="2" style="width:130px;height:12px;border-top:none;border-bottom:none;border-right:none;">-->
+<!--                    <apex:outputLabel value="Amount of Defered Capital(II)" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td style="width:137px;height:12px;border-top:none;border-bottom:none;border-right:none;">-->
+<!--&lt;!&ndash;                    <apex:outputText value="{0, number, ####,###,##0 원}" style="font-family: Arial Unicode MS; font-size: 8pt">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <apex:param value="{!IF(op.CapitalDelay2Amt__c!=null&&op.CapitalDelay2Amt__c>0,op.CapitalDelay2Amt__c,'')}" />&ndash;&gt;-->
+<!--&lt;!&ndash;                    </apex:outputText>&ndash;&gt;-->
+<!--                </td>-->
+<!--                <td style="width:118px;height:12px;border-top:none;border-bottom:none;border-right:none;">-->
+<!--&lt;!&ndash;                    <apex:outputLabel value="{!op.CapitalDelay2Cond__c}" style="font-family: Arial Unicode MS; font-size: 8pt"/>&ndash;&gt;-->
+<!--                </td>-->
+<!--                <td colspan="4" style="width:118px;height:12px;border-top:none;border-bottom:none;border-right:none;">-->
+<!--&lt;!&ndash;                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <apex:param value="{!op.CapitalDelay2EachAmt__c}" />&ndash;&gt;-->
+<!--&lt;!&ndash;                    </apex:outputText>&ndash;&gt;-->
+<!--                </td>-->
+<!--                <td colspan="4" style="width:213px;height:12px;border-top:none;border-bottom:none;">-->
+<!--&lt;!&ndash;                    <apex:outputText value="{0,date,yyyy' (M)'M' (D)'d''}" style="font-family: Arial Unicode MS; font-size: 8pt">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <apex:param value="{!op.CapitalDelay2Date__c}" />&ndash;&gt;-->
+<!--&lt;!&ndash;                    </apex:outputText>&ndash;&gt;-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr align="center">-->
+<!--                <td colspan="2" style="width:130px;height:12px;border-top:none;border-bottom:none;border-right:none;">-->
+<!--                    <apex:outputLabel value="Amount of Defered Capital(III)" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td style="width:137px;height:12px;border-top:none;border-bottom:none;border-right:none;">-->
+<!--&lt;!&ndash;                    <apex:outputText value="{0, number, ####,###,##0 원}" style="font-family: Arial Unicode MS; font-size: 8pt">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <apex:param value="{!IF(op.CapitalDelayAmt3__c!=null&&op.CapitalDelayAmt3__c>0,op.CapitalDelayAmt3__c,'')}" />&ndash;&gt;-->
+<!--&lt;!&ndash;                    </apex:outputText>&ndash;&gt;-->
+<!--                </td>-->
+<!--                <td style="width:118px;height:12px;border-top:none;border-bottom:none;border-right:none;">-->
+<!--&lt;!&ndash;                    <apex:outputLabel value="{!op.CapitalDelay3Cond__c}" style="font-family: Arial Unicode MS; font-size: 8pt"/>&ndash;&gt;-->
+<!--                </td>-->
+<!--                <td colspan="4" style="width:118px;height:12px;border-top:none;border-bottom:none;border-right:none;">-->
+<!--&lt;!&ndash;                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <apex:param value="{!op.CapitalDelay3EachAmt__c}" />&ndash;&gt;-->
+<!--&lt;!&ndash;                    </apex:outputText>&ndash;&gt;-->
+<!--                </td>-->
+<!--                <td colspan="4" style="width:213px;height:12px;border-top:none;border-bottom:none;">-->
+<!--&lt;!&ndash;                    <apex:outputText value="{0,date,yyyy' (M)'M' (D)'d''}" style="font-family: Arial Unicode MS; font-size: 8pt">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <apex:param value="{!op.CapitalDelay3Date__c}" />&ndash;&gt;-->
+<!--&lt;!&ndash;                    </apex:outputText>&ndash;&gt;-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr align="center">-->
+<!--                <td colspan="2" style="width:385px;height:12px;border-right:none;">-->
+<!--                    <apex:outputLabel value="Total Loan Amount" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="2" style="width:213px;height:12px;border-right:none;">-->
+<!--&lt;!&ndash;                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <apex:param value="{!op.TotalLoan__c}" />&ndash;&gt;-->
+<!--&lt;!&ndash;                    </apex:outputText>&ndash;&gt;-->
+<!--                </td>-->
+<!--                <td colspan="4" style="width:118px;height:12px;border-right:none;">-->
+<!--                    &nbsp;-->
+<!--                </td>-->
+<!--                <td colspan="4" style="width:213px;height:12px;">-->
+<!--                    &nbsp;-->
+<!--                </td>-->
+<!--            </tr>-->
+
+<!--            <tr align="center"  style="height:5.65pt"></tr>-->
+
+<!--            <tr align="center">-->
+<!--                <td rowspan="6" style="width:10px;border-right:none;">-->
+<!--                    <apex:outputLabel value="O" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="T" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="H" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="E" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="R" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                </td>-->
+<!--                <td colspan="2" style="border-bottom:none;border-right:none;">-->
+<!--                    <apex:outputLabel value="Handling Fee" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="4" style="border-bottom:none;border-right:1.5px solid;">-->
+<!--&lt;!&ndash;                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 7pt">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <apex:param value="{!IF(op.Commission__c==null||op.Commission__c<=0,'',op.Commission__c)}" />&ndash;&gt;-->
+<!--&lt;!&ndash;                    </apex:outputText>&ndash;&gt;-->
+<!--                </td>-->
+<!--                <td rowspan="6" style="border:1.5px solid; line-height:9px; background-color:#CFCFCF; border-left:none;border-right:none;width:10px;">-->
+<!--                    <apex:outputLabel value="C" style="font-family: Arial Unicode MS; font-size: 7pt"/><br />-->
+<!--                    <apex:outputLabel value="O" style="font-family: Arial Unicode MS; font-size: 7pt"/><br />-->
+<!--                    <apex:outputLabel value="M" style="font-family: Arial Unicode MS; font-size: 7pt"/><br />-->
+<!--                    <apex:outputLabel value="M" style="font-family: Arial Unicode MS; font-size: 7pt"/><br />-->
+<!--                    <apex:outputLabel value="I" style="font-family: Arial Unicode MS; font-size: 7pt"/><br />-->
+<!--                    <apex:outputLabel value="S" style="font-family: Arial Unicode MS; font-size: 7pt"/><br />-->
+<!--                    <apex:outputLabel value="S" style="font-family: Arial Unicode MS; font-size: 7pt"/><br />-->
+<!--                    <apex:outputLabel value="I" style="font-family: Arial Unicode MS; font-size: 7pt"/><br />-->
+<!--                    <apex:outputLabel value="O" style="font-family: Arial Unicode MS; font-size: 7pt"/><br />-->
+<!--                    <apex:outputLabel value="N" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="2" style="border:1.5px solid;border-right:none;border-bottom:none;">-->
+<!--                    <apex:outputLabel value="Promotion Rate" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="3" style="border:1.5px solid;border-bottom:none;">-->
+<!--                    <apex:outputLabel value="{!promotionRate}%" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr align="center">-->
+<!--                <td colspan="2" style="border-top:none;border-bottom:none;border-right:none;">-->
+<!--                    <apex:outputLabel value="Filing Fee" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="4" style="border-top:none;border-bottom:none;border-right:1.5px solid;">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!IF(quote.StampDuty__c==null||quote.StampDuty__c<=0,'',quote.StampDuty__c)}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--                <td colspan="2" style="border:1.5px solid;border-right:none;border-bottom:none;border-top:none;">-->
+<!--                    <apex:outputLabel value="Performance" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="3" style="border:1.5px solid;border-bottom:none;border-top:none;">-->
+<!--                    <apex:outputLabel value="{!opportunity.fm_DiscountRate__c}{!IF(opportunity.fm_DiscountRate__c!=null,' %','')}" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr align="center">-->
+<!--                <td colspan="2" style="border-top:none;border-bottom:none;border-right:none;">-->
+<!--                    <apex:outputLabel value="Notarial Fee" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="4" style="border-top:none;border-bottom:none;border-right:1.5px solid;">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!quote.fm_NotarizedFee__c}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--                <td colspan="2" style="border:1.5px solid;border-right:none;border-bottom:none;border-top:none;">-->
+<!--                    <apex:outputLabel value="Defferncies" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="3" style="border:1.5px solid;border-bottom:none;border-top:none;">-->
+<!--                    <apex:outputLabel value="{!differencies}" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr align="center">-->
+<!--                <td colspan="2" style="border-top:none;border-bottom:none;border-right:none;">-->
+<!--                    <apex:outputLabel value="Collateral Security Set-up Fee" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="4" style="border-top:none;border-bottom:none;border-right:1.5px solid;">-->
+<!--&lt;!&ndash;                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <apex:param value="{!IF(op.DebtSetAmt__c==null||op.DebtSetAmt__c<=0,'',op.DebtSetAmt__c)}" />&ndash;&gt;-->
+<!--&lt;!&ndash;                    </apex:outputText>&ndash;&gt;-->
+<!--                </td>-->
+<!--                <td colspan="2" style="border:1.5px solid;border-right:none;border-bottom:none;border-top:none;">-->
+<!--                    <apex:outputLabel value="Commission (W/O VAT)" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="3" style="border:1.5px solid;border-bottom:none;border-top:none;">-->
+<!--&lt;!&ndash;                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 7pt">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <apex:param value="{!op.StdCommission__c}" />&ndash;&gt;-->
+<!--&lt;!&ndash;                    </apex:outputText>&ndash;&gt;-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr align="center">-->
+<!--                <td colspan="2" style="border-top:none;border-bottom:none;border-right:none;">-->
+<!--                    <apex:outputLabel value="ETC(Property Collateral Fee)" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="4" style="border-top:none;border-bottom:none;border-right:1.5px solid;">-->
+<!--                    <apex:outputLabel value="Judicial scrivener confirmed" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="2" style="border:1.5px solid;border-right:none;border-bottom:none;border-top:none;">-->
+<!--                    <apex:outputLabel value="Balance" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="3" style="border:1.5px solid;border-bottom:none;border-top:none;">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 7pt">-->
+<!--                        <apex:param value="{!minusCommissionNew}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            <tr align="center">-->
+<!--                <td colspan="2" style="border-right:none;">-->
+<!--                    <apex:outputLabel value="Total Other Fee" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="4" style="border-right:1.5px solid;">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!quote.StampDuty__c + quote.fm_NotarizedFee__c}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--                <td colspan="2" style="border:1.5px solid;border-right:none;border-top:none;">-->
+<!--                    <apex:outputLabel value="(Standard" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                    &lt;!&ndash;<apex:outputText value="{!3.5+IF(op.AdditionalCommission__c!=null,op.AdditionalCommission__c,0)}" style="font-family: Arial Unicode MS; font-size: 7pt"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <apex:outputText value="{!Opportunity.StdCommissionRate__c}" style="font-family: Arial Unicode MS; font-size: 7pt"/>&ndash;&gt;-->
+<!--                    <apex:outputLabel value="%)" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="3" style="border:1.5px solid;border-top:none;">-->
+<!--                </td>-->
+<!--            </tr>-->
+
+<!--            <tr align="center"  style="height:5.65pt"></tr>-->
+
+<!--            <tr align="center">-->
+<!--                <td colspan="4" style="width:415px;height:19px;border-right:none;">-->
+<!--                    <apex:outputLabel value="Out Going Amount" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="9" style="height:19px;border:1.5px solid;">-->
+<!--                    <apex:outputText value="{0, number, ####,###,##0 KRW}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
+<!--                        <apex:param value="{!paymentType.fm_LeftAmount__c}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            </tbody>-->
+<!--        </table>-->
+<!--        <table align="center" border="1" bordercolor="black" cellpadding="0" cellspacing="0" style="width:700px;border-top:none;border-left:none;border-right:none;border-bottom:none;font-family: Arial Unicode MS; font-size:7pt;">-->
+<!--            <tr align="center"  style="height:5.65pt"></tr>-->
+<!--            <tr>-->
+<!--                <td colspan="4" valign="top" style="border:1.5px solid;width:40%;height:54px;border-right:none;overflow:hidden;">-->
+<!--                    <apex:outputLabel value="【NOTE】" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:repeat value="{!opportunity.Account.Name}" var="item" rows="3" first="0">-->
+<!--                        &nbsp;&nbsp;* {!item}<br />-->
+<!--                    </apex:repeat>-->
+<!--                </td>-->
+<!--                <td colspan="9" valign="top" style="border:1.5px solid;height:54px; border-left:none;">-->
+<!--&lt;!&ndash;                    <apex:variable value="" var="" rendered="{!SpecialRemark!=null}">&ndash;&gt;-->
+<!--                        <div style="width:100%;height:100%;word-wrap: break-word;">-->
+<!--&lt;!&ndash;                            <apex:repeat value="{!SpecialList}" var="item" first="3" rows="4">&ndash;&gt;-->
+<!--&lt;!&ndash;                                * {!item}<br />&ndash;&gt;-->
+<!--&lt;!&ndash;                            </apex:repeat>&ndash;&gt;-->
+<!--                        </div>-->
+<!--&lt;!&ndash;                    </apex:variable>&ndash;&gt;-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--        </table>-->
+<!--        <table align="center" border="1" bordercolor="black" cellpadding="0" cellspacing="0" style="width:700px;border-top:none;border-left:none;border-right:none;border-bottom:none;">-->
+<!--            <tbody>-->
+<!--            <tr align="center" style="height:5.65pt"></tr>-->
+<!--            <tr>-->
+<!--                <td rowspan="3" align="center" style="border:1.5px solid; line-height:10px; border-right:none;width:10px;">-->
+<!--                    <apex:outputLabel value="A" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="P" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="P" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="R" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="O" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="V" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    <apex:outputLabel value="E" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td align="center" style="border-top:1.5px solid;width:15%;border-right:none;border-bottom:none;">-->
+<!--                    <apex:outputLabel value="In-Charge" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td align="center" style="border-top:1.5px solid;width:15%;border-right:none;border-bottom:none;">-->
+<!--                    <apex:outputLabel value="Manager" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--&lt;!&ndash;                <td align="center" style="border-top:1.5px solid;width:15%;border-right:none;border-bottom:none;">&ndash;&gt;-->
+<!--&lt;!&ndash;                    <apex:outputLabel value="Head of Sales" style="font-family: Arial Unicode MS; font-size: 8pt"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                </td>&ndash;&gt;-->
+<!--                <td align="center" style="border-top:1.5px solid;width:15%;border-right:none;border-bottom:none;">-->
+<!--                    &lt;!&ndash;<apex:outputLabel value="{!IF(op.CarModel__r.Segment__c=='Bus','대표이사','입금 확인')}" style="font-family: Arial Unicode MS; font-size: 8pt"/>&ndash;&gt;-->
+<!--                    <apex:outputLabel value="Payment Confirmed" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
+<!--                </td>-->
+<!--                <td colspan="10" rowspan="3" valign="top" style="border-top:1.5px solid;border-right:1.5px solid;border-bottom:1.5px solid;">-->
+<!--                    &nbsp;-->
+<!--                    <apex:outputLabel value="* Notes on Fee Settlement" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
+<!--                    &nbsp;&nbsp;-->
+<!--                    <apex:outputLabel value="- Sales commission calculation is based on net sales." style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
+<!--                </td>-->
+<!--            </tr>-->
+
+<!--            &lt;!&ndash; SIGNATURE LINE &ndash;&gt;-->
+<!--            <tr style="height:35pt">-->
+<!--                <td align="center" style="border-bottom:1.5px solid;width:15%;border-right:none;border-bottom:none;">-->
+<!--&lt;!&ndash;                    <apex:image url="{!Sign_Admin1}" rendered="{!Sign_Admin1!=null && Sign_Admin1!=''}" width="90%" height="90%"/>&ndash;&gt;-->
+<!--                </td>-->
+<!--                <td align="center" style="border-bottom:1.5px solid;width:15%;border-right:none;border-bottom:none;">-->
+<!--&lt;!&ndash;                    <apex:image url="{!Sign_Admin2}" rendered="{!Sign_Admin2!=null && Sign_Admin2!=''}" width="90%" height="90%"/>&ndash;&gt;-->
+<!--                </td>-->
+
+<!--                <td align="center" style="border-bottom:1.5px solid;width:15%;border-right:none;border-bottom:none;" class="slash">-->
+<!--&lt;!&ndash;                    <apex:image url="{!Sign_Admin4}" rendered="{!Sign_Admin4!=null && Sign_Admin4!=''}" width="45%" height="45%" style="padding-left:1px; padding-top:1px;" />&ndash;&gt;-->
+<!--                    <div>-->
+<!--&lt;!&ndash;                        <apex:image url="{!Sign_Admin5}" rendered="{!Sign_Admin5!=null && Sign_Admin5!=''}" width="45%" height="45%" style="padding-right:1px; padding-bottom:1px;" />&ndash;&gt;-->
+<!--                    </div>-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            &lt;!&ndash; SIGNATURE LINE &ndash;&gt;-->
+
+<!--            <tr>-->
+<!--                <td align="center" style="border-bottom:1.5px solid;width:15%;border-right:none;">-->
+<!--                    <apex:outputText value="{0,date,M' / 'd}" style="font-family: Arial Unicode MS; font-size: 7pt">-->
+<!--                        <apex:param value="{!opportunity.HqApprovalDate1__c}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--                <td align="center" style="border-bottom:1.5px solid;width:15%;border-right:none;">-->
+<!--                    <apex:outputText value="{0,date,M' / 'd}" style="font-family: Arial Unicode MS; font-size: 7pt">-->
+<!--                        <apex:param value="{!opportunity.HqApprovalDate2__c}" />-->
+<!--                    </apex:outputText>-->
+<!--                </td>-->
+<!--                <td align="center" style="border-bottom:1.5px solid;width:15%;border-right:none;">-->
+<!--                    <apex:outputText value="{0,date,M' / 'd}" style="font-family: Arial Unicode MS; font-size: 7pt">-->
+<!--                        <apex:param value="{!paymentTracker.ru_RecentDepositDate__c}" />-->
+<!--                    </apex:outputText>-->
+<!--                    /&nbsp;-->
+<!--&lt;!&ndash;                        <apex:outputText value="{0,date,M' / 'd}" style="font-family: Arial Unicode MS; font-size: 7pt">&ndash;&gt;-->
+<!--&lt;!&ndash;                            <apex:param value="{!op.DepositConfirmDate2__c}" />&ndash;&gt;-->
+<!--&lt;!&ndash;                        </apex:outputText>&ndash;&gt;-->
+<!--                </td>-->
+<!--            </tr>-->
+<!--            </tbody>-->
+<!--        </table>-->
+<!--    </div>-->
 </apex:page>

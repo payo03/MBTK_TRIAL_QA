@@ -51,6 +51,7 @@ private class PDFCommonController_test {
         PDFCommonController.getValidate(System.today());
         PDFCommonController.getVehicleStockInit(opportunity.VehicleStock__c);
         PDFCommonController.updatedTempDriver(opportunity.VehicleStock__c,tempDriverMap);
+        PDFCommonController.checkSAPermissionSet();
         Test.stopTest();
     }
 }

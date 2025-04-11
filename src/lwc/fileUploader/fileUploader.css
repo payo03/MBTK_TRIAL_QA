@@ -1,21 +1,29 @@
 @import "c/commonStyleUtil";
 
+@media screen and (min-width: 1024px) {
+
+}
+
 @media screen and (max-width: 1023px) {
-  .sub-wrap {
-      height: 200px;
-  }
+    .sub-wrap {
+        height: 200px;
+    }
 }
 
 @media screen and (max-width: 540px) {
-  .sub-wrap {
-      height: 200px;
-  }
+    .sub-wrap {
+        height: 200px;
+    }
+
+    .title-wrap, .slds-file-selector {
+        width: 100% !important;
+    }
 }
 
 .box-wrap {
-  padding: 5px !important;
+    padding: 5px !important;
 }
 
-.slds-file-selector__dropzone {
+/* .slds-file-selector__dropzone {
   justify-items: center;
-}
+} */

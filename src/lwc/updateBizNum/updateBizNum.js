@@ -20,6 +20,7 @@ import {CurrentPageReference, NavigationMixin} from "lightning/navigation";
 export default class UpdateBizNum extends NavigationMixin(LightningElement) {
 
   recordId;
+  objectApiName;
   @track bizNum;
   // @wire(CurrentPageReference) pageRef;
   //
@@ -33,14 +34,30 @@ export default class UpdateBizNum extends NavigationMixin(LightningElement) {
   @wire(CurrentPageReference)
   getStateParameters(currentPageReference) {
     this.recordId = currentPageReference.state.recordId;
-    console.log('BizNum ::: currentPageReference ::: ' + currentPageReference)
-    console.log('BizNum ::: this.recordId ::: ' + this.recordId)
     if (currentPageReference && !this.recordId) {
-      this.recordId = currentPageReference.state?.c__accId;
+      this.recordId = currentPageReference.state?.c__recordId;
     }
     if(this.recordId) {
+      this.objectApiName = this.getObjectApiNameFromId(this.recordId);
+      console.log('BizNum ::: currentPageReference ::: ' + JSON.stringify(currentPageReference))
+      console.log('BizNum ::: this.recordId ::: ' + this.recordId)
+      console.log('BizNum ::: this.objectApiName ::: ' + this.objectApiName)
       this.getBusinessNumber();
     }
+  }
+
+  getObjectApiNameFromId(recordId) {
+    const prefixMap = {
+      '001': 'Account',
+      '003': 'Contact',
+      '00Q': 'Lead',
+      '500': 'Case',
+      '006': 'Opportunity'
+      // 필요한 객체 추가 가능
+    };
+
+    const prefix = recordId.substring(0, 3);
+    return prefixMap[prefix] || 'Unknown';
   }
 
   getBusinessNumber() {
@@ -91,17 +108,22 @@ export default class UpdateBizNum extends NavigationMixin(LightningElement) {
     });
   }
 
-  handleChange(e) {
-
+  handleEnterKey(e) {
     if(e.key === 'Enter') {
       this.updateBizNum();
       return;
     }
+  }
+  handleChange(e) {
+
+    // if(e.key === 'Enter') {
+    //   this.updateBizNum();
+    //   return;
+    // }
 
     const numInput = e.target.value.replace(/[^0-9]/g, '');
     this.bizNum = this.formatBusinessNumber(numInput);
     e.target.value = this.bizNum;
-
   }
 
   formatBusinessNumber(value) {
@@ -128,7 +150,7 @@ export default class UpdateBizNum extends NavigationMixin(LightningElement) {
 
   mobileReturnPage() {
     if(formFactor === "Small") {
-      recordNavigation(this, "Account", this.recordId);
+      recordNavigation(this, this.objectApiName, this.recordId);
     }
   }
 }

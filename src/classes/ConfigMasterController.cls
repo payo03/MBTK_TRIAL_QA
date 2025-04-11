@@ -156,15 +156,15 @@ public without sharing class ConfigMasterController {
                 avgReportSpecMap.put(tempALC.ReportSpec__c, tempALC);
             }
             List<VehicleCategory__c> vehicleCategoryList = [
-                    SELECT Id, Report_Spec__c
+                    SELECT Id, Name
                     FROM VehicleCategory__c
 //                    WHERE Report_Spec__c IN :avgReportSpecMap.keySet()
             ];
             for(VehicleCategory__c vehicleCategory : vehicleCategoryList) {
-                if(avgReportSpecMap.get(vehicleCategory.Report_Spec__c) == null) {
+                if(avgReportSpecMap.get(vehicleCategory.Name) == null) {
                     vehicleCategory.AvgLocalCost__c = null;
                 } else {
-                    vehicleCategory.AvgLocalCost__c = avgReportSpecMap.get(vehicleCategory.Report_Spec__c).Id;
+                    vehicleCategory.AvgLocalCost__c = avgReportSpecMap.get(vehicleCategory.Name).Id;
                 }
                 updateVehicleCategoryList.add(vehicleCategory);
             }

@@ -676,7 +676,7 @@ public class TestObjectBuilder2 {
             vehicleCategory.HorsePower__c = '190';
             vehicleCategory.AxleConfiguration__c = '4x2';
             vehicleCategory.Suspension__c = 'BL';
-            vehicleCategory.Kind__c = 'CH';
+//            vehicleCategory.Kind__c = 'CH';
             vehicleCategory.CabMark__c = 'J__2';
             vehicleCategory.WheelBase__c = '0';
             vehicleCategory.ERPCode__c = 'TEST';

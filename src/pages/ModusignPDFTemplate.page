@@ -347,7 +347,7 @@
               <br/>
               Telephone 080 661 1472 Telefax 031 8014 5833
               <br/>
-              MAN Truck &amp; Bus Korea Ltd.   www.manturck.co.kr
+              MAN Truck &amp; Bus Korea Ltd. &amp; www.manturck.co.kr
             </th>
             <th class="logoBottomImg">
               <apex:image value="{!$Resource.ManTest}" />
@@ -365,7 +365,8 @@
         </div>
         <div style="text-align: right; padding-right: 80px; font-size: 10px; color:red">다음 계약내용 및 계약조항의 주요내용에 대한 설명을 듣고 계약서 1통을 정히 수령하였음을 확인함</div>
         
-          <div class="table-container">
+        <div class="table-container">
+          
             <table>
               <tr class="top-border bottom-border">
                 <th>계약번호</th>
@@ -374,7 +375,6 @@
                 <td>{!pdfWrapper.formatStartDate}</td>
               </tr>
             </table>
-
             <table>
               <tr class="bottom-border">
                 <th>차종</th>
@@ -382,27 +382,6 @@
                 <th>차량색상</th>
                 <td colspan="2">{!pdfWrapper.quoteProductColour}</td>
               </tr>
-
-              <!-- <apex:variable var="optionItems" value="" />
-              <apex:variable var="basicItems" value="" />
-
-              <apex:outputPanel rendered="{!NOT(ISNULL(pdfWrapper.optionList)) && pdfWrapper.optionList.size > 0}">
-                <apex:repeat value="{!pdfWrapper.optionList}" var="item">
-                    <apex:variable var="optionItems"
-                    value="{!IF(item.optionPrice > 0, optionItems & item.optionName & '<br/>', optionItems)}" />
-                    <apex:variable var="basicItems"
-                        value="{!IF(item.optionPrice == 0, basicItems & item.optionName & '<br/>', basicItems)}" />
-                </apex:repeat>
-              </apex:outputPanel>
-              <tr>
-                  <th colspan="1">선택사양</th>
-                  <td colspan="5"><apex:outputText escape="false" value="{!IF(ISNULL(optionItems), '', optionItems)}" /></td>
-              </tr>
-              <tr>
-                  <th colspan="1">기본제공품목</th>
-                  <td colspan="5"><apex:outputText escape="false" value="{!IF(ISNULL(basicItems), '', basicItems)}"/></td>
-              </tr> -->
-
               <tr>
                 <th colspan="1">선택사양</th>
                 <td colspan="5">
@@ -410,21 +389,19 @@
                         <apex:outputText escape="false" value="{!IF(item.optionPrice > 0, item.optionName & '<br/>', '')}" />
                     </apex:repeat>
                 </td>
-            </tr>
-            <tr>
-                <th colspan="1">기본제공품목</th>
-                <td colspan="5">
-                    <apex:repeat value="{!pdfWrapper.optionList}" var="item">
-                        <apex:outputText escape="false" value="{!IF(item.optionPrice == 0, item.optionName & '<br/>', '')}" />
-                    </apex:repeat>
-                </td>
-            </tr>
-
+              </tr>
+              <tr>
+                  <th colspan="1">기본제공품목</th>
+                  <td colspan="5">
+                      <apex:repeat value="{!pdfWrapper.optionList}" var="item">
+                          <apex:outputText escape="false" value="{!IF(item.optionPrice == 0, item.optionName & '<br/>', '')}" />
+                      </apex:repeat>
+                  </td>
+              </tr>
               <tr>
                 <th>차량가격</th>
                 <td style="text-align: right">
                   <apex:outputText value="{0,number,###,###}">
-                      <!-- <apex:param value="{!IF(ISNULL(pdfWrapper.product.productPrice), 0, pdfWrapper.product.productPrice)}" /> -->
                       <apex:param value="{!pdfWrapper.product.productPrice}" />
                   </apex:outputText>원
                 </td>
@@ -447,7 +424,7 @@
                 <th>총 인도금</th>
                 <td style="text-align: right">
                   <apex:outputText value="{0,number,#,###}">
-                      <!-- <apex:param value="{!totalDownVATDefer}" /> -->
+                      <apex:param value="{!pdfWrapper.totalDownVATDefer}" />
                   </apex:outputText>원
                 </td>
                 <th>할부금리</th>
@@ -469,13 +446,11 @@
                   </apex:outputText>원
                 </td>
                 <th>할부거치개월수</th>
-                <!-- <apex:repeat value="{!pdfWrapper.defermentList}" var="req">
-                  <td>{!req.requestDays}Months</td>
-                </apex:repeat> -->
-                <!-- <apex:outputPanel layout="none" rendered="{!isDefermentReq}">
-                  <td></td>
-                </apex:outputPanel> -->
-                <td></td>
+                <td>
+                  <apex:repeat value="{!pdfWrapper.defermentList}" var="item">
+                      <apex:outputText value="{!item.requestDays}" />
+                  </apex:repeat>
+                </td>
               </tr>
               <tr>
                 <th>실판매가격</th>
@@ -484,6 +459,7 @@
                       <apex:param value="{!pdfWrapper.contractRealSalesPrice}" />
                   </apex:outputText>원
                 </td>
+                
                 <th>캐피탈 VAT 유예금</th>
                 <td style="text-align: right">
                   <apex:outputText value="{0,number,###,###}">
@@ -495,6 +471,9 @@
                   <apex:outputText value="{!pdfWrapper.quoteMonthDivideInputMonth}"/> 개월
                 </td>
               </tr>
+
+              <!-- 납부 총액, 실판매가격 -->
+
               <tr>
                 <th>납부총액</th>
                 <td style="text-align: right">
@@ -502,12 +481,14 @@
                       <apex:param value="{!pdfWrapper.contractRealSalesPrice}" />
                   </apex:outputText>원
                 </td>
+
                 <th>총대출금</th>
                 <td style="text-align: right">
                   <apex:outputText value="{0,number,###,###}">
                     <apex:param value="{!pdfWrapper.quoteTotalLoanAmount}" />
                   </apex:outputText>원
                 </td>
+
                 <th>월 할부금</th>
                 <td style="text-align: right">
                   <apex:outputText value="{0,number,###,###}">
@@ -515,8 +496,11 @@
                   </apex:outputText>원
                 </td>
               </tr>
-            </table>
 
+
+
+
+            </table>
             <table>
               <tr class="bottom-border">
                 <th colspan="6">특약사항</th>
@@ -566,21 +550,32 @@
                 <th>성명</th>
                 <td>{!pdfWrapper.accountName}</td>
                 <th>생년월일</th>
-                <!-- <td>{!LEFT(pdfWrapper.accountIDNumber, FIND("-", pdfWrapper.accountIDNumber) - 1)}</td> -->
-                <td></td>
+                <td>{!LEFT(pdfWrapper.accountIDNumber, FIND("-", pdfWrapper.accountIDNumber) - 1)}</td>
                 <th>전화번호</th>
                 <td>{!pdfWrapper.accountPersonMobilePhone}</td>
               </tr>
               <tr>
                 <th>주민등록번호(사업자번호)</th>
                 <td style="text-align: right">
-                  <apex:outputText value="{!IF(
+                  <!-- <apex:outputText value="{!IF(
                     AND(NOT(ISBLANK(pdfWrapper.accountIDNumber)), NOT(ISBLANK(pdfWrapper.accountBusinessNumber))),
                     pdfWrapper.accountIDNumber & ' / ' & pdfWrapper.accountBusinessNumber,
-                    IF(NOT(ISBLANK(pdfWrapper.accountIDNumber)),
-                        pdfWrapper.accountIDNumber,
-                        pdfWrapper.accountBusinessNumber))}" >
-                  </apex:outputText>
+                    IF(NOT(ISBLANK(pdfWrapper.accountIDNumber)), 
+                        pdfWrapper.accountIDNumber, 
+                        IF(NOT(ISBLANK(pdfWrapper.accountBusinessNumber)), pdfWrapper.accountBusinessNumber, '')))}">
+                  </apex:outputText> -->
+                  <apex:outputText value="{!IF(
+                        AND(NOT(ISBLANK(TRIM(pdfWrapper.accountIDNumber))), NOT(ISBLANK(pdfWrapper.accountBusinessNumber))),
+                        pdfWrapper.accountIDNumber & ' / ' & pdfWrapper.accountBusinessNumber,
+                        IF(NOT(ISBLANK(TRIM(pdfWrapper.accountIDNumber))), 
+                            pdfWrapper.accountIDNumber, 
+                            IF(NOT(ISBLANK(pdfWrapper.accountBusinessNumber)), 
+                                pdfWrapper.accountBusinessNumber, 
+                                '' 
+                            )
+                        )
+                    )}">
+                  </apex:outputText> 
                 </td>
                 <th>사업자명(상호)</th>
                 <td>
@@ -605,8 +600,7 @@
                 <th>성명</th>
                 <td>{!pdfWrapper.accountRealDriver}</td>
                 <th>생년월일</th>
-                <td></td>
-                <!-- <td>{!LEFT(pdfWrapper.accountRealDriverIDNumber, FIND("-", pdfWrapper.accountRealDriverIDNumber) - 1)}</td> -->
+                <td>{!LEFT(pdfWrapper.accountRealDriverIDNumber, FIND("-", pdfWrapper.accountRealDriverIDNumber) - 1)}</td>
                 <th>전화번호</th>
                 <td>{!pdfWrapper.accountRealDriverMobile}</td>
               </tr>
@@ -639,7 +633,10 @@
             <div style="font-size: 10px; color: red;">1. 계약서마다 가상계좌번호가 상이하므로 반드시 각 계약건의 가상게좌번호를 확인해주시기 바랍니다.</div>
             <div style="font-size: 10px; color: red;">2. 고객님의 차량 배정 및 계약의 확정을 위해 계약금은 환불이 불가능합니다.</div>
             <div style="font-size: 10px; color: red;">3. 자동차 매매대금 송금은 고객전용 입금계좌로만 가능합니다. 이 외 다른 계좌로 송금 유도 시 즉시 고객센터로 신고해주세요.</div>
-          </div>
+          </div> 
+
+
+
           <div class="table-price">
             <table>
               <tr class="top-border bottom-border">
@@ -652,7 +649,7 @@
                   </apex:outputText>원
                 </td>
                 <th>영수일자</th>
-                <!-- <td>{!formatTaxDate}</td> -->
+                <td>{!formatTaxDate}</td>
                 <td></td>
               </tr>
             </table>
@@ -675,24 +672,8 @@
                   </th>
               </tr>
               <tr>
-                  <!-- <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(quoteDetail['product']['name']))}">
-                    <td colspan="2">{!quoteDetail['product']['name']}</td>
-                  </apex:outputPanel>
-                  <apex:outputPanel layout="none" rendered="{!ISBLANK(quoteDetail['product']['name'])}">
-                    <td colspan="2"></td>
-                  </apex:outputPanel> -->
+
                   <td colspan="2">{!pdfWrapper.product.productName}</td>
-!
-                  <!-- <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(pdfWrapper.product.productPrice))}">
-                    <td style="text-align: right;">
-                      <apex:outputText value="{0,number,###,###}">
-                          <apex:param value="{!pdfWrapper.product.productPrice}" />
-                      </apex:outputText>
-                    </td>
-                  </apex:outputPanel>
-                  <apex:outputPanel layout="none" rendered="{!ISBLANK(pdfWrapper.product.productPrice)}">
-                    <td></td>
-                  </apex:outputPanel> -->
                   <td style="text-align: right;">
                     <apex:outputText value="{0,number,###,###}">
                         <apex:param value="{!pdfWrapper.product.productPrice}" />
@@ -719,34 +700,6 @@
                     </td>
                 </tr>
               </apex:repeat>
-              <!-- <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(quoteDetail['option']))}">
-                <apex:repeat value="{!quoteDetail['option']}" var="item">
-                    <tr>
-                        <td></td>
-                        <td>{!item['name']}</td>
-                        <td style="text-align: right;">
-                            <apex:outputText value="{0,number,###,###}">
-                                <apex:param value="{!item['price']}" />
-                            </apex:outputText>
-                        </td>
-                    </tr>
-                </apex:repeat>
-              </apex:outputPanel> -->
-              <!-- <apex:outputPanel layout="none" rendered="{!ISBLANK(pdfWrapper.product.productPrice)}">
-                  <tr>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                  </tr>
-              </apex:outputPanel>
-
-              <apex:outputPanel layout="none" rendered="{!ISBLANK(quoteDetail['option'])}">
-                  <tr>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                  </tr>
-              </apex:outputPanel> -->
             </table>
             <table style="margin-top: 20px; width: 100%;">
               <colgroup>
@@ -765,9 +718,7 @@
                   <th>기준 할인 금액 (Basic Discount)</th>
                   <th style="text-align: right;">
                     <apex:outputText value="{0,number,###,###}">
-                      <!-- <apex:param value="{!IF(baseDiscount == null, 0, (pdfWrapper.product.productPrice * baseDiscount / 100))}" /> -->
-                      <apex:param value="{!IF(ISBLANK(baseDiscount), 0, (pdfWrapper.product.productPrice * baseDiscount / 100))}" />
-                      <!-- <apex:param value="{!pdfWrapper.product.productPrice * pdfWrapper.baseDiscount / 100}" /> -->
+                      <apex:param value="{!pdfWrapper.product.productPrice * pdfWrapper.baseDiscount / 100}" />
                     </apex:outputText>원
                   </th>
               </tr>
@@ -779,22 +730,11 @@
                   </apex:outputText>원
                 </th>
               </tr>
-              <!-- <apex:repeat value="{!quoteDetail['promotion']}" var="item">
-                  <tr>
-                      <th style="text-align: left;">{!item['name']}</th>
-                      <th style="text-align: right;">
-                          <apex:outputText value="{0,number,###,###}">
-                              <apex:param value="{!IF(item['discountPrice'] == null, (pdfWrapper.product.productPrice * item['discountRate']) , item['discountPrice'])}" />
-                          </apex:outputText>원
-                      </th>
-                  </tr>
-              </apex:repeat> -->
               <apex:repeat value="{!pdfWrapper.promotionList}" var="item">
                   <tr>
                       <th style="text-align: left;">{!item.promotionName}</th>
                       <th style="text-align: right;">
                           <apex:outputText value="{0,number,###,###}">
-                              <!-- <apex:param value="{!IF(item.promotionDiscountPrice == null, (pdfWrapper.product.productPrice * item.promotionDiscountRate) , item.promotionDiscountPrice)}" /> -->
                               <apex:param value="{!IF(ISBLANK(item.promotionDiscountPrice), (pdfWrapper.product.productPrice * item.promotionDiscountRate) , item.promotionDiscountPrice)}" />
                           </apex:outputText>원
                       </th>
@@ -849,7 +789,7 @@
                   <th style="height: 30px; font-size: 15px;">실 판매가격 (Total Price) 차량 가격 - 인도금 할인</th>
                     <th style="height: 30px; text-align: right;">
                       <apex:outputText value="{0,number,###,###}">
-                        <apex:param value="{!realSaleDiscount}" />
+                        <apex:param value="{!pdfWrapper.realSaleDiscount}" />
                       </apex:outputText>원
                     </th>
                 </tr>
@@ -862,16 +802,6 @@
               <tr>
                   <th style="height: 30px;">특장 (BB Use Case)</th>
               </tr>
-              <!-- <apex:repeat value="{!quoteDetail['special']}" var="item">
-                  <tr>
-                      <th style="text-align: left; ">{!item['subOption']}</th>
-                      <th style="text-align: right; ">
-                          <apex:outputText value="{0,number,###,###}">
-                              <apex:param value="{!item['price']}" />
-                          </apex:outputText>원
-                      </th>
-                  </tr>
-              </apex:repeat> -->
               <apex:repeat value="{!pdfWrapper.specialList}" var="item">
                   <tr>
                       <th style="text-align: left; ">{!item.specialSubOption}</th>
@@ -912,7 +842,7 @@
                   <th style="height: 30px;">인도금 (Downpayment) 계약금+선수금+부가세 유예금+인도금유예금</th>
                   <th style="height: 30px; text-align: right;">
                     <apex:outputText value="{0,number,#,###}">
-                      <!-- <apex:param value="{!totalDownVATDefer}" /> -->
+                      <apex:param value="{!pdfWrapper.totalDownVATDefer}" />
                   </apex:outputText>원
                   </th>
               </tr>
@@ -1181,25 +1111,6 @@
               <th>Vehicle Color</th>
               <td colspan="2">{!pdfWrapper.quoteProductColour}</td>
             </tr>
-            <!-- <apex:variable var="optionItems" value="" />
-            <apex:variable var="basicItems" value="" />
-            <apex:outputPanel rendered="{!NOT(ISNULL(pdfWrapper.optionList)) && pdfWrapper.optionList.size > 0}">
-              <apex:repeat value="{!pdfWrapper.optionList}" var="item">
-                  <apex:variable var="optionItems" 
-                      value="{!IF(item.optionPrice > 0, optionItems & item.optionName & '<br/>', optionItems)}" />
-                  <apex:variable var="basicItems" 
-                      value="{!IF(item.optionPrice == 0, basicItems & item.optionName & '<br/>', basicItems)}" />
-              </apex:repeat>
-            </apex:outputPanel>
-            <tr>
-                <th colspan="1">Option Item</th>
-                <td colspan="5"><apex:outputText escape="false" value="{!IF(ISNULL(optionItems), '', optionItems)}" /></td>
-            </tr>
-            <tr>
-                <th colspan="1">Standard Item</th>
-                <td colspan="5"><apex:outputText escape="false" value="{!IF(ISNULL(basicItems), '', basicItems)}"/></td>
-            </tr> -->
-
             <tr>
               <th colspan="1">Option Item</th>
               <td colspan="5">
@@ -1220,7 +1131,6 @@
               <th>Vehicle Price</th>
               <td style="text-align: right;">
                 <apex:outputText value="{0,number,###,###}">
-                    <!-- <apex:param value="{!IF(ISNULL(pdfWrapper.product.productPrice), 0, pdfWrapper.product.productPrice)}" /> -->
                     <apex:param value="{!pdfWrapper.product.productPrice}" />
                 </apex:outputText>
               </td>
@@ -1243,7 +1153,7 @@
               <th>Downpayment</th>
               <td style="text-align: right;">
                 <apex:outputText value="{0,number,#,###}">
-                    <!-- <apex:param value="{!totalDownVATDefer}" /> -->
+                  <apex:param value="{!pdfWrapper.totalDownVATDefer}" />
                 </apex:outputText>
               </td>
               <th>Capital Rate</th>
@@ -1263,13 +1173,11 @@
                 </apex:outputText>
               </td>
               <th>Capital Deferred Months</th>
-              <!-- <apex:repeat value="{!pdfWrapper.defermentList}" var="req">
-                <td>{!req.requestDays}Months</td>
-              </apex:repeat> -->
-              <!-- <apex:outputPanel layout="none" rendered="{!isDefermentReq}">
-                <td></td>   
-              </apex:outputPanel> -->
-              <td></td>
+              <td>
+                <apex:repeat value="{!pdfWrapper.defermentList}" var="item">
+                    <apex:outputText value="{!item.requestDays}" />
+                </apex:repeat>
+              </td>
             </tr>
             <tr>
               <th>Vehicle Sale Price 1</th>
@@ -1356,21 +1264,32 @@
               <th>Name</th>
               <td>{!pdfWrapper.accountName}</td>
               <th>Birth Date</th>
-              <td></td>
-              <!-- <td>{!LEFT(pdfWrapper.accountIDNumber, FIND("-", pdfWrapper.accountIDNumber) - 1)}</td> -->
+              <td>{!LEFT(pdfWrapper.accountIDNumber, FIND("-", pdfWrapper.accountIDNumber) - 1)}</td>
               <th>Phone</th>
               <td>{!pdfWrapper.accountPersonMobilePhone}</td>
             </tr>
             <tr>
               <th>Residential Number(Biz Number)</th>
               <td style="text-align: right">
-                <apex:outputText value="{!IF(
+                <!-- <apex:outputText value="{!IF(
                   AND(NOT(ISBLANK(pdfWrapper.accountIDNumber)), NOT(ISBLANK(pdfWrapper.accountBusinessNumber))),
                   pdfWrapper.accountIDNumber & ' / ' & pdfWrapper.accountBusinessNumber,
                   IF(NOT(ISBLANK(pdfWrapper.accountIDNumber)), 
                       pdfWrapper.accountIDNumber, 
-                      pdfWrapper.accountBusinessNumber))}">
-                </apex:outputText>      
+                      IF(NOT(ISBLANK(pdfWrapper.accountBusinessNumber)), pdfWrapper.accountBusinessNumber, '')))}">
+                </apex:outputText> -->
+                <apex:outputText value="{!IF(
+                      AND(NOT(ISBLANK(TRIM(pdfWrapper.accountIDNumber))), NOT(ISBLANK(pdfWrapper.accountBusinessNumber))),
+                      pdfWrapper.accountIDNumber & ' / ' & pdfWrapper.accountBusinessNumber,
+                      IF(NOT(ISBLANK(TRIM(pdfWrapper.accountIDNumber))), 
+                          pdfWrapper.accountIDNumber, 
+                          IF(NOT(ISBLANK(pdfWrapper.accountBusinessNumber)), 
+                              pdfWrapper.accountBusinessNumber, 
+                              '' 
+                          )
+                      )
+                  )}">
+                </apex:outputText>     
               </td>
               <th>Company Name</th>
               <td>
@@ -1394,8 +1313,7 @@
               <th>Name</th>
               <td>{!pdfWrapper.accountRealDriver}</td>
               <th>Birth date</th>
-              <td></td>
-              <!-- <td>{!LEFT(pdfWrapper.accountRealDriverIDNumber, FIND("-", pdfWrapper.accountRealDriverIDNumber) - 1)}</td> -->
+              <td>{!LEFT(pdfWrapper.accountRealDriverIDNumber, FIND("-", pdfWrapper.accountRealDriverIDNumber) - 1)}</td>
               <th>Phone</th>
               <td>{!pdfWrapper.accountRealDriverMobile}</td>
             </tr>
@@ -1441,8 +1359,7 @@
                 </apex:outputText>
               </td>
               <th>Deposit date</th>
-              <!-- <td>{!formatTaxDate}</td> -->
-              <td></td>
+              <td>{!formatTaxDate}</td>
             </tr>
           </table>
           <div style="font-size: 10px;">*본 영수증은 자동차 매매대금용으로만 효력이 있으며 기타용도 사용은 무효입니다.</div>
@@ -1464,24 +1381,7 @@
                 </th>
             </tr>
             <tr>
-                <!-- <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(quoteDetail['product']['name']))}">
-                  <td colspan="2">{!quoteDetail['product']['name']}</td>
-                </apex:outputPanel>
-                <apex:outputPanel layout="none" rendered="{!ISBLANK(quoteDetail['product']['name'])}">
-                  <td colspan="2"></td>
-                </apex:outputPanel> -->
                 <td colspan="2">{!pdfWrapper.product.productName}</td>
-
-                <!-- <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(pdfWrapper.product.productPrice))}">
-                  <td style="text-align: right;">
-                    <apex:outputText value="{0,number,###,###}">
-                        <apex:param value="{!pdfWrapper.product.productPrice}" />
-                    </apex:outputText>
-                  </td>
-                </apex:outputPanel>
-                <apex:outputPanel layout="none" rendered="{!ISBLANK(pdfWrapper.product.productPrice)}">
-                  <td></td>
-                </apex:outputPanel> -->
                 <td style="text-align: right;">
                   <apex:outputText value="{0,number,###,###}">
                       <apex:param value="{!pdfWrapper.product.productPrice}" />
@@ -1526,20 +1426,15 @@
                 <th>Basic Discount</th>
                 <th style="height: 30px; text-align: right;">
                     <apex:outputText value="{0,number,###,###}">
-                        <!-- <apex:param value="{!IF(baseDiscount == null, 0, (pdfWrapper.product.productPrice * baseDiscount / 100))}" /> -->
-                        <apex:param value="{!IF(ISBLANK(baseDiscount), 0, (pdfWrapper.product.productPrice * baseDiscount / 100))}" />
-                        <!-- <apex:param value="{!pdfWrapper.product.productPrice * pdfWrapper.baseDiscount / 100}" /> -->
+                        <apex:param value="{!pdfWrapper.product.productPrice * pdfWrapper.baseDiscount / 100}" />
                     </apex:outputText>
                 </th>
             </tr>
-            <!-- <apex:repeat value="{!quoteDetail['promotion']}" var="item"> -->
             <apex:repeat value="{!pdfWrapper.promotionList}" var="item">
               <tr>
                 <th style="text-align: left; ">{!item.promotionName}</th>
                 <th style="text-align: right; ">
                     <apex:outputText value="{0,number,###,###}">
-                        <!-- <apex:param value="{!IF(item['discountPrice'] == null, (pdfWrapper.product.productPrice * item['discountRate']) , item['discountPrice'])}" /> -->
-                        <!-- <apex:param value="{!IF(item.promotionDiscountPrice== null, (pdfWrapper.product.productPrice * item.promotionDiscountRate) , item.promotionDiscountPrice)}" /> -->
                         <apex:param value="{!IF(ISBLANK(item.promotionDiscountPrice), (pdfWrapper.product.productPrice * item.promotionDiscountRate) , item.promotionDiscountPrice)}" />
                       </apex:outputText>
                 </th>
@@ -1601,7 +1496,7 @@
                 <th style="height: 30px; font-size: 15px;">Total Price</th>
                   <th style="height: 30px; text-align: right;">
                     <apex:outputText value="{0,number,###,###}">
-                        <apex:param value="{!realSaleDiscount}" />
+                        <apex:param value="{!pdfWrapper.realSaleDiscount}" />
                       </apex:outputText>
                   </th>
               </tr>
@@ -1614,16 +1509,7 @@
             <tr>
                 <th style="height: 30px;">BB Use Case</th>
             </tr>
-            <!-- <apex:repeat value="{!quoteDetail['special']}" var="item">
-                <tr>
-                    <th style="text-align: left; ">{!item['subOption']}</th>
-                    <th style="text-align: right; ">
-                        <apex:outputText value="{0,number,###,###}">
-                            <apex:param value="{!item['price']}" />
-                        </apex:outputText>
-                    </th>
-                </tr>
-            </apex:repeat> -->
+
             <apex:repeat value="{!pdfWrapper.specialList}" var="item">
                 <tr>
                     <th style="text-align: left; ">{!item.specialSubOption}</th>
@@ -1664,7 +1550,7 @@
                 <th style="height: 30px;">Downpayment</th>
                 <th style="height: 30px; text-align: right;">
                   <apex:outputText value="{0,number,#,###}">
-                    <!-- <apex:param value="{!totalDownVATDefer}" /> -->
+                    <apex:param value="{!pdfWrapper.totalDownVATDefer}" />
                 </apex:outputText>
                 </th>
             </tr>
@@ -1819,6 +1705,7 @@
           </div> 
         </div>
       </apex:outputPanel>
+
     </body>
 
     <apex:image url="{!$Resource.ContractTemp}" styleClass="background-image"></apex:image>
@@ -1833,10 +1720,13 @@
       </div>
     </apex:outputPanel>
   </apex:outputPanel>
+  <!-- <apex:outputPanel rendered="{!selectedOption == 'all' || selectedOption == 'contract'}"></apex:outputPanel> -->
   
   <apex:outputPanel rendered="{!selectedOption == 'riomds'}">
-    <apex:image url="{!$Resource.RIO_Image}" styleClass="full-page-image"></apex:image>
-    <apex:image url="{!$Resource.MDS_Image}" styleClass="full-page-image"></apex:image>
+    <div>
+      <apex:image url="{!$Resource.RIO_Image}" styleClass="full-page-image"></apex:image>
+      <apex:image url="{!$Resource.MDS_Image}" styleClass="full-page-image"></apex:image>
+    </div>
   </apex:outputPanel>
 <!-- RIO & MDS -->
 <!--  <apex:outputPanel rendered="{!selectedOption == 'all' || selectedOption == 'riomds'}">-->

@@ -118,7 +118,7 @@ public without sharing class AsyncCustomerInfo implements Queueable, Database.Al
                 insert details;
 
                 // 고객정보전송(SMS007) 완료시 가상계좌-BP정보(SMS018) 전송
-                if(!logIdList.isEmpty()) System.enqueueJob(new AsyncVAInfo(logIdList, this.sendType));
+                if(!logIdList.isEmpty()) System.enqueueJob(new AsyncVAInfo(logIdList, this.sendType)); 
             }
 
             IF_DTO.LogWrapper objLogWrapper = new IF_DTO.LogWrapper();

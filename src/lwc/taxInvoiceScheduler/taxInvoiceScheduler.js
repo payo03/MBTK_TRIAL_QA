@@ -172,11 +172,17 @@ export default class TaxInvoiceScheduler extends LightningElement {
       return;
     }
     if(name === "taxInvoicePublish") {
-      // showToast('세금 계산서 발행', '해당 I/F 호출', 'success');
-      this.taxInvoiceProcess(true)
+      LightningConfirm.open({
+        message: "[" + this.selectedRowInfo.vehicleStock.Name + "] 수입부대비용 입력여부 확인 바람",
+        // variant: "headerless",
+        label: '세금 계산서 발행' // 모달 제목
+      }).then(res => {
+        if (res) {
+          this.taxInvoiceProcess(true);
+        }
+      })
     }
     if(name === "taxInvoiceCancel") {
-      // showToast('세금 계산서 발행', '해당 I/F 호출', 'success');
       this.taxInvoiceProcess(false)
     }
     if(name === "depositReceipt") {

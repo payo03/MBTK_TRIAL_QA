@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>63.0</apiVersion>
+    <apiVersion>61.0</apiVersion>
     <description>스케줄러 탭 메인 LWC 컴포넌트</description>
     <isExposed>true</isExposed>
     <masterLabel>schedulerMain</masterLabel>
     <targets>
         <target>lightning__Tab</target>
-        <target>lightning__AppPage</target>
+<!--        <target>lightning__AppPage</target>-->
         <target>lightning__HomePage</target>
     </targets>
 </LightningComponentBundle>

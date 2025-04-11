@@ -13,9 +13,9 @@ public without sharing class PDFCommonController {
     public static VehicleStock__c getVehicleStock(String vehicleStockId){
         String obj_fields = getField(Schema.SObjectType.VehicleStock__c.fields.getMap());
         String selectFields = obj_fields +
-                                ' , Product__r.VehicleCategory__r.CabMark__c,Product__r.Segment2__c, Product__r.SelfCertWeightLabel__c, Product__r.VehicleCategory__r.ModelType__c, Product__r.VehicleCategory__r.Kind__c, ' +
+                                ' , Product__r.VehicleCategory__r.CabMark__c,Product__r.Segment2__c, Product__r.SelfCertWeightLabel__c, Product__r.VehicleCategory__r.ModelType__c, ' +
                                 ' Product__r.TotalWeight__c, Product__r.CabMark__c, Product__r.length__c, Product__r.width__c, Product__r.height__c, Product__r.TypeDate__c, Product__r.MaxLoad__c, Product__r.ModelYear__c, ' +
-                                ' Product__r.VehicleCategory__r.Report_Spec__c, Product__r.VehicleCategory__r.Name, Product__r.Name, Product__r.ReleaseDate__c, Product__r.SupplyItem__c,' +
+                                ' Product__r.VehicleCategory__r.Name, Product__r.Name, Product__r.ReleaseDate__c, Product__r.SupplyItem__c,' +
                                 ' SpecTypeNo__r.TypeNo__c, SpecTypeNo__r.MngNo__c ';
         String whereConditions = 'Id = \'' + vehicleStockId + '\'';
 
@@ -195,7 +195,8 @@ public without sharing class PDFCommonController {
     public static Map<String, Object> getOpportunityInit(String recordId){
         return new Map<String, Object> {
                 'opportunity' => getOpportunity(recordId),
-                'paymentTracker' => getPaymentTracker(recordId)
+                'paymentTracker' => getPaymentTracker(recordId),
+                'checkSAPermission' => checkSAPermissionSet()
         };
     }
 
@@ -238,4 +239,13 @@ public without sharing class PDFCommonController {
         Boolean checkProfile = userProfile == profileName ? true : false;
         return checkProfile;
     }
+
+    @AuraEnabled
+    public static Boolean checkSAPermissionSet() {
+        Id userId = UserInfo.getUserId();
+        List<PermissionSetAssignment> permissionSets = [SELECT Id, PermissionSet.Name, PermissionSet.Label FROM PermissionSetAssignment WHERE AssigneeId = :userId AND PermissionSet.Name = 'SA'];
+
+        return !permissionSets.isEmpty();
+    }
+
 }

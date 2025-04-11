@@ -1,8 +1,9 @@
 <template>
 
-    <div class="slds-grid slds-size_7-of-7">
+    <div class="slds-grid slds-wrap slds-size_1-of-1">
 
-        <div class="slds-p-around_small slds-p-bottom_none slds-size_4-of-7 ">
+        <!-- <div class="slds-p-around_small slds-p-bottom_none slds-size_4-of-7"> -->
+        <div class="slds-p-around_small slds-p-bottom_none slds-small-size_1-of-1 slds-medium-size_4-of-7 title-wrap">
             <div class="slds-card__header slds-grid">
                 <lightning-icon icon-name="utility:copy_to_clipboard" alternative-text="Utility image" size="small" title="Image"></lightning-icon>
                 <h2 class="slds-card__header-title">
@@ -10,59 +11,48 @@
                 </h2>
             </div>
 
-            <article class="box-wrap">
+            <div class="slds-m-vertical_small box-wrap">
                 <div class="slds-card__header slds-grid">
-                <header class="slds-media slds-media_center slds-has-flexi-truncate">
-                    <div class="slds-media__figure">
-                        <span class="slds-icon_container slds-icon-standard-account" title="account">
-                                <lightning-icon icon-name="action:add_file" alternative-text="Utility image" size="x-small" title="Image"></lightning-icon>
-                            <span class="slds-assistive-text">주민등록증</span>
-                        </span>
-                    </div>
-                    <div class="slds-media__body">
-                        <h2 class="slds-card__header-title">
-                            <span>주민등록증</span>
-                        </h2>
-                    </div>
-                </header>
+                    <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                        <div class="slds-media__figure">
+                            <span class="slds-icon_container slds-icon-standard-account" title="account">
+                                    <lightning-icon icon-name="action:add_file" alternative-text="Utility image" size="x-small" title="Image"></lightning-icon>
+                                <span class="slds-assistive-text">주민등록증</span>
+                            </span>
+                        </div>
+                        <div class="slds-media__body">
+                            <h2 class="slds-card__header-title">
+                                <span>주민등록증</span>
+                            </h2>
+                        </div>
+                    </header>
                 </div>
                 <div class="slds-card__body slds-card__body_inner">
                     <div class="slds-grid slds-wrap">
-                        <div class="slds-file-selector__dropzone slds-size_1-of-1 slds-p-around_medium" 
-                            data-name="file1"
-                            ondragover={handleDragOver}
-                            ondragleave={handleDragLeave}
-                            ondrop={handleDrop}>
-                            <input type="file"
-                                    name="file1"
-                                    onchange={handleUploadFinished}
-                                    class="slds-file-selector__input slds-assistive-text"
-                                    accept={accept}
-                                    id="file1" />
-                            <lightning-button
-                                variant="Neutral"
-                                name="file1"
-                                label="Upload File"
-                                onclick={handleChooseFile}
-                                icon-name="utility:upload">
-                            </lightning-button>
-                            <p> Drag and Drop files here</p>
+                        <div class="file-selector-large">
+                            <lightning-file-upload
+                                label="파일 업로드"
+                                name="fileUploader"
+                                accept={acceptedFormats}
+                                data-name="주민등록증"
+                                record-id={recordId}
+                                onuploadfinished={handleOnUploadFinished}>
+                            </lightning-file-upload>
                         </div>
                     </div>
         
                     <template if:true={file1Details}>
                         <div class="pill-container slds-p-top_small">
                             <lightning-pill 
-                                data-key={file1Details.key} label={file1Details.name} data-name="regNum" onremove={handleRemove}>
+                                data-key={file1Details.key} label={file1Details.title} data-name="regNum" onremove={handleRemove}>
                             </lightning-pill>
                         </div>
                     </template>
-
                     <!-- <template if:true={file1Details}>
-                        <p><strong>{file1Details.name} ({file1Details.size})</strong></p>
+                        <p>{file1Details}</p>
                     </template> -->
                 </div>
-            </article>
+            </div>
 
             <div class="slds-m-vertical_small box-wrap">
                 <div class="slds-card__header slds-grid">
@@ -82,43 +72,32 @@
                 </div>
                 <div class="slds-card__body slds-card__body_inner">
                     <div class="slds-grid slds-wrap">
-                        <div class="slds-file-selector__dropzone slds-size_1-of-1 slds-p-around_medium"
-                            data-name="file2"
-                            ondragover={handleDragOver}
-                            ondragleave={handleDragLeave}
-                            ondrop={handleDrop}>
-                            <input type="file"
-                                    name="file2"
-                                    onchange={handleUploadFinished}
-                                    class="slds-file-selector__input slds-assistive-text"
-                                    accept={accept}
-                                    id="file2" />
-                            <lightning-button
-                                variant="Neutral"
-                                name="file2"
-                                label="Upload File"
-                                onclick={handleChooseFile}
-                                icon-name="utility:upload">
-                            </lightning-button>
-                            <p> Drag and Drop files here</p>
-                        </div>        
+                        <div class="file-selector-large">
+                            <lightning-file-upload
+                                label="파일 업로드"
+                                name="fileUploader"
+                                accept={acceptedFormats}
+                                data-name="사업자등록증"
+                                record-id={recordId}
+                                onuploadfinished={handleOnUploadFinished}>
+                            </lightning-file-upload>
+                        </div>
                     </div>
 
                     <template if:true={file2Details}>
                         <div class="pill-container slds-p-top_small">
                             <lightning-pill 
-                                data-key={file2Details.key} label={file2Details.name} data-name="bizNum" onremove={handleRemove}>
+                                data-key={file2Details.key} label={file2Details.title} data-name="bizNum" onremove={handleRemove}>
                             </lightning-pill>
                         </div>
                     </template>
-        
                     <!-- <template if:true={file2Details}>
-                        <p><strong>{file2Details.name} ({file2Details.size})</strong></p>
+                        <p>{file2Details}</p>
                     </template> -->
                 </div>
             </div>
 
-            <article class="box-wrap">
+            <div class="slds-m-vertical_small box-wrap">
                 <div class="slds-card__header slds-grid">
                     <header class="slds-media slds-media_center slds-has-flexi-truncate">
                         <div class="slds-media__figure">
@@ -136,50 +115,38 @@
                 </div>
                 <div class="slds-card__body slds-card__body_inner">
                     <div class="slds-grid slds-wrap">
-                        <div class="slds-file-selector__dropzone slds-size_1-of-1 slds-p-around_medium"
-                            data-name="file3"
-                            ondragover={handleDragOver}
-                            ondragleave={handleDragLeave}
-                            ondrop={handleDrop}>
-                            <input type="file"
-                                    multiple
-                                    name="file3"
-                                    onchange={handleUploadFinished}
-                                    class="slds-file-selector__input slds-assistive-text"
-                                    accept={accept}
-                                    id="file3" />
-                            <lightning-button
-                                variant="Neutral"
-                                name="file3"
-                                label="Upload File"
-                                onclick={handleChooseFile}
-                                icon-name="utility:upload">
-                            </lightning-button>
-                            <p> Drag and Drop files here</p>
+                        <div class="file-selector-large">
+                            <lightning-file-upload
+                                label="파일 업로드"
+                                name="fileUploader"
+                                accept={acceptedFormats}
+                                data-name="부가세후취"
+                                record-id={recordId}
+                                onuploadfinished={handleOnUploadFinished}
+                                disabled={isVATFalse}
+                                multiple>
+                            </lightning-file-upload>
                         </div>
-            
-                        <!-- <div class="slds-size_3-of-7 slds-p-around_medium">
-                            <dl>
-                                <dd>부가세후취 관련 파일을 업로드하세요. </dd>
-                                <dd>더 자세한 설명~. </dd>
-                            </dl>
-                        </div> -->
                     </div>
         
                     <template if:true={file3Details}>
                         <div class="pill-container slds-p-top_small">
                             <template for:each={file3Details} for:item="file" for:index="index">
                                 <lightning-pill 
-                                    key={file.key} data-key={file.key} label={file.name} data-name="vat" onremove={handleRemove}>
+                                    key={file.key} data-key={file.key} label={file.title} data-name="vat" onremove={handleRemove}>
                                 </lightning-pill>
                             </template>
                         </div>
                     </template>
+                    <!-- <template if:true={file3Details}>
+                        <p>{file3Details}</p>
+                    </template> -->
                 </div>
-            </article>
+            </div>
         </div>
         
-        <div class="slds-p-around_small slds-p-bottom_none slds-size_3-of-7">
+        <!-- <div class="slds-p-around_small slds-p-bottom_none slds-size_3-of-7"> -->
+        <div class="slds-p-around_small slds-p-bottom_none slds-small-size_1-of-1 slds-medium-size_3-of-7 title-wrap">
 
             <div class="slds-card__header slds-grid">
                 <lightning-icon icon-name="utility:answer" alternative-text="Utility image" size="medium" title="Image"></lightning-icon>
@@ -193,7 +160,7 @@
                     <dl>
                         <br/>
                         <strong style="font-size: 20px;">파일 업로드</strong>
-                        <dd style="font-size: 15px;">[Upload File] 버튼을 클릭하거나,</dd>
+                        <dd style="font-size: 15px;">[파일 업로드] 버튼을 클릭하거나,</dd>
                         <dd style="font-size: 15px;">각 영역에 파일을 드래그해서 업로드 가능합니다.</dd>
                         <br/>
                         <strong style="font-size: 20px;">업로드 가능한 파일 유형</strong>
@@ -201,13 +168,19 @@
                         <dd style="font-size: 15px;">PDF 파일, 이미지 파일(.jpg, .png)</dd>
                         <br/>
                         <strong style="font-size: 20px;">주민등록증</strong>
-                        <dd style="font-size: 15px;">주민등록증 관련 파일을 하나만 업로드 해주세요.</dd>
+                        <dd style="font-size: 15px; color: red;">주민등록증 관련 파일을 하나만 업로드 해주세요.</dd>
                         <br/>
                         <strong style="font-size: 20px;">사업자등록증</strong>
-                        <dd style="font-size: 15px;">사업자등록증 관련 파일을 하나만 업로드 해주세요.</dd>
+                        <dd style="font-size: 15px; color: red;">사업자등록증 관련 파일을 하나만 업로드 해주세요.</dd>
                         <br/>
                         <strong style="font-size: 20px;">부가세후취</strong>
                         <dd style="font-size: 15px;">부가세후취 관련 파일은 총 6개 이상부터 저장이 가능합니다.</dd>
+                        <br/>
+                        <strong style="font-size: 20px;">부가세후취 관련</strong>
+                        <dd style="font-size: 15px; color:red">부가세 후취 상태가 승인됨이어야지만 부가세후취 파일 업로드 가능합니다.</dd>
+                        <br/>
+                        <strong style="font-size: 20px;">파일업로드 관련</strong>
+                        <dd style="font-size: 15px; color:red">부가세 후취 파일은 한번에 최대 10개 첨부가능합니다.</dd>
                         <br/>
                     </dl>
                 </div>

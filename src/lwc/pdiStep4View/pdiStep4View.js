@@ -46,33 +46,33 @@ export default class PdiStep4View extends LightningElement {
 	// 모달
 	isModalOpen;
 	modalMap = { add: false, remove: false, viewVIN: false };
-	isLoading;
+	isLoading = false;
 
 	connectedCallback() {
 		this.init();
 	}
 
 	init() {
+		this.isLoading = true;
 		step4Init({ selectVIN: this._selectedVIN.Id, installedSpoiler: this._selectedVIN.SpoilerPart__c }).then(response => {
 			console.log("### response : ", response);
 			
 			this.selectedOptionData = response?.selectedOption;
 			this.installList = response?.installList;
-			this.initialInstallStatus = response?.installList.length;
 			if(this.installList.length) this.installList[0].installDate = this.varStepList[3].StepEnd__c;
-			if(this.installList.length) {
-				let paramMap = {
-					stockId: this._selectedVIN.Id,
-					spoilerCode: this.installList[0].SpoilerCode__c,
-					isAttach: true
-				};
-				this.paramMapList = [paramMap];
-			}
+			// if(this.installList.length) {
+			// 	let paramMap = {
+			// 		stockId: this._selectedVIN.Id,
+			// 		spoilerCode: this.installList[0].SpoilerCode__c,
+			// 		isAttach: true
+			// 	};
+			// 	this.paramMapList = [paramMap];
+			// }
 			this.groupList = response?.spoilerPartsJuntion;
 		}).catch(error => {
-			showToast("Error", "Error Loading Init", "error", "dismissable");
+			showToast("Error", "Error Loading step4 Init", "error", "dismissable");
 			console.log(error);
-		});
+		}).finally(this.isLoading = false);
 	}
 
 	/**
@@ -115,7 +115,6 @@ export default class PdiStep4View extends LightningElement {
 		const actionName = event.detail.action.name;
 		let inputMap = {
 			stockId: this._selectedVIN.Id,
-			// groupName: event.detail.row.Name,
 			spoilerId: recId,
 			Name: event.detail.row.SpoilerParts__r.Name,
 			SpoilerCode__c: event.detail.row.SpoilerParts__r.SpoilerCode__c,
@@ -130,7 +129,6 @@ export default class PdiStep4View extends LightningElement {
 		}
 	}
 
-	
 	/**
 	 * @description 모달 on/off
 	*/
@@ -159,9 +157,13 @@ export default class PdiStep4View extends LightningElement {
 	*/
 	handleAdd() {
 			this.isLoading = true;
+			if(this.installList.length != 0) {
+				showToast('장착된 스포일러가 있음', '장착되어있는 스포일러를 먼저 제거해주세요.', 'warning');
+				this.isLoading = false;
+				return;
+			}
 			installSpoilerToVehicleStock({inputMap: this.groupDetailList[0]}).then(() => {
 				console.log('update Stock Complete : ' + JSON.stringify(this.groupDetailList[0]));
-				this.groupDetailList[0].installDate = new Date();
 				this.installList = [this.groupDetailList[0]];
 				let paramMap = {
 					stockId: this._selectedVIN.Id,
@@ -169,10 +171,9 @@ export default class PdiStep4View extends LightningElement {
 					isAttach: true
 				};
 				this.paramMapList = [paramMap];
-				console.log('paramMap : ' + JSON.stringify(paramMap));
-				console.log('paramMapList : ' + JSON.stringify(this.paramMapList));
+				this.callSAP();
 			}).catch(error => {
-				showToast('Error', 'Error Update', 'error', 'dismissable');
+				showToast('Error', 'Error SF Spoiler Update', 'error', 'dismissable');
 				console.log(error);
 			}).finally(() => {
 				this.isLoading = false;
@@ -186,7 +187,7 @@ export default class PdiStep4View extends LightningElement {
 
 	/**
 	 * @description 스포일러 제거
-	 */
+	*/
 	removeSpoiler() {
 		let inputMap = {
 			stockId: this._selectedVIN.Id,
@@ -207,6 +208,7 @@ export default class PdiStep4View extends LightningElement {
 			// showToast('스포일러 제거 완료', '\'설치 / 제거 확인\' 버튼을 눌러 SAP 재고에 반영해주세요.', 'success');
 			showToast('스포일러 제거 완료', '제거 처리가 완료되었습니다.', 'success');
 			this.installList = [];
+			this.callSAP();
 		}).catch(error => {
 			showToast('Error', 'Error Update', 'error', 'dismissable');
 			console.log(error);
@@ -215,62 +217,72 @@ export default class PdiStep4View extends LightningElement {
 			this.toggleModal();
 		});
 	}
-
-	/**
-	 * @description 스포일러 추가(SAP 인터페이스)
-	 */
-	// 	결과 PASS여부가 TRUE일때(화면단에서 완료 누를때) 2개 IF 진행
-	// 	1. 스포일러 재고이동요청
-	// 	2. 차량 재고이동요청
-
-
-	// # 초기상태 시작 pdi step 4 not completed (0,1은 스포일러 장착 여부)
-	// 0 -> 1 / API 호출 
-	// 0 -> 0 / API 호출 x
-	// 1 -> 1 / API 호출
-	// 1 -> 0 / API 호출 x
-
-	// # 수정 변경시 pdi step 4 completed
-	// 0 -> 1 / API 호출
-	// 0 -> 0 / API 호출 x
-	// 1 -> 0 / API 호출 
-	// 1 -> 1 / API 호출 x
-	@api
-	handleSAPInstall(){
-		let msg = '';
-		if (
-			(this.varStepList[3].IsPass__c == false && this.installList.length == 0) ||
-			(this.varStepList[3].IsPass__c == true && this.installList.length == this.initialInstallStatus)
-		) {
-			msg = '스포일러를 변경하지 않고 단계를 완료하였습니다.';
-			updateStep4({stockId: this._selectedVIN.Id}).then(() => {
-				this.updateStep();
-			}).catch(error => {
-				showToast('Error', 'Error Update', 'error', 'dismissable');
-				console.log(error);
-			});
-		} else {
-			msg = '스포일러 변경이 SAP에 반영되었습니다.';
-			spoilerDropoffSAP({inputMapList: this.paramMapList}).then(() => {
-				this.updateStep();
-			}).catch(error => {
-				showToast('Error', 'Error Update', 'error', 'dismissable');
-				console.log(error);
-			});
-		}
-		showToast('Success', msg, 'success');
-	}
-
-	updateStep() {
-		fetchStatus({workNo: [this._selectedVIN.Name]}).then(response => {
-			console.log('pdi step4 :: ', response);
-			const customEvent = new CustomEvent('step4complete', {
-					detail: { updatedStep: response }
-			});
-			this.dispatchEvent(customEvent);
+	
+	async callSAP(){
+		await spoilerDropoffSAP({inputMapList: this.paramMapList}).then(() => {
+			// this.updateStep();
 		}).catch(error => {
-			showToast('Error', 'Error Fetch Status', 'error', 'dismissable');
+			showToast('Error', 'Error SAP Update', 'error', 'dismissable');
 			console.log(error);
 		});
 	}
+
+	// pdi 스포일러 재고이동 타이밍 수정으로 안씀(250326)
+	// /**
+	//  * @description 스포일러 추가(SAP 인터페이스)
+	//  */
+	// // 	결과 PASS여부가 TRUE일때(화면단에서 완료 누를때) 2개 IF 진행
+	// // 	1. 스포일러 재고이동요청
+	// // 	2. 차량 재고이동요청
+
+
+	// // # 초기상태 시작 pdi step 4 not completed (0,1은 스포일러 장착 여부)
+	// // 0 -> 1 / API 호출 
+	// // 0 -> 0 / API 호출 x
+	// // 1 -> 1 / API 호출
+	// // 1 -> 0 / API 호출 x
+
+	// // # 수정 변경시 pdi step 4 completed
+	// // 0 -> 1 / API 호출
+	// // 0 -> 0 / API 호출 x
+	// // 1 -> 0 / API 호출 
+	// // 1 -> 1 / API 호출 x
+	// @api
+	// handleSAPInstall(){
+	// 	let msg = '';
+	// 	if (
+	// 		(this.varStepList[3].IsPass__c == false && this.installList.length == 0) ||
+	// 		(this.varStepList[3].IsPass__c == true && this.installList.length == this.initialInstallStatus)
+	// 	) {
+	// 		msg = '스포일러를 변경하지 않고 단계를 완료하였습니다.';
+	// 		updateStep4({stockId: this._selectedVIN.Id}).then(() => {
+	// 			this.updateStep();
+	// 		}).catch(error => {
+	// 			showToast('Error', 'Error Update', 'error', 'dismissable');
+	// 			console.log(error);
+	// 		});
+	// 	} else {
+	// 		msg = '스포일러 변경이 SAP에 반영되었습니다.';
+			// spoilerDropoffSAP({inputMapList: this.paramMapList}).then(() => {
+			// 	this.updateStep();
+			// }).catch(error => {
+			// 	showToast('Error', 'Error Update', 'error', 'dismissable');
+			// 	console.log(error);
+			// });
+	// 	}
+	// 	showToast('Success', msg, 'success');
+	// }
+
+	// updateStep() {
+	// 	fetchStatus({workNo: [this._selectedVIN.Name]}).then(response => {
+	// 		console.log('pdi step4 :: ', response);
+	// 		const customEvent = new CustomEvent('step4complete', {
+	// 				detail: { updatedStep: response }
+	// 		});
+	// 		this.dispatchEvent(customEvent);
+	// 	}).catch(error => {
+	// 		showToast('Error', 'Error Fetch Status', 'error', 'dismissable');
+	// 		console.log(error);
+	// 	});
+	// }
 }

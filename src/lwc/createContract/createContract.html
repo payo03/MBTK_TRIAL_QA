@@ -12,18 +12,34 @@
   <lightning-modal-body>
       <!-- modal content specified in LightningModal component -->
       <div class="slds-m-around_small slds-align_absolute-center">
-        다음 항목들이 기회에 업로드 되어있는지 체크해주시기 바랍니다.
+        계약서 생성 전 다음 항목들을 체크해주시기 바랍니다.
       </div>
       <div class="slds-grid slds-wrap">
-        <div class="slds-size_1-of-3">
+        <div class="slds-size_1-of-6">
 
         </div>
-        <div class="slds-size_1-of-3 slds-m-around_small slds-p-around_large slds-grid slds-grid_vertical slds-wrap">
-          <lightning-input type="checkbox" label="주민등록증" name="jumin" checked={isJumin} disabled></lightning-input>
-          <lightning-input type="checkbox" label="사업자등록증" name="bizNo" checked={isBizNo} disabled></lightning-input>
-          <lightning-input type="checkbox" label="부가세후취 서류" name="VAT" checked={isVAT} disabled></lightning-input>
+        <div class="slds-size_1-of-3 slds-grid slds-grid_vertical slds-wrap">
+          <div class="slds-m-around_small slds-align_absolute-center">
+            기회에 업로드해야 하는 파일
+          </div>
+          <div class="slds-m-around_medium"></div>
+          <lightning-input type="checkbox" label="주민등록증" name="jumin" checked={curQuote.jumin} disabled></lightning-input>
+          <lightning-input type="checkbox" label="사업자등록증" name="bizNo" checked={curQuote.bizNo} disabled></lightning-input>
+          <lightning-input type="checkbox" label="부가세후취 서류" name="VAT" checked={curQuote.vat} disabled></lightning-input>
         </div>
-        <div class="slds-size_1-of-3">
+        <div class="slds-size_1-of-3 slds-grid slds-grid_vertical slds-wrap">
+          <div class="slds-m-around_small slds-align_absolute-center" >
+            <p style="color: red;">아래의 대출조건이 변경되면 기존 계약을 취소 후 재협상을 진행해야합니다.</p>
+          </div>
+          <div class="slds-m-around_small">
+            <lightning-input type="checkbox" label="대출승인여부" name="loanApproved" checked={curQuote.loanApproved} disabled></lightning-input>
+            <div>금융사: {curQuote.financeCompany}</div>
+            <div>이자율: {curQuote.interestRate}%</div>
+            <div>대출금액: <lightning-formatted-number value={curQuote.totalLoanAmount} maximum-fraction-digits="0"></lightning-formatted-number></div>
+            <div>대출기간: {curQuote.loanTerm}개월</div>
+          </div>
+        </div>
+        <div class="slds-size_1-of-6">
 
         </div>
       </div>
@@ -31,10 +47,16 @@
   <lightning-modal-footer>
     <div class="slds-align_absolute-center">
       <lightning-button
+        class="slds-m-right_xx-small"
+        variant="brand"
         label="계약 생성하기"
         onclick={createContract}
         >
       </lightning-button>
+      <lightning-button
+          label="취소"
+          onclick={handleCancel}>
+        </lightning-button>
     </div>
   </lightning-modal-footer>
   <template lwc:if={isLoading}>

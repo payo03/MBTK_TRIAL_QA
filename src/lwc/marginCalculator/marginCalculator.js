@@ -94,7 +94,9 @@ export default class MarginCalculator extends LightningElement {
       { label: '', fieldName: 'fieldLabel', type: 'text', hideDefaultActions: true }
     ];
 
+    console.log('selectedRowList :: ', JSON.stringify(this.selectedRowList, null, 4));
     this.selectedRowList.forEach((record, index) => {
+
       dynamicColumns.push({
         label: record.productName,
         fieldName: record.productName,
@@ -106,6 +108,7 @@ export default class MarginCalculator extends LightningElement {
         }
       });
     });
+    console.log('dynamicColumns :: ', JSON.stringify(dynamicColumns, null, 4));
 
     return dynamicColumns;
   }

@@ -72,6 +72,7 @@ export default class handoverScheduler extends LightningElement {
 	lastEndDate; // 이전 달 마지막일
 	isLoading; // 로딩 여부
 	intervalId; // setInterval Id
+	profileName;
 
 	// 재고 모달
 	stockList = []; // 재고 리스트
@@ -133,13 +134,17 @@ export default class handoverScheduler extends LightningElement {
 		return this.isModalHeader ? defaultClass : headlessClass;
 	}
 
+	get isSA() {
+		return this.profileName === "MTBK Agent";
+	}
+
 	/**
 	 * @description 프로필 정보 가져오기
 	 */
 	@wire(getRecord, { recordId: userId, fields: ["User.Profile.Name"] })
 	currentUserInfo({ error, data }) {
-		const profileName = data?.fields?.Profile?.displayValue;
-		if (profileName === "MTBK Agent" || profileName === "MTBK Handover") {
+		this.profileName = data?.fields?.Profile?.displayValue;
+		if (this.profileName === "MTBK Agent" || this.profileName === "MTBK Handover") {
 			this.columns = handoverProfileColumns;
 		}
 	}
@@ -218,7 +223,7 @@ export default class handoverScheduler extends LightningElement {
 		}
 		// 배정취소 가능 데이터 체크
 		else if (name === "cancelStock") {
-			this.selectedRowList = this.selectedRowList.filter(row => row.stockId);
+			this.selectedRowList = this.selectedRowList.filter(row => row.stockId && row.vehicleStatus !== "출고됨");
 			this.selectedRowIdList = this.selectedRowList.map(row => row.id);
 			if (this.selectedRowList.length < 1) {
 				showToast("배정취소 가능한 차량을 선택해주세요.", "", "warning");
@@ -508,7 +513,7 @@ export default class handoverScheduler extends LightningElement {
 		}
 		// 출고일 클릭
 		else if (actionName === "handoverDate") {
-			this.toggleModal("calendar");
+			// this.toggleModal("calendar");
 			this.selectedHandoverDateRow = currentRow;
 			getCalendarInit({ vehicleStockId: currentRow.stockId }).then(res => {
 				console.log("getCalendarInit :: ", res);
@@ -519,6 +524,7 @@ export default class handoverScheduler extends LightningElement {
 					...option,
 					isAssign: option.Attribute2__c == res.diffDays
 				}));
+				this.toggleModal("calendar");
 			}).catch(err => {
 				console.log("err :: ", err);
 				this.failedProcess(err);

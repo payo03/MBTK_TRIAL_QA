@@ -117,13 +117,21 @@ export default class UpdateRealDriverRoadAddress extends NavigationMixin(Lightni
     window.scrollTo({ top: 0 });
   }
 
-  handleChange(e) {
+  handleEnterKey(e) {
     const fieldName = e.target.name;
     const value = e.target.value;
     if(e.key === 'Enter') {
       this.updateRealDriverInfo();
       return;
     }
+  }
+  handleChange(e) {
+    const fieldName = e.target.name;
+    const value = e.target.value;
+    // if(e.key === 'Enter') {
+    //   this.updateRealDriverInfo();
+    //   return;
+    // }
     if(fieldName === 'realDriverName') {
       this.realDriverName = value;
     }

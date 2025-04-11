@@ -6,6 +6,7 @@
 ==============================================================
  * Ver          Date            Author          Modification
  * 1.0          2025-03-14      chaebeom.do     Created
+ * 1.1          2025-04-10      chaebeom.do     계약 취소시 굿윌 금액 차감 고려해서 AvailablePoint__c 업데이트 비활성
 **************************************************************/
 public with sharing class GoodWillSavingController {
     /**
@@ -63,6 +64,7 @@ public with sharing class GoodWillSavingController {
                 ExternalKey__c = gm.User__c + String.valueOf(gm.fm_TargetYear__c) + gm.fm_TargetHalfYear__c,
                 GoodWillMaster__c = gm.Id,
                 SavingPoints__c = ownerOpportunityCountMap.get(gm.User__c) != null ? ownerOpportunityCountMap.get(gm.User__c) * 500000 : 0
+                // ver 1.1
                 // AvailablePoint__c = ownerOpportunityCountMap.get(gm.User__c) != null ? ownerOpportunityCountMap.get(gm.User__c) * 500000 : 0
             ));
         }

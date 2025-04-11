@@ -82,8 +82,8 @@ const columns = [
 const masterColumnsForSA = [
 	{
 		type: "text",
-		fieldName: "reportSpec",
-		label: "Report_Spec",
+		fieldName: "name",
+		label: "Name",
 		sortable: true,
 		hideDefaultActions: true,
 		wrapText: true,
@@ -151,8 +151,8 @@ const masterColumnsForAdmin = [
 	},
 	{
 		type: "text",
-		fieldName: "reportSpec",
-		label: "Report_Spec",
+		fieldName: "name",
+		label: "Name",
 		sortable: true,
 		hideDefaultActions: true,
 		wrapText: true
@@ -236,14 +236,14 @@ const masterColumnsForAdmin = [
 const detailColumns = [
 	{
 		type: "text",
-		fieldName: "LMY",
-		label: "LMY",
+		fieldName: "VMY",
+		label: "VMY",
 		wrapText: true
 	},
 	{
 		type: "text",
-		fieldName: "VMY",
-		label: "VMY",
+		fieldName: "LMY",
+		label: "LMY",
 		wrapText: true
 	},
 	{
@@ -327,15 +327,15 @@ const detailColumns = [
 const additionalDetailColumns = [
 	{
 		type: "text",
-		fieldName: "localYear",
-		label: "LMY",
-        sortable: true,
+		fieldName: "modelYear",
+		label: "VMY",
+		sortable: true,
 		wrapText: true
 	},
 	{
 		type: "text",
-		fieldName: "modelYear",
-		label: "VMY",
+		fieldName: "localYear",
+		label: "LMY",
         sortable: true,
 		wrapText: true
 	},
@@ -407,17 +407,16 @@ const additionalDetailColumns = [
     }
 ];
 const detailColumnsForAdmin = [
-
-	{
-		type: "text",
-		fieldName: "LMY",
-		label: "LMY",
-		wrapText: true
-	},
 	{
 		type: "text",
 		fieldName: "VMY",
 		label: "VMY",
+		wrapText: true
+	},
+	{
+		type: "text",
+		fieldName: "LMY",
+		label: "LMY",
 		wrapText: true
 	},
 	{
@@ -498,13 +497,6 @@ const selectedColumns = [
 		hideDefaultActions: true,
 		wrapText: true
 	},
-	// {
-	// 	type: "boolean",
-	// 	fieldName: "stockNoShow",
-	// 	label: "재고미노출",
-	// 	hideDefaultActions: true,
-	// 	wrapText: true
-	// }
 ];
 
 export { columns, masterColumnsForSA, masterColumnsForAdmin, detailColumns, additionalDetailColumns, detailColumnsForAdmin, selectedColumns };

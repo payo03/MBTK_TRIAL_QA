@@ -31,14 +31,14 @@ export default class vehicleStockPDF extends NavigationMixin(LightningElement) {
         {label: "첨단안전장치 설치 확인서", value: "/apex/AdvancedSafetyDevice?id=", selected: false, isNeedCheck: false, isOpen: false},
         {label: "첨단안전장치 설치 확인서(덤프)", value: "/apex/AdvancedSafetyDevice_Dump?id=", selected: false, isNeedCheck: false, isOpen: false},
         {label: "차량인수인계서", value: "/apex/PdfTakeTruck?isdtp=p1&id=", selected: false, showSignature: true, isNeedCheck: false, isOpen: false, downloadStatus: false},
-        {label: "차량 용품 패키지 장착 요청서", value: "/apex/Doc_VehiclePackageCover?id=", selected: false, isNeedCheck: false, isOpen: false, downloadStatus: false},
+        {label: "차량 용품 패키지 장착 요청서", value: "/apex/VehiclePackageCover?id=", selected: false, isNeedCheck: false, isOpen: false, downloadStatus: false},
         {label: "주유상품권 수령증", value: "/apex/OilReceipt?isdtp=p1&id=", selected: false, showSignature: true, isNeedCheck: false, isOpen: false, downloadStatus: false},
         {label: "덮개장착요청서", value: "/apex/DumpAutoCover?id=", selected: false, isNeedCheck: false, isOpen: false, downloadStatus: false},
         {label: "최소회전반경적합확인서", value: "/apex/TurningRadius?id=", selected: false, isNeedCheck: false, isOpen: false, downloadStatus: false},
         {label: "자기인증 라벨", value: "/apex/CompliancePDF?id=", selected: false, isNeedCheck: false, isOpen: false, downloadStatus: false},
-        {label: "출고증", value: "/apex/Doc_ReleaseCert?id=", selected: false, isNeedCheck: false, isOpen: false, downloadStatus: false},
-        {label: "교육증", value: "/apex/Doc_ProfiDrive?id=", selected: false, isNeedCheck: false, isOpen: false, downloadStatus: false},
-        {label: "임시운행허가신청서", value: "/apex/Doc_TempDrivePermit?id=", selected: false, isNeedCheck: false, isOpen: false, downloadStatus: false}
+        {label: "출고증", value: "/apex/ReleaseCert?id=", selected: false, isNeedCheck: false, isOpen: false, downloadStatus: false},
+        {label: "교육증", value: "/apex/ProfiDrive?id=", selected: false, isNeedCheck: false, isOpen: false, downloadStatus: false},
+        {label: "임시운행허가신청서", value: "/apex/TempDrivePermit?id=", selected: false, isNeedCheck: false, isOpen: false, downloadStatus: false}
     ];
     @track filteredDocuments = [...this.allDocuments];
 

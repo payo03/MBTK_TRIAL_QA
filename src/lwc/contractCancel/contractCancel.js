@@ -9,68 +9,65 @@
  * 2.0       2025-03-21        chaebeom.do        계약 취소 프로세스 변경으로 신규 작성
 **************************************************************/
 import { LightningElement, track, wire, api } from "lwc";
-import { showToast} from "c/commonUtil";
+import { CurrentPageReference, NavigationMixin } from "lightning/navigation";
+import { showToast, recordNavigation } from "c/commonUtil";
 import { CloseActionScreenEvent } from "lightning/actions";
 
 import init from "@salesforce/apex/ContractCancelController.init";
 import cancelByCase from "@salesforce/apex/ContractCancelController.cancelByCase";
+import formFactor from "@salesforce/client/formFactor";
 
-export default class ContractCancel extends LightningElement {
+export default class ContractCancel extends NavigationMixin(LightningElement) {
      @api recordId;
-     value = '';
-     selectedType = '';
-     isSelectType = true;
-     isConfirm = false;
-     contractNo;
+         isLoading= false;
+         contractNo;
      
-     isLoading = false;
-
-    get options(){
-        return [
-            { label: '실주', value: 'closedLost' },
-            { label: '반품', value: 'returnVehicle' },
-        ];
-    }
-
-     connectedCallback(){
-
-     }
-
-     handleChange(event){
-        this.value = event.detail.value;
-        this.selectedType = event.detail.value == 'closedLost' ? '실주' : '반품';
-    }
-
-     handleCheckType(){
-        this.isSelectType = !this.isSelectType;
-        this.isConfirm = !this.isConfirm;
-        init({recordId: this.recordId}).then(result => {
-            this.contractNo = result.Contract.ContractNumber;
-        }).catch(error => {
-            showToast('Error', 'Error init()', 'error', 'dismissable');
-            console.log(error);
-        });
-     }
-
-     //선택 취소
-     handleCancel(){
-        this.isSelectType = true;
-        this.isConfirm = false;
-        this.dispatchEvent(new CloseActionScreenEvent());
-     }
-
-     //계약 취소 실행
-     handleCancelContract(){
-        this.isLoading = true;
-        cancelByCase({type: this.value, opptyId: this.recordId}).then(result => {
-            console.log('result :: ', result);
-            showToast('취소 완료', '.', 'success');
-        }).catch(error => {
-            showToast('Error', 'Error cancelContract', 'error', 'dismissable');
-            console.log('error :: ', error);
-        }).finally(() => {
-            this.handleCancel();
-            this.isLoading = false;
-        });
-     }
+         @wire(CurrentPageReference)
+         getStateParameters(currentPageReference) {
+           if (currentPageReference) {
+             this.recordId = currentPageReference.state.recordId;
+           }
+           if (currentPageReference && !this.recordId) {
+            this.recordId = currentPageReference.state?.c__recordId;
+          }
+         }
+     
+         connectedCallback(){
+           init({recordId: this.recordId}).then(result => {
+             this.contractNo = result.Contract.ContractNumber;
+           }).catch(error => {
+             showToast('Error', 'Error init()', 'error', 'dismissable');
+             console.log('error :: ', error);
+           });
+         }
+     
+         //선택 취소
+         handleCancel() {
+          this.dispatchEvent(new CloseActionScreenEvent());
+          this.mobileReturnPage();
+        }
+      
+        mobileReturnPage() {
+          if(formFactor === "Small") {
+            recordNavigation(this, "Contract", this.recordId);
+          }
+        }
+     
+         //계약 재협상상 실행
+         handleCancelContract(){
+           this.isLoading = true;
+           cancelByCase({type: 'closedLost', opptyId: this.recordId}).then(result => {
+             console.log('result :: ', result);
+             showToast('취소 완료', '변경된 견적에서 새 계약을 생성하세요.', 'success');
+           }).catch(error => {
+             showToast('Error', 'Error cancelContract', 'error', 'dismissable');
+             console.log('error :: ', error);
+           }).finally(() => {
+             this.handleCancel();
+             this.isLoading = false;
+             setTimeout(() => {
+               location.reload();
+             }, 1000);
+           });
+         }
  }

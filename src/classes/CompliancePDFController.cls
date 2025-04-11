@@ -43,7 +43,7 @@ public with sharing class CompliancePDFController {
         if (modelType == 'TGS' || modelType == 'TGL' || modelType == 'TGM') {
             modelTypeName = '화물자동차';
         } else if (modelType == 'TGX') {
-            if (vehicleStock.Product__r.VehicleCategory__r.Kind__c == 'CH') {
+            if (vehicleStock.Product__r.VehicleCategory__r.Name.contains('CH')) {
                 modelTypeName = '화물자동차';
             } else {
                 modelTypeName = '특수자동차';

@@ -1,13 +1,13 @@
 <!--
  * @author : San.Kang
  * @date : 2025-02-12
- * @description : 
+ * @description : 최소회전반경적합확인서 PDF
  * @target : 
 ==============================================================
  * Ver          Date            Author          Modification
  * 1.0          2025-02-12      San.Kang          Initial Version
 -->
-<apex:page showHeader="false" applyBodyTag="false" applyHtmlTag="false" sidebar="false" renderAs="pdf" standardController="VehicleStock__c">
+<apex:page showHeader="false" applyBodyTag="false" applyHtmlTag="false" sidebar="false" renderAs="pdf" controller="TurningRadiusController" action="{!init}">
     <head>
         <style type="text/css" media="print">
             @page{
@@ -44,7 +44,7 @@
                     </div>
                 </td>
                 <td align="right">
-                    <apex:image url="/servlet/servlet.FileDownload?file=015900000062Gu1" width="175" height="60"/>
+                    <apex:image url="/servlet/servlet.FileDownload?file={!docImage1}" width="175" height="60"/>
                 </td>
             </tr>
         </table>
@@ -79,7 +79,7 @@
                     발&nbsp;&nbsp;&nbsp;신&nbsp;:
                 </td>
                 <td width="60%">
-                    만트럭버스코리아㈜ (Tel: 031-8014-5742)
+                    만트럭버스코리아㈜ (Tel: 031-8014-5700)
                 </td>
                 <td width="20%">
                     &nbsp;
@@ -100,7 +100,7 @@
         <br/><br/><br/>
         &nbsp;&nbsp;1. 귀 원의 무궁한 발전을 기원합니다.
         <br/><br/>
-        &nbsp;&nbsp;2. 하기 {!LEFT(VehicleStock__c.SpecShort__c, 3)} 10X4(2+3, 축간거리 7,550mm) 차종의 최소회전반경이 적합함을 확인합니다.
+        &nbsp;&nbsp;2. 하기 <apex:outputText value="{!IF(ISBLANK(vehicleStock.SpecShort__c), '', LEFT(vehicleStock.SpecShort__c, 3))}" /> 10X4(2+3, 축간거리 7,550mm) 차종의 최소회전반경이 적합함을 확인합니다.
         <br/><br/><br/><br/>
         ■ 확인 차량
         <br/>
@@ -122,16 +122,17 @@
             </tr>
             <tr style="border-collapse:collapse;">
                 <td width="20%" style="border:1px solid;">
-                    {!LEFT(VehicleStock__c.SpecShort__c, 3)}
+                    <apex:outputText value="{!IF(ISBLANK(vehicleStock.SpecShort__c), '', LEFT(vehicleStock.SpecShort__c, 3))}" />
                 </td>
                 <td width="30%" style="border:1px solid;">
-                    {!VehicleStock__c.SpecShort__c}
+                    <apex:outputText value="{!IF(ISBLANK(vehicleStock.SpecShort__c), '', vehicleStock.SpecShort__c)}" />
                 </td>
                 <td width="30%" style="border:1px solid;">
-                    {!VehicleStock__c.Name}
+                    <apex:outputText value="{!IF(ISBLANK(vehicleStock.Name), '', vehicleStock.Name)}" />
                 </td>
                 <td width="20%" style="border:1px solid;">
                     &nbsp;
+                    <apex:outputText value="{!IF(ISBLANK(vehicleStock.Remarks__c), '', vehicleStock.Remarks__c)}" />
                 </td>
             </tr>
         </table>
@@ -141,11 +142,11 @@
                 <td align="right" width="85%" >
                     <div>
                         만트럭버스코리아 주식회사<br/>
-                        대 표 이 사 &nbsp;&nbsp;&nbsp;토마스 헤머리히
+                        대 표 이 사 &nbsp;&nbsp;&nbsp;피터 앤더슨
                     </div>
                 </td>
                 <td align="right" width="15%" >
-<!--                    <apex:image url="/servlet/servlet.FileDownload?file={!IF($Label.INSTANCE_TYPE=='SANDBOX','0150k000001CCBoAAO','0150o00000GUy8bAAD')}" width="80" height="80"/>-->
+                    <apex:image url="/servlet/servlet.FileDownload?file={!docImage5}" width="80" height="80"/>
                 </td>
             </tr>
         </table>

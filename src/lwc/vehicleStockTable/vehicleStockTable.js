@@ -20,7 +20,7 @@ import { loadStyle } from "lightning/platformResourceLoader";
 import getInitData from "@salesforce/apex/VehicleStockTableController.getInitData";
 import getProductWrap from "@salesforce/apex/VehicleStockTableController.getProductWrap";
 import getFilteredCategoryList from "@salesforce/apex/VehicleStockTableController.getFilteredCategoryList";
-import getFilteredProductWrapList from "@salesforce/apex/VehicleStockTableController.getFilteredProductWrapList";
+// import getFilteredProductWrapList from "@salesforce/apex/VehicleStockTableController.getFilteredProductWrapList";
 import updateStockShow from "@salesforce/apex/VehicleStockTableController.updateStockShow";
 // import createPreAssignRequest from "@salesforce/apex/VehicleStockTableController.createPreAssignRequest";
 // import createOpp from "@salesforce/apex/VehicleStockTableController.createOpp";
@@ -87,7 +87,7 @@ export default class VehicleStockTable extends LightningElement {
 	isAdminUser;
 	isLoading; // 로딩바 Boolean
 	activeTab = "sa"; // 현재 활성화된 탭
-
+	checkSAUser = false;
 	// TODO :: 변수 관리 변경 필요
     @track profileDataMap = {
 		admin: { ...initDataMap, masterColumns: masterColumnsForAdmin, detailColumns: detailColumnsForAdmin },
@@ -225,7 +225,7 @@ export default class VehicleStockTable extends LightningElement {
 
 	doInit() {
 		getInitData({ stockId: this.stockId }).then(res => {
-
+			this.checkSAUser = res.saPermission;
 			this.profileDataMap.sa.masterData = res.categoryList.filter(el => el.quantity > 0 || el.after30DaysQty > 0 || el.after60DaysQty > 0);
 			this.profileDataMap.admin.masterData = res.categoryList;
             console.log('test',res.categoryList.styling);
@@ -617,41 +617,42 @@ export default class VehicleStockTable extends LightningElement {
 		}
 
 		// 필터 데이터 검색 후 디테일 데이터 설정
-		const searchData = (filterMap) => {
-			this.isLoading = true;
-			getFilteredProductWrapList({ filterMap: filterMap, tab: this.activeTab }).then(res => {
-				console.log("res :: ", res);
-				this.replaceChildren(res);
-					// 필터 검색 후 체크박스 초기화
-                this.profileDataMap[this.activeTab].selectedRowDetail = [];
-                this.profileDataMap[this.activeTab].selectedStockIdList = [];
-                this.profileDataMap[this.activeTab].selectedRowDetailId = [];
-			}).catch(err => {
-				console.log("err :: ", err);
-				showToast("", err.body.message, "warning");
-			}).finally(() => this.isLoading = false);
-		};
-
-		switch (id) {
-			// 새고고침
-			case "refresh" :
-					this.profileDataMap[this.activeTab].optionValue = "";
-				break;
-			// 필터 검색
-			case "search" :
-                const filterMap = {
-                    "Product__r.VehicleCategory__c":  this.profileDataMap[this.activeTab].currentCategoryKey,
-                };
-                searchData(filterMap);
-				break;
-			// 모달 관리 (공통 처리)
-			default:
-				// 각 모달별 모달 데이터 설정
-				if (id in modalMap) {
-					this.modalMap = modalMap[id];
-					this.handleModalChange();
-				}
-				break;
+		// const searchData = (filterMap) => {
+		// 	this.isLoading = true;
+		// 	getFilteredProductWrapList({ filterMap: filterMap, tab: this.activeTab }).then(res => {
+		// 		console.log("res :: ", res);
+		// 		this.replaceChildren(res);
+		// 			// 필터 검색 후 체크박스 초기화
+        //         this.profileDataMap[this.activeTab].selectedRowDetail = [];
+        //         this.profileDataMap[this.activeTab].selectedStockIdList = [];
+        //         this.profileDataMap[this.activeTab].selectedRowDetailId = [];
+		// 	}).catch(err => {
+		// 		console.log("err :: ", err);
+		// 		showToast("", err.body.message, "warning");
+		// 	}).finally(() => this.isLoading = false);
+		// };
+		//
+		// switch (id) {
+		// 	// 새고고침
+		// 	case "refresh" :
+		// 			this.profileDataMap[this.activeTab].optionValue = "";
+		// 		break;
+		// 	// 필터 검색
+		// 	case "search" :
+        //         const filterMap = {
+        //             "Product__r.VehicleCategory__c":  this.profileDataMap[this.activeTab].currentCategoryKey,
+        //         };
+        //         searchData(filterMap);
+		// 		break;
+		// 	// 모달 관리 (공통 처리)
+		// 	default:
+		// 		// 각 모달별 모달 데이터 설정
+		//
+		// 		break;
+		// }
+		if (id in modalMap) {
+			this.modalMap = modalMap[id];
+			this.handleModalChange();
 		}
 	}
 
@@ -835,27 +836,27 @@ export default class VehicleStockTable extends LightningElement {
 
 	/**
 	 * @description 디테일 데이터 가져오기
-	 * @param profileDataMap.sa.currentCategoryKey
+	 * @param currentCategoryKey
 	 * @param tab
 	 */
 	getDetailData(currentCategoryKey, tab) {
 		this.isLoading = true;
 		getProductWrap({ categoryKey: currentCategoryKey, tab: tab }).then(res => {
-			console.log("res :: ", res);
+			console.log("res :: ", JSON.stringify(res));
 			if (res) {
 				if (tab === "sa") {
-					this.profileDataMap.sa.detailData = res;
-                    const additionalDetailData = [];
-                    res.forEach(parent => {
-                        parent.children.forEach(child => {
-                            additionalDetailData.push(child);
-                        });
-                    });
-					this.profileDataMap.sa.additionalDetailData = sortData(additionalDetailData, "totalDC", "desc");
+					this.profileDataMap.sa.detailData = res.productWrapList;
+                    this.profileDataMap.sa.additionalDetailData = res.detailAdditionalWrapList;
+                    // res.forEach(parent => {
+                    //     parent.children.forEach(child => {
+                    //         additionalDetailData.push(child);
+                    //     });
+                    // });
+					// this.profileDataMap.sa.additionalDetailData = sortData(additionalDetailData, "totalDC", "desc");
 					this.replaceChildren(this.profileDataMap.sa.detailData);
-                    this.replaceChildren(this.profileDataMap.sa.additionalDetailData, true);
+                    // this.replaceChildren(this.profileDataMap.sa.additionalDetailData, true);
 				} else {
-					this.profileDataMap.admin.detailData = res;
+					this.profileDataMap.admin.detailData = res.productWrapList;
 					this.replaceChildren(this.profileDataMap.admin.detailData, true);
 				}
 

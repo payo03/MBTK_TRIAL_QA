@@ -558,7 +558,6 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 		this.realSellPrice = this.listPrice - this.salesconditionDiscountAmt - this.discountPrice;
 		this.downpayment = this.realSellPrice - this.totalLoan - 1000000;
 		this.monthlyPayment = this.calcMonthPayment(this.totalLoan, this.interestRate, this.duration);
-		;
 		// this.totalRepayment = this.monthlyPayment * this.duration;
 		// this.interestTotal = this.totalRepayment > this.totalLoan ? this.totalRepayment - this.totalLoan : 0;
 	}

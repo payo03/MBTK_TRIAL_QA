@@ -18,16 +18,16 @@ const columns = [
 	{
 		label: "사용 요청금액",
 		fieldName: "UsingGoodWill__c",
-		type: "text",
+		type: "number",
 		hideDefaultActions: true,
-    initialWidth: 150
+    initialWidth: 100
 	},
 	{
 		label: "승인 상태",
 		fieldName: "ApprovalStatus__c",
 		type: "text",
 		hideDefaultActions: true,
-    initialWidth: 150
+    initialWidth: 100
 	}
 ];
 

@@ -28,26 +28,29 @@
         <tr>
             <td align="center" style="width:200px; height:46px;"><apex:outputlabel value="금액 (Amount)"  style="font-family: Arial Unicode MS;"/></td>
             <td align="center" style="height:46px;">
-                <apex:outputText value="{!totalOilCouponAmt} 원"  style="font-family: Arial Unicode MS;"/>
+                <apex:outputText value="{0, number, ####,###,##0 원}" style="font-family: Arial Unicode MS;">
+                    <apex:param value="{!totalOilCouponAmt}" />
+                </apex:outputText><br />
+<!--                <apex:outputText value="{!} 원"  style="font-family: Arial Unicode MS;"/>-->
             </td>
         </tr>
         <tr>
             <td align="center" style="width:200px; height:46px;"><apex:outputlabel value="계약자 (Customer)"  style="font-family: Arial Unicode MS;"/></td>
-            <td align="center" style="height:46px;"><apex:outputlabel value="{!opportunity.Account.Name}"  style="font-family: Arial Unicode MS;"/></td>
+            <td align="center" style="height:46px;"><apex:outputlabel value="{!IF(ISBLANK(vehicleStock.Product__r.VehicleCategory__r.Name), '', vehicleStock.Product__r.VehicleCategory__r.Name)}"  style="font-family: Arial Unicode MS;"/></td>
         </tr>
         <tr>
             <td align="center" style="width:200px; height:46px;"><apex:outputlabel value="차종 (Car model)"  style="font-family: Arial Unicode MS;"/></td>
 <!--            <td align="center" style="height:46px;"><apex:outputlabel value="{!IF(truck.RealDeliveredVehicle__c==null,truck.Report_Spec__c,truck.RealDeliveredVehicle__r.Report_Spec__c)}"  style="font-family: Arial Unicode MS;"/></td>-->
-            <td align="center" style="height:46px;"><apex:outputlabel value="{!vehicleStock.Product__r.VehicleCategory__r.Report_Spec__c}"  style="font-family: Arial Unicode MS;"/></td>
+            <td align="center" style="height:46px;"><apex:outputlabel value="{!IF(ISBLANK(vehicleStock.Name), '', vehicleStock.Name)}"  style="font-family: Arial Unicode MS;"/></td>
         </tr>
         <tr>
             <td align="center" style="width:200px; height:46px;"><apex:outputlabel value="차대번호 (VIN)"  style="font-family: Arial Unicode MS;"/></td>
 <!--            <td align="center" style="height:46px;"><apex:outputlabel value="{!IF(truck.RealDeliveredVehicle__c==null,truck.ChassisFrameNo__c,truck.RealDeliveredVehicle__r.ChassisFrameNo__c)} / {!IF(truck.RealDeliveredVehicle__c==null,truck.VehicleNo__c,truck.RealDeliveredVehicle__r.VehicleNo__c)}"  style="font-family: Arial Unicode MS;"/></td>-->
-            <td align="center" style="height:46px;"><apex:outputlabel value="{!vehicleStock.Name} / {!vehicleStock.VehicleNo__c}"  style="font-family: Arial Unicode MS;"/></td>
+            <td align="center" style="height:46px;"><apex:outputlabel value="{!IF(ISBLANK(vehicleStock.Name), '', vehicleStock.Name)} / {!IF(ISBLANK(vehicleStock.VehicleNo__c), '', vehicleStock.VehicleNo__c)}"  style="font-family: Arial Unicode MS;"/></td>
         </tr>
         <tr>
             <td align="center" style="width:200px; height:46px;"><apex:outputlabel value="비고 (remarks)"  style="font-family: Arial Unicode MS;"/></td>
-            <td align="center" style="height:46px;"><apex:outputlabel value=""  style="font-family: Arial Unicode MS;"/></td>
+            <td align="center" style="height:46px;"><apex:outputlabel value="{!IF(ISBLANK(vehicleStock.Remarks__c), '', vehicleStock.Remarks__c)}"  style="font-family: Arial Unicode MS;"/></td>
         </tr>
 
 
@@ -64,18 +67,18 @@
             <td style="height:46px;" colspan="2" >&nbsp;</td>
         </tr>
         <tr>
-            <td align="center" style="height:46px;" colspan="2" ><apex:outputlabel value="출 고 일 (Delivery date) :  {!YEAR(vehicleStock.WantedOutDT__c)}년 {!MONTH(vehicleStock.WantedOutDT__c)}월 {!DAY(vehicleStock.WantedOutDT__c)}일"  style="font-family: Arial Unicode MS;"/><br/></td>
+            <td align="center" style="height:46px;" colspan="2" ><apex:outputText value="{!IF(ISBLANK(opportunity.HandoverDate__c), '', TEXT(YEAR(opportunity.HandoverDate__c)) + '년 ' + TEXT(MONTH(opportunity.HandoverDate__c)) + '월 ' + TEXT(DAY(opportunity.HandoverDate__c)) + '일')}" /><br/></td>
         </tr>
         <tr>
             <td align="right" style="height:46px;">
                 <apex:outputlabel value="수 령 인  서 명 (sign) : "  style="font-family: Arial Unicode MS;"/>
             </td>
             <td align="left">
-<!--                <apex:image url="{!sig.Url__c}" width="120" height="45" rendered="{!sig!=null}" />-->
-<!--                <apex:outputPanel style="width:120;height:45;" rendered="{!sig==null}" >-->
-<!--                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
-<!--                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
-<!--                </apex:outputPanel>-->
+                <apex:image url="{!signature.Url__c}" width="120" height="45" rendered="{!signature!=null}" />
+                <apex:outputPanel style="width:120;height:45;" rendered="{!signature==null}" >
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </apex:outputPanel>
             </td>
         </tr>
     </table>

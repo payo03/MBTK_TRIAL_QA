@@ -28,7 +28,8 @@
               name="realDriverName"
               label="실차주 이름"
               value={realDriverName}
-              onkeyup={handleChange}
+              onchange={handleChange}
+              onkeyup={handleEnterKey}
               required>
             </lightning-input>
             <lightning-input
@@ -39,7 +40,8 @@
               placeholder="XXX-XXX-XXXX"
               maxlength="13"
               value={realDriverMobile}
-              onkeyup={handleChange}
+              onchange={handleChange}
+              onkeyup={handleEnterKey}
               required>
             </lightning-input>
             <lightning-input
@@ -50,7 +52,8 @@
               placeholder="XXXXXX-XXXXXXX"
               maxlength="14"
               value={realDriverIDNumber}
-              onkeyup={handleChange}>
+              onchange={handleChange}
+              onkeyup={handleEnterKey}>
             </lightning-input>
           </div>
           <div class="slds-modal__footer">

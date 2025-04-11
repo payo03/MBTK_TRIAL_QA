@@ -6,6 +6,7 @@
 ==============================================================
  * Ver          Date            Author          Modification
  * 1.0          2024-12-31      chaebeom.do     Created
+ * 1.1          2025-04-07      chaebeom.do     요청시 고객코드/사업자명/사업자번호 체크
  **************************************************************/
 import { api, LightningElement, track, wire } from 'lwc';
 import { CurrentPageReference } from 'lightning/navigation';
@@ -15,9 +16,10 @@ import { notifyRecordUpdateAvailable } from "lightning/uiRecordApi";
 //library
 import getAcc from "@salesforce/apex/CreateAssignRequestController.getAcc";
 import createAssignRequest from "@salesforce/apex/CreateAssignRequestController.createAssignRequest";
+import formFactor from "@salesforce/client/formFactor";
 
 // Util
-import { showToast } from "c/commonUtil";
+import { showToast, recordNavigation } from "c/commonUtil";
 
 
 export default class DepositInvoice extends LightningElement {
@@ -25,6 +27,10 @@ export default class DepositInvoice extends LightningElement {
   @track isLoading = false;
 
   accName;
+  accPhone;
+  accBpCode;
+  accBusinessName;
+  accBusinessNo;
   vehicleName;
   opptyId;
   stockId;
@@ -35,25 +41,46 @@ export default class DepositInvoice extends LightningElement {
         if (currentPageReference) {
             this.recordId = currentPageReference.state.recordId;
         }
+        if (currentPageReference && !this.recordId) {
+          this.recordId = currentPageReference.state?.c__recordId;
+        }
     }
   
     connectedCallback() {
       getAcc({recordId: this.recordId}).then(res => {
-        console.log('res:: ' + res);
+        console.log('res:: ', res);
         this.accName = res[0].accName;
+        this.accPhone = res[0].accPhone;
+        this.accBpCode = res[0].bpCode;
+        this.accBusinessName = res[0].businessName;
+        this.accBusinessNo = res[0].businessNumber;
         this.vehicleName = res[0].vehicleName;
         this.opptyId = res[0].opportunity;
         this.stockId = res[0].vehicleId;
+        console.log(this.accBpCode);
+        console.log(this.accBusinessName);
+        console.log(this.accBusinessNo);
       });
     }
 
-    // 향후 견적의 금융 섹션의 계약금을 계약 생성시에 자동으로 넣고
-    // 계약금 요청 버튼 클릭시에는 해당 계약금을 가져와서 보여줄 수도 있음
+    // ver 1.1 요청시 account의 고객코드/사업자명/사업자 번호 필드가 없으면 에러 토스트 발생 및 어떤 필드 값이 비었는지 표시
   sendDeposit() {
+    this.isLoading = true;
+    if (!this.accBpCode || !this.accBusinessName || !this.accBusinessNo) {
+      let required = ["", "", ""];
+      if(!this.accBpCode) required[0] = "고객코드";
+      if(!this.accBusinessName) required[1] = "사업자명";
+      if(!this.accBusinessNo) required[2] = "사업자번호";
+      const filteredRequired = required.filter(str => str && str.trim());
+      let msg = "계정의 다음 필드를 입력해주세요. : " + filteredRequired.join(", ");
+      showToast("필수 항목이 빈 값입니다.", msg, "error");
+      this.isLoading = false;
+      return;
+    }
     if (this.deposit == null) {
       showToast("필수 입력", "계약금을 입력해주세요.", "error");
+      this.isLoading = false;
     } else {
-      this.isLoading = true;
       let inputMap = { recordId: this.opptyId, deposit: this.deposit, stockId: this.stockId, contractId: this.recordId, type: 'deposit' };
       createAssignRequest({inputMap: inputMap}).then(() => {
         // notifyRecordUpdateAvailable([{recordId: this.recordId}]);
@@ -65,12 +92,14 @@ export default class DepositInvoice extends LightningElement {
     }
   }
 
-  // handleChange(e) {
-  //   const value = e.target.value;
-  //   this.deposit = value;
-  // }
-
   handleCancel() {
     this.dispatchEvent(new CloseActionScreenEvent());
+    this.mobileReturnPage();
+  }
+
+  mobileReturnPage() {
+    if(formFactor === "Small") {
+      recordNavigation(this, "Contract", this.recordId);
+    }
   }
 }

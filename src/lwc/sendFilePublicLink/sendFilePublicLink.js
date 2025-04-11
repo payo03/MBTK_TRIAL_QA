@@ -6,9 +6,11 @@
 ==============================================================
  * Ver          Date            Author          Modification
  * 1.0          2024-12-17      chaebeom.do     Created
+ * 1.1          2025-04-08      chaebeom.do     한글 버전을 디폴트로 수정
  **************************************************************/
-import {api, LightningElement, track, wire} from 'lwc';
+import { api, LightningElement, track, wire } from 'lwc';
 import { CloseActionScreenEvent } from "lightning/actions";
+import { NavigationMixin } from "lightning/navigation";
 import { CurrentPageReference } from 'lightning/navigation';
 import { RefreshEvent } from 'lightning/refresh';
 import { notifyRecordUpdateAvailable } from "lightning/uiRecordApi";
@@ -18,25 +20,30 @@ import createPublicLink from "@salesforce/apex/SendFilePublicLinkController.crea
 import getQuote from "@salesforce/apex/SendFilePublicLinkController.getQuote";
 import updateQuote from "@salesforce/apex/SendFilePublicLinkController.updateQuote";
 import kakaoAlimTalk from '@salesforce/apex/InterfaceKakao.doCallOutKakaoAlimTalk';
+import formFactor from "@salesforce/client/formFactor";
 
 // Util
 import { showToast, recordNavigation } from "c/commonUtil";
 
-export default class SendFilePublicLink extends LightningElement {
+export default class SendFilePublicLink extends NavigationMixin(LightningElement) {
 
   @api recordId;
   @track isLoading = false;
 
   radioValue = '';
-  selectedValue;
+  selectedValue = 'KR';
   quoteName;
   accId;
+  domain = '';
   publicUrl = '';
 
   @wire(CurrentPageReference)
   getStateParameters(currentPageReference) {
       if (currentPageReference) {
-          this.recordId = currentPageReference.state.recordId;
+        this.recordId = currentPageReference.state.recordId;
+      }
+      if (currentPageReference && !this.recordId) {
+        this.recordId = currentPageReference.state?.c__recordId;
       }
   }
 
@@ -48,18 +55,18 @@ export default class SendFilePublicLink extends LightningElement {
     });
   }
 
-  get radioOptions() {
-    return [
-        { label: '한글', value: 'KR' },
-        { label: '영어', value: 'EN' },
-    ];
-  }
+  // get radioOptions() {
+  //   return [
+  //       { label: '한글', value: 'KR' },
+  //       { label: '영어', value: 'EN' },
+  //   ];
+  // }
 
-  handleChange(e) {
-    const selectedOption = e.detail.value;
-    this.selectedValue = selectedOption;
-  }
-
+  // handleChange(e) {
+  //   const selectedOption = e.detail.value;
+  //   this.selectedValue = selectedOption;
+  // }
+  
   handleSend() {
     let title;
     let msg;
@@ -79,12 +86,14 @@ export default class SendFilePublicLink extends LightningElement {
           title = "오류";
           msg = "관리자에게 문의해주세요."
         } else {
+          this.domain = res.domain.substring(res.domain.indexOf('//') + 2, res.domain.length);
           this.publicUrl = res.publicLink.substring(res.publicLink.indexOf('/sfc') + 1, res.publicLink.length);
           title = "링크가 전송되었습니다.";
           variant = "success";
+          console.log('domain check :: ' + this.domain);
           console.log(this.publicUrl);
           this.callKakaoAlimTalk();
-          updateQuote({recordId: this.recordId});
+          this.updateQuoteStatus();
           this.handleCancel();
           setTimeout(() => {
             location.reload();
@@ -161,16 +170,29 @@ export default class SendFilePublicLink extends LightningElement {
   }
 
   handleOpenPdf() {
-    console.log('Language :: ' + this.selectedValue);
     if (!this.selectedValue) {
       showToast("", "견적서를 출력할 언어를 선택해주세요.", "warning");
     } else {
-      window.open('/apex/QuotePdf?id=' + this.recordId + '&language=' + this.selectedValue);
+      // window.open('/apex/QuotePdf?id=' + this.recordId + '&language=' + this.selectedValue);
+      const pdfUrl = '/apex/QuotePdf?id=' + this.recordId + '&language=' + this.selectedValue;
+      this[NavigationMixin.Navigate]({
+        type: 'standard__webPage',
+        attributes: {
+          url: pdfUrl
+        }
+      });
     }
   }
 
   handleCancel() {
     this.dispatchEvent(new CloseActionScreenEvent());
+    this.mobileReturnPage();
+  }
+
+  mobileReturnPage() {
+    if(formFactor === "Small") {
+      recordNavigation(this, "Contract", this.recordId);
+    }
   }
 
   onRefresh() {
@@ -188,19 +210,22 @@ export default class SendFilePublicLink extends LightningElement {
       ];
       // 템플릿. URL이 존재할 경우. 해당 URL에 해당하는 버튼명 - 변수명 - Value값 지정
       let buttonMap = {
-          견적서열기: { //todo : 버튼 이름 영문으로 변경(와이즈모카 템플릿 같이 수정 필요)
+          // 견적서열기: { //todo : 버튼 이름 영문으로 변경(와이즈모카 템플릿 같이 수정 필요)
+          View: { 
+              domain: this.domain,
               publicLink: this.publicUrl
           }
       };
 
       // 템플릿. 변수명에 해당하는 데이터 RecordId
       let infoMap = {
-          templateTitle: '견적서 PDF 전송',   // [v] 카카오톡 Template명
+          // templateTitle: '견적서 PDF 전송',   // [v] 카카오톡 Template명 승인 완료되면 밑에 걸로 교체
+          templateTitle: '견적서 PDF 전송 2',   // [v] 카카오톡 Template명
           object: 'Quote',                    // 카카오톡 Body에 설정될 Object명
           recordId: this.recordId,     // [v] 카카오톡 Body에 설정될 recordId
           infoMapList: infoMapList,           // [v] 카카오톡 수신데이터 설정
-          buttonMap: buttonMap               // 카카오톡 버튼 정보
-          // externalId: this.recordId           // 외부연결 Id
+          buttonMap: buttonMap,               // 카카오톡 버튼 정보
+          externalId: this.recordId           // 외부연결 Id
       };
 
       kakaoAlimTalk({paramMap : infoMap}).then(response => {
@@ -210,5 +235,13 @@ export default class SendFilePublicLink extends LightningElement {
       }).catch(error => {
           console.log('카톡에러::: ' + error);
       });
+  }
+
+  updateQuoteStatus(){
+    updateQuote({recordId: this.recordId}).then(() => {
+      
+    }).catch(error => {
+      console.log('견적 업데이트 에러::: ' + error);
+    });
   }
 }

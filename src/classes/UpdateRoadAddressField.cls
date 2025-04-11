@@ -19,34 +19,39 @@ public with sharing class UpdateRoadAddressField {
         Savepoint sp = Database.setSavepoint();
 
         try {
-            if(objectType.equals('Account')) {
-                Account accountRecord = [SELECT Id, RoadAddress__c, DetailAddress__c, PostalCode__c, IsPersonAccount FROM Account WHERE Id = :recordId LIMIT 1];
-                accountRecord.RoadAddress__c = roadValue;
-                accountRecord.DetailAddress__c = detailValue;
-                accountRecord.PostalCode__c = postalCode;
-                if(accountRecord.IsPersonAccount) {
-                    accountRecord.RoadAddress__pc = roadValue;
-                    accountRecord.DetailAddress__pc = detailValue;
-                    accountRecord.PostalCode__pc = postalCode;
+            switch on objectType {
+                when 'Account' {
+                    Account accountRecord = [SELECT Id, RoadAddress__c, DetailAddress__c, PostalCode__c, IsPersonAccount FROM Account WHERE Id = :recordId LIMIT 1];
+                    accountRecord.RoadAddress__c = roadValue;
+                    accountRecord.DetailAddress__c = detailValue;
+                    accountRecord.PostalCode__c = postalCode;
+                    if(accountRecord.IsPersonAccount) {
+                        accountRecord.RoadAddress__pc = roadValue;
+                        accountRecord.DetailAddress__pc = detailValue;
+                        accountRecord.PostalCode__pc = postalCode;
+                    }
+                    update accountRecord;
+//                    CommonUtilController.applyObject(new List<Account> {accountRecord}, 'UPDATE');
                 }
-                update accountRecord;
-//                CommonUtilController.applyObject(new List<Account> {accountRecord}, 'UPDATE');
-            } else if(objectType.equals('Contact')) {
-                Contact contactRecord = [SELECT Id, RoadAddress__c, DetailAddress__c, PostalCode__c FROM Contact WHERE Id = :recordId LIMIT 1];
-                contactRecord.RoadAddress__c = roadValue;
-                contactRecord.DetailAddress__c = detailValue;
-                contactRecord.PostalCode__c = postalCode;
-                update contactRecord;
-//                CommonUtilController.applyObject(new List<Contact> {contactRecord}, 'UPDATE');
-            } else if(objectType.equals('Lead')) {
-                Lead leadRecord = [SELECT Id, RoadAddress__c, DetailAddress__c, PostalCode__c FROM Lead WHERE Id = :recordId LIMIT 1];
-                leadRecord.RoadAddress__c = roadValue;
-                leadRecord.DetailAddress__c = detailValue;
-                leadRecord.PostalCode__c = postalCode;
-                update leadRecord;
-//                CommonUtilController.applyObject(new List<Lead> {leadRecord}, 'UPDATE');
-            } else {
-                return false;
+                when 'Contact' {
+                    Contact contactRecord = [SELECT Id, RoadAddress__c, DetailAddress__c, PostalCode__c FROM Contact WHERE Id = :recordId LIMIT 1];
+                    contactRecord.RoadAddress__c = roadValue;
+                    contactRecord.DetailAddress__c = detailValue;
+                    contactRecord.PostalCode__c = postalCode;
+                    update contactRecord;
+//                    CommonUtilController.applyObject(new List<Contact> {contactRecord}, 'UPDATE');
+                }
+                when 'Lead' {
+                    Lead leadRecord = [SELECT Id, RoadAddress__c, DetailAddress__c, PostalCode__c FROM Lead WHERE Id = :recordId LIMIT 1];
+                    leadRecord.RoadAddress__c = roadValue;
+                    leadRecord.DetailAddress__c = detailValue;
+                    leadRecord.PostalCode__c = postalCode;
+                    update leadRecord;
+//                    CommonUtilController.applyObject(new List<Lead> {leadRecord}, 'UPDATE');
+                }
+                when else {
+                    return false;
+                }
             }
 
             return true;
@@ -69,30 +74,57 @@ public with sharing class UpdateRoadAddressField {
         Savepoint sp = Database.setSavepoint();
 
         try {
-            if(objectType.equals('Account')) {
-                Account accountRecord = [
-                        SELECT Id, IsPersonAccount, RealDriver__pc, RealDriverAddress__pc, RealDriverMobile__pc, RealDriverIDNumber__pc
-                        FROM Account WHERE Id = :recordId LIMIT 1];
-                if(accountRecord.IsPersonAccount) {
-                    accountRecord.RealDriver__pc            = realDriverName;
-                    accountRecord.RealDriverAddress__pc     = realDriverRoadAddress;
-                    accountRecord.RealDriverMobile__pc      = realDriverMobile;
-                    accountRecord.RealDriverIDNumber__pc    = realDriverIDNumber;
+            switch on objectType {
+                when 'Account' {
+                    Account accountRecord = [
+                            SELECT Id, IsPersonAccount, RealDriver__pc, RealDriverAddress__pc, RealDriverMobile__pc, RealDriverIDNumber__pc
+                            FROM Account
+                            WHERE Id = :recordId
+                            LIMIT 1
+                    ];
+                    // 개인 계정 : __pc 수정 -> contact에도 자동 반영
+                    if (accountRecord.IsPersonAccount) {
+                        accountRecord.RealDriver__pc            = realDriverName;
+                        accountRecord.RealDriverAddress__pc     = realDriverRoadAddress;
+                        accountRecord.RealDriverMobile__pc      = realDriverMobile;
+                        accountRecord.RealDriverIDNumber__pc    = realDriverIDNumber;
+                        update accountRecord;
+//                        CommonUtilController.applyObject(new List<Account> {accountRecord}, 'UPDATE');
+                    }
+                    // 법인 계정 : contact을 직접 생성
+                    else {
+                        Contact contact = new Contact();
+                        contact.LastName        = realDriverName;
+                        contact.RoadAddress__c  = realDriverRoadAddress;
+                        contact.MobilePhone     = realDriverMobile;
+                        contact.IDNumber__c     = realDriverIDNumber;
+                        contact.AccountId       = recordId;
+                        insert contact;
+//                        CommonUtilController.applyObject(new List<Contact> {contact}, 'INSERT');
+                    }
                 }
-                update accountRecord;
-//                CommonUtilController.applyObject(new List<Account> {accountRecord}, 'UPDATE');
-            } else if(objectType.equals('Contact')) {
-                Contact contactRecord = [
-                        SELECT Id, RealDriver__c, RealDriverAddress__c, RealDriverMobile__c, RealDriverIDNumber__c
-                        FROM Contact WHERE Id = :recordId LIMIT 1];
-                contactRecord.RealDriver__c             = realDriverName;
-                contactRecord.RealDriverAddress__c      = realDriverRoadAddress;
-                contactRecord.RealDriverMobile__c       = realDriverMobile;
-                contactRecord.RealDriverIDNumber__c     = realDriverIDNumber;
-                update contactRecord;
-//                CommonUtilController.applyObject(new List<Contact> {contactRecord}, 'UPDATE');
-            } else {
-                return false;
+                when 'Contact' {
+                    Contact contactRecord = [
+                            SELECT Id, Name, RoadAddress__c, MobilePhone, IDNumber__c
+//                                    RealDriver__c, RealDriverAddress__c, RealDriverMobile__c, RealDriverIDNumber__c
+                            FROM Contact
+                            WHERE Id = :recordId
+                            LIMIT 1
+                    ];
+                    contactRecord.LastName          = realDriverName;
+                    contactRecord.RoadAddress__c    = realDriverRoadAddress;
+                    contactRecord.MobilePhone       = realDriverMobile;
+                    contactRecord.IDNumber__c       = realDriverIDNumber;
+//                    contactRecord.RealDriver__c = realDriverName;
+//                    contactRecord.RealDriverAddress__c = realDriverRoadAddress;
+//                    contactRecord.RealDriverMobile__c = realDriverMobile;
+//                    contactRecord.RealDriverIDNumber__c = realDriverIDNumber;
+                    update contactRecord;
+//                    CommonUtilController.applyObject(new List<Contact> {contactRecord}, 'UPDATE');
+                }
+                when else {
+                    return false;
+                }
             }
 
             return true;

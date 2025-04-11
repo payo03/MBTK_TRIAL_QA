@@ -9,556 +9,888 @@
 -->
 <!-- vehicleStockTable -->
 <template>
+    <div class ="slds-container_center">
+        <template lwc:if={checkSAUser}>
+            <!-- SA Tab Start -->
+            <!-- Master 화면 Start -->
+            <article class="slds-card">
+                <div class="slds-card__header slds-grid">
+                    <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                        <div class="slds-media__figure">
+                            <lightning-icon icon-name="standard:tour" alternative-text="Master" size="small"
+                                            title="Master"></lightning-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <h2 class="slds-card__header-title">
+                            <span class="slds-card__header-link slds-truncate" title="Master">
+                                <span>차종 선택</span>
+                            </span>
+                            </h2>
+                        </div>
+                        <!--						<div class="slds-no-flex">-->
+                        <!--							<button class="slds-button slds-button_neutral" data-id="waiting"-->
+                        <!--							        onclick={handleClickMaster}>대기리스트 요청-->
+                        <!--							</button>-->
+                        <!--						</div>-->
+                    </header>
+                </div>
+                <div class="slds-card__body slds-card__body_inner filter-wrap">
+                    <div class="slds-grid slds-wrap">
+                        <lightning-combobox
+                            class="slds-p-right_x-small"
+                            name="progress"
+                            label="세그먼트2"
+                            value={profileDataMap.sa.filterMap.Segment2__c}
+                            placeholder="선택안함"
+                            options={filterOptions.segment}
+                            onchange={handleChange}
+                            data-id="segment"
+                        ></lightning-combobox>
+                        <lightning-combobox
+                            class="slds-p-right_x-small"
+                            name="progress"
+                            label="스타일링"
+                            value={profileDataMap.sa.filterMap.Styling__c}
+                            placeholder="선택안함"
+                            options={filterOptions.styling}
+                            onchange={handleChange}
+                            data-id="styling"
+                        ></lightning-combobox>
+                        <lightning-combobox
+                            class="slds-p-right_x-small"
+                            label="차축"
+                            data-id="axle"
+                            value={profileDataMap.sa.filterMap.AxleConfiguration__c}
+                            onchange={handleChange}
+                            options={filterOptions.axle}
+                            placeholder="차축을 입력해주세요"
+                        ></lightning-combobox>
+                        <lightning-input
+                            class="slds-p-right_x-small"
+                            label="마력"
+                            data-id="power"
+                            value={profileDataMap.sa.filterMap.HorsePower__c}
+                            onchange={handleChange}
+                            placeholder="마력을 입력해주세요"
+                        ></lightning-input>
+                        <lightning-combobox
+                            class="slds-p-right_x-small"
+                            label="휠베이스"
+                            value={profileDataMap.sa.filterMap.Wheelbase__c}
+                            placeholder="선택안함"
+                            options={filterOptions.wheelbase}
+                            onchange={handleChange}
+                            data-id="wheelbase"
+                        ></lightning-combobox>
+                        <div class="button-wrap">
+                            <lightning-button-icon icon-name="utility:refresh" variant="border-filled"
+                                                   alternative-text="Refresh" class="slds-m-horizontal_xx-small"
+                                                   title="Refresh" onclick={handleClickMaster} data-id="refresh">
+                            </lightning-button-icon>
+                            <button class="slds-button slds-button_neutral" onclick={handleClickMaster}
+                                    data-id="search">
+                                <lightning-icon icon-name="utility:search" alternative-text="Utility search"
+                                                size="x-small" title="search"></lightning-icon>
+                                검색
+                            </button>
+                        </div>
+                    </div>
+                    <div class="slds-p-around_medium">
+                        <div class="master-table-wrap" data-tab="sa">
+                            <lightning-datatable
+                                class="slds-text-body_small"
+                                columns={profileDataMap.sa.masterColumns}
+                                data={profileDataMap.sa.masterData}
+                                key-field="key"
+                                onrowselection={handleRowAction}
+                                max-row-selection="1"
+                                data-id="master"
+                                data-tab="sa"
+                                selected-rows={profileDataMap.sa.selectedRowsMaster}
+                                sorted-by={profileDataMap.sa.sortBy}
+                                sorted-direction={profileDataMap.sa.sortDirection}
+                                onsort={handleSort}
+                                column-widths-mode="auto"
+                                min-column-width="50"
+                            ></lightning-datatable>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            <!-- Master 화면 End -->
 
-	<lightning-tabset active-tab-value={activeTab} class="stock-table-wrap">
+            <!-- Detail 화면 Start -->
+            <article class="slds-card">
+                <div class="slds-card__header slds-grid">
+                    <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                        <div class="slds-media__figure">
+                            <lightning-icon icon-name="standard:webcart" alternative-text="Detail" size="small"
+                                            title="Detail"></lightning-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <h2 class="slds-card__header-title">
+                            <span class="slds-card__header-link slds-truncate" title="Detail">
+                                <span>세부 재고 현황</span>
+                            </span>
+                            </h2>
+                        </div>
+                        <!--						<div class="slds-no-flex">-->
+                        <!--							<button class="slds-button slds-button_neutral" data-id="createOpp"-->
+                        <!--							        onclick={handleClickDetail}>기회생성-->
+                        <!--							</button>-->
+                        <!--							<button class="slds-button slds-button_neutral" data-id="preAssign"-->
+                        <!--							        onclick={handleClickDetail}>배정요청-->
+                        <!--							</button>-->
+                        <!--							&lt;!&ndash;							<button class="slds-button slds-button_neutral" data-id="waiting"&ndash;&gt;-->
+                        <!--							&lt;!&ndash;							        onclick={handleClickDetail}>대기요청&ndash;&gt;-->
+                        <!--							&lt;!&ndash;							</button>&ndash;&gt;-->
+                        <!--						</div>-->
+                    </header>
+                </div>
 
-		<!-- SA Tab Start -->
-		<lightning-tab label="SA" value="sa" onactive={handleTabActive}>
+                <div class="slds-card__body slds-card__body_inner">
+                    <!--					<div class="slds-grid slds-wrap filter-wrap">-->
+                    <!--						<lightning-combobox-->
+                    <!--							class="slds-p-right_x-small"-->
+                    <!--							name="progress"-->
+                    <!--							label="Styling"-->
+                    <!--							value={optionValue}-->
+                    <!--							placeholder="선택안함"-->
+                    <!--							options={filterOptions.styling}-->
+                    <!--							onchange={handleChange}-->
+                    <!--							data-id="option"-->
+                    <!--						></lightning-combobox>-->
+                    <!--						<div class="button-wrap">-->
+                    <!--							<lightning-button-icon icon-name="utility:refresh" variant="border-filled"-->
+                    <!--							                       alternative-text="Refresh" class="slds-m-horizontal_xx-small"-->
+                    <!--							                       title="Refresh" onclick={handleClickDetail} data-id="refresh">-->
+                    <!--							</lightning-button-icon>-->
+                    <!--							<button class="slds-button slds-button_neutral" onclick={handleClickDetail}-->
+                    <!--							        data-id="search">-->
+                    <!--								<lightning-icon icon-name="utility:search" alternative-text="Utility search"-->
+                    <!--								                size="x-small" title="search"></lightning-icon>-->
+                    <!--								검색-->
+                    <!--							</button>-->
+                    <!--						</div>-->
+                    <!--					</div>-->
 
-			<!-- Master 화면 Start -->
-			<article class="slds-card">
-				<div class="slds-card__header slds-grid">
-					<header class="slds-media slds-media_center slds-has-flexi-truncate">
-						<div class="slds-media__figure">
-							<lightning-icon icon-name="standard:tour" alternative-text="Master" size="small"
-							                title="Master"></lightning-icon>
-						</div>
-						<div class="slds-media__body">
-							<h2 class="slds-card__header-title">
-								<span class="slds-card__header-link slds-truncate" title="Master">
-									<span>Master</span>
-								</span>
-							</h2>
-						</div>
-<!--						<div class="slds-no-flex">-->
-<!--							<button class="slds-button slds-button_neutral" data-id="waiting"-->
-<!--							        onclick={handleClickMaster}>대기리스트 요청-->
-<!--							</button>-->
-<!--						</div>-->
-					</header>
-				</div>
-				<div class="slds-card__body slds-card__body_inner filter-wrap">
-					<div class="slds-grid slds-wrap">
-						<lightning-combobox
-							class="slds-p-right_x-small"
-							name="progress"
-							label="세그먼트2"
-							value={profileDataMap.sa.filterMap.Segment2__c}
-							placeholder="선택안함"
-							options={filterOptions.segment}
-							onchange={handleChange}
-							data-id="segment"
-						></lightning-combobox>
-						<lightning-combobox
-								class="slds-p-right_x-small"
-								name="progress"
-								label="Styling"
-								value={profileDataMap.sa.filterMap.Styling__c}
-								placeholder="선택안함"
-								options={filterOptions.styling}
-								onchange={handleChange}
-								data-id="styling"
-						></lightning-combobox>
-						<lightning-combobox
-							class="slds-p-right_x-small"
-							label="Axle"
-							data-id="axle"
-							value={profileDataMap.sa.filterMap.AxleConfiguration__c}
-							onchange={handleChange}
-							options={filterOptions.axle}
-							placeholder="Axle을 입력해주세요"
-						></lightning-combobox>
-						<lightning-input
-							class="slds-p-right_x-small"
-							label="마력"
-							data-id="power"
-							value={profileDataMap.sa.filterMap.HorsePower__c}
-							onchange={handleChange}
-							placeholder="마력을 입력해주세요"
-						></lightning-input>
-						<lightning-combobox
-							class="slds-p-right_x-small"
-							label="휠베이스"
-							value={profileDataMap.sa.filterMap.Wheelbase__c}
-							placeholder="선택안함"
-							options={filterOptions.wheelbase}
-							onchange={handleChange}
-							data-id="wheelbase"
-						></lightning-combobox>
-						<div class="button-wrap">
-							<lightning-button-icon icon-name="utility:refresh" variant="border-filled"
-							                       alternative-text="Refresh" class="slds-m-horizontal_xx-small"
-							                       title="Refresh" onclick={handleClickMaster} data-id="refresh">
-							</lightning-button-icon>
-							<button class="slds-button slds-button_neutral" onclick={handleClickMaster}
-							        data-id="search">
-								<lightning-icon icon-name="utility:search" alternative-text="Utility search"
-								                size="x-small" title="search"></lightning-icon>
-								검색
-							</button>
-						</div>
-					</div>
-					<div class="slds-p-around_medium">
-						<div class="master-table-wrap" data-tab="sa">
-							<lightning-datatable
-								class="slds-text-body_small"
-								columns={profileDataMap.sa.masterColumns}
-								data={profileDataMap.sa.masterData}
-								key-field="key"
-								onrowselection={handleRowAction}
-								max-row-selection="1"
-								data-id="master"
-								data-tab="sa"
-								selected-rows={profileDataMap.sa.selectedRowsMaster}
-								sorted-by={profileDataMap.sa.sortBy}
-								sorted-direction={profileDataMap.sa.sortDirection}
-								onsort={handleSort}
-								column-widths-mode="auto"
-								min-column-width="50"
-							></lightning-datatable>
-						</div>
-					</div>
-				</div>
-			</article>
-			<!-- Master 화면 End -->
+                    <div class="slds-p-around_medium">
+                        <lightning-input
+                            type="checkbox"
+                            name="additional"
+                            label="추가 DC 차량"
+                            checked={additionalFlag}
+                            class="custom-checkbox"
+                            onchange={handleCheckChange}>
+                        </lightning-input>
+                        <div class='slds-scrollable_x'>
+                            <template lwc:if={additionalFlag}>
+                                <lightning-datatable
+                                    class="slds-text-body_small"
+                                    columns={profileDataMap.sa.additionalDetailColumns}
+                                    data={profileDataMap.sa.additionalDetailData}
+                                    key-field="id"
+                                    onrowselection={handleRowAction}
+                                    data-id="detail"
+                                    data-tab="sa"
+                                    onsort={handleSort}
+                                    selected-rows={profileDataMap.sa.selectedRowDetailId}
+                                    sorted-by={profileDataMap.sa.sortBy}
+                                    sorted-direction={profileDataMap.sa.sortDirection}
+                                    column-widths-mode="fixed"
+                                    min-column-width="50"
+                                    hide-checkbox-column
+                                ></lightning-datatable>
+                            </template>
+                            <template lwc:else>
+                                <lightning-datatable
+                                    class="slds-text-body_small"
+                                    columns={profileDataMap.sa.detailColumns}
+                                    data={profileDataMap.sa.detailData}
+                                    key-field="id"
+                                    onrowselection={handleRowAction}
+                                    data-id="detail"
+                                    data-tab="sa"
+                                    selected-rows={profileDataMap.sa.selectedRowDetailId}
+                                    column-widths-mode="fixed"
+                                    min-column-width="50"
+                                    hide-checkbox-column
+                                ></lightning-datatable>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            <!-- Detail 화면 End -->
 
-			<!-- Detail 화면 Start -->
-			<article class="slds-card">
-				<div class="slds-card__header slds-grid">
-					<header class="slds-media slds-media_center slds-has-flexi-truncate">
-						<div class="slds-media__figure">
-							<lightning-icon icon-name="standard:webcart" alternative-text="Detail" size="small"
-							                title="Detail"></lightning-icon>
-						</div>
-						<div class="slds-media__body">
-							<h2 class="slds-card__header-title">
-								<span class="slds-card__header-link slds-truncate" title="Detail">
-									<span>Detail</span>
-								</span>
-							</h2>
-						</div>
-<!--						<div class="slds-no-flex">-->
-<!--							<button class="slds-button slds-button_neutral" data-id="createOpp"-->
-<!--							        onclick={handleClickDetail}>기회생성-->
-<!--							</button>-->
-<!--							<button class="slds-button slds-button_neutral" data-id="preAssign"-->
-<!--							        onclick={handleClickDetail}>배정요청-->
-<!--							</button>-->
-<!--							&lt;!&ndash;							<button class="slds-button slds-button_neutral" data-id="waiting"&ndash;&gt;-->
-<!--							&lt;!&ndash;							        onclick={handleClickDetail}>대기요청&ndash;&gt;-->
-<!--							&lt;!&ndash;							</button>&ndash;&gt;-->
-<!--						</div>-->
-					</header>
-				</div>
+            <!-- 배정요청 Modal Start -->
+            <template lwc:if={isModalOpen}>
+                <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-00"
+                         class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container">
+                        <button class="slds-button slds-button_icon slds-modal__close" onclick={handleModalChange}>
+                            <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                            <span class="slds-assistive-text">Cancel and close</span>
+                        </button>
+                        <div class="slds-modal__header">
+                            <h1 id="modal-heading-00" class="slds-modal__title slds-hyphenate" tabindex="-1">
+                                {modalMap.title}</h1>
+                        </div>
+                        <div class="slds-modal__content slds-p-around_medium slds-scrollable"
+                             id="modal-content-id-0">
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered"
+                                   aria-label="Example default base table of Opportunities">
+                                <thead>
+                                <tr class="slds-line-height_reset">
+                                    <template lwc:if={modalMap.isOpp}>
+                                        <th class="" scope="col">
+                                            <div class="slds-truncate" title="Account Name">Account Name</div>
+                                        </th>
+                                        <!--										<th class="" scope="col">-->
+                                        <!--											<div class="slds-truncate" title="Vehicle No">Vehicle No</div>-->
+                                        <!--										</th>-->
+                                    </template>
+                                    <template lwc:else>
+                                        <th class="" scope="col">
+                                            <div class="slds-truncate" title="Opportunity Name">Opportunity Name
+                                            </div>
+                                        </th>
+                                        <!--										<th class="" scope="col">-->
+                                        <!--											<div class="slds-truncate" title="Vehicle No">Vehicle No</div>-->
+                                        <!--										</th>-->
+                                        <th class="" scope="col">
+                                            <div class="slds-truncate" title="제출자">제출자</div>
+                                        </th>
+                                    </template>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <template for:each={profileDataMap.sa.selectedData} for:item="data" for:index="idx">
+                                    <tr key={data.id} class="slds-hint-parent">
+                                        <template lwc:if={modalMap.isOpp}>
+                                            <th data-label="Account Name" scope="row">
+                                                <div class="slds-truncate" title="">
+                                                    <lightning-record-picker
+                                                        label="accountId"
+                                                        object-api-name="Account"
+                                                        variant="label-hidden"
+                                                        onchange={handleChange}
+                                                        data-id="accountId"
+                                                        data-idx={idx}
+                                                        filter={accountFilter}
+                                                        required="true"
+                                                    ></lightning-record-picker>
+                                                </div>
+                                            </th>
+                                            <!--											<td data-label="Vehicle No">-->
+                                            <!--												<div class="slds-truncate" title={data.vehicleNo}>{data.vehicleNo}</div>-->
+                                            <!--											</td>-->
+                                        </template>
+                                        <template lwc:else>
+                                            <th data-label="Opportunity Name" scope="row">
+                                                <div class="slds-truncate" title="Opportunity Name">
+                                                    <lightning-record-picker
+                                                        label="oppId"
+                                                        object-api-name="Opportunity"
+                                                        variant="label-hidden"
+                                                        onchange={handleChange}
+                                                        value={data.oppId}
+                                                        data-id="oppId"
+                                                        data-idx={idx}
+                                                        filter={oppFilter}
+                                                        required="true"
+                                                    ></lightning-record-picker>
+                                                </div>
+                                            </th>
+                                            <!--											<td data-label="Vehicle No">-->
+                                            <!--												<div class="slds-truncate" title={data.vehicleNo}>{data.vehicleNo}</div>-->
+                                            <!--											</td>-->
+                                            <td data-label="Close Date">
+                                                <div class="slds-truncate" title={data.userName}>{data.userName}
+                                                </div>
+                                            </td>
+                                        </template>
+                                    </tr>
+                                </template>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="slds-modal__footer slds-text-align_center">
+                            <button class="slds-button slds-button_neutral" aria-label="Cancel and close"
+                                    onclick={handleModalChange}>취소
+                            </button>
+                            <button class="slds-button slds-button_brand" onclick={handleModalClick}>저장</button>
+                        </div>
+                    </div>
+                    <template lwc:if={isLoading}>
+                        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                    </template>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+            </template>
+            <!-- 배정요청 Modal End -->
+            <!-- SA Tab End -->
+        </template>
+        <template lwc:else>
+            <lightning-tabset active-tab-value={activeTab} class="stock-table-wrap">
+            <!-- SA Tab Start -->
+            <lightning-tab label="SA" value="sa" onactive={handleTabActive}>
 
-				<div class="slds-card__body slds-card__body_inner">
-<!--					<div class="slds-grid slds-wrap filter-wrap">-->
-<!--						<lightning-combobox-->
-<!--							class="slds-p-right_x-small"-->
-<!--							name="progress"-->
-<!--							label="Styling"-->
-<!--							value={optionValue}-->
-<!--							placeholder="선택안함"-->
-<!--							options={filterOptions.styling}-->
-<!--							onchange={handleChange}-->
-<!--							data-id="option"-->
-<!--						></lightning-combobox>-->
-<!--						<div class="button-wrap">-->
-<!--							<lightning-button-icon icon-name="utility:refresh" variant="border-filled"-->
-<!--							                       alternative-text="Refresh" class="slds-m-horizontal_xx-small"-->
-<!--							                       title="Refresh" onclick={handleClickDetail} data-id="refresh">-->
-<!--							</lightning-button-icon>-->
-<!--							<button class="slds-button slds-button_neutral" onclick={handleClickDetail}-->
-<!--							        data-id="search">-->
-<!--								<lightning-icon icon-name="utility:search" alternative-text="Utility search"-->
-<!--								                size="x-small" title="search"></lightning-icon>-->
-<!--								검색-->
-<!--							</button>-->
-<!--						</div>-->
-<!--					</div>-->
+                <!-- Master 화면 Start -->
+                <article class="slds-card">
+                    <div class="slds-card__header slds-grid">
+                        <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                            <div class="slds-media__figure">
+                                <lightning-icon icon-name="standard:tour" alternative-text="Master" size="small"
+                                                title="Master"></lightning-icon>
+                            </div>
+                            <div class="slds-media__body">
+                                <h2 class="slds-card__header-title">
+                            <span class="slds-card__header-link slds-truncate" title="Master">
+                                <span>차종 선택</span>
+                            </span>
+                                </h2>
+                            </div>
+                            <!--						<div class="slds-no-flex">-->
+                            <!--							<button class="slds-button slds-button_neutral" data-id="waiting"-->
+                            <!--							        onclick={handleClickMaster}>대기리스트 요청-->
+                            <!--							</button>-->
+                            <!--						</div>-->
+                        </header>
+                    </div>
+                    <div class="slds-card__body slds-card__body_inner filter-wrap">
+                        <div class="slds-grid slds-wrap">
+                            <lightning-combobox
+                                class="slds-p-right_x-small"
+                                name="progress"
+                                label="세그먼트2"
+                                value={profileDataMap.sa.filterMap.Segment2__c}
+                                placeholder="선택안함"
+                                options={filterOptions.segment}
+                                onchange={handleChange}
+                                data-id="segment"
+                            ></lightning-combobox>
+                            <lightning-combobox
+                                class="slds-p-right_x-small"
+                                name="progress"
+                                label="스타일링"
+                                value={profileDataMap.sa.filterMap.Styling__c}
+                                placeholder="선택안함"
+                                options={filterOptions.styling}
+                                onchange={handleChange}
+                                data-id="styling"
+                            ></lightning-combobox>
+                            <lightning-combobox
+                                class="slds-p-right_x-small"
+                                label="차축"
+                                data-id="axle"
+                                value={profileDataMap.sa.filterMap.AxleConfiguration__c}
+                                onchange={handleChange}
+                                options={filterOptions.axle}
+                                placeholder="Axle을 입력해주세요"
+                            ></lightning-combobox>
+                            <lightning-input
+                                class="slds-p-right_x-small"
+                                label="마력"
+                                data-id="power"
+                                value={profileDataMap.sa.filterMap.HorsePower__c}
+                                onchange={handleChange}
+                                placeholder="마력을 입력해주세요"
+                            ></lightning-input>
+                            <lightning-combobox
+                                class="slds-p-right_x-small"
+                                label="휠베이스"
+                                value={profileDataMap.sa.filterMap.Wheelbase__c}
+                                placeholder="선택안함"
+                                options={filterOptions.wheelbase}
+                                onchange={handleChange}
+                                data-id="wheelbase"
+                            ></lightning-combobox>
+                            <div class="button-wrap">
+                                <lightning-button-icon icon-name="utility:refresh" variant="border-filled"
+                                                       alternative-text="Refresh" class="slds-m-horizontal_xx-small"
+                                                       title="Refresh" onclick={handleClickMaster}
+                                                       data-id="refresh">
+                                </lightning-button-icon>
+                                <button class="slds-button slds-button_neutral" onclick={handleClickMaster}
+                                        data-id="search">
+                                    <lightning-icon icon-name="utility:search" alternative-text="Utility search"
+                                                    size="x-small" title="search"></lightning-icon>
+                                    검색
+                                </button>
+                            </div>
+                        </div>
+                        <div class="slds-p-around_medium">
+                            <div class="master-table-wrap" data-tab="sa">
+                                <lightning-datatable
+                                    class="slds-text-body_small"
+                                    columns={profileDataMap.sa.masterColumns}
+                                    data={profileDataMap.sa.masterData}
+                                    key-field="key"
+                                    onrowselection={handleRowAction}
+                                    max-row-selection="1"
+                                    data-id="master"
+                                    data-tab="sa"
+                                    selected-rows={profileDataMap.sa.selectedRowsMaster}
+                                    sorted-by={profileDataMap.sa.sortBy}
+                                    sorted-direction={profileDataMap.sa.sortDirection}
+                                    onsort={handleSort}
+                                    column-widths-mode="auto"
+                                    min-column-width="50"
+                                ></lightning-datatable>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                <!-- Master 화면 End -->
 
-					<div class="slds-p-around_medium">
-						<lightning-input
-								type="checkbox"
-								name="additional"
-								label="Additional"
-								checked={additionalFlag}
-								class="custom-checkbox"
-								onchange={handleCheckChange}>
-						</lightning-input>
-						<div class='slds-scrollable_x'>
-						<template lwc:if={additionalFlag}>
-								<lightning-datatable
-									class="slds-text-body_small"
-									columns={profileDataMap.sa.additionalDetailColumns}
-									data={profileDataMap.sa.additionalDetailData}
-									key-field="id"
-									onrowselection={handleRowAction}
-									data-id="detail"
-									data-tab="sa"
-									onsort={handleSort}
-									selected-rows={profileDataMap.sa.selectedRowDetailId}
-									sorted-by={profileDataMap.sa.sortBy}
-									sorted-direction={profileDataMap.sa.sortDirection}
-									column-widths-mode="fixed"
-									min-column-width="50"
+                <!-- Detail 화면 Start -->
+                <article class="slds-card">
+                    <div class="slds-card__header slds-grid">
+                        <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                            <div class="slds-media__figure">
+                                <lightning-icon icon-name="standard:webcart" alternative-text="Detail" size="small"
+                                                title="Detail"></lightning-icon>
+                            </div>
+                            <div class="slds-media__body">
+                                <h2 class="slds-card__header-title">
+                            <span class="slds-card__header-link slds-truncate" title="Detail">
+                                <span>세부 재고 현황</span>
+                            </span>
+                                </h2>
+                            </div>
+                            <!--						<div class="slds-no-flex">-->
+                            <!--							<button class="slds-button slds-button_neutral" data-id="createOpp"-->
+                            <!--							        onclick={handleClickDetail}>기회생성-->
+                            <!--							</button>-->
+                            <!--							<button class="slds-button slds-button_neutral" data-id="preAssign"-->
+                            <!--							        onclick={handleClickDetail}>배정요청-->
+                            <!--							</button>-->
+                            <!--							&lt;!&ndash;							<button class="slds-button slds-button_neutral" data-id="waiting"&ndash;&gt;-->
+                            <!--							&lt;!&ndash;							        onclick={handleClickDetail}>대기요청&ndash;&gt;-->
+                            <!--							&lt;!&ndash;							</button>&ndash;&gt;-->
+                            <!--						</div>-->
+                        </header>
+                    </div>
 
-								></lightning-datatable>
-						</template>
-						<template lwc:else>
-							<lightning-datatable
-									class="slds-text-body_small"
-									columns={profileDataMap.sa.detailColumns}
-									data={profileDataMap.sa.detailData}
-									key-field="id"
-									onrowselection={handleRowAction}
-									data-id="detail"
-									data-tab="sa"
-									selected-rows={profileDataMap.sa.selectedRowDetailId}
-									column-widths-mode="fixed"
-									min-column-width="50"
-							></lightning-datatable>
-						</template>
-						</div>
-					</div>
-				</div>
-			</article>
-			<!-- Detail 화면 End -->
+                    <div class="slds-card__body slds-card__body_inner">
+                        <!--					<div class="slds-grid slds-wrap filter-wrap">-->
+                        <!--						<lightning-combobox-->
+                        <!--							class="slds-p-right_x-small"-->
+                        <!--							name="progress"-->
+                        <!--							label="Styling"-->
+                        <!--							value={optionValue}-->
+                        <!--							placeholder="선택안함"-->
+                        <!--							options={filterOptions.styling}-->
+                        <!--							onchange={handleChange}-->
+                        <!--							data-id="option"-->
+                        <!--						></lightning-combobox>-->
+                        <!--						<div class="button-wrap">-->
+                        <!--							<lightning-button-icon icon-name="utility:refresh" variant="border-filled"-->
+                        <!--							                       alternative-text="Refresh" class="slds-m-horizontal_xx-small"-->
+                        <!--							                       title="Refresh" onclick={handleClickDetail} data-id="refresh">-->
+                        <!--							</lightning-button-icon>-->
+                        <!--							<button class="slds-button slds-button_neutral" onclick={handleClickDetail}-->
+                        <!--							        data-id="search">-->
+                        <!--								<lightning-icon icon-name="utility:search" alternative-text="Utility search"-->
+                        <!--								                size="x-small" title="search"></lightning-icon>-->
+                        <!--								검색-->
+                        <!--							</button>-->
+                        <!--						</div>-->
+                        <!--					</div>-->
 
-			<!-- 배정요청 Modal Start -->
-			<template lwc:if={isModalOpen}>
-				<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01"
-				         class="slds-modal slds-fade-in-open">
-					<div class="slds-modal__container">
-						<button class="slds-button slds-button_icon slds-modal__close" onclick={handleModalChange}>
-							<lightning-icon icon-name="utility:close" size="small"></lightning-icon>
-							<span class="slds-assistive-text">Cancel and close</span>
-						</button>
-						<div class="slds-modal__header">
-							<h1 id="modal-heading-02" class="slds-modal__title slds-hyphenate" tabindex="-1">
-								{modalMap.title}</h1>
-						</div>
-						<div class="slds-modal__content slds-p-around_medium slds-scrollable" id="modal-content-id-2">
-							<table class="slds-table slds-table_cell-buffer slds-table_bordered"
-							       aria-label="Example default base table of Opportunities">
-								<thead>
-								<tr class="slds-line-height_reset">
-									<template lwc:if={modalMap.isOpp}>
-										<th class="" scope="col">
-											<div class="slds-truncate" title="Account Name">Account Name</div>
-										</th>
-										<!--										<th class="" scope="col">-->
-										<!--											<div class="slds-truncate" title="Vehicle No">Vehicle No</div>-->
-										<!--										</th>-->
-									</template>
-									<template lwc:else>
-										<th class="" scope="col">
-											<div class="slds-truncate" title="Opportunity Name">Opportunity Name
-											</div>
-										</th>
-										<!--										<th class="" scope="col">-->
-										<!--											<div class="slds-truncate" title="Vehicle No">Vehicle No</div>-->
-										<!--										</th>-->
-										<th class="" scope="col">
-											<div class="slds-truncate" title="제출자">제출자</div>
-										</th>
-									</template>
-								</tr>
-								</thead>
-								<tbody>
-								<template for:each={profileDataMap.sa.selectedData} for:item="data" for:index="idx">
-									<tr key={data.id} class="slds-hint-parent">
-										<template lwc:if={modalMap.isOpp}>
-											<th data-label="Account Name" scope="row">
-												<div class="slds-truncate" title="">
-													<lightning-record-picker
-														label="accountId"
-														object-api-name="Account"
-														variant="label-hidden"
-														onchange={handleChange}
-														data-id="accountId"
-														data-idx={idx}
-														filter={accountFilter}
-														required="true"
-													></lightning-record-picker>
-												</div>
-											</th>
-											<!--											<td data-label="Vehicle No">-->
-											<!--												<div class="slds-truncate" title={data.vehicleNo}>{data.vehicleNo}</div>-->
-											<!--											</td>-->
-										</template>
-										<template lwc:else>
-											<th data-label="Opportunity Name" scope="row">
-												<div class="slds-truncate" title="Opportunity Name">
-													<lightning-record-picker
-														label="oppId"
-														object-api-name="Opportunity"
-														variant="label-hidden"
-														onchange={handleChange}
-														value={data.oppId}
-														data-id="oppId"
-														data-idx={idx}
-														filter={oppFilter}
-														required="true"
-													></lightning-record-picker>
-												</div>
-											</th>
-											<!--											<td data-label="Vehicle No">-->
-											<!--												<div class="slds-truncate" title={data.vehicleNo}>{data.vehicleNo}</div>-->
-											<!--											</td>-->
-											<td data-label="Close Date">
-												<div class="slds-truncate" title={data.userName}>{data.userName}
-												</div>
-											</td>
-										</template>
-									</tr>
-								</template>
-								</tbody>
-							</table>
-						</div>
-						<div class="slds-modal__footer slds-text-align_center">
-							<button class="slds-button slds-button_neutral" aria-label="Cancel and close"
-							        onclick={handleModalChange}>취소
-							</button>
-							<button class="slds-button slds-button_brand" onclick={handleModalClick}>저장</button>
-						</div>
-					</div>
-					<template lwc:if={isLoading}>
-						<lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
-					</template>
-				</section>
-				<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
-			</template>
-			<!-- 배정요청 Modal End -->
+                        <div class="slds-p-around_medium">
+                            <lightning-input
+                                type="checkbox"
+                                name="additional"
+                                label="추가 DC 차량"
+                                checked={additionalFlag}
+                                class="custom-checkbox"
+                                onchange={handleCheckChange}>
+                            </lightning-input>
+                            <div class='slds-scrollable_x'>
+                                <template lwc:if={additionalFlag}>
+                                    <lightning-datatable
+                                        class="slds-text-body_small"
+                                        columns={profileDataMap.sa.additionalDetailColumns}
+                                        data={profileDataMap.sa.additionalDetailData}
+                                        key-field="id"
+                                        data-id="detail"
+                                        data-tab="sa"
+                                        onsort={handleSort}
+                                        onrowselection={handleRowAction}
+                                        selected-rows={profileDataMap.sa.selectedRowDetailId}
+                                        sorted-by={profileDataMap.sa.sortBy}
+                                        sorted-direction={profileDataMap.sa.sortDirection}
+                                        column-widths-mode="fixed"
+                                        min-column-width="50"
+                                        hide-checkbox-column
+                                    ></lightning-datatable>
+                                </template>
+                                <template lwc:else>
+                                    <lightning-datatable
+                                        class="slds-text-body_small"
+                                        columns={profileDataMap.sa.detailColumns}
+                                        data={profileDataMap.sa.detailData}
+                                        key-field="id"
+                                        onrowselection={handleRowAction}
+                                        data-id="detail"
+                                        data-tab="sa"
+                                        selected-rows={profileDataMap.sa.selectedRowDetailId}
+                                        column-widths-mode="fixed"
+                                        min-column-width="50"
+                                        hide-checkbox-column
+                                    ></lightning-datatable>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                <!-- Detail 화면 End -->
 
-		</lightning-tab>
-		<!-- SA Tab End -->
+                <!-- 배정요청 Modal Start -->
+                <template lwc:if={isModalOpen}>
+                    <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01"
+                             class="slds-modal slds-fade-in-open">
+                        <div class="slds-modal__container">
+                            <button class="slds-button slds-button_icon slds-modal__close"
+                                    onclick={handleModalChange}>
+                                <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                                <span class="slds-assistive-text">Cancel and close</span>
+                            </button>
+                            <div class="slds-modal__header">
+                                <h1 id="modal-heading-02" class="slds-modal__title slds-hyphenate" tabindex="-1">
+                                    {modalMap.title}</h1>
+                            </div>
+                            <div class="slds-modal__content slds-p-around_medium slds-scrollable"
+                                 id="modal-content-id-2">
+                                <table class="slds-table slds-table_cell-buffer slds-table_bordered"
+                                       aria-label="Example default base table of Opportunities">
+                                    <thead>
+                                    <tr class="slds-line-height_reset">
+                                        <template lwc:if={modalMap.isOpp}>
+                                            <th class="" scope="col">
+                                                <div class="slds-truncate" title="Account Name">Account Name</div>
+                                            </th>
+                                            <!--										<th class="" scope="col">-->
+                                            <!--											<div class="slds-truncate" title="Vehicle No">Vehicle No</div>-->
+                                            <!--										</th>-->
+                                        </template>
+                                        <template lwc:else>
+                                            <th class="" scope="col">
+                                                <div class="slds-truncate" title="Opportunity Name">Opportunity Name
+                                                </div>
+                                            </th>
+                                            <!--										<th class="" scope="col">-->
+                                            <!--											<div class="slds-truncate" title="Vehicle No">Vehicle No</div>-->
+                                            <!--										</th>-->
+                                            <th class="" scope="col">
+                                                <div class="slds-truncate" title="제출자">제출자</div>
+                                            </th>
+                                        </template>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <template for:each={profileDataMap.sa.selectedData} for:item="data"
+                                              for:index="idx">
+                                        <tr key={data.id} class="slds-hint-parent">
+                                            <template lwc:if={modalMap.isOpp}>
+                                                <th data-label="Account Name" scope="row">
+                                                    <div class="slds-truncate" title="">
+                                                        <lightning-record-picker
+                                                            label="accountId"
+                                                            object-api-name="Account"
+                                                            variant="label-hidden"
+                                                            onchange={handleChange}
+                                                            data-id="accountId"
+                                                            data-idx={idx}
+                                                            filter={accountFilter}
+                                                            required="true"
+                                                        ></lightning-record-picker>
+                                                    </div>
+                                                </th>
+                                                <!--											<td data-label="Vehicle No">-->
+                                                <!--												<div class="slds-truncate" title={data.vehicleNo}>{data.vehicleNo}</div>-->
+                                                <!--											</td>-->
+                                            </template>
+                                            <template lwc:else>
+                                                <th data-label="Opportunity Name" scope="row">
+                                                    <div class="slds-truncate" title="Opportunity Name">
+                                                        <lightning-record-picker
+                                                            label="oppId"
+                                                            object-api-name="Opportunity"
+                                                            variant="label-hidden"
+                                                            onchange={handleChange}
+                                                            value={data.oppId}
+                                                            data-id="oppId"
+                                                            data-idx={idx}
+                                                            filter={oppFilter}
+                                                            required="true"
+                                                        ></lightning-record-picker>
+                                                    </div>
+                                                </th>
+                                                <!--											<td data-label="Vehicle No">-->
+                                                <!--												<div class="slds-truncate" title={data.vehicleNo}>{data.vehicleNo}</div>-->
+                                                <!--											</td>-->
+                                                <td data-label="Close Date">
+                                                    <div class="slds-truncate" title={data.userName}>{data.userName}
+                                                    </div>
+                                                </td>
+                                            </template>
+                                        </tr>
+                                    </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="slds-modal__footer slds-text-align_center">
+                                <button class="slds-button slds-button_neutral" aria-label="Cancel and close"
+                                        onclick={handleModalChange}>취소
+                                </button>
+                                <button class="slds-button slds-button_brand" onclick={handleModalClick}>저장</button>
+                            </div>
+                        </div>
+                        <template lwc:if={isLoading}>
+                            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                        </template>
+                    </section>
+                    <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+                </template>
+                <!-- 배정요청 Modal End -->
 
-		<!-- 관리자 Tab Start -->
-		<template lwc:if={isAdminUser}>
-			<lightning-tab label="" value="admin" onactive={handleTabActive}>
+            </lightning-tab>
+            <!-- SA Tab End -->
 
-				<!-- Master 화면 Start -->
-				<article class="slds-card">
-					<div class="slds-card__header slds-grid">
-						<header class="slds-media slds-media_center slds-has-flexi-truncate">
-							<div class="slds-media__figure">
-								<lightning-icon icon-name="standard:tour" alternative-text="Master" size="small"
-								                title="Master"></lightning-icon>
-							</div>
-							<div class="slds-media__body">
-								<h2 class="slds-card__header-title">
-								<span class="slds-card__header-link slds-truncate" title="Master">
-									<span>Master</span>
-								</span>
-								</h2>
-							</div>
-							<!--						<div class="slds-no-flex">-->
-							<!--							<button class="slds-button slds-button_neutral">대기리스트 요청</button>-->
-							<!--						</div>-->
-						</header>
-					</div>
-					<div class="slds-card__body slds-card__body_inner filter-wrap">
-						<div class="slds-grid slds-wrap">
-							<lightning-combobox
-								class="slds-p-right_x-small"
-								name="progress"
-								label="세그먼트2"
-								value={profileDataMap.admin.filterMap.Segment2__c}
-								placeholder="선택안함"
-								options={filterOptions.segment}
-								onchange={handleChange}
-								data-id="segment"
-							></lightning-combobox>
-							<lightning-combobox
-									class="slds-p-right_x-small"
-									name="progress"
-									label="Styling"
-									value={profileDataMap.admin.filterMap.Styling__c}
-									placeholder="선택안함"
-									options={filterOptions.styling}
-									onchange={handleChange}
-									data-id="styling"
-							></lightning-combobox>
-							<lightning-combobox
-								class="slds-p-right_x-small"
-								label="Axle"
-								data-id="axle"
-								value={profileDataMap.admin.filterMap.AxleConfiguration__c}
-								onchange={handleChange}
-								options={filterOptions.axle}
-								placeholder="Axle을 입력해주세요"
-							></lightning-combobox>
-							<lightning-input
-								class="slds-p-right_x-small"
-								label="마력"
-								data-id="power"
-								value={profileDataMap.admin.filterMap.HorsePower__c}
-								onchange={handleChange}
-								placeholder="마력을 입력해주세요"
-							></lightning-input>
-							<lightning-combobox
-								class="slds-p-right_x-small"
-								label="휠베이스"
-								value={profileDataMap.admin.filterMap.Wheelbase__c}
-								placeholder="선택안함"
-								options={filterOptions.wheelbase}
-								onchange={handleChange}
-								data-id="wheelbase"
-							></lightning-combobox>
-							<div class="button-wrap">
-								<lightning-button-icon icon-name="utility:refresh" variant="border-filled"
-								                       alternative-text="Refresh" class="slds-m-horizontal_xx-small"
-								                       title="Refresh" onclick={handleClickMaster} data-id="refresh">
-								</lightning-button-icon>
-								<button class="slds-button slds-button_neutral" onclick={handleClickMaster}
-								        data-id="search">
-									<lightning-icon icon-name="utility:search" alternative-text="Utility search"
-									                size="x-small" title="search"></lightning-icon>
-									검색
-								</button>
-							</div>
-						</div>
-						<div class="slds-p-around_medium">
-							<div class="master-table-wrap" data-tab="admin" style={dynamicTableHeight}>
-								<lightning-datatable
-									class="slds-text-body_small"
-									columns={profileDataMap.admin.masterColumns}
-									data={profileDataMap.admin.masterData}
-									key-field="key"
-									onrowselection={handleRowAction}
-									max-row-selection="1"
-									data-id="master"
-									data-tab="admin"
-									selected-rows={profileDataMap.admin.selectedRowsMaster}
-									sorted-by={profileDataMap.admin.sortBy}
-									sorted-direction={profileDataMap.admin.sortDirection}
-									onsort={handleSort}
-									column-widths-mode="auto"
-									min-column-width="50"
-								></lightning-datatable>
-							</div>
-						</div>
-					</div>
-				</article>
-				<!-- Master 화면 End -->
+            <!-- 관리자 Tab Start -->
+            <template lwc:if={isAdminUser}>
+                <lightning-tab label="Admin" value="admin" onactive={handleTabActive}>
 
-				<!-- Detail 화면 Start -->
-				<article class="slds-card">
-					<div class="slds-card__header slds-grid">
-						<header class="slds-media slds-media_center slds-has-flexi-truncate">
-							<div class="slds-media__figure">
-								<lightning-icon icon-name="standard:webcart" alternative-text="Detail" size="small"
-								                title="Detail"></lightning-icon>
-							</div>
-							<div class="slds-media__body">
-								<h2 class="slds-card__header-title">
-								<span class="slds-card__header-link slds-truncate" title="Detail">
-									<span>Detail</span>
-								</span>
-								</h2>
-							</div>
-							<div class="slds-no-flex">
-								<button class="slds-button slds-button_neutral" data-id="stockShow"
-								        onclick={handleClickDetail}>재고노출
-								</button>
-								<button class="slds-button slds-button_neutral" data-id="stockNoShow"
-								        onclick={handleClickDetail}>재고미노출
-								</button>
-							</div>
-						</header>
-					</div>
-					<div class="slds-card__body slds-card__body_inner">
-<!--						<div class="slds-grid slds-wrap filter-wrap">-->
-<!--							<lightning-combobox-->
-<!--								class="slds-p-right_x-small"-->
-<!--								name="progress"-->
-<!--								label="Styling"-->
-<!--								value={optionValueForAdmin}-->
-<!--								placeholder="선택안함"-->
-<!--								options={filterOptions.styling}-->
-<!--								onchange={handleChange}-->
-<!--								data-id="option"-->
-<!--							></lightning-combobox>-->
-<!--							<div class="button-wrap">-->
-<!--								<lightning-button-icon icon-name="utility:refresh" variant="border-filled"-->
-<!--								                       alternative-text="Refresh" class="slds-m-horizontal_xx-small"-->
-<!--								                       title="Refresh" onclick={handleClickDetail} data-id="refresh">-->
-<!--								</lightning-button-icon>-->
-<!--								<button class="slds-button slds-button_neutral" onclick={handleClickDetail}-->
-<!--								        data-id="search">-->
-<!--									<lightning-icon icon-name="utility:search" alternative-text="Utility search"-->
-<!--									                size="x-small" title="search"></lightning-icon>-->
-<!--									검색-->
-<!--								</button>-->
-<!--							</div>-->
-<!--						</div>-->
-						<div class="slds-p-around_medium">
-							<lightning-tree-grid
-								class="slds-text-body_small"
-								columns={profileDataMap.admin.detailColumns}
-								data={profileDataMap.admin.detailData}
-								key-field="id"
-								onrowselection={handleRowAction}
-								data-id="detail"
-								data-tab="admin"
-								selected-rows={profileDataMap.admin.selectedRowDetailId}
-								min-column-width="50"
-							></lightning-tree-grid>
-						</div>
-					</div>
-				</article>
-				<!-- Detail 화면 End -->
+                    <!-- Master 화면 Start -->
+                    <article class="slds-card">
+                        <div class="slds-card__header slds-grid">
+                            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                                <div class="slds-media__figure">
+                                    <lightning-icon icon-name="standard:tour" alternative-text="Master" size="small"
+                                                    title="Master"></lightning-icon>
+                                </div>
+                                <div class="slds-media__body">
+                                    <h2 class="slds-card__header-title">
+                            <span class="slds-card__header-link slds-truncate" title="Master">
+                                <span>차종 선택</span>
+                            </span>
+                                    </h2>
+                                </div>
+                                <!--						<div class="slds-no-flex">-->
+                                <!--							<button class="slds-button slds-button_neutral">대기리스트 요청</button>-->
+                                <!--						</div>-->
+                            </header>
+                        </div>
+                        <div class="slds-card__body slds-card__body_inner filter-wrap">
+                            <div class="slds-grid slds-wrap">
+                                <lightning-combobox
+                                    class="slds-p-right_x-small"
+                                    name="progress"
+                                    label="세그먼트2"
+                                    value={profileDataMap.admin.filterMap.Segment2__c}
+                                    placeholder="선택안함"
+                                    options={filterOptions.segment}
+                                    onchange={handleChange}
+                                    data-id="segment"
+                                ></lightning-combobox>
+                                <lightning-combobox
+                                    class="slds-p-right_x-small"
+                                    name="progress"
+                                    label="스타일링"
+                                    value={profileDataMap.admin.filterMap.Styling__c}
+                                    placeholder="선택안함"
+                                    options={filterOptions.styling}
+                                    onchange={handleChange}
+                                    data-id="styling"
+                                ></lightning-combobox>
+                                <lightning-combobox
+                                    class="slds-p-right_x-small"
+                                    label="차축"
+                                    data-id="axle"
+                                    value={profileDataMap.admin.filterMap.AxleConfiguration__c}
+                                    onchange={handleChange}
+                                    options={filterOptions.axle}
+                                    placeholder="차축을 입력해주세요"
+                                ></lightning-combobox>
+                                <lightning-input
+                                    class="slds-p-right_x-small"
+                                    label="마력"
+                                    data-id="power"
+                                    value={profileDataMap.admin.filterMap.HorsePower__c}
+                                    onchange={handleChange}
+                                    placeholder="마력을 입력해주세요"
+                                ></lightning-input>
+                                <lightning-combobox
+                                    class="slds-p-right_x-small"
+                                    label="휠베이스"
+                                    value={profileDataMap.admin.filterMap.Wheelbase__c}
+                                    placeholder="선택안함"
+                                    options={filterOptions.wheelbase}
+                                    onchange={handleChange}
+                                    data-id="wheelbase"
+                                ></lightning-combobox>
+                                <div class="button-wrap">
+                                    <lightning-button-icon icon-name="utility:refresh" variant="border-filled"
+                                                           alternative-text="Refresh"
+                                                           class="slds-m-horizontal_xx-small"
+                                                           title="Refresh" onclick={handleClickMaster}
+                                                           data-id="refresh">
+                                    </lightning-button-icon>
+                                    <button class="slds-button slds-button_neutral" onclick={handleClickMaster}
+                                            data-id="search">
+                                        <lightning-icon icon-name="utility:search" alternative-text="Utility search"
+                                                        size="x-small" title="search"></lightning-icon>
+                                        검색
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="slds-p-around_medium">
+                                <div class="master-table-wrap" data-tab="admin" style={dynamicTableHeight}>
+                                    <lightning-datatable
+                                        class="slds-text-body_small"
+                                        columns={profileDataMap.admin.masterColumns}
+                                        data={profileDataMap.admin.masterData}
+                                        key-field="key"
+                                        onrowselection={handleRowAction}
+                                        max-row-selection="1"
+                                        data-id="master"
+                                        data-tab="admin"
+                                        selected-rows={profileDataMap.admin.selectedRowsMaster}
+                                        sorted-by={profileDataMap.admin.sortBy}
+                                        sorted-direction={profileDataMap.admin.sortDirection}
+                                        onsort={handleSort}
+                                        column-widths-mode="auto"
+                                        min-column-width="50"
+                                    ></lightning-datatable>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                    <!-- Master 화면 End -->
 
-				<!-- 재고요청 Modal Start -->
-				<template lwc:if={isModalOpen}>
-					<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01"
-					         class="slds-modal slds-fade-in-open">
-						<div class="slds-modal__container">
-							<button class="slds-button slds-button_icon slds-modal__close" onclick={handleModalChange}>
-								<lightning-icon icon-name="utility:close" size="small"></lightning-icon>
-								<span class="slds-assistive-text">Cancel and close</span>
-							</button>
-							<div class="slds-modal__header">
-								<h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate" tabindex="-1">
-									{modalMap.content}</h1>
-							</div>
-							<div class="slds-modal__content slds-p-around_medium slds-scrollable" id="modal-content-id-1">
-								<div class="slds-text-align_center slds-text-heading_small">
-<!--									<div class="slds-text-align_center slds-text-heading_small slds-text-title_bold slds-p-bottom_small">{modalMap.content}</div>-->
-									<lightning-datatable
-										class="slds-text-body_small"
-										columns={selectedColumns}
-										data={profileDataMap.admin.selectedData}
-										hide-checkbox-column="true"
-										key-field="id">
-									</lightning-datatable>
-								</div>
-							</div>
-							<div class="slds-modal__footer slds-text-align_center">
-								<button class="slds-button slds-button_neutral" aria-label="Cancel and close"
-								        onclick={handleModalChange}>취소
-								</button>
-								<button class="slds-button slds-button_brand" onclick={handleModalClick}>저장</button>
-							</div>
-						</div>
-						<template lwc:if={isLoading}>
-							<lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
-						</template>
-					</section>
-					<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
-				</template>
-				<!-- 배정요청 Modal End -->
+                    <!-- Detail 화면 Start -->
+                    <article class="slds-card">
+                        <div class="slds-card__header slds-grid">
+                            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                                <div class="slds-media__figure">
+                                    <lightning-icon icon-name="standard:webcart" alternative-text="Detail"
+                                                    size="small"
+                                                    title="Detail"></lightning-icon>
+                                </div>
+                                <div class="slds-media__body">
+                                    <h2 class="slds-card__header-title">
+                            <span class="slds-card__header-link slds-truncate" title="Detail">
+                                <span>세부 재고 현황</span>
+                            </span>
+                                    </h2>
+                                </div>
+                                <div class="slds-no-flex">
+                                    <button class="slds-button slds-button_neutral" data-id="stockShow"
+                                            onclick={handleClickDetail}>재고노출
+                                    </button>
+                                    <button class="slds-button slds-button_neutral" data-id="stockNoShow"
+                                            onclick={handleClickDetail}>재고미노출
+                                    </button>
+                                </div>
+                            </header>
+                        </div>
+                        <div class="slds-card__body slds-card__body_inner">
+                            <!--						<div class="slds-grid slds-wrap filter-wrap">-->
+                            <!--							<lightning-combobox-->
+                            <!--								class="slds-p-right_x-small"-->
+                            <!--								name="progress"-->
+                            <!--								label="Styling"-->
+                            <!--								value={optionValueForAdmin}-->
+                            <!--								placeholder="선택안함"-->
+                            <!--								options={filterOptions.styling}-->
+                            <!--								onchange={handleChange}-->
+                            <!--								data-id="option"-->
+                            <!--							></lightning-combobox>-->
+                            <!--							<div class="button-wrap">-->
+                            <!--								<lightning-button-icon icon-name="utility:refresh" variant="border-filled"-->
+                            <!--								                       alternative-text="Refresh" class="slds-m-horizontal_xx-small"-->
+                            <!--								                       title="Refresh" onclick={handleClickDetail} data-id="refresh">-->
+                            <!--								</lightning-button-icon>-->
+                            <!--								<button class="slds-button slds-button_neutral" onclick={handleClickDetail}-->
+                            <!--								        data-id="search">-->
+                            <!--									<lightning-icon icon-name="utility:search" alternative-text="Utility search"-->
+                            <!--									                size="x-small" title="search"></lightning-icon>-->
+                            <!--									검색-->
+                            <!--								</button>-->
+                            <!--							</div>-->
+                            <!--						</div>-->
+                            <div class="slds-p-around_medium">
+                                <lightning-tree-grid
+                                    class="slds-text-body_small"
+                                    columns={profileDataMap.admin.detailColumns}
+                                    data={profileDataMap.admin.detailData}
+                                    key-field="id"
+                                    onrowselection={handleRowAction}
+                                    data-id="detail"
+                                    data-tab="admin"
+                                    selected-rows={profileDataMap.admin.selectedRowDetailId}
+                                    min-column-width="50"
+                                ></lightning-tree-grid>
+                            </div>
+                        </div>
+                    </article>
+                    <!-- Detail 화면 End -->
 
-			</lightning-tab>
-		</template>
-		<!-- 관리자 Tab End -->
-
-	</lightning-tabset>
-
-	<!-- 로딩바 Start -->
-	<template lwc:if={isLoading}>
-		<lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
-	</template>
-	<!-- 로딩바 End -->
+                    <!-- 재고요청 Modal Start -->
+                    <template lwc:if={isModalOpen}>
+                        <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01"
+                                 class="slds-modal slds-fade-in-open">
+                            <div class="slds-modal__container">
+                                <button class="slds-button slds-button_icon slds-modal__close"
+                                        onclick={handleModalChange}>
+                                    <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                                    <span class="slds-assistive-text">Cancel and close</span>
+                                </button>
+                                <div class="slds-modal__header">
+                                    <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate"
+                                        tabindex="-1">
+                                        {modalMap.content}</h1>
+                                </div>
+                                <div class="slds-modal__content slds-p-around_medium slds-scrollable"
+                                     id="modal-content-id-1">
+                                    <div class="slds-text-align_center slds-text-heading_small">
+                                        <!--									<div class="slds-text-align_center slds-text-heading_small slds-text-title_bold slds-p-bottom_small">{modalMap.content}</div>-->
+                                        <lightning-datatable
+                                            class="slds-text-body_small"
+                                            columns={selectedColumns}
+                                            data={profileDataMap.admin.selectedData}
+                                            hide-checkbox-column="true"
+                                            key-field="id">
+                                        </lightning-datatable>
+                                    </div>
+                                </div>
+                                <div class="slds-modal__footer slds-text-align_center">
+                                    <button class="slds-button slds-button_neutral" aria-label="Cancel and close"
+                                            onclick={handleModalChange}>취소
+                                    </button>
+                                    <button class="slds-button slds-button_brand" onclick={handleModalClick}>저장
+                                    </button>
+                                </div>
+                            </div>
+                            <template lwc:if={isLoading}>
+                                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                            </template>
+                        </section>
+                        <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+                    </template>
+                    <!-- 배정요청 Modal End -->
+                </lightning-tab>
+            </template>
+            </lightning-tabset>
+            <!-- 관리자 Tab End -->
+        </template>
+    </div>
+    <!-- 로딩바 Start -->
+    <template lwc:if={isLoading}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+    <!-- 로딩바 End -->
 </template>

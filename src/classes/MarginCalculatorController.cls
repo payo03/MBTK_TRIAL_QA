@@ -35,22 +35,22 @@ public with sharing class MarginCalculatorController {
 
         List<Product2> productList = [
                 SELECT
-                        Id, Name, IsOTV__c, IsLNS__c, TrimLevel__c, VehicleCategory__r.Report_Spec__c, VehicleCategory__r.Name, toLabel(EmissionLevel__c)
+                        Id, Name, IsOTV__c, IsLNS__c, TrimLevel__c, VehicleCategory__r.Name, toLabel(EmissionLevel__c)
                 FROM Product2
-                WHERE VehicleCategory__r.Report_Spec__c IN :avgLocalCostMap.keySet()
+                WHERE VehicleCategory__r.Name IN :avgLocalCostMap.keySet()
 //                AND Id IN (
 //                        SELECT Product__c
 //                        FROM VehicleStock__c
 //                        WHERE VehicleStatus__c IN ('입고', '항구도착', '항구도착전')
 //                )
-                ORDER BY VehicleCategory__r.Report_Spec__c, Name
+                ORDER BY VehicleCategory__r.Name, Name
         ];
 
         for(Product2 product : productList) {
-            if(avgLocalCostMap.containsKey(product.VehicleCategory__r.Report_Spec__c)) {
+            if(avgLocalCostMap.containsKey(product.VehicleCategory__r.Name)) {
                 Map<String, Object> objMap = new Map<String, Object> {
                         'product' => product
-                        , 'config' => avgLocalCostMap.get(product.VehicleCategory__r.Report_Spec__c)
+                        , 'config' => avgLocalCostMap.get(product.VehicleCategory__r.Name)
                 };
 //                returnMap.put(product.Id, objMap);
                 returnMap.put(product.Name, objMap);

@@ -48,11 +48,11 @@ export default class quoteCalculatorTable extends LightningElement {
 		const price = product?.price || 0;
 		const optionList = product?.optionList || [];
 		let totalPrice = price;
-		let optionAdditionalPrice = 0;
+		// let optionAdditionalPrice = 0;
 		optionList.forEach(el => {
 			if (el.price) {
 				totalPrice += el.price;
-				if (el.isOilCouponExclude) optionAdditionalPrice += el.price;
+				// if (el.isOilCouponExclude) optionAdditionalPrice += el.price;
 			}
 		});
 
@@ -60,8 +60,8 @@ export default class quoteCalculatorTable extends LightningElement {
 			name: product?.name || "",
 			price: price,
 			totalPrice: totalPrice,
-			optionList: product?.optionList?.filter(el => el.type !== "기본제공") || [],
-			optionAdditionalPrice: optionAdditionalPrice
+			optionList: product?.optionList || []
+			// optionAdditionalPrice: optionAdditionalPrice
 		};
 	}
 
@@ -97,13 +97,17 @@ export default class quoteCalculatorTable extends LightningElement {
 		const { oilCouponPrice = 0 } = this.tableDataMap?.discountDetail || {};
 		const totalPrice = this.promotionData.totalPrice;
 		const interestDefermentVAT = this.financialData.interestDefermentVAT;
-		const optionAdditionalPrice = this.productData.optionAdditionalPrice;
+		let optionAdditionalPrice = 0;
+		this.defaultOptionsData.forEach(el => {
+			if (el.isOilCouponExclude) optionAdditionalPrice += el.price;
+		});
 		const maxCount = Math.floor((totalPrice - (interestDefermentVAT + optionAdditionalPrice)) / 100000) || 0;
 
 		return {
 			oilCouponPrice,
 			discountPrice: totalPrice - oilCouponPrice,
-			maxCount: maxCount
+			maxCount: maxCount,
+			optionAdditionalPrice: optionAdditionalPrice
 		};
 	}
 
@@ -111,7 +115,7 @@ export default class quoteCalculatorTable extends LightningElement {
 	 * @description 기본제공 품목
 	 */
 	get defaultOptionsData() {
-		return this.tableDataMap?.defaultOptions;
+		return this.tableDataMap?.defaultOptions || [];
 	}
 
 	/**

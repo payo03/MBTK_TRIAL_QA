@@ -10,7 +10,7 @@
 import {LightningElement, track, wire} from 'lwc';
 import { getRecord } from 'lightning/uiRecordApi';
 import {CurrentPageReference, NavigationMixin} from "lightning/navigation";
-import {defaultNavigation, showToast} from "c/commonUtil";
+import {defaultNavigation, recordNavigation, showToast} from "c/commonUtil";
 import {CloseActionScreenEvent} from "lightning/actions";
 import LightningConfirm from "lightning/confirm";
 
@@ -20,6 +20,7 @@ import callApprovalProcess from "@salesforce/apex/LeadManagementController.callA
 
 import PRODUCTID_FIELD from "@salesforce/schema/Lead.ProductId__c"
 import PRODUCTNAME_FIELD from "@salesforce/schema/Lead.ProductId__r.Name"
+import formFactor from "@salesforce/client/formFactor";
 
 const FIELDS = [
   'Lead.Id',
@@ -39,25 +40,47 @@ export default class LeadDetailConvert extends NavigationMixin(LightningElement)
 
   @track recordId;
   objectApiName;
-  @wire(CurrentPageReference) pageRef;
 
   @track leadData;
   @track selectedProductId;
   selectedCampaignId;
   selectedCampaignList;
+  isConvertModal = true;
 
   @track isLoading = false;
+  // @wire(CurrentPageReference) pageRef;
+  // URL에서 recordId 가져오기
+  @wire(CurrentPageReference)
+  getStateParameters(currentPageReference) {
+    this.recordId = currentPageReference.state.recordId;
+    if (currentPageReference && !this.recordId) {
+      this.recordId = currentPageReference.state?.c__recordId;
+    }
+    if(this.recordId) {
+      this.objectApiName = this.getObjectApiNameFromId(this.recordId);
+      console.log('BizNum ::: currentPageReference ::: ' + JSON.stringify(currentPageReference))
+      console.log('BizNum ::: this.recordId ::: ' + this.recordId)
+      console.log('BizNum ::: this.objectApiName ::: ' + this.objectApiName)
+    }
+  }
+
+  getObjectApiNameFromId(recordId) {
+    const prefixMap = {
+      '001': 'Account',
+      '003': 'Contact',
+      '00Q': 'Lead',
+      '500': 'Case',
+      '006': 'Opportunity'
+      // 필요한 객체 추가 가능
+    };
+
+    const prefix = recordId.substring(0, 3);
+    return prefixMap[prefix] || 'Unknown';
+  }
 
   connectedCallback() {
-    this.recordId = this.pageRef.state.recordId;
-
-    this.isConvertModal = true;
-
-    // requestAnimationFrame(() => {
-    //   const convertModalEl = this.template.querySelector("c-product-campaign-table");
-    //   // 다음주 여기에 알맞는 lead 레코드를 파라미터로 던져서 잘 받자.(리드 관리랑 비슷하게 하면 될 듯)
-    //   convertModalEl.getProductByLead(this.leadData);
-    // })
+    // this.recordId = this.pageRef.state.recordId;
+    // this.isConvertModal = true;
   }
 
   @wire(getRecord, { recordId: '$recordId', fields: FIELDS })
@@ -124,6 +147,7 @@ export default class LeadDetailConvert extends NavigationMixin(LightningElement)
     }
     console.log('inputMap ::: ' + JSON.stringify(inputMap));
     createPreQuote({'inputMap' : inputMap}).then(res => {
+      console.log('res ::: ' + res)
       console.log('res ::: ' + JSON.stringify(res))
       const dupType = res['dupType'];
       const accountId = res['accountId'];
@@ -169,7 +193,7 @@ export default class LeadDetailConvert extends NavigationMixin(LightningElement)
         defaultNavigation(this, "Quote", '', res['value']);
       }
     }).catch(err => {
-      console.log("err :: ", err);
+      console.log("err :: ", err.message);
     }).finally(() => {
       this.isLoading = false;
     });
@@ -180,6 +204,13 @@ export default class LeadDetailConvert extends NavigationMixin(LightningElement)
 
   handleCancel() {
     this.dispatchEvent(new CloseActionScreenEvent());
+    this.mobileReturnPage();
+  }
+
+  mobileReturnPage() {
+    if(formFactor === "Small") {
+      recordNavigation(this, this.objectApiName, this.recordId);
+    }
   }
 
   // productCampaignTable에서 이벤트 받기

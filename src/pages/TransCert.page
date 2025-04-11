@@ -8,886 +8,897 @@
  * 1.0          2025-02-07      San.Kang          Initial Version
 -->
 <!--    <apex:page showHeader="false" renderAs="pdf" sidebar="false">-->
-<apex:page showHeader="false" renderAs="pdf" sidebar="false" standardController="VehicleStock__c" extensions="TransCertController"
+<apex:page showHeader="false" renderAs="pdf" sidebar="false" controller="TransCertController"
            action="{!init}">
-    <apex:variable value="" var="" rendered="{!opportunity!=null}">
-        <apex:variable value="" var="">
-            <table align="center" border="1" cellpadding="3" cellspacing="0" style="width:595px;" width="744">
-                <tbody>
-                <tr>
-                    <td style="width:650px;height:882px;">
-                        <table align="left" border="0" cellpadding="0" cellspacing="0">
-                            <tbody>
-                            <tr>
-                                <td style="width:386px;" colspan="2" align="right">
-                                    <apex:outputLabel value="양도 증명서" style="font-family: Arial Unicode MS;font-size:24pt;font-weight:bold!important;"/>
-                                    <apex:outputLabel value="{!expect}" style="font-family: Arial Unicode MS;font-size:16pt;font-weight:bold!important;"/>
-                                </td>
-                                <td align="right" style="width:193px;">
-                                    <apex:image url="/servlet/servlet.FileDownload?file=015900000062Gu1" width="150" height="60"/>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                        <p>&nbsp;</p>
-                        <p>&nbsp;</p>
-                        <table border="0" cellpadding="0" cellspacing="0" style="width:600px;" width="726">
-                            <tbody>
-                            <tr>
-                                <td style="width:30px;height:24px;">
-
-                                    &nbsp;
-                                </td>
-                                <td style="width:104px;height:24px;">
-                                    <apex:outputLabel value="발 행 번 호 :" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                                <td colspan="9" style="width:447px;height:24px;">
-                                    <apex:outputLabel value="{!opportunity.Id}" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="width:30px;height:23px;">
-
-                                    &nbsp;
-                                </td>
-                                <td style="width:104px;height:23px;">
-                                    <apex:outputLabel value="건설 기계명 :" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                                <td colspan="9" style="width:447px;height:23px;">
-                                    <apex:outputLabel value="{!vehicleStock.VehicleName__c}" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td style="width:30px;height:24px;">
-
-                                    &nbsp;
-                                </td>
-                                <td style="width:104px;height:24px;">
-                                    <apex:outputLabel value="형 " style="font-family: Arial Unicode MS;" />
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <apex:outputLabel value="식 :" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                                <td style="width:19px;height:24px;">
-
-                                    &nbsp;
-                                </td>
-                                <td colspan="8" style="width:428px;height:24px;">
-                                    <apex:outputLabel value="{!vehicleStock.SpecShort__c}" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="width:30px;height:24px;">
-
-                                    &nbsp;
-                                </td>
-                                <td style="width:104px;height:24px;">
-                                    <apex:outputLabel value="규 " style="font-family: Arial Unicode MS;" />
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <apex:outputLabel value="격 :" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                                <td style="width:19px;height:24px;">
-                                    &nbsp;
-                                </td>
-                                <td colspan="8" style="width:428px;height:24px;">
-                                    <apex:outputLabel value="{!vehicleStock.Product__r.MaxLoad__c}" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="width:30px;height:23px;">
-
-                                    &nbsp;
-                                </td>
-                                <td colspan="3" style="width:25%;height:23px;">
-                                    <apex:outputLabel value="건설기계차대일련번호 :" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                                <td colspan="7" style="width:390px;height:23px;">
-                                    <apex:outputLabel value="{!vehicleStock.Name}" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="width:30px;height:24px;">
-
-                                    &nbsp;
-                                </td>
-                                <td style="width:104px;height:24px;">
-                                    <apex:outputLabel value="원동기 형식 :" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                                <td style="width:19px;height:24px;">
-
-                                    &nbsp;
-                                </td>
-                                <td colspan="8" style="width:428px;height:24px;">
-                                    <apex:outputLabel value="{!vehicleStock.EngineType__c}" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="width:30px;height:24px;">
-
-                                    &nbsp;
-                                </td>
-                                <td style="width:104px;height:24px;">
-                                    <apex:outputLabel value="원동기 번호 :" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                                <td style="width:19px;height:24px;">
-
-                                    &nbsp;
-                                </td>
-                                <td colspan="8" style="width:428px;height:24px;">
-                                    <apex:outputLabel value="{!vehicleStock.EngineNumber__c}" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td style="width:30px;height:23px;">
-
-                                    &nbsp;
-                                </td>
-                                <td style="width:104px;height:23px;">
-                                    <apex:outputLabel value="양수인 주소 :" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                                <td style="width:19px;height:23px;">
-
-                                    &nbsp;
-                                </td>
-                                <td colspan="8" style="width:428px;height:23px;">
-                                    <apex:outputLabel value="{!account.RoadAddress__c + ' ' + account.DetailAddress__c}" style="font-family: Arial Unicode MS;" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="width:30px;height:24px;">
-
-                                    &nbsp;
-                                </td>
-                                <td style="width:104px;height:24px;">
-                                    <apex:outputLabel value="성 " style="font-family: Arial Unicode MS;" />
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <apex:outputLabel value="명 :" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                                <td style="width:19px;height:24px;">
-
-                                    &nbsp;
-                                </td>
-                                <td colspan="8" style="width:428px;height:24px;">
-                                    <apex:outputLabel value="{!account.Name}" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="width:30px;height:24px;">
-
-                                    &nbsp;
-                                </td>
-                                <td colspan="10" style="width:551px;height:24px;">
-
-                                    &nbsp;
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="width:30px;height:23px;">
-
-                                    &nbsp;
-                                </td>
-                                <td colspan="10" style="width:551px;height:23px;">
-                                    <apex:outputLabel value="위 건설기계를 위와 같이 양도함을 증명함." style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="width:30px;height:63px;">
-
-                                    &nbsp;
-                                </td>
-                                <td colspan="8" style="width:350px;height:63px;">
-
-                                    <p>&nbsp;</p>
-                                </td>
-                                <td colspan="2" style="width:201px;height:63px;">
-                                    <apex:outputText value="{0,date,yyyy'년 'M'월 'd'일'}" style="font-family: Arial Unicode MS;">
-                                        <apex:param value="{!opportunity.VehicleStock__r.WantedOutDT__c}" />
-                                    </apex:outputText>
-
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="width:30px;height:28px;">
-
-                                    &nbsp;
-                                </td>
-                                <td colspan="4" style="width:170px;height:28px;">
-
-                                    &nbsp;
-                                </td>
-                                <td colspan="2" style="width:103px;height:28px;" align="center">
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <apex:outputLabel value="양도인" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                                <td colspan="4" style="width:277px;height:28px;">
-                                    <apex:outputLabel value="만 트 럭 버 스 코 리 아 ㈜" style="font-family: Arial Unicode MS;font-size:16pt" />
-
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="width:30px;height:31px;">
-
-                                    &nbsp;
-                                </td>
-                                <td colspan="5" style="width:256px;height:31px;">
-
-                                    &nbsp;
-                                </td>
-                                <td colspan="2" style="width:76px;height:31px;">
-                                    <apex:outputLabel value="대표이사" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                                <td colspan="2" style="width:91px;height:31px;">
-
-                                    <apex:outputLabel value="토마스 해머리히" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                                <td style="width:129px;height:31px;">
-
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-
-                        <p>&nbsp;</p>
-
-                        &nbsp;
-
-                        &nbsp;
-
-                        &nbsp;
-
-                        <table align="center" border="1" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
-                            <tbody>
-                            <tr style="border:none;">
-                                <td rowspan="5" style="width:26px;border:none;">
-                                    &nbsp;
-                                </td>
-                            </tr>
-                            <tr style="height:40px">
-                                <td rowspan="4" align="center" style="width:80px;">
-
-                                    <apex:outputLabel value="양 도 인" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                                <td align="center" style="width:170px;">
-
-                                    <apex:outputLabel value="소 " style="font-family: Arial Unicode MS;" />
-                                    &nbsp;&nbsp;&nbsp;
-                                    <apex:outputLabel value="재 " style="font-family: Arial Unicode MS;" />
-                                    &nbsp;&nbsp;&nbsp;
-                                    <apex:outputLabel value="지" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                                <td style="width:453px;">
-                                    <apex:variable value="" var="" rendered="{!!isNewAddress}">
-                                        <apex:outputLabel value="서울시 강남구 강남대로 262" style="font-family: Arial Unicode MS;" /><br />
-                                        <apex:outputLabel value="(도곡동, 캠코양재타워 15층)" style="font-family: Arial Unicode MS;" /><br />
-                                    </apex:variable>
-                                    <apex:variable value="" var="" rendered="{!isNewAddress}">
-                                        <apex:outputLabel value="경기도 용인시 기흥구 보라하갈로 57" style="font-family: Arial Unicode MS;" /><br />
-                                        <apex:outputLabel value="(하갈동)" style="font-family: Arial Unicode MS;" /><br />
-                                    </apex:variable>
-                                </td>
-                            </tr>
-                            <tr style="height:40px">
-                                <td align="center" style="width:170px;">
-
-                                    <apex:outputLabel value="사업자등록번호" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                                <td style="width:304px;">
-
-                                    <apex:outputLabel value="106-86-02523" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                            </tr>
-                            <tr style="height:40px">
-                                <td align="center" style="width:170px;">
-
-                                    <apex:outputLabel value="회 " style="font-family: Arial Unicode MS;" />
-                                    &nbsp;&nbsp;&nbsp;
-                                    <apex:outputLabel value="사 " style="font-family: Arial Unicode MS;" />
-                                    &nbsp;&nbsp;&nbsp;
-                                    <apex:outputLabel value="명" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                                <td style="width:304px;">
-
-                                    <apex:outputLabel value="만트럭버스코리아㈜" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                            </tr>
-                            <tr style="height:40px">
-                                <td align="center" style="width:170px;">
-
-                                    <apex:outputLabel value="대 " style="font-family: Arial Unicode MS;" />
-                                    &nbsp;
-                                    <apex:outputLabel value="표 " style="font-family: Arial Unicode MS;" />
-                                    &nbsp;
-                                    <apex:outputLabel value="이 " style="font-family: Arial Unicode MS;" />
-                                    &nbsp;
-                                    <apex:outputLabel value="사" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                                <td style="width:304px;">
-
-                                    <apex:outputLabel value="토마스 해머리히" style="font-family: Arial Unicode MS;" />
-
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                        &nbsp;
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </apex:variable>
-<!--        <apex:variable value="" var="" rendered="{!printSegment=='Tipper/Traction'}">-->
-<!--            <div style="page-break-after:always;">-->
-<!--                <table align="center" border="1" cellpadding="3" cellspacing="0" style="width:595px;" width="744">-->
-<!--                    <tbody>-->
-<!--                    <tr>-->
-<!--                        <td style="width:650px;height:882px;">-->
-<!--                            <table align="left" border="0" cellpadding="0" cellspacing="0">-->
-<!--                                <tbody>-->
-<!--                                <tr>-->
-<!--                                    <td style="width:386px;" colspan="2" align="right">-->
-<!--                                        <apex:outputLabel value="양도 증명서" style="font-family: Arial Unicode MS;font-size:24pt;font-weight:bold!important;"/>-->
-<!--                                        <apex:outputLabel value="{!expect}" style="font-family: Arial Unicode MS;font-size:16pt;font-weight:bold!important;"/>-->
-<!--                                    </td>-->
-<!--                                    <td align="right" style="width:193px;">-->
-<!--                                        <apex:image url="/servlet/servlet.FileDownload?file=015900000062Gu1" width="150" height="60"/>-->
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                                </tbody>-->
-<!--                            </table>-->
-<!--                            <p>&nbsp;</p>-->
-<!--                            <p>&nbsp;</p>-->
-<!--                            <table border="0" cellpadding="0" cellspacing="0" style="width:600px;" width="726">-->
-<!--                                <tbody>-->
-<!--                                <tr>-->
-<!--                                    <td style="width:30px;height:24px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td style="width:104px;height:24px;">-->
-<!--                                        <apex:outputLabel value="발 행 번 호 :" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                    <td colspan="9" style="width:447px;height:24px;">-->
-<!--                                        <apex:outputLabel value="{!opportunity.Id}" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                                <tr>-->
-<!--                                    <td style="width:30px;height:23px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td style="width:104px;height:23px;">-->
-<!--                                        <apex:outputLabel value="건설 기계명 :" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                    <td colspan="9" style="width:447px;height:23px;">-->
-<!--                                        <apex:outputLabel value="{!vehicleStock.VehicleName__c}" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                </tr>-->
-
-<!--                                <tr>-->
-<!--                                    <td style="width:30px;height:24px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td style="width:104px;height:24px;">-->
-<!--                                        <apex:outputLabel value="형 " style="font-family: Arial Unicode MS;" />-->
-<!--                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
-<!--                                        <apex:outputLabel value="식 :" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                    <td style="width:19px;height:24px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td colspan="8" style="width:428px;height:24px;">-->
-<!--                                        <apex:outputLabel value="{!vehicleStock.FinalSpec__c}" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                                <tr>-->
-<!--                                    <td style="width:30px;height:24px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td style="width:104px;height:24px;">-->
-<!--                                        <apex:outputLabel value="규 " style="font-family: Arial Unicode MS;" />-->
-<!--                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
-<!--                                        <apex:outputLabel value="격 :" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                    <td style="width:19px;height:24px;">-->
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td colspan="8" style="width:428px;height:24px;">-->
-<!--                                        <apex:outputLabel value="{!MaxLoad}" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                                <tr>-->
-<!--                                    <td style="width:30px;height:23px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td colspan="3" style="width:25%;height:23px;">-->
-<!--                                        <apex:outputLabel value="건설기계차대일련번호 :" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                    <td colspan="7" style="width:390px;height:23px;">-->
-<!--                                        <apex:outputLabel value="{!vehicleStock.Name}" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                                <tr>-->
-<!--                                    <td style="width:30px;height:24px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td style="width:104px;height:24px;">-->
-<!--                                        <apex:outputLabel value="원동기 형식 :" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                    <td style="width:19px;height:24px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td colspan="8" style="width:428px;height:24px;">-->
-<!--                                        <apex:outputLabel value="{!vehicleStock.EngineType__c}" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                                <tr>-->
-<!--                                    <td style="width:30px;height:24px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td style="width:104px;height:24px;">-->
-<!--                                        <apex:outputLabel value="원동기 번호 :" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                    <td style="width:19px;height:24px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td colspan="8" style="width:428px;height:24px;">-->
-<!--                                        <apex:outputLabel value="{!vehicleStock.EngineNumber__c}" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                </tr>-->
-
-<!--                                <tr>-->
-<!--                                    <td style="width:30px;height:23px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td style="width:104px;height:23px;">-->
-<!--                                        <apex:outputLabel value="양수인 주소 :" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                    <td style="width:19px;height:23px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td colspan="8" style="width:428px;height:23px;">-->
-<!--                                        <apex:outputLabel value="{!Address}" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                                <tr>-->
-<!--                                    <td style="width:30px;height:24px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td style="width:104px;height:24px;">-->
-<!--                                        <apex:outputLabel value="성 " style="font-family: Arial Unicode MS;" />-->
-<!--                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
-<!--                                        <apex:outputLabel value="명 :" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                    <td style="width:19px;height:24px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td colspan="8" style="width:428px;height:24px;">-->
-<!--                                        <apex:outputLabel value="{!Name}" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                                <tr>-->
-<!--                                    <td style="width:30px;height:24px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td colspan="10" style="width:551px;height:24px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                                <tr>-->
-<!--                                    <td style="width:30px;height:23px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td colspan="10" style="width:551px;height:23px;">-->
-<!--                                        <apex:outputLabel value="위 건설기계를 위와 같이 양도함을 증명함." style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                                <tr>-->
-<!--                                    <td style="width:30px;height:63px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td colspan="8" style="width:350px;height:63px;">-->
-
-<!--                                        <p>&nbsp;</p>-->
-<!--                                    </td>-->
-<!--                                    <td colspan="2" style="width:201px;height:63px;">-->
-<!--                                        <apex:outputText value="{0,date,yyyy'년 'M'월 'd'일'}" style="font-family: Arial Unicode MS;">-->
-<!--                                            <apex:param value="{!IF(opportunity.WantedOutDT__c!=null,opportunity.WantedOutDT__c,opportunity.PlannedOutDT__c)}" />-->
-<!--                                        </apex:outputText>-->
-
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                                <tr>-->
-<!--                                    <td style="width:30px;height:28px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td colspan="4" style="width:170px;height:28px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td colspan="2" style="width:103px;height:28px;" align="center">-->
-<!--                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
-<!--                                        <apex:outputLabel value="양도인" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                    <td colspan="4" style="width:277px;height:28px;">-->
-<!--                                        <apex:outputLabel value="만 트 럭 버 스 코 리 아 ㈜" style="font-family: Arial Unicode MS;font-size:16pt" />-->
-
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                                <tr>-->
-<!--                                    <td style="width:30px;height:31px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td colspan="5" style="width:256px;height:31px;">-->
-
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                    <td colspan="2" style="width:76px;height:31px;">-->
-<!--                                        <apex:outputLabel value="대표이사" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                    <td colspan="2" style="width:91px;height:31px;">-->
-
-<!--                                        <apex:outputLabel value="토마스 해머리히" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                    <td style="width:129px;height:31px;">-->
-<!--                                        &lt;!&ndash;-->
-<!--<apex:image url="/servlet/servlet.FileDownload?file={!uzIngam.Id}" width="72" height="72" />-->
-<!--&ndash;&gt;-->
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                                </tbody>-->
-<!--                            </table>-->
-
-<!--                            <p>&nbsp;</p>-->
-
-<!--                            &nbsp;-->
-
-<!--                            &nbsp;-->
-
-<!--                            &nbsp;-->
-
-<!--                            <table align="center" border="1" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">-->
-<!--                                <tbody>-->
-<!--                                <tr style="border:none;">-->
-<!--                                    <td rowspan="5" style="width:26px;border:none;">-->
-<!--                                        &nbsp;-->
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                                <tr style="height:40px">-->
-<!--                                    <td rowspan="4" align="center" style="width:80px;">-->
-
-<!--                                        <apex:outputLabel value="양 도 인" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                    <td align="center" style="width:170px;">-->
-
-<!--                                        <apex:outputLabel value="소 " style="font-family: Arial Unicode MS;" />-->
-<!--                                        &nbsp;&nbsp;&nbsp;-->
-<!--                                        <apex:outputLabel value="재 " style="font-family: Arial Unicode MS;" />-->
-<!--                                        &nbsp;&nbsp;&nbsp;-->
-<!--                                        <apex:outputLabel value="지" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                    <td style="width:453px;">-->
-<!--                                        <apex:variable value="" var="" rendered="{!!isNewAddress}">-->
-<!--                                            <apex:outputLabel value="서울시 강남구 강남대로 262" style="font-family: Arial Unicode MS;" /><br />-->
-<!--                                            <apex:outputLabel value="(도곡동, 캠코양재타워 15층)" style="font-family: Arial Unicode MS;" /><br />-->
-<!--                                        </apex:variable>-->
-<!--                                        <apex:variable value="" var="" rendered="{!isNewAddress}">-->
-<!--                                            <apex:outputLabel value="경기도 용인시 기흥구 보라하갈로 57" style="font-family: Arial Unicode MS;" /><br />-->
-<!--                                            <apex:outputLabel value="(하갈동)" style="font-family: Arial Unicode MS;" /><br />-->
-<!--                                        </apex:variable>-->
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                                <tr style="height:40px">-->
-<!--                                    <td align="center" style="width:170px;">-->
-
-<!--                                        <apex:outputLabel value="사업자등록번호" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                    <td style="width:304px;">-->
-
-<!--                                        <apex:outputLabel value="106-86-02523" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                                <tr style="height:40px">-->
-<!--                                    <td align="center" style="width:170px;">-->
-
-<!--                                        <apex:outputLabel value="회 " style="font-family: Arial Unicode MS;" />-->
-<!--                                        &nbsp;&nbsp;&nbsp;-->
-<!--                                        <apex:outputLabel value="사 " style="font-family: Arial Unicode MS;" />-->
-<!--                                        &nbsp;&nbsp;&nbsp;-->
-<!--                                        <apex:outputLabel value="명" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                    <td style="width:304px;">-->
-
-<!--                                        <apex:outputLabel value="만트럭버스코리아㈜" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                                <tr style="height:40px">-->
-<!--                                    <td align="center" style="width:170px;">-->
-
-<!--                                        <apex:outputLabel value="대 " style="font-family: Arial Unicode MS;" />-->
-<!--                                        &nbsp;-->
-<!--                                        <apex:outputLabel value="표 " style="font-family: Arial Unicode MS;" />-->
-<!--                                        &nbsp;-->
-<!--                                        <apex:outputLabel value="이 " style="font-family: Arial Unicode MS;" />-->
-<!--                                        &nbsp;-->
-<!--                                        <apex:outputLabel value="사" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                    <td style="width:304px;">-->
-
-<!--                                        <apex:outputLabel value="토마스 해머리히" style="font-family: Arial Unicode MS;" />-->
-
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                                </tbody>-->
-<!--                            </table>-->
-<!--                            &nbsp;-->
-<!--                        </td>-->
-<!--                    </tr>-->
-<!--                    </tbody>-->
-<!--                </table>-->
-
-<!--            </div>-->
-
-            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-            <apex:outputLabel value=" [별지 제1호 서식] (제11조 관련)" style="font-family: Arial Unicode MS;"/>
-            <br/>
-            <table align="center" border="1" cellpadding="0" cellspacing="0" style="width:596px;" width="745">
-                <tbody>
-                <tr>
-                    <td style="width:596px;height:736px;">
-                        <table border="0" cellpadding="0" cellspacing="0" style="width:596px;" width="726">
-                            <tr><td style="height:60px;">&nbsp;</td></tr>
-                        </table>
-                        <center><apex:outputLabel value="건설기계제작증{!expect}" style="font-family: Arial Unicode MS;font-size:22pt;font-weight:bold!important;"/></center>
-                        <table border="0" cellpadding="0" cellspacing="0" style="width:596px;" width="726">
-                            <tbody>
-                            <tr>
-                                <td colspan="10" style="height:60px;">
-                                    &nbsp;
-                                </td>
-                            </tr>
-                            <tr>
-                                <td rowspan="15" style="width:27px;">
-                                    &nbsp;
-                                </td>
-                                <td colspan="9" style="height:30px;">
-                                    <apex:outputLabel value="증 서 발 생 번 호 : {!'MTBK-'+vehicleStock.constEquipProdCert_No__c}" style="font-family: Arial Unicode MS;font-size:13pt;"/>
-                                </td>
-                            </tr>
-                            <tr><td colspan="9" style="height:7px;">&nbsp;</td></tr>
-                            <tr>
-                                <td colspan="9" style="width:211px;height:30px;">
-                                    <apex:outputLabel value="형식승인(신고)번호 및 일자 : {!vehicleStock.AcceptedNo__c}" style="font-family: Arial Unicode MS;"/>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <apex:outputLabel value="{!typeDate}" style="font-family: Arial Unicode MS;"/>
-                                </td>
-                            </tr>
-                            <tr><td colspan="9" style="height:7px;">&nbsp;</td></tr>
-                            <tr>
-                                <td colspan="9" style="height:30px;">
-                                    <apex:outputLabel value="건 설 기 계 명 : {!vehicleStock.VehicleName__c}" style="font-family: Arial Unicode MS;"/>
-
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="9" style="width:68px;height:30px;" align="left">
-                                    &nbsp;&nbsp;&nbsp;&nbsp;
-                                    <apex:outputLabel value="형 식 : " style="font-family: Arial Unicode MS;"/>
-                                    <apex:outputLabel value="{!vehicleStock.formjewon__c}" style="font-family: Arial Unicode MS;"/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="9" style="width:68px;height:30px;" align="left">
-                                    &nbsp;&nbsp;&nbsp;&nbsp;
-                                    <apex:outputLabel value="규 격 : " style="font-family: Arial Unicode MS;"/>
-                                    <apex:outputLabel value="{!IF(ISBLANK(vehicleStock.StdLoad__c),'25.50 톤',vehicleStock.StdLoad__c)}" style="font-family: Arial Unicode MS;"/>
-                                </td>
-                            </tr>
-                            <tr><td colspan="9" style="height:7px;">&nbsp;</td></tr>
-                            <tr>
-                                <td colspan="9" style="width:68px;height:30px;">
-                                    <apex:outputLabel value="원 동 기 : " style="font-family: Arial Unicode MS;"/>&nbsp;&nbsp;
-                                    <apex:outputLabel value="1)형 식 : " style="font-family: Arial Unicode MS;"/>&nbsp;
-                                    <apex:outputLabel value="{!vehicleStock.EngineType__c}" style="font-family: Arial Unicode MS;"/>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <apex:outputLabel value="1)출 력 : " style="font-family: Arial Unicode MS;"/>&nbsp;
-                                    <apex:outputLabel value="{!IF(ISBLANK(vehicleStock.Output__c),sHorsePower,vehicleStock.Output__c)}" style="font-family: Arial Unicode MS;"/>
-                                </td>
-                            </tr>
-                            <tr><td colspan="9" style="height:7px;">&nbsp;</td></tr>
-                            <tr>
-                                <td colspan="9" style="height:30px;">
-                                    <apex:outputLabel value="제 작 일 련 번 호 : {!vehicleStock.Name}" style="font-family: Arial Unicode MS;"/>
-
-                                </td>
-                            </tr>
-                            <tr><td colspan="9" style="height:7px;">&nbsp;</td></tr>
-                            <tr>
-                                <td colspan="9" style="height:30px;">
-                                    &nbsp;&nbsp;&nbsp;&nbsp;
-                                    <apex:outputLabel value="새 김 위 치 : 조수측(RH) 1축 프레임" style="font-family: Arial Unicode MS;"/>
-                                </td>
-
-                            </tr>
-                            <tr>
-                                <td colspan="9">
-                                    &nbsp;
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="9" style="height:30px;">
-                                    &nbsp;&nbsp;&nbsp;&nbsp;
-                                    <apex:outputLabel value="새 김 압 형 부 착 란" style="font-family: Arial Unicode MS;"/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="10">
-                                    &nbsp;
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="10" style="width:554px;height:120px;">
-                                    <table align="center" border="1" cellpadding="0" cellspacing="0" width="482" height="86">
-                                        <tbody>
-                                        <tr>
-                                            <td style="width482px;height:86px;">
-
-                                                &nbsp;
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                    <div style="clear:both;">
-                                        &nbsp;</div>
-
-                                    &nbsp;
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="10" style="width:554px;height:23px;" align="center">
-                                    <apex:outputLabel value="상기와 같이 제작하였음을 증명합니다." style="font-family: Arial Unicode MS;"/>
-
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="10" style="width:381px;height:28px;" align="center">
-                                    <apex:outputLabel value="{!typeDate}" style="font-family: Arial Unicode MS;"/>
-
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="10" style="width:554px;height:4px;">
-
-                                    &nbsp;
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    &nbsp;
-                                </td>
-                                <td colspan="9" style="width:554px;height:28px;" align="center">
-                                    <apex:outputLabel value="제작사(수입사명):만트럭버스코리아(주)" style="font-family: Arial Unicode MS;"/>
-
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    &nbsp;
-                                </td>
-                                <td colspan="8" style="width:381px;height:51px;" align="right">
-                                    <apex:outputLabel value="대표 " style="font-family: Arial Unicode MS;"/>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;
-                                    <apex:outputLabel value="토마스 해머리히" style="font-family: Arial Unicode MS;"/>
-
-                                </td>
-                                <td style="width:173px;height:51px;" align="center">
-                                    <!--
-<apex:image url="/servlet/servlet.FileDownload?file={!uzIngam.Id}" width="70" height="70" />
--->
-                                </td>
-                            </tr>
-
-                            </tbody>
-                        </table>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </apex:variable>
-    <apex:outputText value="해당 차대번호가 영업기회에 배정되어 있지 않습니다." rendered="{!opportunity==null}" style="font-family: Arial Unicode MS;" />
+    <apex:variable value="" var="">
+        <table align="center" border="1" cellpadding="3" cellspacing="0" style="width:595px;" width="744">
+            <tbody>
+            <tr>
+                <td style="width:650px;height:882px;">
+                    <table align="left" border="0" cellpadding="0" cellspacing="0">
+                        <tbody>
+                        <tr>
+                            <td style="width:386px;" colspan="2" align="right">
+                                <apex:outputLabel value="양도 증명서"
+                                                  style="font-family: Arial Unicode MS;font-size:24pt;font-weight:bold!important;"/>
+                                <apex:outputLabel value="{!expect}"
+                                                  style="font-family: Arial Unicode MS;font-size:16pt;font-weight:bold!important;"/>
+                            </td>
+                            <td align="right" style="width:193px;">
+                                <apex:image url="/servlet/servlet.FileDownload?file={!docImage1}" width="150"
+                                            height="60"/>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <p>&nbsp;</p>
+                    <p>&nbsp;</p>
+                    <table border="0" cellpadding="0" cellspacing="0" style="width:600px;" width="726">
+                        <tbody>
+                        <tr>
+                            <td style="width:30px;height:24px;">
+
+                                &nbsp;
+                            </td>
+                            <td style="width:104px;height:24px;">
+                                <apex:outputLabel value="발 행 번 호 :" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                            <td colspan="9" style="width:447px;height:24px;">
+                                <apex:outputLabel rendered="{!NOT(ISBLANK(opportunity.Id))}" value="{!opportunity.Id}" style="font-family: Arial Unicode MS;"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:30px;height:23px;">
+
+                                &nbsp;
+                            </td>
+                            <td style="width:104px;height:23px;">
+                                <apex:outputLabel value="건설 기계명 :" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                            <td colspan="9" style="width:447px;height:23px;">
+                                <apex:outputLabel rendered="{!NOT(ISBLANK(vehicleStock.VehicleName__c))}" value="{!vehicleStock.VehicleName__c}" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td style="width:30px;height:24px;">
+
+                                &nbsp;
+                            </td>
+                            <td style="width:104px;height:24px;">
+                                <apex:outputLabel value="형 " style="font-family: Arial Unicode MS;"/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <apex:outputLabel value="식 :" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                            <td style="width:19px;height:24px;">
+
+                                &nbsp;
+                            </td>
+                            <td colspan="8" style="width:428px;height:24px;">
+                                <apex:outputLabel rendered="{!NOT(ISBLANK(vehicleStock.SpecShort__c))}" value="{!vehicleStock.SpecShort__c}" style="font-family: Arial Unicode MS;"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:30px;height:24px;">
+
+                                &nbsp;
+                            </td>
+                            <td style="width:104px;height:24px;">
+                                <apex:outputLabel value="규 " style="font-family: Arial Unicode MS;"/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <apex:outputLabel value="격 :" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                            <td style="width:19px;height:24px;">
+                                &nbsp;
+                            </td>
+                            <td colspan="8" style="width:428px;height:24px;">
+                                <apex:outputLabel rendered="{!NOT(ISBLANK(vehicleStock.Product__r.MaxLoad__c))}" value="{!vehicleStock.Product__r.MaxLoad__c}" style="font-family: Arial Unicode MS;"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:30px;height:23px;">
+
+                                &nbsp;
+                            </td>
+                            <td colspan="3" style="width:25%;height:23px;">
+                                <apex:outputLabel value="건설기계차대일련번호 :" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                            <td colspan="7" style="width:390px;height:23px;">
+                                <apex:outputLabel rendered="{!NOT(ISBLANK(vehicleStock.Name))}" value="{!vehicleStock.Name}" style="font-family: Arial Unicode MS;"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:30px;height:24px;">
+
+                                &nbsp;
+                            </td>
+                            <td style="width:104px;height:24px;">
+                                <apex:outputLabel value="원동기 형식 :" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                            <td style="width:19px;height:24px;">
+
+                                &nbsp;
+                            </td>
+                            <td colspan="8" style="width:428px;height:24px;">
+                                <apex:outputLabel rendered="{!NOT(ISBLANK(vehicleStock.EngineType__c))}" value="{!vehicleStock.EngineType__c}" style="font-family: Arial Unicode MS;"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:30px;height:24px;">
+
+                                &nbsp;
+                            </td>
+                            <td style="width:104px;height:24px;">
+                                <apex:outputLabel value="원동기 번호 :" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                            <td style="width:19px;height:24px;">
+
+                                &nbsp;
+                            </td>
+                            <td colspan="8" style="width:428px;height:24px;">
+                                <apex:outputLabel rendered="{!NOT(ISBLANK(vehicleStock.EngineNumber__c))}" value="{!vehicleStock.EngineNumber__c}" style="font-family: Arial Unicode MS;"/>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td style="width:30px;height:23px;">
+
+                                &nbsp;
+                            </td>
+                            <td style="width:104px;height:23px;">
+                                <apex:outputLabel value="양수인 주소 :" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                            <td style="width:19px;height:23px;">
+
+                                &nbsp;
+                            </td>
+                            <td colspan="8" style="width:428px;height:23px;">
+                                <apex:outputLabel rendered="{!AND(NOT(ISBLANK(account.RoadAddress__c)), NOT(ISBLANK(account.DetailAddress__c)))}" value="{!account.RoadAddress__c + ' ' + account.DetailAddress__c}" style="font-family: Arial Unicode MS;"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:30px;height:24px;">
+
+                                &nbsp;
+                            </td>
+                            <td style="width:104px;height:24px;">
+                                <apex:outputLabel value="성 " style="font-family: Arial Unicode MS;"/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <apex:outputLabel value="명 :" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                            <td style="width:19px;height:24px;">
+
+                                &nbsp;
+                            </td>
+                            <td colspan="8" style="width:428px;height:24px;">
+                                <apex:outputLabel rendered="{!NOT(ISBLANK(account.Name))}" value="{!account.Name}" style="font-family: Arial Unicode MS;"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:30px;height:24px;">
+
+                                &nbsp;
+                            </td>
+                            <td colspan="10" style="width:551px;height:24px;">
+
+                                &nbsp;
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:30px;height:23px;">
+
+                                &nbsp;
+                            </td>
+                            <td colspan="10" style="width:551px;height:23px;">
+                                <apex:outputLabel value="위 건설기계를 위와 같이 양도함을 증명함."
+                                                  style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:30px;height:63px;">
+
+                                &nbsp;
+                            </td>
+                            <td colspan="8" style="width:350px;height:63px;">
+
+                                <p>&nbsp;</p>
+                            </td>
+                            <td colspan="2" style="width:201px;height:63px;">
+                                <apex:outputText rendered="{!NOT(ISBLANK(opportunity.TaxInvoiceDate__c))}" value="{0,date,yyyy'년 'M'월 'd'일'}" style="font-family: Arial Unicode MS;">
+                                    <apex:param value="{!opportunity.TaxInvoiceDate__c}"/>
+                                </apex:outputText>
+                                <apex:outputText rendered="{!ISBLANK(opportunity.TaxInvoiceDate__c)}" value=" - " style="font-family: Arial Unicode MS;"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:30px;height:28px;">
+
+                                &nbsp;
+                            </td>
+                            <td colspan="4" style="width:170px;height:28px;">
+
+                                &nbsp;
+                            </td>
+                            <td colspan="2" style="width:103px;height:28px;" align="center">
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <apex:outputLabel value="양도인" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                            <td colspan="4" style="width:277px;height:28px;">
+                                <apex:outputLabel value="만 트 럭 버 스 코 리 아 ㈜"
+                                                  style="font-family: Arial Unicode MS;font-size:16pt"/>
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:30px;height:31px;">
+
+                                &nbsp;
+                            </td>
+                            <td colspan="5" style="width:256px;height:31px;">
+
+                                &nbsp;
+                            </td>
+                            <td colspan="2" style="width:76px;height:31px;">
+                                <apex:outputLabel value="대표이사" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                            <td colspan="2" style="width:91px; height:31px; text-align: center;">
+                                <apex:outputLabel value="피터 앤더슨" style="font-family: Arial Unicode MS;"/>
+                            </td>
+
+<!--                            <td style="width:129px;height:31px;">-->
+<!--                                <apex:image url="/servlet/servlet.FileDownload?file={!uzIngam}" width="72" height="72"/>-->
+<!--                            </td>-->
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <p>&nbsp;</p>
+
+                    &nbsp;
+
+                    &nbsp;
+
+                    &nbsp;
+
+                    <table align="center" border="1" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+                        <tbody>
+                        <tr style="border:none;">
+                            <td rowspan="5" style="width:26px;border:none;">
+                                &nbsp;
+                            </td>
+                        </tr>
+                        <tr style="height:40px">
+                            <td rowspan="4" align="center" style="width:80px;">
+
+                                <apex:outputLabel value="양 도 인" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                            <td align="center" style="width:170px;">
+
+                                <apex:outputLabel value="소 " style="font-family: Arial Unicode MS;"/>
+                                &nbsp;&nbsp;&nbsp;
+                                <apex:outputLabel value="재 " style="font-family: Arial Unicode MS;"/>
+                                &nbsp;&nbsp;&nbsp;
+                                <apex:outputLabel value="지" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                            <td style="width:453px;">
+                                <apex:variable value="" var="" rendered="{!!isNewAddress}">
+                                    <apex:outputLabel value="서울시 강남구 강남대로 262" style="font-family: Arial Unicode MS;"/>
+                                    <br/>
+                                    <apex:outputLabel value="(도곡동, 캠코양재타워 15층)" style="font-family: Arial Unicode MS;"/>
+                                    <br/>
+                                </apex:variable>
+                                <apex:variable value="" var="" rendered="{!isNewAddress}">
+                                    <apex:outputLabel value="경기도 용인시 기흥구 보라하갈로 57"
+                                                      style="font-family: Arial Unicode MS;"/>
+                                    <br/>
+                                    <apex:outputLabel value="(하갈동)" style="font-family: Arial Unicode MS;"/>
+                                    <br/>
+                                </apex:variable>
+                            </td>
+                        </tr>
+                        <tr style="height:40px">
+                            <td align="center" style="width:170px;">
+
+                                <apex:outputLabel value="사업자등록번호" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                            <td style="width:304px;">
+
+                                <apex:outputLabel value="106-86-02523" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                        </tr>
+                        <tr style="height:40px">
+                            <td align="center" style="width:170px;">
+
+                                <apex:outputLabel value="회 " style="font-family: Arial Unicode MS;"/>
+                                &nbsp;&nbsp;&nbsp;
+                                <apex:outputLabel value="사 " style="font-family: Arial Unicode MS;"/>
+                                &nbsp;&nbsp;&nbsp;
+                                <apex:outputLabel value="명" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                            <td style="width:304px;">
+
+                                <apex:outputLabel value="만트럭버스코리아㈜" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                        </tr>
+                        <tr style="height:40px">
+                            <td align="center" style="width:170px;">
+
+                                <apex:outputLabel value="대 " style="font-family: Arial Unicode MS;"/>
+                                &nbsp;
+                                <apex:outputLabel value="표 " style="font-family: Arial Unicode MS;"/>
+                                &nbsp;
+                                <apex:outputLabel value="이 " style="font-family: Arial Unicode MS;"/>
+                                &nbsp;
+                                <apex:outputLabel value="사" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                            <td style="width:304px;">
+
+                                <apex:outputLabel value="피터 앤더슨" style="font-family: Arial Unicode MS;"/>
+
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    &nbsp;
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </apex:variable>
+    <!--        <apex:variable value="" var="" rendered="{!printSegment=='Tipper/Traction'}">-->
+    <!--            <div style="page-break-after:always;">-->
+    <!--                <table align="center" border="1" cellpadding="3" cellspacing="0" style="width:595px;" width="744">-->
+    <!--                    <tbody>-->
+    <!--                    <tr>-->
+    <!--                        <td style="width:650px;height:882px;">-->
+    <!--                            <table align="left" border="0" cellpadding="0" cellspacing="0">-->
+    <!--                                <tbody>-->
+    <!--                                <tr>-->
+    <!--                                    <td style="width:386px;" colspan="2" align="right">-->
+    <!--                                        <apex:outputLabel value="양도 증명서" style="font-family: Arial Unicode MS;font-size:24pt;font-weight:bold!important;"/>-->
+    <!--                                        <apex:outputLabel value="{!expect}" style="font-family: Arial Unicode MS;font-size:16pt;font-weight:bold!important;"/>-->
+    <!--                                    </td>-->
+    <!--                                    <td align="right" style="width:193px;">-->
+    <!--                                        <apex:image url="/servlet/servlet.FileDownload?file=015900000062Gu1" width="150" height="60"/>-->
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+    <!--                                </tbody>-->
+    <!--                            </table>-->
+    <!--                            <p>&nbsp;</p>-->
+    <!--                            <p>&nbsp;</p>-->
+    <!--                            <table border="0" cellpadding="0" cellspacing="0" style="width:600px;" width="726">-->
+    <!--                                <tbody>-->
+    <!--                                <tr>-->
+    <!--                                    <td style="width:30px;height:24px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td style="width:104px;height:24px;">-->
+    <!--                                        <apex:outputLabel value="발 행 번 호 :" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                    <td colspan="9" style="width:447px;height:24px;">-->
+    <!--                                        <apex:outputLabel value="{!opportunity.Id}" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+    <!--                                <tr>-->
+    <!--                                    <td style="width:30px;height:23px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td style="width:104px;height:23px;">-->
+    <!--                                        <apex:outputLabel value="건설 기계명 :" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                    <td colspan="9" style="width:447px;height:23px;">-->
+    <!--                                        <apex:outputLabel value="{!vehicleStock.VehicleName__c}" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+
+    <!--                                <tr>-->
+    <!--                                    <td style="width:30px;height:24px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td style="width:104px;height:24px;">-->
+    <!--                                        <apex:outputLabel value="형 " style="font-family: Arial Unicode MS;" />-->
+    <!--                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+    <!--                                        <apex:outputLabel value="식 :" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                    <td style="width:19px;height:24px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td colspan="8" style="width:428px;height:24px;">-->
+    <!--                                        <apex:outputLabel value="{!vehicleStock.FinalSpec__c}" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+    <!--                                <tr>-->
+    <!--                                    <td style="width:30px;height:24px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td style="width:104px;height:24px;">-->
+    <!--                                        <apex:outputLabel value="규 " style="font-family: Arial Unicode MS;" />-->
+    <!--                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+    <!--                                        <apex:outputLabel value="격 :" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                    <td style="width:19px;height:24px;">-->
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td colspan="8" style="width:428px;height:24px;">-->
+    <!--                                        <apex:outputLabel value="{!MaxLoad}" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+    <!--                                <tr>-->
+    <!--                                    <td style="width:30px;height:23px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td colspan="3" style="width:25%;height:23px;">-->
+    <!--                                        <apex:outputLabel value="건설기계차대일련번호 :" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                    <td colspan="7" style="width:390px;height:23px;">-->
+    <!--                                        <apex:outputLabel value="{!vehicleStock.Name}" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+    <!--                                <tr>-->
+    <!--                                    <td style="width:30px;height:24px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td style="width:104px;height:24px;">-->
+    <!--                                        <apex:outputLabel value="원동기 형식 :" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                    <td style="width:19px;height:24px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td colspan="8" style="width:428px;height:24px;">-->
+    <!--                                        <apex:outputLabel value="{!vehicleStock.EngineType__c}" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+    <!--                                <tr>-->
+    <!--                                    <td style="width:30px;height:24px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td style="width:104px;height:24px;">-->
+    <!--                                        <apex:outputLabel value="원동기 번호 :" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                    <td style="width:19px;height:24px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td colspan="8" style="width:428px;height:24px;">-->
+    <!--                                        <apex:outputLabel value="{!vehicleStock.EngineNumber__c}" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+
+    <!--                                <tr>-->
+    <!--                                    <td style="width:30px;height:23px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td style="width:104px;height:23px;">-->
+    <!--                                        <apex:outputLabel value="양수인 주소 :" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                    <td style="width:19px;height:23px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td colspan="8" style="width:428px;height:23px;">-->
+    <!--                                        <apex:outputLabel value="{!Address}" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+    <!--                                <tr>-->
+    <!--                                    <td style="width:30px;height:24px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td style="width:104px;height:24px;">-->
+    <!--                                        <apex:outputLabel value="성 " style="font-family: Arial Unicode MS;" />-->
+    <!--                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+    <!--                                        <apex:outputLabel value="명 :" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                    <td style="width:19px;height:24px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td colspan="8" style="width:428px;height:24px;">-->
+    <!--                                        <apex:outputLabel value="{!Name}" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+    <!--                                <tr>-->
+    <!--                                    <td style="width:30px;height:24px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td colspan="10" style="width:551px;height:24px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+    <!--                                <tr>-->
+    <!--                                    <td style="width:30px;height:23px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td colspan="10" style="width:551px;height:23px;">-->
+    <!--                                        <apex:outputLabel value="위 건설기계를 위와 같이 양도함을 증명함." style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+    <!--                                <tr>-->
+    <!--                                    <td style="width:30px;height:63px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td colspan="8" style="width:350px;height:63px;">-->
+
+    <!--                                        <p>&nbsp;</p>-->
+    <!--                                    </td>-->
+    <!--                                    <td colspan="2" style="width:201px;height:63px;">-->
+    <!--                                        <apex:outputText value="{0,date,yyyy'년 'M'월 'd'일'}" style="font-family: Arial Unicode MS;">-->
+    <!--                                            <apex:param value="{!IF(opportunity.WantedOutDT__c!=null,opportunity.WantedOutDT__c,opportunity.PlannedOutDT__c)}" />-->
+    <!--                                        </apex:outputText>-->
+
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+    <!--                                <tr>-->
+    <!--                                    <td style="width:30px;height:28px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td colspan="4" style="width:170px;height:28px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td colspan="2" style="width:103px;height:28px;" align="center">-->
+    <!--                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+    <!--                                        <apex:outputLabel value="양도인" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                    <td colspan="4" style="width:277px;height:28px;">-->
+    <!--                                        <apex:outputLabel value="만 트 럭 버 스 코 리 아 ㈜" style="font-family: Arial Unicode MS;font-size:16pt" />-->
+
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+    <!--                                <tr>-->
+    <!--                                    <td style="width:30px;height:31px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td colspan="5" style="width:256px;height:31px;">-->
+
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                    <td colspan="2" style="width:76px;height:31px;">-->
+    <!--                                        <apex:outputLabel value="대표이사" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                    <td colspan="2" style="width:91px;height:31px;">-->
+
+    <!--                                        <apex:outputLabel value="토마스 해머리히" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                    <td style="width:129px;height:31px;">-->
+    <!--                                        &lt;!&ndash;-->
+    <!--<apex:image url="/servlet/servlet.FileDownload?file={!uzIngam}" width="72" height="72" />-->
+    <!--&ndash;&gt;-->
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+    <!--                                </tbody>-->
+    <!--                            </table>-->
+
+    <!--                            <p>&nbsp;</p>-->
+
+    <!--                            &nbsp;-->
+
+    <!--                            &nbsp;-->
+
+    <!--                            &nbsp;-->
+
+    <!--                            <table align="center" border="1" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">-->
+    <!--                                <tbody>-->
+    <!--                                <tr style="border:none;">-->
+    <!--                                    <td rowspan="5" style="width:26px;border:none;">-->
+    <!--                                        &nbsp;-->
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+    <!--                                <tr style="height:40px">-->
+    <!--                                    <td rowspan="4" align="center" style="width:80px;">-->
+
+    <!--                                        <apex:outputLabel value="양 도 인" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                    <td align="center" style="width:170px;">-->
+
+    <!--                                        <apex:outputLabel value="소 " style="font-family: Arial Unicode MS;" />-->
+    <!--                                        &nbsp;&nbsp;&nbsp;-->
+    <!--                                        <apex:outputLabel value="재 " style="font-family: Arial Unicode MS;" />-->
+    <!--                                        &nbsp;&nbsp;&nbsp;-->
+    <!--                                        <apex:outputLabel value="지" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                    <td style="width:453px;">-->
+    <!--                                        <apex:variable value="" var="" rendered="{!!isNewAddress}">-->
+    <!--                                            <apex:outputLabel value="서울시 강남구 강남대로 262" style="font-family: Arial Unicode MS;" /><br />-->
+    <!--                                            <apex:outputLabel value="(도곡동, 캠코양재타워 15층)" style="font-family: Arial Unicode MS;" /><br />-->
+    <!--                                        </apex:variable>-->
+    <!--                                        <apex:variable value="" var="" rendered="{!isNewAddress}">-->
+    <!--                                            <apex:outputLabel value="경기도 용인시 기흥구 보라하갈로 57" style="font-family: Arial Unicode MS;" /><br />-->
+    <!--                                            <apex:outputLabel value="(하갈동)" style="font-family: Arial Unicode MS;" /><br />-->
+    <!--                                        </apex:variable>-->
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+    <!--                                <tr style="height:40px">-->
+    <!--                                    <td align="center" style="width:170px;">-->
+
+    <!--                                        <apex:outputLabel value="사업자등록번호" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                    <td style="width:304px;">-->
+
+    <!--                                        <apex:outputLabel value="106-86-02523" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+    <!--                                <tr style="height:40px">-->
+    <!--                                    <td align="center" style="width:170px;">-->
+
+    <!--                                        <apex:outputLabel value="회 " style="font-family: Arial Unicode MS;" />-->
+    <!--                                        &nbsp;&nbsp;&nbsp;-->
+    <!--                                        <apex:outputLabel value="사 " style="font-family: Arial Unicode MS;" />-->
+    <!--                                        &nbsp;&nbsp;&nbsp;-->
+    <!--                                        <apex:outputLabel value="명" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                    <td style="width:304px;">-->
+
+    <!--                                        <apex:outputLabel value="만트럭버스코리아㈜" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+    <!--                                <tr style="height:40px">-->
+    <!--                                    <td align="center" style="width:170px;">-->
+
+    <!--                                        <apex:outputLabel value="대 " style="font-family: Arial Unicode MS;" />-->
+    <!--                                        &nbsp;-->
+    <!--                                        <apex:outputLabel value="표 " style="font-family: Arial Unicode MS;" />-->
+    <!--                                        &nbsp;-->
+    <!--                                        <apex:outputLabel value="이 " style="font-family: Arial Unicode MS;" />-->
+    <!--                                        &nbsp;-->
+    <!--                                        <apex:outputLabel value="사" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                    <td style="width:304px;">-->
+
+    <!--                                        <apex:outputLabel value="토마스 해머리히" style="font-family: Arial Unicode MS;" />-->
+
+    <!--                                    </td>-->
+    <!--                                </tr>-->
+    <!--                                </tbody>-->
+    <!--                            </table>-->
+    <!--                            &nbsp;-->
+    <!--                        </td>-->
+    <!--                    </tr>-->
+    <!--                    </tbody>-->
+    <!--                </table>-->
+
+    <!--            </div>-->
+
+    <div style="page-break-before: always;"></div>
+
+    <apex:outputLabel value=" [별지 제1호 서식] (제11조 관련)" style="font-family: Arial Unicode MS;"/>
+    <br/>
+    <table align="center" border="1" cellpadding="0" cellspacing="0" style="width:596px;" width="745">
+        <tbody>
+        <tr>
+            <td style="width:596px;height:736px;">
+                <table border="0" cellpadding="0" cellspacing="0" style="width:596px;" width="726">
+                    <tr>
+                        <td style="height:60px;">&nbsp;</td>
+                    </tr>
+                </table>
+                <center>
+                    <apex:outputLabel value="건설기계제작증{!expect}"
+                                      style="font-family: Arial Unicode MS;font-size:22pt;font-weight:bold!important;"/>
+                </center>
+                <table border="0" cellpadding="0" cellspacing="0" style="width:596px;" width="726">
+                    <tbody>
+                    <tr>
+                        <td colspan="10" style="height:60px;">
+                            &nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td rowspan="15" style="width:27px;">
+                            &nbsp;
+                        </td>
+                        <td colspan="9" style="height:30px;">
+                            <apex:outputLabel rendered="{!NOT(ISBLANK(vehicleStock.constEquipProdCert_No__c))}" value="증 서 발 생 번 호 : {!'MTBK-' + vehicleStock.constEquipProdCert_No__c}" style="font-family: Arial Unicode MS;font-size:13pt;"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="9" style="height:7px;">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td colspan="9" style="width:211px;height:30px;">
+                            <apex:outputLabel rendered="{!NOT(ISBLANK(vehicleStock.AcceptedNo__c))}" value="형식승인(신고)번호 및 일자 : {!vehicleStock.AcceptedNo__c}" style="font-family: Arial Unicode MS;"/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <apex:outputLabel value="{!typeDate}" style="font-family: Arial Unicode MS;"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="9" style="height:7px;">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td colspan="9" style="height:30px;">
+                            <apex:outputLabel rendered="{!NOT(ISBLANK(vehicleStock.VehicleName__c))}" value="건 설 기 계 명 : {!vehicleStock.VehicleName__c}" style="font-family: Arial Unicode MS;"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="9" style="width:68px;height:30px;" align="left">
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <apex:outputLabel value="형 식 : " style="font-family: Arial Unicode MS;"/>
+                            <apex:outputLabel rendered="{!NOT(ISBLANK(vehicleStock.formjewon__c))}" value="{!vehicleStock.formjewon__c}" style="font-family: Arial Unicode MS;"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="9" style="width:68px;height:30px;" align="left">
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <apex:outputLabel value="규 격 : " style="font-family: Arial Unicode MS;"/>
+                            <apex:outputLabel value="{!IF(ISBLANK(vehicleStock.StdLoad__c),'25.50 톤',vehicleStock.StdLoad__c)}"
+                                style="font-family: Arial Unicode MS;"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="9" style="height:7px;">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td colspan="9" style="width:68px;height:30px;">
+                            <apex:outputLabel value="원 동 기 : " style="font-family: Arial Unicode MS;"/>&nbsp;&nbsp;
+                            <apex:outputLabel value="1)형 식 : " style="font-family: Arial Unicode MS;"/>&nbsp;
+                            <apex:outputLabel rendered="{!NOT(ISBLANK(vehicleStock.EngineType__c))}" value="{!vehicleStock.EngineType__c}" style="font-family: Arial Unicode MS;"/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <apex:outputLabel value="1)출 력 : " style="font-family: Arial Unicode MS;"/>&nbsp;
+                            <apex:outputLabel rendered="{!NOT(ISBLANK(vehicleStock.Output__c))}" value="{!vehicleStock.Output__c}" style="font-family: Arial Unicode MS;"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="9" style="height:7px;">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td colspan="9" style="height:30px;">
+                            <apex:outputLabel rendered="{!NOT(ISBLANK(vehicleStock.Name))}" value="제 작 일 련 번 호 : {!vehicleStock.Name}" style="font-family: Arial Unicode MS;"/>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="9" style="height:7px;">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td colspan="9" style="height:30px;">
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <apex:outputLabel value="새 김 위 치 : 조수측(RH) 1축 프레임" style="font-family: Arial Unicode MS;"/>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td colspan="9">
+                            &nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="9" style="height:30px;">
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <apex:outputLabel value="새 김 압 형 부 착 란" style="font-family: Arial Unicode MS;"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="10">
+                            &nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="10" style="width:554px;height:120px;">
+                            <table align="center" border="1" cellpadding="0" cellspacing="0" width="482" height="86">
+                                <tbody>
+                                <tr>
+                                    <td style="width482px;height:86px;">
+
+                                        &nbsp;
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <div style="clear:both;">
+                                &nbsp;
+                            </div>
+
+                            &nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="10" style="width:554px;height:23px;" align="center">
+                            <apex:outputLabel value="상기와 같이 제작하였음을 증명합니다." style="font-family: Arial Unicode MS;"/>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="10" style="width:381px;height:28px;" align="center">
+                            <apex:outputLabel value="{!typeDate}" style="font-family: Arial Unicode MS;"/>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="10" style="width:554px;height:4px;">
+
+                            &nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            &nbsp;
+                        </td>
+                        <td colspan="9" style="width:554px;height:28px;" align="center">
+                            <apex:outputLabel value="제작사(수입사명):만트럭버스코리아(주)" style="font-family: Arial Unicode MS;"/>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            &nbsp;
+                        </td>
+                        <td colspan="2" style="width:91px; height:31px; text-align: center;">
+                            <apex:outputLabel value="대표 " style="font-family: Arial Unicode MS;"/>
+                            <apex:outputLabel value="피터 앤더슨" style="font-family: Arial Unicode MS;"/>
+
+                        </td>
+                        <td></td>
+                    </tr>
+
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        </tbody>
+    </table>
 </apex:page>

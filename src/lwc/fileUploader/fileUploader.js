@@ -1,322 +1,371 @@
-import { LightningElement,api, track, wire } from 'lwc';
-import fileNameUpdate from "@salesforce/apex/OpptyFileUploaderController.fileNameUpdate";
-import getVATStatus from "@salesforce/apex/OpptyFileUploaderController.getVATStatus";
+import { LightningElement, api, track, wire } from "lwc";
+// import fileNameUpdate from "@salesforce/apex/OpptyFileUploaderController.fileNameUpdate";
+import getCheckStatus from "@salesforce/apex/OpptyFileUploaderController.getCheckStatus";
 import getInit from "@salesforce/apex/OpptyFileUploaderController.getInit";
+import checkFile from "@salesforce/apex/OpptyFileUploaderController.checkFile";
+import doRollback from "@salesforce/apex/OpptyFileUploaderController.doRollback";
+import initFileList from "@salesforce/apex/OpptyFileUploaderController.initFileList";
+import updateFileName from "@salesforce/apex/OpptyFileUploaderController.updateFileName";
+import updateIsCheck from "@salesforce/apex/OpptyFileUploaderController.updateIsCheck";
 import { CloseActionScreenEvent } from "lightning/actions";
 import { recordNavigation, showToast } from "c/commonUtil";
 import { NavigationMixin, CurrentPageReference } from "lightning/navigation";
-import formFactorPropertyName from '@salesforce/client/formFactor';
+import formFactorPropertyName from "@salesforce/client/formFactor";
+import { loadStyle } from "lightning/platformResourceLoader";
+import fileStyle from "@salesforce/resourceUrl/fileStyle";
 
 export default class FileUploader extends NavigationMixin(LightningElement) {
 
-    @api recordId;
-    file1Details = null;
-    file2Details = null;
-    @track files = [];
-    @track file3Details = [];
-    @track isVATApproved = false; // VAT 상태 저장
-    username;
-    newFiles;
-    isLoading = false;
-    isJumin;
-    isBus;
-    isVAT;
-    accept = [".jpg",  ".png", ".pdf", ".heic"];
+	@api recordId;
+	// @wire(CurrentPageReference) pageRef;
+	file1Details = null;
+	file2Details = null;
+	@track file3Details = [];
+	// file1Uploaded = false;
+	// file2Uploaded = false;
+	// file3Uploaded = false;
+	@track files = [];
+	@track listFile = [];
+	@track isVATApproved = "";
+	username;
+	newFiles;
+	sectionName;
+	isLoading = false;
+	isJumin;
+	isBus;
+	isVAT;
+	fileSize = 0;
+	fileIndex = 1; // 부가세 후취 파일 인덱스 번호
+	acceptedFormats = [".jpg", ".png", ".pdf", ".heic"];
+	@track storeFileList = [];
 
-    @wire(CurrentPageReference)
-    getPageReference(pageRef) {
-        if (pageRef && pageRef.state) {
-            if (formFactorPropertyName === 'Large') {
-                console.log('컴퓨터3333');
-                this.recordId = pageRef.state.recordId;
-            } else {
-                this.recordId = pageRef.state?.c__recordId;
-            }
-            this.accHandleName();
-            this.checkVATStatus();
-        }
-    }
- 
-    // connectedCallback() {
-    //     this.accHandleName();
-    //     this.checkVATStatus();
-    // }
+	originalCheckValues = {};
 
-    checkVATStatus() {
-        getVATStatus({ recordId: this.recordId })
-            .then((result) => {
-                this.isVATApproved = result === '승인됨';
-            })
-            .catch((error) => {
-                console.log('VAT 상태 조회 오류:', error);
-                // showToast('실패', '부가세 후취 상태가 승인됨이어야지만 부가세후취 필수 파일 첨부가 가능합니다. ', 'error', 'dismissable');
-            });
-    }
+	@track deleteFileList = [];
+	@track listUploadedFiles = [];
 
-    accHandleName() {
-        getInit({recordId: this.recordId}).then(res => {
-            this.username = res.userName;
-            this.isJumin = res.checkFile?.['주민등록증'];
-            this.isBus = res.checkFile?.['사업자등록증'];
-            this.isVAT = res.checkFile?.['부가세후취'];
+	get isVATFalse() {
+		return this.isVATApproved !== "승인됨";
+	}
 
-        }).catch(err => {
-            console.log('err :: ',err);
-        });
-    }
+	connectedCallback() {
+		loadStyle(this, fileStyle);
 
-    handleDragOver(event) {
-        // event.preventDefault();
-        // this.template.querySelector('.slds-file-selector__dropzone').classList.add('slds-has-drag-over');
-        event.preventDefault(); // 기본 동작 방지
+		const isReloaded = sessionStorage.getItem("reloaded");
+		if (isReloaded) {
+			// 새로고침된 경우만 조건문 실행
+			sessionStorage.removeItem("reloaded"); // 한 번만 실행
+			console.log("새로고침 이후 조건문 실행됨");
+		}
+		// 새로고침 플래그 설정
+		window.addEventListener("beforeunload", () => {
+			sessionStorage.setItem("reloaded", "true");
+			// this.refreshCancel();
+		});
+	}
 
-        // 드래그 중인 특정 영역만 선택
-        const dropZone = event.target.closest('.slds-file-selector__dropzone');
-        if (dropZone) {
-            // 기존 드래그 오버 클래스를 모두 제거
-            this.template.querySelectorAll('.slds-file-selector__dropzone').forEach(zone => {
-                zone.classList.remove('slds-has-drag-over');
-            });
+	@wire(CurrentPageReference)
+	getPageReference(pageRef) {
+		if (pageRef && pageRef.state) {
+			if (formFactorPropertyName === "Large") {
+				this.recordId = pageRef.state.recordId;
+			} else {
+				// alert('12');
+				this.recordId = pageRef.state?.c__recordId;
+			}
+			this.accHandleName();
+			this.fetchOpportunityData();
+		}
+	}
 
-            // 드래그 중인 특정 영역에만 클래스 추가
-            dropZone.classList.add('slds-has-drag-over');
-        }
-    }
+	fetchOpportunityData() {
+		getCheckStatus({ recordId: this.recordId }).then(res => {
+			if (res) {
+				this.isVATApproved = res.VATDefermentStatus__c;
+				console.log("this.isVATApproved ::: ", this.isVATApproved);
+				console.log("res ::: ", JSON.stringify(res));
+				this.originalCheckValues = {
+					IsJumin__c: res.IsJumin__c,
+					IsBusiness__c: res.IsBusiness__c,
+					IsVAT__c: res.IsVAT__c
+				};
+				console.log("originalCheckValues ::: ", JSON.stringify(this.originalCheckValues));
+			}
+		}).catch(err => {
+			console.log("err ::: ", JSON.stringify(err));
+		});
+	}
 
-    handleDragLeave(event) {
-        // 드래그가 떠난 특정 드롭존을 찾기
-        const dropZone = event.target.closest('.slds-file-selector__dropzone');
-        if (dropZone) {
-            // 떠난 드롭존에서 클래스 제거
-            dropZone.classList.remove('slds-has-drag-over');
-        }
-    }
+	accHandleName() {
+		console.log("this.recordId :::", this.recordId);
+		getInit({ recordId: this.recordId }).then(res => {
+			this.username = res.userName;
+			console.log("res ::: ", res);
 
-    handleDrop(event) {
-        event.preventDefault();
+		}).catch(err => {
+			console.log("err :: ", err);
+		});
+	}
 
-        const dropZone = event.target.closest('.slds-file-selector__dropzone');
-        if (dropZone) {
-            // 떠난 드롭존에서 클래스 제거
-            dropZone.classList.remove('slds-has-drag-over');
-        }
-        // this.template.querySelector('.slds-file-selector__dropzone').classList.remove('slds-has-drag-over');
+	async handleOnUploadFinished(e) {
+		console.log("파일 업로드 시작");
 
-        const files = event.dataTransfer.files;
-        // 드래그 앤 드롭에서 파일이 어느 필드(file1, file2, file3)에 들어가는지 지정
-        const dropTargetName = event.currentTarget.dataset.name;
+		this.sectionName = e.target.dataset.name;
 
-        this.handleUploadFinished({ target: { files, name: dropTargetName } });
-    }
+		const files = e.detail.files;
+		const fileIds = files.map(file => file.contentVersionId);
+		this.listUploadedFiles = await initFileList({ cvList: fileIds });
 
-    handleUploadFinished(event) {
-        this.newFiles = event.target.name;
-        console.log('event ::: ', event.target.name);
-        const filesTest = [...event.target.files]; // FileList를 배열로 변환
+		console.log("this.listUploadedFiles:::: ", JSON.stringify(this.listUploadedFiles));
 
-        let prefix = '';
-        let activeFieldName = '';
+		const res = await checkFile({ recordId: this.recordId, sectionName: this.sectionName, cvList: fileIds });
 
-        if(this.newFiles === 'file1' || this.newFiles === 'file2') {
-            if (filesTest.length > 1) {
-                showToast('실패', '단일 파일만 업로드 할 수 있습니다.', 'error', 'dismissable');
-                return;
-            }
-        }
+		console.log("checkFile 결과 ::: ", JSON.stringify(res));
 
-        let flag = false;
-        filesTest.forEach(file => {
-            const fileExtension = `.${file.name.split('.').pop().toLowerCase()}`;
+		this.isJumin = res["주민등록증"] || false;
+		this.isBus = res["사업자등록증"] || false;
+		this.isVAT = res["부가세후취"] || false;
 
-            if(!this.accept.includes(fileExtension)) {
-                flag = true;
-            } 
-        });
+		console.log("this.sectionName ::: ", this.sectionName);
+		console.log("this.isJumin ::: ", this.isJumin);
+		console.log("this.isBus ::: ", this.isBus);
+		console.log("this.isVAT ::: ", this.isVAT);
+		console.log("부가 조건 체크:", this.sectionName, this.listUploadedFiles.length);
 
+		if (this.sectionName === "주민등록증" && this.isJumin) {
+			console.log("주민");
+			showToast("주민등록증 파일이 이미 존재합니다.", "기존 파일을 삭제 후 업로드하세요.", "warning");
+			this.listUploadedFiles.forEach(el => {
+				this.deleteFileList.push(el.ContentDocumentId);
+			});
 
-        if(flag) {
-            showToast('파일 유형에 맞는 것을 업로드해주세요.', 'PDF 파일,이미지 파일(.jpg, .png)만 업로드 가능합니다.', 'warning');
-            return;
-        }
+			if (this.deleteFileList.length > 0) {
+				this.doRollbackData(this.deleteFileList);
+			}
 
-        switch (this.newFiles) {
-            case 'file3':
+			return;
 
-                if (!this.isVATApproved) {
-                    // showToast('부가세후취 파일 업로드 제한', '부가세 후취 상태가 승인됨일때만 부가세 후취 파일첨부가 가능합니다', 'error');
-                    showToast('부가세후취 파일 업로드 제한', '부가세 후취 상태가 승인됨이어야지만 부가세후취 필수 파일 첨부가 가능합니다.', 'error', 'sticky');
-                    return;
-                }
+		} else if (this.sectionName === "사업자등록증" && this.isBus) {
+			console.log("사업");
+			showToast("사업자등록증 파일이 이미 존재합니다.", "기존 파일을 삭제 후 업로드하세요.", "warning");
+			this.listUploadedFiles.forEach(el => {
+				this.deleteFileList.push(el.ContentDocumentId);
+			});
 
-                if(this.isVAT && this.newFiles === 'file3') {
-                    showToast('이미 부가세후취 파일이 존재합니다.', '기존 부가세후취 파일을 전체 삭제 후 업로드 가능합니다.', 'warning');
-                    break;
-                }
-                prefix = '부가세후취';
-                activeFieldName = 'IsVAT__c';
-                
-                filesTest.forEach((file) => {
+			if (this.deleteFileList.length > 0) {
+				this.doRollbackData(this.deleteFileList);
+			}
 
-                    const filetype = file.name.split('.').pop();
-                    const reader = new FileReader();
-                    reader.onload = () => {
+			console.log("사업자 deleteFileList ::: ", JSON.stringify(this.deleteFileList));
+			console.log("사업자 listUploadedFiles ::: ", JSON.stringify(this.listUploadedFiles));
 
-                        const base64 = reader.result.split(',')[1];
-                        this.file3Details.push({
-                            name : file.name,
-                            // filename: `${prefix}${index + 1}_${this.username}.${filetype}`,
-                            base64 : base64,
-                            prefix: prefix,
-                            filetype: filetype,
-                            recordId: this.recordId,
-                            isActiveFields: { [activeFieldName]: true }
-                        });
-                        
-                        this.file3Details = this.file3Details.map((file, index) => {
-                            return {
-                                ...file,
-                                key: prefix + index ,
-                                filename: `${prefix}${index + 1}_${this.username}.${file.filetype}` // 번호 재할당
-                            };
-                        });
-                    };
-                    
-                    reader.readAsDataURL(file);
-                });
+			return;
 
-                break;
-    
-            case 'file1':
-                if(this.isJumin && this.newFiles === 'file1') {
-                    showToast('이미 주민등록증 파일이 존재합니다.', '기존 주민등록증 파일 삭제 후 업로드 가능합니다.', 'warning');
-                    break;
-                }
-            case 'file2':
-                if(this.isBus && this.newFiles === 'file2') {
-                    showToast('이미 사업자등록증 파일이 존재합니다.', '기존 사업자등록증 파일 삭제 후 업로드 가능합니다.', 'warning');
-                    break;
-                }
-                
-                const fileName = this.newFiles === 'file1' ? this.file1Details?.name : this.file2Details?.name;
-                const file = event.target.files[0];
-                const filetype = file.name.split('.')[1];
-                const reader = new FileReader();
+		} else if (this.sectionName === "부가세후취" && this.file3Details.length + this.listUploadedFiles.length < 6) {
+			console.log("부가");
+			showToast("Warning", "부가세후취 파일은 6개 이상부터 업로드 가능합니다.", "warning");
+			console.log("list len  ::: ", this.listUploadedFiles.length);
+			console.log("file3  ::: ", this.file3Details.length);
+			// showToast("Warning", "부가세후취 파일.", "warning");
+			// this.listUploadedFiles.forEach(el => {
+			//     this.deleteFileList.push(el.ContentDocumentId);
+			// });
 
-                if (this.newFiles === 'file1') {
-                    prefix = '주민등록증';
-                    activeFieldName = 'isJumin__c';
-                    this.file1Details = {
-                        key: prefix,
-                        name: file.name,
-                    };
+			// if (this.deleteFileList.length > 0) {
+			//     this.doRollbackData(this.deleteFileList);
+			// }
+			// return;
+		}
 
-                } else if (this.newFiles === 'file2') {
-                    prefix = '사업자등록증';
-                    activeFieldName = 'IsBusiness__c';
-                    this.file2Details = {
-                        key: prefix,
-                        name: file.name,
-                    };
-                }
-                const key = prefix;
-                
-                reader.onload = () => {
-                    const base64 = reader.result.split(',')[1];
-                    this.files.push({
-                        key: key,
-                        name : file.name,
-                        filename: `${prefix}_${this.username}.${filetype}`,
-                        base64 : base64,
-                        recordId: this.recordId,
-                        prefix : prefix,
-                        isActiveFields: { [activeFieldName]: true }
-                    });
+		this.storeFileList = [...this.storeFileList, ...this.listUploadedFiles];
 
-                    if(fileName) {
-                        this.files = this.files?.filter(el => {
-                            return el.name != fileName;
-                        })
-                    }
-                };
-    
-                reader.readAsDataURL(file);
-        }
-    }
+		const fileData = {
+			title: files[0].name,
+			ContentDocumentId: files[0].documentId,
+			key: files[0].documentId || `temp-0`
+		};
 
-    handleChooseFile(e) {
-        this.template.querySelector(`input[name="${e.target.name}"]`).click();
-    }
+		if (this.sectionName === "주민등록증") {
+			this.file1Details = fileData;
+			console.log("this.file1Details ::: ", JSON.stringify(this.file1Details));
+			// await updateIsCheck({ opportunityId: this.recordId, fieldToUpdate: 'IsJumin__c', value: true });
+			this.originalCheckValues.IsJumin__c = true;
+		} else if (this.sectionName === "사업자등록증") {
+			this.file2Details = fileData;
+			console.log("this.file2Details ::: ", JSON.stringify(this.file2Details));
+			this.originalCheckValues.IsBusiness__c = true;
+			// await updateIsCheck({ opportunityId: this.recordId, fieldToUpdate: 'IsBusiness__c', value: true });
+		} else {
+			// await updateIsCheck({ opportunityId: this.recordId, fieldToUpdate: 'IsVAT__c', value: true });
+			this.originalCheckValues.IsVAT__c = true;
+			this.file3Details.push(
+				...files.map((file, index) => ({
+					title: file.name,
+					ContentDocumentId: file.documentId,
+					key: file.documentId || `temp-${index}`
+				}))
+			);
+			console.log("this.file3Details ::: ", JSON.stringify(this.file3Details));
+		}
 
-    handleSave() {
-        try {
-            // if(this.isJumin == true && this.isBus == true) {
-            //     showToast('이미 파일이 존재합니다.', '기존 파일들을 삭제 후 업로드하세요.', 'warning');
-            //     return;
-            // } 
-            if(this.files.length < 1 && this.file3Details.length < 1) {
-                showToast('실패', '업로드할 파일이 존재하지 않습니다', 'error', 'dismissable');
-                return;
-            } 
-            // else if(this.file3Details.length < 5 ) {
-            //     showToast('실패', '부가세후취에 업로드하는 파일의 개수가 6개미만인지 확인하세요', 'error', 'dismissable');
-            //     return;
-            // }
-            else if(this.file3Details.length > 0 && this.file3Details.length < 6) {
-                showToast('실패', '부가세후취 파일은 6개 이상부터 파일 저장이 가능합니다.', 'error', 'dismissable');
-                return;
-            }
+		try {
+			this.isLoading = true;
+			await updateFileName({
+				fileIds: fileIds,
+				sectionName: this.sectionName,
+				username: this.username,
+				fileIndex: this.fileIndex
+			}).then(res => {
+				console.log("updateFileName res :: ", res);
+				this.isLoading = false;
+			}).catch(err => {
+				console.log("err :: ", err);
+			});
+			console.log("updateFileName 실행");
 
-            this.files = [...this.files, ...this.file3Details];
-            this.isLoading = true;
-            // 파일 업로드
-            if (this.files.length > 0) {
-                fileNameUpdate({ jsonFileList: JSON.stringify(this.files) })
-                    .then(res => {
-                        showToast('성공', '모든 파일 저장 성공', 'success', 'dismissable');
-                        this.isLoading = false;
-                        this.dispatchEvent(new CloseActionScreenEvent());   // Panel 닫기
-                        this.mobileReturnPage();
-                        setTimeout(() => {
-                            window.location.reload();   // 새로고침
-                        }, 1000);
-                    })
-                    .catch(err => {
-                        console.log('err ::: ', err);
-                    });
-                    // .finally(() => {
-                    //     this.isLoading = false;
-                    // });
-            } else {
-                showToast('오류', '업로드할 파일이 없습니다.', 'error', 'dismissable');
-                isLoading = false;
-            }
+			this.fileIndex = this.file3Details.length + 1;
 
-        } catch(error) {
-            console.error('Error uploading files:', error);
-        }
-    }
+		} catch (error) {
+			console.error("파일 이름 변경 오류:", error);
+		}
 
-    handleRemove(e) {
-        const name = e.target.dataset.name; // 삭제할 pill의 name
-        const key = e.target.dataset.key;
-        if(name === 'vat') {
-            this.file3Details = this.file3Details.filter(el => el.key !== key);
-        } else {
-            this.files = this.files.filter(el => el.key !== key);
-            if(name === 'regNum') this.file1Details = null;
-            else if(name === 'bizNum') this.file2Details = null;
-        }
-    }
+		if (this.deleteFileList.length > 0) {
+			this.doRollbackData(this.deleteFileList);
+			return;
+		}
+	}
 
-    handleCancel() {
-        this.dispatchEvent(new CloseActionScreenEvent());
-        this.mobileReturnPage();
-    }
+	doRollbackData(listId) {
+		doRollback({ setSaveId: listId }).then(res => {
+			console.log("res :: ", res);
+			if (res === "success") {
+				this.deleteFileList = [];
+			}
+		}).catch(err => {
+			console.log("err ::: ", err);
+		});
+	}
 
-    mobileReturnPage() {
-        if(formFactorPropertyName === "Small") {
-            recordNavigation(this, "Opportunity", this.recordId);
-        }
-    }
+	refreshCancel(e) {
+		console.log("취소");
+
+		this.isLoading = true;
+
+		console.log("storeFileList ::::", JSON.stringify(this.storeFileList));
+
+		const storeIdList = [];
+
+		this.storeFileList.forEach(el => {
+			storeIdList.push(el.ContentDocumentId);
+		});
+
+		if (this.storeFileList.length > 0) {
+			this.doRollbackData(storeIdList);
+		} else {
+			console.log("여기 찍혀??");
+		}
+
+		this.isLoading = false;
+
+		console.log("닫기");
+
+		this.dispatchEvent(new CloseActionScreenEvent());
+		this.mobileReturnPage();
+
+	}
+
+	handleCancel(e) {
+		this.refreshCancel();
+	}
+
+	handleSave() {
+		console.log("저장 버튼 클릭");
+		if (this.file3Details.length != 0 && this.file3Details.length < 6) {
+			showToast("Warning", "부가세후취 파일은 6개 이상부터 저장 가능합니다.", "warning");
+			return;
+		}
+
+		updateIsCheck({ opportunityId: this.recordId, opportunityFieldMap: this.originalCheckValues }).then(res => {
+			console.log("res ::: ", res);
+		}).catch(err => {
+			console.log("err ::: ", err);
+		});
+
+		// if(this.file1Details === null ) {
+		//     await updateIsCheck({
+		//         opportunityId: this.recordId,
+		//         fieldToUpdate: 'IsJumin__c',
+		//         value: this.originalCheckValues.IsJumin__c
+		//     });
+		// }
+		// if(this.file2Details === null) {
+		//     await updateIsCheck({
+		//         opportunityId: this.recordId,
+		//         fieldToUpdate: 'IsBusiness__c',
+		//         value: this.originalCheckValues.IsBusiness__c
+		//     });
+		// }
+		// if(this.file3Details.length == 0) {
+		//     await updateIsCheck({
+		//         opportunityId: this.recordId,
+		//         fieldToUpdate: 'IsVAT__c',
+		//         value: this.originalCheckValues.IsVAT__c
+		//     });
+		// }
+
+		this.dispatchEvent(new CloseActionScreenEvent());
+
+		this.mobileReturnPage();
+
+		setTimeout(() => {
+			window.location.reload();   // 새로고침
+		}, 1500);
+	}
+
+	handleRemove(e) {
+		console.log("handleRemove ");
+		const name = e.target.dataset.name;
+		const key = e.target.dataset.key;
+		console.log("key ::: ", key);
+		if (name === "vat") {
+			const removedFile = this.file3Details.find(el => el.key === key);
+			console.log("removedFile :: ", JSON.stringify(removedFile));
+
+			if (removedFile) {
+				this.deleteFileList.push(removedFile.ContentDocumentId);
+				console.log("삭제된 파일 ID 목록 ::: ", JSON.stringify(this.deleteFileList));
+
+				this.file3Details = this.file3Details.filter(el => el.key !== key);
+				console.log("남은 file3Details ::: ", JSON.stringify(this.file3Details));
+			}
+		} else {
+			// this.files = this.files.filter(el => el.key !== key);
+			let removedFile = null;
+
+			if (name === "regNum") {
+				removedFile = this.file1Details;
+				console.log("removedFile :: ", JSON.stringify(removedFile));
+				this.deleteFileList.push(removedFile.ContentDocumentId);
+				this.file1Details = null;
+				console.log("this.file1Details :: ", JSON.stringify(this.file1Details));
+			} else if (name === "bizNum") {
+				removedFile = this.file2Details;
+				this.deleteFileList.push(removedFile.ContentDocumentId);
+				this.file2Details = null;
+				console.log("removedFile :: ", JSON.stringify(removedFile));
+			}
+
+		}
+
+		if (this.deleteFileList.length > 0) {
+			this.doRollbackData(this.deleteFileList);
+		}
+	}
+
+	mobileReturnPage() {
+		if (formFactorPropertyName === "Small") {
+			recordNavigation(this, "Opportunity", this.recordId);
+		}
+	}
 
 }

@@ -104,8 +104,9 @@ export default class createdMng extends LightningElement {
                 this.resultList = [];
                 this.dataFlag = false;
             }
-
-            this.categoryOptions = res && res.modelYear ? res.modelYear : [];
+            console.log(res.modelYear);
+            // this.categoryOptions = res && res.modelYear ? res.modelYear : [];
+            this.categoryOptions = res?.modelYear ? res.modelYear : [];
             this.columns = this.mngNoFlag ? mngNoColumns : typeNoColumns;
         }).catch(err => {
             console.log("err :: ", err);

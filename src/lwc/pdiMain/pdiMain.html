@@ -18,10 +18,11 @@
 										<span>PDI Step</span>
 										<template if:true={selectedRow}>
 											<template lwc:if={selectedRow.CarColor__c}>
-												<span>[{selectedRow.Name} / 색상: {selectedRow.CarColor__c}]</span>
+												<!-- <span>[{selectedRow.Name} / 색상: {selectedRow.CarColor__c}]</span> -->
+												<span>[<lightning-formatted-url value={url} label={selectedRow.Name} target="_blank" ></lightning-formatted-url> / 색상: {selectedRow.CarColor__c} / 미해결 이슈: {selectedRow.fm_UnresolvedIssues__c}건]</span>
 											</template>
 											<template lwc:else>
-												<span>[{selectedRow.Name}]</span>
+												<span>[<lightning-formatted-url value={url} label={selectedRow.Name} target="_blank" ></lightning-formatted-url> / 미해결 이슈: {selectedRow.fm_UnresolvedIssues__c}건]</span>
 											</template>
 										</template>
 									</h1>
@@ -39,7 +40,7 @@
 							<ul class="slds-button-group-list">
 								<li>
 									<lightning-button
-										label="개별 VIN 선택"
+										label="개별 차량 선택"
 										variant={variantMap.specific}
 										name="specific"
 										onclick={handleButtonClick}
@@ -48,7 +49,7 @@
 								</li>
 								<li>
 									<lightning-button
-										label="대량 VIN 붙여넣기"
+										label="대량 붙여넣기"
 										variant={variantMap.bulk}
 										name="bulk"
 										onclick={handleButtonClick}
@@ -141,8 +142,7 @@
 						<template if:true={isStep3}>
 							<c-pdi-step3-view selected-vin={selectedRow}
 																step-list={stepList}
-																onstep3select={handleStep3Select}
-																onstep3complete={handleStep34}>
+																onstep3open={handleStep3open}>
 							</c-pdi-step3-view>
 						</template>
 						<template if:true={isStep4}>

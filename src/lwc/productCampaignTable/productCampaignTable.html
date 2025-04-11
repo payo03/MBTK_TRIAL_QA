@@ -99,15 +99,14 @@
       </div>
       <div class="slds-card__body slds-card__body_inner">
         <div class="campaign-table">
-          <lightning-datatable
+          <c-custom-data-table
                   key-field="id"
                   data={campaignData}
                   columns={campaignColumns}
                   selected-rows={selectedCampaignRowIds}
-                  resize-column-disabled
                   onrowselection={handleRowSelect}
                   data-type="campaign">
-          </lightning-datatable>
+          </c-custom-data-table>
 
         </div>
       </div>

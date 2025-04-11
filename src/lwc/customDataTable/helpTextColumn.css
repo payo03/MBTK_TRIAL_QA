@@ -7,27 +7,27 @@
  * Ver          Date            Author          Modification
  * 1.0          2025-02-03      th.kim          Initial Version
 **************************************************************/
-.help-text-box {
-    position: relative;
-}
+/*.help-text-box {*/
+/*    position: relative;*/
+/*}*/
 
-lightning-button-icon {
-    position: relative;
-}
+/*lightning-button-icon {*/
+/*    position: relative;*/
+/*}*/
 
-.help-text-box:hover .slds-popover_tooltip{
-    visibility: visible;
-}
+/*.help-text-box:hover .slds-popover_tooltip{*/
+/*    visibility: visible;*/
+/*}*/
 
-.slds-popover_tooltip {
-    position: absolute;
-    bottom: 40px;
-    left: -16px;
-    z-index: 9999;
-    overflow: visible;
-    visibility: hidden;
-}
+/*.slds-popover_tooltip {*/
+/*    position: absolute;*/
+/*    bottom: 40px;*/
+/*    left: -16px;*/
+/*    z-index: 9999;*/
+/*    overflow: visible;*/
+/*    visibility: hidden;*/
+/*}*/
 
-.slds-popover__body {
-    text-wrap: auto;
-}
+/*.slds-popover__body {*/
+/*    text-wrap: auto;*/
+/*}*/

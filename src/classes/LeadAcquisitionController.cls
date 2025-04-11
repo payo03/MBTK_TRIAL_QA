@@ -84,25 +84,7 @@ public without sharing class LeadAcquisitionController {
             this.listPrice = listPrice;
             this.salesconditionRate = salesconditionRate;
         }
-        // public ProductWrap(String id, String segment, String name, Decimal quantity) {
-        //     this.id = id;
-        //     this.segment = segment;
-        //     this.name = name;
-        //     this.quantity = quantity;
-        // }
     }
-
-    // public class ProductPriceWrap {
-    //     @AuraEnabled public String id;
-    //     @AuraEnabled public String name;
-    //     @AuraEnabled public Decimal listPrice;
-
-    //     public ProductPriceWrap(String id, String name, Decimal listPrice) {
-    //         this.id = id;
-    //         this.name = name;
-    //         this.listPrice = listPrice;
-    //     }
-    // }
 
     public class CampaignWrap {
         @AuraEnabled public String id;

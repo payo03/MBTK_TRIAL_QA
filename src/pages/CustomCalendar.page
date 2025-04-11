@@ -60,12 +60,13 @@
 			
 			const lightningHost = "{!$Label.LightningHost}";
 			let calendar;
+			let currentTarget;
 
 			// 캘린더 생성
 			function renderCalendar(events) {
 				const calendarEl = document.getElementById('calendar');
 
-				calendar = new FullCalendar.Calendar(calendarEl, {
+				let calendarOptions = {
 					height: '700px',
 					initialView: 'dayGridMonth',
 					expandRows: true, // 화면에 맞게 높이 재설정
@@ -86,9 +87,54 @@
 					},
 					// 이벤트
 					events: events
+				}
 
-				});
+				// 가장 빠른 이벤트 날짜 가져오기
+				var initialDate = getEarliestEventDate(events) || null;
+				console.log('initialDate ::: ' + initialDate);
+				// initialDate가 있으면 추가
+				if (initialDate) {
+					calendarOptions.initialDate = initialDate;
+				}
+
+				calendar = new FullCalendar.Calendar(calendarEl, calendarOptions);
+
+				// calendar = new FullCalendar.Calendar(calendarEl, {
+				// 	height: '700px',
+				// 	initialView: 'dayGridMonth',
+				// 	expandRows: true, // 화면에 맞게 높이 재설정
+				// 	navLinks: false, // 날짜를 선택하면 Day 캘린더나 Week 캘린더로 링크
+				// 	editable: false, // 수정 가능
+				// 	selectable: false, // 달력 일자 드래그 설정가능
+				// 	nowIndicator: true, // 현재 시간 마크
+				// 	dayMaxEvents: false, // 이벤트가 오버되면 높이 제한 (+ 몇 개식으로 표현)
+				// 	locale: 'ko', // 한국어 설정
+				//
+				// 	// 이벤트 클릭 시 발생하는 이벤트
+				// 	eventClick: function(data) {
+				// 		postToParent('eventClick', data);
+				// 	},
+				// 	// event render 후 발생하는 이벤트
+				// 	eventDidMount: function(info) {
+				// 		applyCustomStyles(events);
+				// 	},
+				// 	// 이벤트
+				// 	events: events
+				//
+				// });
+
 				calendar.render();
+			}
+
+			// 가장 빠른 이벤트 날짜를 가져오는 함수
+			function getEarliestEventDate(events) {
+				if (!events.length) return null;
+
+				let earliestDate = events
+					.map(event => new Date(event.start))
+					.sort((a, b) => a - b)[0]; // 가장 빠른 날짜 찾기
+
+				return earliestDate.toISOString().split('T')[0]; // YYYY-MM-DD 형식 변환
 			}
 
 			function applyCustomStyles(events) {
@@ -109,19 +155,20 @@
 				if (lightningHost !== e.origin) return;  // origin 검증 후 불일치 시 빠르게 반환
 
 				const { type, event, target, selectedDay } = e.data;
-				const data = event || e.data;  // event 값이 없으면 e.data 사용
-				if (target !== 'calendar') return;  // 타겟 검증
+				
+				if (!target.includes('calendar')) return;  // 타겟 검증
+				currentTarget = target; // 현재 호출하는 페이지 타겟
 
 				if (type === 'INIT_DATA') {
-					event.map(e => (e.IsHoliday__c) ? e.ru_Count__c = '휴일' : e.ru_Count__c += '/6');
+					event?.map(e => (e.IsHoliday__c) ? e.ru_Count__c = '휴일' : e.ru_Count__c += '/6');
 
 					const keyMap = {
 						ru_Count__c: "title",
 						Date__c: "start"
 					};
 
-					const renamedEvent = event.map(obj =>
-						Object.fromEntries(Object.entries(obj).map(([key, value]) => [keyMap[key] || key, value]))
+					const renamedEvent = event?.map(obj =>
+						Object.fromEntries(Object.entries(obj)?.map(([key, value]) => [keyMap[key] || key, value]))
 					);
 
 					renamedEvent.push({start: selectedDay, display: 'background'})
@@ -134,10 +181,10 @@
 			
 			// LWC로 데이터 전송
 			function postToParent(type, data) {
-				data.type = type;
-				data.target = 'calendar';
-				const mapData = JSON.parse(JSON.stringify(data));
-				parent.postMessage(mapData, lightningHost);
+					data.type = type;
+					data.target = currentTarget;
+					const mapData = JSON.parse(JSON.stringify(data));
+					parent.postMessage(mapData, lightningHost);
 			}
 		</script>
 		<title>Custom Calendar</title>

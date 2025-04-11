@@ -336,7 +336,7 @@ const stockColumns = [
 	},
 	{
 		label: "STEP",
-		fieldName: "fm_Step__c",
+		fieldName: "fm_PdiNextStep__c",
 		type: "text",
 		hideDefaultActions: true
 	},

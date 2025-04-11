@@ -7,23 +7,30 @@
  ===================================================================================
  1.0      2024-12-13      jh.jung           Created
  */
-import {api, LightningElement} from 'lwc';
-import { labelList, showToast } from "c/commonUtil";
+import {api, wire, LightningElement} from 'lwc';
+import {labelList, recordNavigation, showToast} from "c/commonUtil";
 import {notifyRecordUpdateAvailable} from "lightning/uiRecordApi";
 
 import formFactor from "@salesforce/client/formFactor";
 import updateRoadAddress from "@salesforce/apex/UpdateRoadAddressField.updateRoadAddress";
+import {CurrentPageReference, NavigationMixin} from "lightning/navigation";
 
 
-export default class UpdateRoadAddress extends LightningElement {
+export default class UpdateRoadAddress extends NavigationMixin(LightningElement) {
 
   vfHost = labelList.VFHost;
-  isModal;
+  isModal = false;
+  isMobile = false;
   isDetailAddressModal;
   roadAddress;
   detailAddress;
   postalCode;
   @api recordId;
+  objectApiName;
+
+  connectedCallback() {
+    window.addEventListener("message", this.getDataFromChild.bind(this));
+  }
 
   @api invoke() {
     console.log('UpdateRoadAddress invoke :::')
@@ -32,7 +39,47 @@ export default class UpdateRoadAddress extends LightningElement {
     this.roadAddress = '';
     this.detailAddress = '';
     this.postalCode = '';
-    window.addEventListener("message", this.getDataFromChild.bind(this));
+    this.objectApiName = this.getObjectApiNameFromId(this.recordId);
+    // window.addEventListener("message", this.getDataFromChild.bind(this));
+  }
+
+  // URL에서 recordId 가져오기
+  @wire(CurrentPageReference)
+  getStateParameters(currentPageReference) {
+    console.log('RealDriver ::: currentPageReference ::: ' + currentPageReference)
+    console.log('RealDriver ::: this.recordId ::: ' + this.recordId)
+    if (!this.recordId || this.isMobile) {
+      this.recordId = currentPageReference.state?.c__recordId;
+      this.isMobile = true;
+
+      if(this.recordId) {
+        this.invoke();
+      }
+    }
+  }
+
+  get iframeClass() {
+    if(formFactor !== "Small")  return "iframe-address";
+    else                        return "iframe-active";
+  }
+
+  get modalSize() {
+    const defaultClass = "slds-modal slds-fade-in-open ";
+    return `${defaultClass} ${formFactor !== "Small" ? "custom-small-modal" : "custom-large-modal"}`;
+  }
+
+  getObjectApiNameFromId(recordId) {
+    const prefixMap = {
+      '001': 'Account',
+      '003': 'Contact',
+      '00Q': 'Lead',
+      '500': 'Case',
+      '006': 'Opportunity'
+      // 필요한 객체 추가 가능
+    };
+
+    const prefix = recordId.substring(0, 3);
+    return prefixMap[prefix] || 'Unknown';
   }
 
   handleLoad() {
@@ -99,5 +146,12 @@ export default class UpdateRoadAddress extends LightningElement {
     this.isDetailAddressModal = false;
     document.body.style.overflow = '';
     document.body.classList.remove('slds-backdrop_open');
+    this.mobileReturnPage();
+  }
+
+  mobileReturnPage() {
+    if(formFactor === "Small") {
+      recordNavigation(this, this.objectApiName, this.recordId);
+    }
   }
 }

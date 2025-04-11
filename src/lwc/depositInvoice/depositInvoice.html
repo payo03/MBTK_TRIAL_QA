@@ -16,6 +16,9 @@
           <p> 고객명: {accName}</p>
         </div>
         <div class="slds-size_1-of-1 slds-p-around_small">
+          <p> 전화번호: {accPhone}</p>
+        </div>
+        <div class="slds-size_1-of-1 slds-p-around_small">
           <p> 모델명: {vehicleName}</p>
         </div>
       </div>
@@ -31,6 +34,12 @@
         class="slds-m-right_xx-small"
         label="계약금 요청 전송"
         onclick={sendDeposit}
+        >
+      </lightning-button>
+      <lightning-button
+        class="slds-m-right_xx-small"
+        label="취소"
+        onclick={handleCancel}
         >
       </lightning-button>
       <!-- <lightning-button

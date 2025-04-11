@@ -133,21 +133,18 @@ lightning-input:disabled {
     }
 
     lightning-accordion {
-        lightning-datatable {
+        lightning-datatable,
+        lightning-input,
+        lightning-record-picker,
+        lightning-combobox,
+        c-custom-data-table,
+        span, div, h2 {
             color: black !important;
         }
+    }
 
-        lightning-input {
-            color: black !important;
-        }
-
-        lightning-record-picker {
-            color: black !important;
-        }
-
-        lightning-combobox {
-            color: black !important;
-        }
+    .slds-modal__content {
+        overflow: auto;
     }
 }
 
@@ -164,19 +161,12 @@ lightning-input:disabled {
     }
 
     lightning-accordion {
-        lightning-datatable {
-            color: black !important;
-        }
-
-        lightning-input {
-            color: black !important;
-        }
-
-        lightning-record-picker {
-            color: black !important;
-        }
-
-        lightning-combobox {
+        lightning-datatable,
+        lightning-input,
+        lightning-record-picker,
+        lightning-combobox,
+        c-custom-data-table,
+        span, div, h2 {
             color: black !important;
         }
     }
@@ -188,6 +178,10 @@ lightning-input:disabled {
 
     .summary-wrap > div .box-wrap {
         padding: 0 1rem;
+    }
+
+    .slds-modal__content {
+        overflow: auto;
     }
 }
 

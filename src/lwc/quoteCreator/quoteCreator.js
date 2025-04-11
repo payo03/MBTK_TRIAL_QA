@@ -135,6 +135,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	loanAmount;
 	interestRate;
 	loanTermMonth;
+	isFirst = true;
 
 	// 부대비용
 	consignment;
@@ -193,7 +194,11 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	 * @description 금융 비교 레이아웃 사이즈
 	 */
 	get compareSize() {
-		return 12 / this.compareFinancialList.length;
+		return formFactor === "Large"
+			? 12 / this.compareFinancialList.length
+			: formFactor === "Medium"
+				? 6
+				: 12;
 	}
 
 	/**
@@ -214,6 +219,14 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 
 			getInit({ oppId: this.oppId, quoteId: this.quoteId }).then(res => {
 				console.log("res :: ", res);
+
+				// 차종 체크
+				if (!res.productData) {
+					showToast("차종이 선택되지 않은 데이터입니다.", "", "warning");
+					this.navigateToBack();
+					return;
+				}
+
 				this.isViewStock = false;
 				this.quoteName = res.quoteDetail?.name;
 				this.optionFilter = [{ label: "선택안함", value: "" }].concat(res.optionFilter);
@@ -241,7 +254,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 						const optionIdSet = new Set(optionDataList.map(el => el.id));
 
 						// 기존 데이터에 필수 옵션이 포함되어 있지 않았을 때 Merge
-						this.selectedOptionData = [...optionDataList, ...this.selectedOptionData.filter(el => !optionIdSet.has(el.id))];
+						this.selectedOptionData = [...optionDataList, ...this.selectedOptionData?.filter(el => !optionIdSet.has(el.id)) || []];
 						this.defaultOptionData = this.selectedOptionData?.filter(el => el.type === "기본제공");
 					}
 					this.tableDataMap.defaultOptions = this.defaultOptionData;
@@ -276,14 +289,14 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				}
 
 				// 금융 기본값 설정
-				const finance = this.financialList?.find(el => el.value === this.tableDataMap.financial.financeId);
+				const finance = this.financialList?.find(el => el?.value && el?.value === this.tableDataMap.financial?.financeId);
 				this.tableDataMap.financial.isVAT = this.oppData?.VATDefermentStatus__c === "승인됨";
 				this.tableDataMap.financial.defermentVATDays = this.oppData?.VATDeferredDays__c;
 				this.tableDataMap.financial.paymentDeferredAmount = this.oppData?.PaymentDeferredAmount__c || 0;
 				this.setFinancialData(this.tableDataMap.financial, finance);
 
 				this.hideRequiredOptionButton();
-				this.setProductData(res.productData, res.optionList, res.campaignList, res.baseDiscount);
+				this.setProductData(res?.productData, res?.optionList, res?.campaignList, res?.baseDiscount);
 				this.getServiceItem();
 				this.getSummaryData();
 			}).catch(err => {
@@ -301,7 +314,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	 * @description 렌더링 시 화면 스타일 조정
 	 */
 	renderedCallback() {
-		window.addEventListener("beforeunload", this.cleanup);
+		window.addEventListener("beforeunload", this.clearStyle.bind(this));
 		if (formFactor === "Large") {
 			const bodyHeaderBoxEl = this.template.querySelectorAll(".body-header .body-wrap");
 			let boxHeight;
@@ -386,7 +399,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 
 		this.selectedOptionIdList = this.selectedOptionIdList.filter(el => el !== currentRowId);
 		this.selectedOptionData = this.selectedOptionData.filter(el => el.id !== currentRowId);
-		this.tableDataMap.product.optionList = this.selectedOptionData;
+		this.tableDataMap.product.optionList = this.selectedOptionData.filter(el => el.type !== "기본제공");
 		this.tableDataMap.defaultOptions = this.defaultOptionData;
 		this.getServiceItem();
 		this.getSummaryData();
@@ -510,6 +523,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				} else {
 					this.financeId = null;
 					this.tableDataMap.financial = {};
+					this.tableDataMap.financial.advancePayment = 1000000;
 					this.tableDataMap.discountDetail = {};
 					this.tableDataMap.extraExpenses = {};
 					this.specialOptionList = [{ ...initSpecialData }];
@@ -518,6 +532,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 					this.financialList = [];
 					this.setProductData(null, null, null, 0);
 				}
+				this.getServiceItem();
 				break;
 			case "handover":
 				this.handoverDate = value;
@@ -581,7 +596,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				// 	this.tableDataMap.financial.financialName = financialName;
 				// });
 				break;
-			// 선수금
+			// 인도금
 			case "advancePayment" :
 				this.tableDataMap.financial.advancePayment = numValue;
 				break;
@@ -647,6 +662,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 		if (!type || typeof type !== "string") {
 			type = "option";
 		}
+		if (this.isModalOpen && formFactor !== "Large") this.scrollToTop();
 		Object.keys(this.modalMap).forEach(el => this.modalMap[el] = el === type);
 	}
 
@@ -813,7 +829,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 
 					this.selectedOptionData = selectedRows;
 					this.hideRequiredOptionButton();
-					this.tableDataMap.product.optionList = this.selectedOptionData;
+					this.tableDataMap.product.optionList = this.selectedOptionData?.filter(el => el.type !== "기본제공");
 					this.defaultOptionData = this.selectedOptionData?.filter(el => el.type === "기본제공");
 					this.tableDataMap.defaultOptions = this.defaultOptionData;
 
@@ -898,12 +914,12 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 					showToast("대출 기간(개월) 범위를 확인해주세요.", "", "warning");
 					return;
 				}
-				if (capitalDeferment > financial?.loanAmount || capitalDeferment < 0 ) {
-					showToast("캐피탈 유예금 범위를 확인해주세요.", "", "warning");
+				if (advancePayment > this.summaryData.realSalesPrice || advancePayment < financial.minAdvancePayment) {
+					showToast("인도금 범위를 확인해주세요.", "", "warning");
 					return;
 				}
-				if (advancePayment > this.summaryData.realSalesPrice || advancePayment < 0) {
-					showToast("선수금 범위를 확인해주세요.", "", "warning");
+				if (capitalDeferment > financial?.loanAmount || capitalDeferment < 0) {
+					showToast("캐피탈 유예금 범위를 확인해주세요.", "", "warning");
 					return;
 				}
 
@@ -934,18 +950,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				break;
 			// 견적 취소
 			case "cancel":
-				let targetName, targetId;
-				if (this.quoteId) {
-					targetName = "Quote";
-					targetId = this.quoteId;
-				} else if (this.oppId) {
-					targetName = "Opportunity";
-					targetId = this.oppId;
-				}
-				if (targetName) {
-					this.clearStyle();
-					recordNavigation(this, targetName, targetId);
-				}
+				this.navigateToBack();
 				break;
 			// 특장 추가
 			case "addBtn":
@@ -965,7 +970,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			// 캘린더
 			case "handover":
 				this.isLoading = true;
-				this.toggleModal("calendar");
+				// this.toggleModal("calendar");
 				const stockId = this.selectedStockIdList.length > 0 ? this.selectedStockIdList[0] : null;
 				getCalendarInit({ vehicleStockId: stockId }).then(res => {
 					console.log("getCalendarInit :: ", res);
@@ -976,6 +981,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 						...option,
 						isAssign: option.Attribute2__c == res.diffDays
 					}));
+					this.toggleModal("calendar");
 				}).catch(err => {
 					console.log("err :: ", err);
 				});
@@ -1078,9 +1084,9 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 		}) || [];
 		this.productData = productData ? {
 			...productData,
-			optionList: this.selectedOptionData,
+			optionList: this.selectedOptionData?.filter(el => el.type !== "기본제공"),
 			stockList: stockList || []
-		} : { stockList: [] };
+		} : { segment: null, LMY: null, stockList: [] };
 		this.tableDataMap.product = this.productData;
 
 		this.optionData = optionList;
@@ -1093,7 +1099,8 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			return {
 				...el,
 				discountRate: discountRate,
-				discountPrice: discountPrice
+				discountPrice: discountPrice,
+				content: el.memo
 			};
 		}) || [];
 		this.selectedCampaignIdList = this.selectedCampaignList?.map(row => row.id);
@@ -1115,7 +1122,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	 */
 	hideRequiredOptionButton() {
 		this.selectedOptionData?.forEach(el => {
-			if (el.isRequired) el.formatClass = "slds-hidden";
+			if (el?.isRequired) el.formatClass = "slds-hidden";
 		});
 	}
 
@@ -1124,15 +1131,22 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	 */
 	getServiceItem() {
 		// isRequired - No Carefree 제외
-		const serviceItem = this.selectedOptionData?.find(el => el.type === "서비스품목" && !el.isRequired);
-		if (serviceItem) {
+		const serviceItemList = this.selectedOptionData?.filter(el => el.type === "서비스품목");
+		if (serviceItemList && serviceItemList.length > 0) {
+			const serviceItem = serviceItemList.length === 1
+				? serviceItemList[0]
+				: serviceItemList.find(el => !el.isRequired) || serviceItemList.find(el => el.isRequired);
 			getServiceItem({ serviceItemId: serviceItem.id }).then(res => {
 				console.log("res :: ", res);
-				this.tableDataMap.serviceItem = res;
+				if (res) this.tableDataMap.serviceItem = res;
 			}).catch(err => {
 				console.log("err :: ", err);
+				this.tableDataMap.serviceItem = {};
 			});
+		} else {
+			this.tableDataMap.serviceItem = {};
 		}
+
 	}
 
 	/**
@@ -1152,11 +1166,15 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			this.tableDataMap.discountDetail.overflowMessage = `최대 입력 가능 수량은 ${maxCount}(장) 입니다.`;
 
 			const financial = childEl.getFinancialData();
-			this.tableDataMap.financial.loanAmount = financial?.loanAmount || 0;
-			this.tableDataMap.financial.deposit = financial?.deposit || 0;
-			this.tableDataMap.financial.deliveryPrice = financial?.deliveryPrice || 0;
-			this.tableDataMap.financial.interestDefermentVAT = financial?.interestDefermentVAT || 0;
+			const defermentVAT = financial?.defermentVAT || 0;
+			const minAdvancePayment = 1000000 + defermentVAT + financial.paymentDeferredAmount;
+			if (this.isFirst) this.tableDataMap.financial.advancePayment = financial?.advancePayment || minAdvancePayment;
+			this.isFirst = false;
+
 			Object.assign(this.tableDataMap.financial, {
+				// advancePayment: advancePayment,
+				minAdvancePayment: minAdvancePayment,
+				defermentVAT: defermentVAT,
 				loanAmount: financial?.loanAmount || 0,
 				deposit: financial?.deposit || 0,
 				deliveryPrice: financial?.deliveryPrice || 0,
@@ -1175,8 +1193,9 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 		const financeId = finance?.value;
 		const minInterestRate = finance?.minInterestRate || 0;
 		const maxInterestRate = finance?.maxInterestRate || 10;
-		const minimumDuration = finance?.minimumDuration || 6;
+		const minimumDuration = finance?.minimumDuration || 0;
 		const maximumDuration = finance?.maximumDuration || 84;
+		const advancePayment = financial?.advancePayment || this.tableDataMap.financial.minAdvancePayment;
 		const helpText = financeId
 			? [
 				`최소 기간: ${minimumDuration}`,
@@ -1195,12 +1214,33 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			minimumDuration: minimumDuration,
 			maximumDuration: maximumDuration,
 			interestRateRange: `${minInterestRate} ~ ${maxInterestRate}`,
+			advancePayment: advancePayment,
 			helpText: helpText
 		});
+	}
+
+	navigateToBack() {
+		let targetName, targetId;
+		if (this.quoteId) {
+			targetName = "Quote";
+			targetId = this.quoteId;
+		} else if (this.oppId) {
+			targetName = "Opportunity";
+			targetId = this.oppId;
+		}
+		if (targetName) {
+			this.clearStyle();
+			recordNavigation(this, targetName, targetId);
+		}
 	}
 
 	clearStyle() {
 		const styleEl = document.querySelector(".custom-style");
 		if (styleEl) styleEl.remove();
 	}
+
+	scrollToTop() {
+		window.scrollTo({ top: 0, behavior: "smooth" });
+	}
+
 }

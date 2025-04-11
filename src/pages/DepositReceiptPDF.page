@@ -21,7 +21,7 @@
           font-family: Arial Unicode MS;
           font-size: 12px;
           text-align: center;
-          margin-top: 17.5em; /* 여백 조정 */
+          margin-top: 17em; /* 여백 조정 */
         }
 
         .title {
@@ -105,21 +105,21 @@
       </tr>
       <tr>
         <th>상호명</th>
-        <td>만트럭 상호명</td>
+        <td>만트럭버스코리아주식회사</td>
         <th>사업자등록번호</th>
-        <td>만트럭 사업자등록번호</td>
+        <td>124-85-29163</td>
       </tr>
       <tr>
         <th>대표자명</th>
-        <td>만트럭 대표자명</td>
+        <td>ANDERSSON PETER</td>
         <th>사업장소재지</th>
-        <td>만트럭시 만트럭구 만트럭동 만트럭군 만트럭읍 만트럭면 만트럭리 123-45 6동 789호</td>
+        <td>경기도 평택시 포승읍 서동대로 437-55</td>
       </tr>
       <tr class="bottom-border">
         <th>업태</th>
-        <td>만트럭 업태</td>
+        <td>도소매, 건설업, 서비스, 자동차정비</td>
         <th>종목</th>
-        <td>만트럭 종목</td>
+        <td>자동차, 무역, 서비스, 자동차정비</td>
       </tr>
     </table>
 

@@ -86,8 +86,12 @@ export default class PdiStep3View extends LightningElement {
 						console.log(el.id);
 					}
 				}
+				const customEvent = new CustomEvent('step3open', {
+					detail: { matchRowIdList: this.selectedRowIdList }
+				});
+				this.dispatchEvent(customEvent);
 			}).catch(err => {
-				console.log("err init :: ", err);
+				console.log("err getFilteredHandoverList :: ", err);
 			});
 		}).catch(err => {
 			console.log("err step3Init :: ", err);
@@ -180,28 +184,4 @@ export default class PdiStep3View extends LightningElement {
 	toggleModal() {
 		this.isModalOpen = !this.isModalOpen;
 	}
-
-	// /**
-	//  * @description Pdi Main 모달 on
-	//  */
-	// handleMainModal() {
-	// 	if(this.varStepList[2].IsPass__c == true) {
-	// 		showToast('Warning', '이미 완료된 Step입니다.', 'warning');
-	// 		return;
-	// 	}
-	// 	if(this.varStepList[1].IsPass__c == false) {
-	// 		showToast('Warning', 'Step 2를 먼저 완료해주세요.', 'warning');
-	// 		return;
-	// 	}
-	// 	if(!this.opportunityList.length) {
-	// 		showToast('Warning', '선택한 VIN의 출고 예정 데이터가 없습니다.', 'warning');
-	// 		return;
-	// 	}
-	// 	if(!this.selectedRowIdList.length) {
-	// 		showToast('Warning', '배정을 확정할 출고건을 선택해주세요.', 'warning');
-	// 		return;
-	// 	}
-	// 	const customEvent = new CustomEvent('step3open');
-	// 	this.dispatchEvent(customEvent);
-	// }
 }

@@ -24,6 +24,7 @@ export default class goodWillUsing extends LightningElement {
   availablePoints;
   //  vehicleStockId;
   usingHistory;
+  usingMasterStatus = false;
   usingHistoryStatus = false;
   vinNo;
   usingGoodWill;
@@ -40,12 +41,14 @@ export default class goodWillUsing extends LightningElement {
 
   connectedCallback() {
     init({ userId: this.curUserId }).then(result => {
+      console.log('res :: ', result);
       this.goodWillMasterId = result.goodWillMaster[0].Id;
       this.availablePoints = result.goodWillMaster[0].ru_TotalGoodWillPoints__c;
       this.usingHistory = result.goodWillUsing;
+      if (result.goodWillMaster.length > 0) this.usingMasterStatus = true;
       if (this.usingHistory.length > 0) this.usingHistoryStatus = true;
     }).catch(err => {
-      console.log("err init :: ", err)
+      console.log("err init :: ", err);
     });
   }
 
@@ -61,6 +64,7 @@ export default class goodWillUsing extends LightningElement {
       this.description = value;
     } else if (id === "VehicleStock") {
       this.vinNo = value;
+      console.log(this.vinNo.length);
     }
   }
 
@@ -77,8 +81,8 @@ export default class goodWillUsing extends LightningElement {
       return;
     }
     console.log('this.vinNo :: ', this.vinNo);
-    // 굿윌 사용 차량이 'WMA'로 시작하지 않으면 토스트 발생
-    if (!this.vinNo.startsWith("WMA")) {
+    // 굿윌 사용 차량이 'WMA'로 시작하지 않거나 텍스트가 17자리보다 작으면 토스트 발생
+    if (!this.vinNo.startsWith("WMA") || this.vinNo.length < 17) {
       showToast("Warning", "차량 VIN 양식이 올바르지 않습니다.", "warning");
       return;
     }

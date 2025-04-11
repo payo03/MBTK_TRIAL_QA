@@ -12,7 +12,7 @@ public without sharing class VehicleStockTableController {
     public class MasterWrap {
         @AuraEnabled public String key;
         @AuraEnabled public String segment;
-        @AuraEnabled public String reportSpec;
+        @AuraEnabled public String name;
         @AuraEnabled public String styling;
         @AuraEnabled public Decimal carAmt;
         @AuraEnabled public Decimal price;
@@ -25,10 +25,10 @@ public without sharing class VehicleStockTableController {
         @AuraEnabled public Integer eta;
         @AuraEnabled public List<ProductWrap> children;
 
-        public MasterWrap(String key, String segment, String reportSpec ,String styling, Decimal carAmt, Decimal price, Integer quantity, Integer waitingListQty, Integer stockNoShowQty, Integer after30DaysQty, Integer after60DaysQty, Integer eta) {
+        public MasterWrap(String key, String segment, String name ,String styling, Decimal carAmt, Decimal price, Integer quantity, Integer waitingListQty, Integer stockNoShowQty, Integer after30DaysQty, Integer after60DaysQty, Integer eta) {
             this.key = key;
             this.segment = segment;
-            this.reportSpec = reportSpec;
+            this.name = name;
             this.styling = styling;
             this.carAmt = carAmt;
             this.price = price;
@@ -284,7 +284,7 @@ public without sharing class VehicleStockTableController {
             if (tab == 'sa') {
                 whereConditions += ' StockNoShow__c = false AND ' ;
             }
-            whereConditions += ' Product__r.VehicleCategory__r.Report_Spec__c = ' + keyList[0] + ' AND ' + ' Product__r.Styling__c = ' + keyList[1] ;
+            whereConditions += ' Product__r.VehicleCategory__r.Name = ' + keyList[0] + ' AND ' + ' Product__r.Styling__c = ' + keyList[1] ;
             return getDynamicProductWrapList(whereConditions, tab);
         } else {
             return null;
@@ -527,7 +527,7 @@ public without sharing class VehicleStockTableController {
      */
     private static List<MasterWrap> getDynamicVehicleCategoryList(String whereConditions) {
 
-        String selectFields = 'Id, Name, CarAmt__c, Quantity__c, Styling__c, VehicleCategory__r.Segment2__c,CreatedDate, VehicleCategory__r.Report_Spec__c, WaitingListQty__c, StockNoShowQty__c,  After30DaysQty__c, After60DaysQty__c, ' +
+        String selectFields = 'Id, Name, CarAmt__c, Quantity__c, Styling__c, VehicleCategory__r.Segment2__c,CreatedDate, VehicleCategory__r.Name, WaitingListQty__c, StockNoShowQty__c,  After30DaysQty__c, After60DaysQty__c, ' +
                 ' VehicleCategory__r.Quantity__c, VehicleCategory__r.WaitingListQty__c, VehicleCategory__r.StockNoShowQty__c, VehicleCategory__r.After30DaysQty__c, VehicleCategory__r.After60DaysQty__c, ' +
                 ' ( SELECT VehicleOptionMaster__r.Price__c FROM ProductOption__r WHERE VehicleOptionMaster__r.Division__c =\'필수 옵션\' ) ';
 
@@ -552,10 +552,10 @@ public without sharing class VehicleStockTableController {
                     price += (Decimal)productOptionObj.VehicleOptionMaster__r.Price__c;
                 }
             }
-            masterWrapMap.put(product.VehicleCategory__r.Report_Spec__c + product.Styling__c,
+            masterWrapMap.put(product.VehicleCategory__r.Name + product.Styling__c,
                     new Map<String, Object>{
                             'Segment2__c' => product.VehicleCategory__r.Segment2__c,
-                            'Report_Spec__c' => product.VehicleCategory__r.Report_Spec__c,
+                            'Name' => product.VehicleCategory__r.Name,
                             'Styling__c' => product.Styling__c,
                             'CarAmt__c' => sortCarAmt(masterWrapMap, product),
                             'Price__c' => price,
@@ -571,9 +571,9 @@ public without sharing class VehicleStockTableController {
 
         for(String key : masterWrapMap.keySet()){
             MasterWrap MasterWrap = new MasterWrap(
-                    masterWrapMap.get(key).get('Report_Spec__c') +','+masterWrapMap.get(key).get('Styling__c'),
+                    masterWrapMap.get(key).get('Name') +','+masterWrapMap.get(key).get('Styling__c'),
                     (String)masterWrapMap.get(key).get('Segment2__c'),
-                    (String)masterWrapMap.get(key).get('Report_Spec__c'),
+                    (String)masterWrapMap.get(key).get('Name'),
                     (String)masterWrapMap.get(key).get('Styling__c'),
                     (Decimal)masterWrapMap.get(key).get('CarAmt__c'),
                     (Decimal)masterWrapMap.get(key).get('Price__c'),
@@ -591,7 +591,7 @@ public without sharing class VehicleStockTableController {
 //        MasterWrap MasterWrap = new MasterWrap(
 //                product.Id,
 //                product.VehicleCategory__r.Segment2__c,
-//                product.VehicleCategory__r.Report_Spec__c,
+//                product.VehicleCategory__r.Name,
 //                product.Styling__c,
 //                Integer.valueOf(product.VehicleCategory__r.Quantity__c),
 //                Integer.valueOf(product.VehicleCategory__r.WaitingListQty__c),
@@ -734,18 +734,18 @@ public without sharing class VehicleStockTableController {
 
     private static Integer sumMasterField(String fieldName, Map<String,Map<String,Object>> masterMap, Product2 product) {
         Integer fieldValue = Integer.valueOf(product.get(fieldName));
-        Integer totalNumber = masterMap.containsKey(product.VehicleCategory__r.Report_Spec__c + product.Styling__c) == false ?
+        Integer totalNumber = masterMap.containsKey(product.VehicleCategory__r.Name + product.Styling__c) == false ?
                 fieldValue :
-                (Integer)masterMap.get(product.VehicleCategory__r.Report_Spec__c + product.Styling__c).get(fieldName) + (Integer)fieldValue;
+                (Integer)masterMap.get(product.VehicleCategory__r.Name + product.Styling__c).get(fieldName) + (Integer)fieldValue;
         return totalNumber;
     }
 
     private static Decimal sortCarAmt(Map<String,Map<String,Object>> masterMap, Product2 product) {
         Decimal fieldValue = decimalNullCheck((Decimal)product.get('CarAmt__c'));
-        Decimal masterMapValue = masterMap.containsKey(product.VehicleCategory__r.Report_Spec__c + product.Styling__c) == false
-                ? fieldValue : String.valueOf(masterMap.get(product.VehicleCategory__r.Report_Spec__c + product.Styling__c).get('CarAmt__c')).contains(',')
-                        ? Decimal.valueOf(String.valueOf(masterMap.get(product.VehicleCategory__r.Report_Spec__c + product.Styling__c).get('CarAmt__c')).replace(',',''))
-                        :  Decimal.valueOf(String.valueOf(masterMap.get(product.VehicleCategory__r.Report_Spec__c + product.Styling__c).get('CarAmt__c')));
+        Decimal masterMapValue = masterMap.containsKey(product.VehicleCategory__r.Name + product.Styling__c) == false
+                ? fieldValue : String.valueOf(masterMap.get(product.VehicleCategory__r.Name + product.Styling__c).get('CarAmt__c')).contains(',')
+                        ? Decimal.valueOf(String.valueOf(masterMap.get(product.VehicleCategory__r.Name + product.Styling__c).get('CarAmt__c')).replace(',',''))
+                        :  Decimal.valueOf(String.valueOf(masterMap.get(product.VehicleCategory__r.Name + product.Styling__c).get('CarAmt__c')));
         Decimal carAmt = fieldValue > masterMapValue ? fieldValue : masterMapValue;
 
         return carAmt;

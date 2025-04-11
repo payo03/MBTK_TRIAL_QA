@@ -1,15 +1,15 @@
 <!--
  * @author : San.Kang
  * @date : 2025-02-07
- * @description : 
+ * @description : 안전기준 적합 여부 확인서 PDF
  * @target : 
 ==============================================================
  * Ver          Date            Author          Modification
  * 1.0          2025-02-07      San.Kang          Initial Version
 -->
 
-<apex:page sidebar="false" showheader="false" renderas="pdf" standardcontroller="VehicleStock__c" extensions="CarSafetyStandardsController" action="{!init}">
-    <apex:variable value="" var="" rendered="{!check}">
+<apex:page sidebar="false" showheader="false" renderas="pdf" controller="CarSafetyStandardsController" action="{!init}">
+    <apex:variable value="" var="">
         &nbsp; <apex:outputlabel value="■자동차 및 자동차부품의 인증 및 조사 등에 관한 규정 [별지 제1호의4 서식]" style="font-family: Arial Unicode MS; font-size:15px;"/><br/><br/>
         <!-- Page 1 -->
         <table align="center" border="1" cellpadding="1" cellspacing="0" style="width:700px; border-collapse:initial;">
@@ -47,7 +47,7 @@
                     <apex:outputlabel value="차 명" style="font-family: Arial Unicode MS;"/>
                 </td>
                 <td colspan="3" align="center" style="width:15%;height:46px;">
-                    <apex:outputlabel value="{!VehicleStock__c.carnamejewon__c}" style="font-family: Arial Unicode MS;"/>
+                    <apex:outputlabel value="{!IF(ISNULL(vehicleStock.Product__r.Segment2__c), '', vehicleStock.Product__r.Segment2__c)}" style="font-family: Arial Unicode MS;"/>
                 </td>
                 <td align="center" style="width:5%;height:46px;">
                     <apex:outputlabel value="4" style="font-family: Arial Unicode MS;"/>
@@ -56,7 +56,7 @@
                     <apex:outputlabel value="형 식" style="font-family: Arial Unicode MS;"/>
                 </td>
                 <td colspan="3" align="center" style="width:15%;height:46px;">
-                    <apex:outputlabel value="{!VehicleStock__c.formjewon__c}" style="font-family: Arial Unicode MS;"/>
+                    <apex:outputlabel value="{!IF(ISNULL(vehicleStock.formjewon__c), '', vehicleStock.formjewon__c)}" style="font-family: Arial Unicode MS;"/>
                 </td>
             </tr>
             <tr>
@@ -67,7 +67,7 @@
                     <apex:outputlabel value="제원관리번호" style="font-family: Arial Unicode MS;"/>
                 </td>
                 <td colspan="3" align="center" style="width:15%;height:46px;">
-                    <apex:outputlabel value="{!VehicleStock__c.MngNo__c}" style="font-family: Arial Unicode MS;"/>
+                    <apex:outputlabel value="{!IF(ISNULL(vehicleStock.MngNo__c), '', vehicleStock.MngNo__c)}" style="font-family: Arial Unicode MS;"/>
                 </td>
                 <td align="center" style="width:5%;height:46px;">
                     <apex:outputlabel value="6" style="font-family: Arial Unicode MS;"/>
@@ -77,7 +77,10 @@
                 </td>
                 <td colspan="3" align="center" style="width:25%;height:46px;">
                     <apex:outputText value="{0,date,yyyy' 년 'MM' 월' }" style="font-family: Arial Unicode MS;">
-                        <apex:param value="{!VehicleStock__c.RealArrivalDate__c}" />
+                        <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.RealArrivalDate__c))}" value="{0,date,yyyy' 년 'MM' 월' }" style="font-family: Arial Unicode MS;">
+                            <apex:param value="{!vehicleStock.RealArrivalDate__c}" />
+                        </apex:outputText>
+                        <apex:outputText rendered="{!ISBLANK(vehicleStock.RealArrivalDate__c)}" value="" style="font-family: Arial Unicode MS;"/>
                     </apex:outputText>
 
                 </td>
@@ -96,7 +99,10 @@
                 <td colspan="6" align="center" style="width:15%;height:46px;">
 
                     <apex:outputText value="{0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
-                        <apex:param value="{!VehicleStock__c.MaxAllowWeight__c}" />
+                        <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.MaxAllowWeight__c))}" value="{0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;">
+                            <apex:param value="{!vehicleStock.MaxAllowWeight__c}" />
+                        </apex:outputText>
+                        <apex:outputText rendered="{!ISBLANK(vehicleStock.MaxAllowWeight__c)}" value=" - " style="font-family: Arial Unicode MS;"/>
                     </apex:outputText>
 
 
@@ -111,10 +117,10 @@
                     <apex:outputlabel value="전" style="font-family: Arial Unicode MS;"/>
                 </td>
                 <td colspan="6" align="center" style="width:38px;height:42px;">
-                    <apex:outputText value="{0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
-                        <apex:param value="{!VehicleStock__c.AllowableLoadPre__c}" />
+                    <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.AllowableLoadPre__c))}" value="{0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;">
+                        <apex:param value="{!vehicleStock.AllowableLoadPre__c}" />
                     </apex:outputText>
-
+                    <apex:outputText rendered="{!ISBLANK(vehicleStock.AllowableLoadPre__c)}" value=" - " style="font-family: Arial Unicode MS;"/>
                 </td>
             </tr>
             <tr>
@@ -122,9 +128,10 @@
                     <apex:outputlabel value="후" style="font-family: Arial Unicode MS;"/>
                 </td>
                 <td colspan="6" align="center" style="width:38px;height:42px;">
-                    <apex:outputText value="{0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
-                        <apex:param value="{!VehicleStock__c.AllowableLoadNext__c}" />
+                    <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.AllowableLoadNext__c))}" value="{0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;">
+                        <apex:param value="{!vehicleStock.AllowableLoadNext__c}" />
                     </apex:outputText>
+                    <apex:outputText rendered="{!ISBLANK(vehicleStock.AllowableLoadNext__c)}" value=" - " style="font-family: Arial Unicode MS;"/>
                 </td>
             </tr>
             <tr>
@@ -369,14 +376,15 @@
                     <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
                 </td>
                 <td align="center" style="height:55px;">
-                    <apex:outputText value="적차 : {0, number, ###,###,###,##0}kg -" style="font-family: Arial Unicode MS;" >
-                        <apex:param value="{!VehicleStock__c.TDSTestMin__c}" />
+                    <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.TDSTestMin__c))}" value="적차 : {0, number, ###,###,###,##0}kg -" style="font-family: Arial Unicode MS;">
+                        <apex:param value="{!vehicleStock.TDSTestMin__c}" />
                     </apex:outputText>
-                    <apex:outputText value="{0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
-                        <apex:param value="{!VehicleStock__c.TDSTestMax__c}" />
+                    <apex:outputText rendered="{!ISBLANK(vehicleStock.TDSTestMin__c)}" value="적차 : -" style="font-family: Arial Unicode MS;"/>
+
+                    <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.TDSTestMax__c))}" value="{0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;">
+                        <apex:param value="{!vehicleStock.TDSTestMax__c}" />
                     </apex:outputText>
-
-
+                    <apex:outputText rendered="{!ISBLANK(vehicleStock.TDSTestMax__c)}" value=" - " style="font-family: Arial Unicode MS;"/>
                 </td>
             </tr>
             <tr>
@@ -489,13 +497,15 @@
                     <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
                 </td>
                 <td colspan="5" align="center" style="height:55px;">
-                    <apex:outputText value="공차 : {0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
-                        <apex:param value="{!VehicleStock__c.BTestEmpty__c}" />
-                    </apex:outputText><br/>
-                    <apex:outputText value="적차 : {0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
-                        <apex:param value="{!VehicleStock__c.BTestLaden__c}" />
+                    <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.BTestEmpty__c))}" value="공차 : {0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;">
+                        <apex:param value="{!vehicleStock.BTestEmpty__c}" />
                     </apex:outputText>
-
+                    <apex:outputText rendered="{!ISBLANK(vehicleStock.BTestEmpty__c)}" value="공차 : -" style="font-family: Arial Unicode MS;"/>
+                    <br/>
+                    <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.BTestLaden__c))}" value="적차 : {0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;">
+                        <apex:param value="{!vehicleStock.BTestLaden__c}" />
+                    </apex:outputText>
+                    <apex:outputText rendered="{!ISBLANK(vehicleStock.BTestLaden__c)}" value="적차 : -" style="font-family: Arial Unicode MS;"/>
                 </td>
             </tr>
             <tr>
@@ -507,14 +517,15 @@
                     <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
                 </td>
                 <td colspan="5" align="center" style="height:55px;">
-                    <apex:outputText value="공차 : {0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
-                        <apex:param value="{!VehicleStock__c.WLBTestEmpty__c}" />
+                    <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.WLBTestEmpty__c))}" value="공차 : {0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;">
+                        <apex:param value="{!vehicleStock.WLBTestEmpty__c}" />
                     </apex:outputText>
+                    <apex:outputText rendered="{!ISBLANK(vehicleStock.WLBTestEmpty__c)}" value="공차 : -" style="font-family: Arial Unicode MS;"/>
                     <br/>
-                    <apex:outputText value="적차 : {0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
-                        <apex:param value="{!VehicleStock__c.WLBTestLaden__c}" />
+                    <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.WLBTestLaden__c))}" value="적차 : {0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;">
+                        <apex:param value="{!vehicleStock.WLBTestLaden__c}" />
                     </apex:outputText>
-
+                    <apex:outputText rendered="{!ISBLANK(vehicleStock.WLBTestLaden__c)}" value="적차 : -" style="font-family: Arial Unicode MS;"/>
                 </td>
             </tr>
             <tr>
@@ -538,10 +549,10 @@
                     <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
                 </td>
                 <td colspan="5" align="center" style="height:55px;">
-                    <apex:outputText value="적차 : {0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
-                        <apex:param value="{!VehicleStock__c.SPTestLaden__c}" />
+                    <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.SPTestLaden__c))}" value="적차 : {0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;">
+                        <apex:param value="{!vehicleStock.SPTestLaden__c}" />
                     </apex:outputText>
-
+                    <apex:outputText rendered="{!ISBLANK(vehicleStock.SPTestLaden__c)}" value="적차 : -" style="font-family: Arial Unicode MS;"/>
                 </td>
             </tr>
             <tr>
@@ -923,9 +934,10 @@
                     <apex:outputlabel value=" 적합 " style="font-family: Arial Unicode MS;"/>
                 </td>
                 <td colspan="5" align="center" style="height:55px;">
-                    <apex:outputText value="적차 : {0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;" >
-                        <apex:param value="{!VehicleStock__c.MaxAllowWeight__c}" />
+                    <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.MaxAllowWeight__c))}" value="적차 : {0, number, ###,###,###,##0}kg" style="font-family: Arial Unicode MS;">
+                        <apex:param value="{!vehicleStock.MaxAllowWeight__c}" />
                     </apex:outputText>
+                    <apex:outputText rendered="{!ISBLANK(vehicleStock.MaxAllowWeight__c)}" value="적차 : -" style="font-family: Arial Unicode MS;"/>
 
                 </td>
             </tr>
@@ -937,7 +949,8 @@
                     <apex:outputlabel value=" - " style="font-family: Arial Unicode MS;"/>
                 </td>
                 <td colspan="5" align="center" style="height:55px;font-family: Arial Unicode MS; text-align:left">
-                    <apex:outputText value="{!VehicleStock__c.OtherStandard__c}" escape="false"/>
+                    <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.OtherStandard__c))}" value="{!vehicleStock.OtherStandard__c}" escape="false" />
+                    <apex:outputText rendered="{!ISBLANK(vehicleStock.OtherStandard__c)}" value=" - " />
                 </td>
             </tr>
             <tr>
@@ -956,10 +969,10 @@
             </p>
             <br/>
             <p align="center">
-
-                <apex:outputText value="{0,date,yyyy' 년 'MM' 월 'dd' 일'}" style="font-size:20px;">
-                    <apex:param value="{!VehicleStock__c.WantedOutDT__c}" />
+                <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.WantedOutDT__c))}" value="{0,date,yyyy' 년 'MM' 월 'dd' 일'}" style="font-size:20px;">
+                    <apex:param value="{!vehicleStock.WantedOutDT__c}" />
                 </apex:outputText>
+                <apex:outputText rendered="{!ISBLANK(vehicleStock.WantedOutDT__c)}" value=" - " style="font-size:20px;" />
                 <!--
                  년&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 월&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 일
                 -->
@@ -975,19 +988,15 @@
                     <td colspan="2" style="width:15%;height:40px;border:none;">
                     </td>
                     <td colspan="6" align="center" style="width:50%;height:40px;border:none;">
-                        <apex:outputlabel value="만트럭버스코리아㈜ 대표 이사 토마스 헤머리히" style="font-family: Arial Unicode MS; font-size:20px;"/>
+                        <apex:outputlabel value="만트럭버스코리아㈜ 대표 이사 피터 앤더슨" style="font-family: Arial Unicode MS; font-size:20px;"/>
                     </td>
                     <td colspan="4" align="right" style="width:15%;height:46px;border:none;">
                         <apex:outputlabel value="(서명 또는인)" style="font-family: Arial Unicode MS; font-size:20px;"/>
+<!--                        <apex:image url="/servlet/servlet.FileDownload?file={!uzIngam}" width="70" height="70" />-->
                     </td>
                 </tr>
                 </tbody>
             </table>
-        </div>
-    </apex:variable>
-    <apex:variable value="" var="" rendered="{!ermsg}">
-        <div style="font-family: Arial Unicode MS;">
-            제원관리번호가 없거나 미완성 자동차가 아닙니다.
         </div>
     </apex:variable>
 </apex:page>

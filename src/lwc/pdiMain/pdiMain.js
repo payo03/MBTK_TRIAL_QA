@@ -6,6 +6,7 @@
   Ver      Date            Author                           Modification
   ===================================================================================
   1.0      2025-01-22      payo03@solomontech.net           Create
+  1.1      2025-01-22      chaebeom.do@solomontech.net      차량재고 링크 추가
 */
 import { LightningElement, track } from 'lwc';
 import { showToast } from "c/commonUtil";
@@ -14,6 +15,9 @@ import screenInit from '@salesforce/apex/PdiController.screenInit';
 import fetchStatus from '@salesforce/apex/PdiController.fetchStatus';
 import searchVINbyKey from '@salesforce/apex/PdiController.searchVINbyKey';
 import updateVehicleStock from '@salesforce/apex/PdiController.updateVehicleStock';
+import rollbackVehicleStock from '@salesforce/apex/PdiController.rollbackVehicleStock';
+import step3CheckSpoiler from '@salesforce/apex/PdiController.step3CheckSpoiler';
+import spoilerDropoffSAP from '@salesforce/apex/PdiController.spoilerDropoffSAP';
 
 export default class pdiMain extends LightningElement {
 
@@ -26,11 +30,15 @@ export default class pdiMain extends LightningElement {
     @track isStep4 = false;
     @track isStep5 = false;
 
+    step3validationList;
+    step3SpoilerLog;
     isShowComplete = true;
     isLoading = false;
     isModalOpen = false;
     // 0326 추가
     isNext = false;
+    // ver 1.1
+    url ='/';
 
     @track selectedRow = null;  // 개별 SelectedRow
 
@@ -138,7 +146,7 @@ export default class pdiMain extends LightningElement {
     // Handle Step0 S
     handleRecordSelected(event) {
         let selectedRows = event.detail.selectedRows;
-        this.workNo = selectedRows.map(row => row.Name);
+        this.workNo = selectedRows.map(row => row.VehicleNo__c);
         this.idMapList = [];
         const vinObj = {
             WorkNo: this.workNo[0],
@@ -146,6 +154,13 @@ export default class pdiMain extends LightningElement {
         };
         this.idMapList.push(vinObj);
         this.selectedRow = selectedRows[0];
+        this.url = '/' + this.selectedRow.Id;
+        step3CheckSpoiler({vinId : this.selectedRow.Id}).then(response => {
+            this.step3SpoilerLog = response;
+        }).catch(error => {
+            showToast('Error', 'Error Loading VIN', 'error', 'dismissable');
+            console.log(error);
+        })
         this.showStep();
     }
     handleBulkPaste(event) {
@@ -155,11 +170,12 @@ export default class pdiMain extends LightningElement {
         console.log('bulkData :: ' + JSON.stringify(bulkData));
         bulkData.forEach(vin => {
             const vinObj = {
-                WorkNo: vin.Name,
+                WorkNo: vin.WorkNo,
                 DriveDistance: vin.DriveDistance
             };
             this.idMapList.push(vinObj);
         });
+        console.log('bulkData2 :: ' + JSON.stringify(this.idMapList));
     }
     handleSearch(event) {
         this.stepList = null;
@@ -186,6 +202,13 @@ export default class pdiMain extends LightningElement {
         console.log('idMapList :: ' + JSON.stringify(this.idMapList));
     }
     // Handle Step1, 2 E
+
+    // Handle Step3 S
+    handleStep3open(event) {
+        console.log('step3 event: ' + event.detail.matchRowIdList);
+        this.step3validationList = event.detail.matchRowIdList;
+    }
+    // Handle Step3 E
 
     handleTab() {
         // Object.keys(this.tabs).forEach(el => {
@@ -241,31 +264,31 @@ export default class pdiMain extends LightningElement {
 
         // Validation1. 개별 VIN선택 확인
         if(!this.selectedRow){
-            message = 'VIN을 선택해주세요.';
+            message = '차량을 선택해주세요.';
             this.isLoading = false;
         }
 
         // Validation2. Step 선행여부 확인
         if(this.switchTabName == 'Step1' && this.stepList[1].IsPass__c == true) {
-            message = 'Step 2을 먼저 취소해주세요.';
+            message = '기본작업을 먼저 취소해주세요.';
             this.isLoading = false;
         }
         if(this.switchTabName == 'Step2' && this.stepList[2].IsPass__c == true) {
-            message = 'Step 3를 먼저 취소해주세요.';
+            message = '차량배정을 먼저 취소해주세요.';
             this.isLoading = false;
         }
         if(this.switchTabName == 'Step3' && this.stepList[3].IsPass__c == true) {
-            message = 'Step 4를 먼저 취소해주세요.';
+            message = '옵션장착을 먼저 취소해주세요.';
             this.isLoading = false;
         }
         if(this.switchTabName == 'Step4' && this.stepList[4].IsPass__c == true) {
-            message = 'Step 5를 먼저 취소해주세요.';
+            message = '최종점검을 먼저 취소해주세요.';
             this.isLoading = false;
         }
 
         // Validation3. Step 현재 완료여부 확인. 선택한 vehicle이 현재 step을 이미 진행하지 않았을 경우에는 경고 토스트
         if(!record.IsPass__c) {
-            message = '완료되지 않은 Step입니다.';
+            message = '완료되지 않은 단계입니다.';
             this.isLoading = false;
         }
 
@@ -275,6 +298,21 @@ export default class pdiMain extends LightningElement {
             return;
         }
 
+        rollbackVehicleStock({
+            stepName  : stepName.toUpperCase(),
+            vinInfoList : this.idMapList,
+        }).then(response => {
+            // 단일 업데이트인경우
+            showToast('Success', this.switchTabName.toUpperCase() + ' 완료', 'Success');
+            this.showStep();
+        }).catch(error => {
+            showToast('Error', 'Error Update', 'error', 'dismissable');
+            console.log('error: ' + error);
+        }).finally(()=>{
+            this.isLoading = false;
+            this.isModalOpen = false;
+        });
+
     }
 
     handleComplete() {
@@ -283,66 +321,49 @@ export default class pdiMain extends LightningElement {
         let message = '';
         let stepName = this.switchTabName;
         if(!this.isBulk) {
-            // step3, 4 분기
-            // if (stepName == 'Step3') {
-            //     const tableChoosen = this.template.querySelector(`c-pdi-step3-view`);
-            //     tableChoosen.handleStep3Complete();
-            //     this.isLoading = false;
-            //     this.isModalOpen = false;
-            //     this.showStep();
-            //     return;
-            // }
-            // if (stepName == 'Step4') {
-            //     const tableChoosen = this.template.querySelector(`c-pdi-step4-view`);
-            //     tableChoosen.handleSAPInstall();
-            //     this.isLoading = false;
-            //     this.isModalOpen = false;
-            //     this.showStep();
-            //     return;
-            // }
             // 개별 VIN step 완료 처리
             let record = this.stepList.find(item => item.Stage__c === stepName.toUpperCase());
 
             // Validation1. 개별 VIN선택 확인
             if(!this.selectedRow){
-                message = 'VIN을 선택해주세요.';
+                message = '차량을 선택해주세요.';
                 this.isLoading = false;
             }
 
             // Validation2. Step 현재 완료여부 확인. 선택한 vehicle이 현재 step을 이미 진행했을 경우에는 경고 토스트
             if(record.IsPass__c === true) {
-                message = '이미 완료된 Step입니다.';
+                message = '이미 완료된 단계입니다.';
                 this.isLoading = false;
             }
 
             // Validation3. Step 선행여부 확인
             if(this.switchTabName == 'Step2' && this.stepList[0].IsPass__c == false) {
-                message = 'Step 1을 먼저 완료해주세요.';
+                message = '입고점검을 먼저 완료해주세요.';
                 this.isLoading = false;
             }
             if(this.switchTabName == 'Step3' && this.stepList[1].IsPass__c == false) {
-                message = 'Step 2를 먼저 완료해주세요.';
+                message = '기본작업을 먼저 완료해주세요.';
                 this.isLoading = false;
             }
             if(this.switchTabName == 'Step4' && this.stepList[2].IsPass__c == false) {
-                message = 'Step 3를 먼저 완료해주세요.';
+                message = '차량배정을 먼저 완료해주세요.';
                 this.isLoading = false;
             }
             if(this.switchTabName == 'Step5' && this.stepList[3].IsPass__c == false) {
-                message = 'Step 4를 먼저 완료해주세요.';
+                message = '옵션장착을 먼저 완료해주세요.';
                 this.isLoading = false;
             }
 
             // Validation3-1. Step3 출고건 선택 확인
-            if(this.switchTabName == 'Step3' && this.stepList[1].IsPass__c == false) {
-                message = 'Step 2를 먼저 완료해주세요.';
+            if(this.switchTabName == 'Step3' && this.step3validationList.length === 0) {
+                message = '선택한 차량이 배정된 기회가 없습니다. 변경 후 다시 시도해주세요.';
                 this.isLoading = false;
             }
         }
 
         // Validation1-2. Bulk VIN 붙여넣기 확인
         if(this.isBulk && this.idMapList.length === 0){
-            message = '업데이트할 VIN 컬럼을 붙여넣기 해주세요.';
+            message = '업데이트할 워크넘버 컬럼을 붙여넣기 해주세요.';
             this.isLoading = false;
         }
 
@@ -366,7 +387,13 @@ export default class pdiMain extends LightningElement {
                     tableChoosen.fetchResultBulkRow(response);
                 }
             } else {
+                // 현재 화면이 3단계이면서 IFAuditLogDetail에 데이터 미존재시 Spoiler I/F
+                if(this.switchTabName == 'Step3' && this.step3SpoilerLog.length == 0) this.step3CallSAP();
                 // 단일 업데이트인경우
+                if(this.switchTabName == 'Step1' || this.switchTabName == 'Step2' || this.switchTabName == 'Step5') {
+                    const tableChoosen = this.template.querySelector(`c-pdi-${this.switchTabName.toLowerCase()}-view`);
+                    tableChoosen.handleUpdateIssue();
+                } 
                 showToast('Success', this.switchTabName.toUpperCase() + ' 완료', 'Success');
                 this.showStep();
             }
@@ -379,9 +406,23 @@ export default class pdiMain extends LightningElement {
         });
     }
 
-    handleStep34(event) {
-        this.stepList = event.detail.updatedStep;
-        // this.init(); <- ?? 
-        this.showStep();
+    async step3CallSAP(){
+        let paramMap = {
+            stockId: this.selectedRow.Id,
+            spoilerCode: this.selectedRow.SpoilerPart__r.SpoilerCode__c,
+            isAttach: true
+        };
+        let paramMapList = [paramMap];
+        await spoilerDropoffSAP({inputMapList: paramMapList}).then(() => {
+            // this.updateStep();
+        }).catch(error => {
+            showToast('Error', 'Error SAP Update', 'error', 'dismissable');
+            console.log(error);
+        });
     }
+    // handleStep34(event) {
+    //     this.stepList = event.detail.updatedStep;
+    //     // this.init(); <- ?? 
+    //     this.showStep();
+    // }
 }

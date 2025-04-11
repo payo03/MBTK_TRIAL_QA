@@ -9,6 +9,7 @@
  **************************************************************/
 import LightningDatatable from "lightning/datatable";
 import helpTextColumn from "./helpTextColumn.html";
+import nameHelpTextTemplate from "./nameHelpTextTemplate.html";
 
 export default class customDataTable extends LightningDatatable {
 
@@ -17,6 +18,11 @@ export default class customDataTable extends LightningDatatable {
 			template: helpTextColumn,
 			standardCellLayout: true,
 			typeAttributes: ["optionQty", "defaultOptionQty", "specialQty"]
-		}
+		},
+		nameHelpTextType: {
+			template: nameHelpTextTemplate,
+			standardCellLayout: true,
+			typeAttributes: ["content"]
+		},
 	};
 }

@@ -69,7 +69,7 @@
 					<template lwc:if={isIframeInactive}>
 						<div class="slds-p-vertical_small custom-box">
 							<lightning-record-edit-form
-								object-api-name="Lead" record-id={recordId} onsuccess={handleSuccess}
+								object-api-name="Lead" onsuccess={handleSuccess}
 								onerror={handleError} density="comfy" class="slds-size_1-of-1">
 								<div class="slds-grid slds-wrap slds-form__item slds-no-space">
 									<lightning-input-field field-name="LastName" class="leadInfo" data-id="LastName" value={lastName} onchange={handleChange}></lightning-input-field>
@@ -311,8 +311,6 @@
 						label="선택 초기화"
 						onclick={clearSelection}
 					></lightning-button>
-				</div>
-				<div class="slds-m-bottom_small slds-align_absolute-center slds-p-around_x-small">
 					<lightning-button
 						variant="brand"
 						class="slds-m-right_xx-small"
@@ -321,6 +319,8 @@
 						onclick={handleConvert}
 					></lightning-button>
 				</div>
+				<!-- <div class="slds-m-bottom_small slds-align_absolute-center slds-p-around_x-small">
+				</div> -->
 			 </template>
 		</div>
 	</div>

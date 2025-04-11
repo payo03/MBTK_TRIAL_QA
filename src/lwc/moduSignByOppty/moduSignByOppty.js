@@ -24,7 +24,7 @@ const options = [
   { label: '차량 출고 위임장', value: 'handover-authorization-confirmation' },
 ];
 
-export default class ModuSignByOppty extends LightningElement {
+export default class ModuSignByOppty extends NavigationMixin(LightningElement) {
 
   templateMap = {
     'resident-tax-invoice-confirmation' : '세금계산서 주민번호 발행 확인서',
@@ -48,10 +48,12 @@ export default class ModuSignByOppty extends LightningElement {
     }
     if(this.recordId) {
       this.options = options;
+      console.log('this.recordId ::: ' + this.recordId)
       console.log('this.options ::: ' + JSON.stringify(this.options));
       getAccInfoByOppty({recordId : this.recordId}).then(res => {
         this.accountInfo = res['account'];
         this.publishQuoteId = res['publishQuoteId'];
+        console.log('this.accountInfo ::: ' + JSON.stringify(this.accountInfo))
         // {"Name":"강호동",
         // "RecordTypeId":"012H2000000FuciIAC",
         // "PersonMobilePhone":"010-9585-3559",

@@ -49,41 +49,45 @@ public without sharing class CreateContractController {
     }
     
     @AuraEnabled
-    public static List<QuoteWrap> getQuote(String quoteId){
+    public static QuoteWrap getQuote(String quoteId){
+
         String selectFields = 'Id, OpportunityId, AccountId, ContractId, Segment__c, VehicleStock__c, fm_TotalLoanAmount__c, IsApproveLoan__c, DefaultInterestRate__c, MonthDivideInputMonth__c, Finance__r.FScompany__c, Product__c, Opportunity.IsJumin__c, Opportunity.IsBusiness__c, Opportunity.IsVAT__c, Opportunity.VATDefermentStatus__c, Opportunity.ContractId';
         String whereConditions = 'Id = \'' + quoteId + '\'';
         String query = CommonUtilController.buildQuery(selectFields, 'Quote', whereConditions);
 
-        List<Quote> quoteList = Database.query(query);
+        // List<Quote> quoteList = Database.query(query);
+        Quote quote = Database.query(query);
 
-        List<QuoteWrap> quoteWraps = new List<QuoteWrap>();
-        for(Quote quote : quoteList) {
-            QuoteWrap quoteWrap = new quoteWrap(
-                quote.Id,
-                quote.OpportunityId,
-                quote.AccountId,
-                quote.VehicleStock__c,
-                quote.Product__c,
-                quote.ContractId,
-                quote.Opportunity.ContractId,
-                quote.Segment__c,
-                quote.Finance__r.FScompany__c,
-                quote.DefaultInterestRate__c,
-                quote.fm_TotalLoanAmount__c,
-                quote.MonthDivideInputMonth__c,
-                quote.IsApproveLoan__c,
-                quote.Opportunity.IsJumin__c,
-                quote.Opportunity.IsBusiness__c,
-                quote.Opportunity.IsVAT__c,
-                quote.Opportunity.VATDefermentStatus__c
-            );
-            quoteWraps.add(quoteWrap);
-        }
-        return quoteWraps;
+        // List<QuoteWrap> quoteWraps = new List<QuoteWrap>();
+        // for(Quote quote : quoteList) {
+        QuoteWrap quoteWrap = new quoteWrap(
+            quote.Id,
+            quote.OpportunityId,
+            quote.AccountId,
+            quote.VehicleStock__c,
+            quote.Product__c,
+            quote.ContractId,
+            quote.Opportunity.ContractId,
+            quote.Segment__c,
+            quote.Finance__r.FScompany__c,
+            quote.DefaultInterestRate__c,
+            quote.fm_TotalLoanAmount__c,
+            quote.MonthDivideInputMonth__c,
+            quote.IsApproveLoan__c,
+            quote.Opportunity.IsJumin__c,
+            quote.Opportunity.IsBusiness__c,
+            quote.Opportunity.IsVAT__c,
+            quote.Opportunity.VATDefermentStatus__c
+        );
+        //     quoteWraps.add(quoteWrap);
+        // }
+        // return quoteWraps;
+        return quoteWrap;
     }
 
     @AuraEnabled
     public static string createContract(Map<String, String> inputMap){
+        
         Quote curQ = [SELECT Id, OpportunityId, IsApproveLoan__c FROM Quote WHERE Id = :inputMap.get('recordId')];
         if(Integer.valueOf(inputMap.get('totalLoanAmount')) != 0 && curQ.IsApproveLoan__c == false) {
             return 'approvalNotComplete';

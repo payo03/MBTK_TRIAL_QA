@@ -41,26 +41,28 @@
 					<div class="slds-page-header__controls">
 						<div class="slds-page-header__control">
 							<ul class="slds-button-group-list">
-								<li>
-									<button class="slds-button slds-button_neutral" onclick={handleHeaderClick}
-									        data-name="export">엑셀다운
-									</button>
-								</li>
-								<li>
-									<button class="slds-button slds-button_neutral" onclick={handleHeaderClick}
-									        data-name="completeHandover">출고처리
-									</button>
-								</li>
-								<li>
-									<button class="slds-button slds-button_neutral" onclick={handleHeaderClick}
-									        data-name="cancelStock">배정취소
-									</button>
-								</li>
-								<li>
-									<button class="slds-button slds-button_neutral" onclick={handleHeaderClick}
-									        data-name="checkUpdate">업데이트 확인
-									</button>
-								</li>
+								<template if:false={isSA}>
+									<li>
+										<button class="slds-button slds-button_neutral" onclick={handleHeaderClick}
+										        data-name="export">엑셀다운
+										</button>
+									</li>
+									<li>
+										<button class="slds-button slds-button_neutral" onclick={handleHeaderClick}
+										        data-name="completeHandover">출고처리
+										</button>
+									</li>
+									<li>
+										<button class="slds-button slds-button_neutral" onclick={handleHeaderClick}
+										        data-name="cancelStock">배정취소
+										</button>
+									</li>
+									<li>
+										<button class="slds-button slds-button_neutral" onclick={handleHeaderClick}
+										        data-name="checkUpdate">업데이트 확인
+										</button>
+									</li>
+								</template>
 							</ul>
 						</div>
 					</div>

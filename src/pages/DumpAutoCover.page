@@ -35,8 +35,6 @@
         </style>
     </head>
     <body style="font-family: Arial Unicode MS;">
-<!--    <apex:variable value="" var="" rendered="{!opportunity != null && isDump}">-->
-    <apex:variable value="" var="" rendered="{!opportunity != null}">
         <div style="page-break-after:always;">
             <table style="border:none;padding-right:0px;">
                 <tr style="padding-right:0px;">
@@ -62,7 +60,7 @@
                             에 한하여 무상 장착하여 주시기 바랍니다.
                         </p>
                         <p align="center">
-                            {!vehicleStock.Product__r.ReleaseDate__c}
+                            {!docDate}
                         </p>
                         <p align="right">
                                 <span style="font-size:13pt;">
@@ -70,13 +68,23 @@
                                 </span>
                         </p>
 <!--                        <apex:variable value="" var="" rendered="{!salesHead == null}">-->
-                        <apex:variable value="" var="">
+                        <apex:variable value="" var="" rendered="{!URLFOR($Resource.headSign,'headSign/sales_head.png') == null}">
                             <p align="right">
                                 <span style="font-size:11pt;">Head of Sales Truck</span>
                                 &nbsp;&nbsp;&nbsp;&nbsp;
-                                <span style="font-size:13pt;">Jaeho Shim</span>
-                                &nbsp;&nbsp;
-                                <span style="font-size:11pt;">(인)</span>
+                                <span style="font-size:13pt;">ByongJik Park</span>
+                                <img src="{!URLFOR($Resource.headSign, 'headSign/handover_head.png')}" width="120" height="60"/>
+
+                            </p>
+                        </apex:variable>
+                        <apex:variable value="" var="" rendered="{!URLFOR($Resource.headSign,'headSign/sales_head.png') != null}">
+                            <p align="right">
+                                <span style="font-size:11pt;">Head of Sales Truck</span>
+                                &nbsp;&nbsp;&nbsp;&nbsp;
+                                <span style="font-size:13pt;">Evelyn Kassel</span>
+                                <img src="{!URLFOR($Resource.headSign, 'headSign/sales_head.png')}" width="120" height="60"/>
+                                <!--                            <span style="font-size:11pt;">(인)</span>-->
+                                <!--                            <apex:image url="/servlet/servlet.FileDownload?file={!uzIngam}" width="60" height="60"/>-->
                             </p>
                         </apex:variable>
 <!--                        <apex:variable value="" var="" rendered="{!salesHead != null}">-->
@@ -91,15 +99,23 @@
                 </tr>
                 <tr align="center">
                     <td colspan="1" style="border-top:1px solid; border-right:1px solid; width:20%;">샤시번호</td>
-                    <td colspan="4" style="border-top:1px solid; border-right:1px solid; width:30%;">{!vehicleStock.VehicleNo__c}</td>
+                    <td colspan="4" style="border-top:1px solid; border-right:1px solid; width:30%;">
+                        <apex:outputText value="{!IF(ISBLANK(vehicleStock.VehicleNo__c), '', vehicleStock.VehicleNo__c)}" />
+                    </td>
                     <td colspan="1" style="border-top:1px solid; border-right:1px solid; width:20%;">차대번호</td>
-                    <td colspan="4" style="border-top:1px solid; width:30%;">{!vehicleStock.Name}</td>
+                    <td colspan="4" style="border-top:1px solid; width:30%;">
+                        <apex:outputText value="{!IF(ISBLANK(vehicleStock.Name), '', vehicleStock.Name)}" />
+                    </td>
                 </tr>
                 <tr align="center">
                     <td colspan="1" style="border-top:1px solid; border-right:1px solid;">고 객 명</td>
-                    <td colspan="4" style="border-top:1px solid; border-right:1px solid;">{!opportunity.Account.Name}</td>
+                    <td colspan="4" style="border-top:1px solid; border-right:1px solid;">
+                        <apex:outputText value="{!IF(ISBLANK(opportunity.Account.Name), '', opportunity.Account.Name)}" />
+                    </td>
                     <td colspan="1" style="border-top:1px solid; border-right:1px solid;">연 락 처</td>
-                    <td colspan="4" style="border-top:1px solid;">{!opportunity.Account.PersonMobilePhone}</td>
+                    <td colspan="4" style="border-top:1px solid;">
+                        <apex:outputText value="{!IF(ISBLANK(opportunity.Account.PersonMobilePhone), '', opportunity.Account.PersonMobilePhone)}" />
+                    </td>
                 </tr>
             </table>
             <table style="border:none;">
@@ -186,11 +202,5 @@
                 </tr>
             </table>
         </div>
-    </apex:variable>
-    <apex:variable value="" var="" rendered="{!opportunity==null}">
-        <apex:outputText value="해당 차대번호가 영업기회에 배정되어 있지 않습니다." style="font-family: Arial Unicode MS;" />
-        <br/>
-    </apex:variable>
-<!--    <apex:outputText value="덤프 차량만 출력 가능합니다." rendered="{!!isDump}" style="font-family: Arial Unicode MS;" />-->
     </body>
 </apex:page>

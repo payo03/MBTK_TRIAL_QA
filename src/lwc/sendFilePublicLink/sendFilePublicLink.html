@@ -5,6 +5,7 @@
 - Ver      Date            Author           Modification
 - ===================================================================================
 - 1.0      2024-12-17      chaebeom.do      Created
+- 1.1      2025-04-08      chaebeom.do      한글 버전 디폴트로 수정
 -->
 <template>
   <lightning-modal-header label="견적 발송">
@@ -15,7 +16,7 @@
         <p> 견적명: {quoteName}</p>
       </div>
       <div class="slds-size_1-of-2 slds-align_absolute-center">
-        <lightning-radio-group 
+        <!-- <lightning-radio-group 
           name="chooseLanguage"
           label="언어 선택"
           class="chooseLanguage slds-m-around_small"
@@ -24,12 +25,12 @@
           onchange={handleChange}
           type="button"
           >
-        </lightning-radio-group>
+        </lightning-radio-group> -->
         <lightning-button
           variant="brand"
           size="large"
           class="slds-m-top_large slds-m-right_xx-small"
-          label="Pdf 보기"
+          label="PDF 미리보기"
           onclick={handleOpenPdf}
           >
         </lightning-button>
@@ -37,7 +38,7 @@
           variant="brand"
           size="large"
           class="slds-m-top_large"
-          label="Pdf 저장"
+          label="PDF 저장"
           onclick={handleSave}
           >
         </lightning-button>

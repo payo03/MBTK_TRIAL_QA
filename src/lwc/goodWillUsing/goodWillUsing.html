@@ -36,7 +36,7 @@
   <!-- Header End -->
 
   <!-- 레코드 생성 Start -->
-  <div class="slds-m-vertical_small slds-grid">
+  <div class="slds-m-vertical_small slds-grid slds-wrap">
     <div class="slds-size_1-of-1 slds-large-size_3-of-6 slds-card slds-m-horizontal_x-small box-wrap">
       <lightning-record-edit-form
         object-api-name="GoodWillUsing__c" onsuccess={handleSuccess}
@@ -47,9 +47,11 @@
           <lightning-input-field field-name="GoodWillVIN__c" 
           value={vinNo} style="display: none;"></lightning-input-field>
           <lightning-input type="text" label="굿윌 사용 차량" data-id="VehicleStock"
-          value={vinNo} maxlength="17" onchange={handleChange} required="true"></lightning-input>
+          value={vinNo} maxlength="17" onchange={handleChange} required="true" class="slds-p-right_small"></lightning-input>
+          <lightning-input type="number" label="사용 요청금액" data-id="UsingGoodWill"
+          value={usingGoodWill} onchange={handleChange} required="true"></lightning-input>
           <lightning-input-field field-name="UsingGoodWill__c" data-id="UsingGoodWill" 
-          value={usingGoodWill} onchange={handleChange}></lightning-input-field>
+          value={usingGoodWill} style="display: none;"></lightning-input-field>
           <lightning-input-field field-name="Description__c" data-id="Description" 
           value={description} onchange={handleChange}></lightning-input-field>
           <div class="slds-file-selector__dropzone slds-size_1-of-1 slds-p-around_medium"
@@ -63,7 +65,7 @@
                   onchange={handleUploadFinished}
                   class="slds-file-selector__input slds-assistive-text"
                   accept={accept}
-                  id="uploadFile" />
+                  id="uploadFile" />    
             <lightning-button
                 variant="Neutral"
                 name="uploadFile"
@@ -73,6 +75,17 @@
             </lightning-button>
             <div class="slds-p-around_small">Drag and Drop files here</div>
           </div>
+          <!-- <lightning-file-upload
+              record-id={myRecordId}
+              accept={accept}
+              name="fileUploader"
+              class="file-selector-large"
+              label="The text label for the file uploader"
+              title="The tooltip for the file uploader"
+              onuploadfinished={handleUploadFinished}             
+              multiple
+            >
+          </lightning-file-upload> -->
           <template if:true={fileDetails}>
             <div class="pill-container slds-p-top_small">
                 <template for:each={fileDetails} for:item="file" for:index="index">
@@ -100,7 +113,7 @@
       </lightning-record-edit-form>
     </div>
     <div class="slds-size_1-of-1 slds-large-size_2-of-6 slds-card slds-m-horizontal_x-small box-wrap" style="margin-top: 0;">
-      <template lwc:if={usingHistoryStatus}>
+      <template lwc:if={usingMasterStatus}>
         <div class="slds-p-top_x-small slds-text-heading_medium slds-text-align_center">
           나의 굿윌 잔액
         </div>
@@ -113,22 +126,29 @@
                 title="Refresh"
                 data-name="refresh"
                 onclick={handleRefresh}
-              ></lightning-button-icon>
+              ></lightning-button-icon> 
         </div>
         <div class="slds-p-top_x-small slds-text-heading_large slds-text-align_center">
-          {availablePoints}
+          <lightning-formatted-number value={availablePoints} format-style="decimal" maximum-fraction-digits="0"></lightning-formatted-number>
         </div>
         <div class="slds-p-top_x-small slds-text-heading_medium">
           최근 사용 내역
         </div>
         <div class="slds-size_1-of-1">
-          <lightning-datatable
-              key-field="id"
-              data={usingHistory}
-              columns={columns}
-              hide-checkbox-column="true"
-              column-widths-mode="auto">
-          </lightning-datatable>
+          <template lwc:if={usingHistoryStatus}>
+            <lightning-datatable
+                key-field="id"
+                data={usingHistory}
+                columns={columns}
+                hide-checkbox-column="true"
+                column-widths-mode="auto">
+            </lightning-datatable>
+          </template>
+          <template lwc:else>
+            <div class="slds-p-top_x-small slds-text-heading_medium slds-text-align_center">
+              사용 내역이 없습니다.
+            </div>
+          </template>
         </div>
       </template>
       <template lwc:else>

@@ -55,11 +55,12 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 	@track selectedQuoteRow = {};
 
 	@wire(CurrentPageReference) pageRef;
-	getStateParameters(currentPageReference) {
-		if (currentPageReference && !this.recordId) {
-			this.recordId = currentPageReference.state?.c__recordId;
-		}
-	}
+	// getStateParameters(currentPageReference) { // ver 1.4
+	// 	if (currentPageReference && !this.recordId) {
+	// 		this.recordId = currentPageReference.state?.c__recordId;
+	// 		this.apiName = currentPageReference.state?.c__apiName;
+	// 	}
+	// }
 
 	// 유예 요청일자와 오늘 사이의 날짜 차이
 	diffDay;
@@ -100,6 +101,7 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 	connectedCallback() {
 		this.recordId = this.pageRef.state.recordId;
 		this.apiName = this.pageRef.attributes.apiName.replace("Opportunity.", "");
+		// this.apiName = this.apiName != undefined ? this.apiName : this.pageRef.attributes.apiName.replace("Opportunity.", "");
 		this.init();
 
 		if (this.apiName.includes("VAT")) {

@@ -7,6 +7,8 @@ import startBatchJob from '@salesforce/apex/PaymentTrackerController.startBatchJ
 import { NavigationMixin, CurrentPageReference } from "lightning/navigation";
 
 import { showToast } from "c/commonUtil";
+import { getRecord } from "lightning/uiRecordApi";
+import userId from "@salesforce/user/Id";
 
 const filterDefault = { opportunityName : "", status : "" , dueDate  : ""};
 
@@ -72,7 +74,19 @@ export default class PaymentTracker extends NavigationMixin(LightningElement) {
     isNoData = false;
     ispaymentData = false;
     isModalOpen = false;
+    profileName;
 
+    get isSA() {
+		return this.profileName === "MTBK Agent";
+	}
+
+    @wire(getRecord, { recordId: userId, fields: ["User.Profile.Name"] })
+	currentUserInfo({ error, data }) {
+		this.profileName = data?.fields?.Profile?.displayValue;
+		if (this.profileName === "MTBK Agent") {
+			this.columns = columns;
+		}
+	}
     
 
     connectedCallback() {
@@ -103,8 +117,8 @@ export default class PaymentTracker extends NavigationMixin(LightningElement) {
                 return {
                     ...opp, // 기존의 opp 데이터 필드를 모두 유지
                     ptUrl: `/lightning/r/Opportunity/${opp.id}/view`,
-                    customerUrl: `/lightning/r/Opportunity/${opp.customerUrl}/view`,
-                    oppUrl: `/lightning/r/Opportunity/${opp.oppUrl}/view`,
+                    customerUrl: opp.customerUrl ? `/lightning/r/Opportunity/${opp.customerUrl}/view` : "",
+                    oppUrl: opp.oppUrl ? `/lightning/r/Opportunity/${opp.oppUrl}/view` : "",
                     currentPath: opp.status, // 현재 Path
                     // nextPath: this.calculateNextPath(opp.status, opp.isPayment, opp.isVat), // Next Path
                 };
@@ -191,8 +205,8 @@ export default class PaymentTracker extends NavigationMixin(LightningElement) {
                     return {
                         ...opp, // 기존의 opp 데이터 필드를 모두 유지
                         ptUrl: `/lightning/r/Opportunity/${opp.id}/view`,
-                        customerUrl: `/lightning/r/Opportunity/${opp.customerUrl}/view`,
-                        oppUrl: `/lightning/r/Opportunity/${opp.oppUrl}/view`,
+                        customerUrl: opp.customerUrl ? `/lightning/r/Opportunity/${opp.customerUrl}/view` : "",
+                        oppUrl: opp.oppUrl ? `/lightning/r/Opportunity/${opp.oppUrl}/view` : "",
                         currentPath: opp.status, // 현재 Path
                         // nextPath: this.calculateNextPath(opp.status, opp.isPayment, opp.isVat), // Next Path
                     };

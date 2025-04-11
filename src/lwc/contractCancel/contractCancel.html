@@ -1,74 +1,35 @@
-<!-- Contract Amendment -->
 <template>
     <lightning-quick-action-panel header="계약 취소">
-        <template lwc:if={isSelectType}>
-            <div class="slds-size_1-of-1 slds-card slds-p-around_x-small sub-wrap">
-                <div class="slds-text-heading_small slds-p-bottom_small">
-                    <div class="slds-m-bottom_small slds-align_absolute-center">
-                        <span>계약 취소 유형을 선택해주세요.</span>
-                    </div>
-                    <div class="slds-m-bottom_small slds-align_absolute-center">
-                        <lightning-radio-group name="cancleType"
-                          label=""
-                          options={options}
-                          value={value}
-                          onchange={handleChange}
-                          type="radio"></lightning-radio-group>
-                    </div>
-                </div>
-            </div>
-            <div slot="footer" class="slds-align_absolute-center">
+        <div class="slds-size_1-of-1 slds-card slds-p-around_x-small sub-wrap">
+            <div class="slds-text-heading_small slds-p-bottom_small">
                 <div class="slds-m-bottom_small slds-align_absolute-center">
-                    <lightning-button
-                            variant="brand"
-                            class=""
-                            type="submit"
-                            label="확인"
-                            onclick={handleCheckType}>
-                    </lightning-button>
-                    <lightning-button
-                            class="slds-m-left_xx-small"
-                            label="취소"
-                            onclick={handleCancel}>
-                    </lightning-button>
+                    취소되는 계약 번호 : {contractNo}
                 </div>
-            </div>
-        </template>
-        <template lwc:if={isConfirm}>
-            <div class="slds-size_1-of-1 slds-card slds-p-around_x-small sub-wrap">
-                <div class="slds-text-heading_small slds-p-bottom_small">
-                    <div class="slds-m-bottom_small slds-align_absolute-center">
-                        <span>선택한 내용을 확인해주세요.</span>
-                    </div>
-                    <div class="slds-m-bottom_small slds-align_absolute-center">
-                        취소 유형 : {selectedType}
-                    </div>
-                    <div class="slds-m-bottom_small slds-align_absolute-center">
-                        취소되는 계약 번호 : {contractNo}
-                    </div>
-                    <div class="slds-m-bottom_small slds-align_absolute-center">
-                        <span style="color: red;">계약을 취소하시겠습니까?</span>
-                    </div>
-                </div>
-            </div>
-            <div slot="footer" class="slds-align_absolute-center">
                 <div class="slds-m-bottom_small slds-align_absolute-center">
-                    <lightning-button
-                            variant="brand"
-                            class=""
-                            type="submit"
-                            label="확인"
-                            onclick={handleCancelContract}
-                            >
-                    </lightning-button>
-                    <lightning-button
-                            class="slds-m-left_xx-small"
-                            label="뒤로"
-                            onclick={handleCheckType}>
-                    </lightning-button>
+                    현재 기회가 Closed Lost로 변경됩니다.
+                </div>
+                <div class="slds-m-bottom_small slds-align_absolute-center">
+                    <span style="color: red;">계약을 취소하시겠습니까?</span>
                 </div>
             </div>
-        </template>
+        </div>
+        <div slot="footer" class="slds-align_absolute-center">
+            <div class="slds-m-bottom_small slds-align_absolute-center">
+                <lightning-button
+                        variant="brand"
+                        class=""
+                        type="submit"
+                        label="확인"
+                        onclick={handleCancelContract}
+                        >
+                </lightning-button>
+                <lightning-button
+                        class="slds-m-left_xx-small"
+                        label="뒤로"
+                        onclick={handleCancel}>
+                </lightning-button>
+            </div>
+        </div>
     </lightning-quick-action-panel>
     <template lwc:if={isLoading}>
         <lightning-spinner alternative-text="Loading" variant="brand" size="medium"></lightning-spinner>

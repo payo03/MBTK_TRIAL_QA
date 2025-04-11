@@ -103,10 +103,13 @@ const optionColumns = [...modalOptionColumns, {
 
 const campaignColumns = [
 	{
-		type: "text",
+		type: "nameHelpTextType",
 		fieldName: "name",
 		label: "이름",
-		hideDefaultActions: true
+		hideDefaultActions: true,
+		typeAttributes: {
+			content: { fieldName: "content" },
+		}
 	},
 	{
 		type: "date",

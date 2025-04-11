@@ -7,6 +7,7 @@
  * Ver          Date            Author          Modification
  * 1.0          2025-01-13      jh.jung         Initial Version
 **************************************************************/
+@import "c/commonStyleUtil";
 
 .slds-modal {position: fixed !important;top: 50% !important;left: 50% !important;transform: translate(-50%, -50%) !important; height: auto;}
 
@@ -15,7 +16,8 @@
 
 
 .circle-button {
-    border-radius: var(--slds-c-button-radius-border, var(--slds-s-button-radius-border, var(--slds-g-radius-border-2)));
+    /*border-radius: var(--slds-c-button-radius-border, var(--slds-s-button-radius-border, var(--slds-g-radius-border-2)));*/
+    border-radius: 1rem !important;
 }
 
 /* 모바일 고려 */

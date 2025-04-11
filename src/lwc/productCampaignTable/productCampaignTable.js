@@ -91,12 +91,21 @@ const productColumnsMobile = [
 	},
 ];
 const campaignColumns = [
-	{ 
-		type: 'text',
-		fieldName: 'name', 
-		label: '캠페인 이름',
-		wrapText: true,
-		hideDefaultActions: true
+	// { 
+	// 	type: 'text',
+	// 	fieldName: 'name', 
+	// 	label: '캠페인 이름',
+	// 	wrapText: true,
+	// 	hideDefaultActions: true
+	// },
+	{
+		type: "nameHelpTextType",
+		fieldName: "name",
+		label: "캠페인 이름",
+		hideDefaultActions: true,
+		typeAttributes: {
+			content: { fieldName: "content" },
+		}
 	},
 	{ 
 		type: 'date',
@@ -147,6 +156,29 @@ export default class ProductCampaignTable extends LightningElement {
 
   connectedCallback() {
 		console.log('connectedCallback ::: this.selectedProductRowIds ::: ' + this.selectedProductRowIds)
+		this.getInit();
+		// 데이터 테이블 생성
+		// getInitData().then(res => {
+		// 	console.log("res :: ", res);
+		// 	this.productData = res.productList;
+		// 	requestAnimationFrame(() => {
+		// 		this.selectedProductRowIds = [this.selectedProductIdByManagement];
+		// 		console.log('this.selectedProductIdByManagement ::: ' + this.selectedProductIdByManagement)
+		// 		if(typeof this.selectedProductIdByManagement !== 'undefined') {
+		// 			this.getCampaignList(this.selectedProductIdByManagement);
+		// 			this.getProductId();
+		// 		}
+		// 	})
+		// 	this.filterOptions.segment = [{ label: "선택안함", value: "" }].concat(res.segment);
+		// }).catch(err => {
+		// 	console.log("err :: ", err);
+		// });
+
+		if (formFactor === "Small")	this.isMobile = true;
+		this.dynamicColumns = this.isMobile != true ? productColumns : productColumnsMobile;
+	}
+
+	getInit() {
 		// 데이터 테이블 생성
 		getInitData().then(res => {
 			console.log("res :: ", res);
@@ -163,9 +195,6 @@ export default class ProductCampaignTable extends LightningElement {
 		}).catch(err => {
 			console.log("err :: ", err);
 		});
-
-		if (formFactor === "Small")	this.isMobile = true;
-		this.dynamicColumns = this.isMobile != true ? productColumns : productColumnsMobile;
 	}
 
 	/**
@@ -232,6 +261,7 @@ export default class ProductCampaignTable extends LightningElement {
 					break;
 				case 'selectAllRows':
 					this.getCampaignPreventDupList('');
+					// this.selectedCampaignRowIds = e.detail.selectedRows.map(el => el.id);
 					for(let el of e.detail.selectedRows) {
 						this.selectedCampaignRowIds.push(el.id);
 						console.log(JSON.stringify(this.selectedCampaignRowIds));
@@ -271,7 +301,17 @@ export default class ProductCampaignTable extends LightningElement {
 		this.selectedProductRowIds = [id]; 
       getCampaign({ productId: id }).then(res => {
         console.log("res :: ", res);
-        this.campaignData = res;
+        // this.campaignData = res;
+				this.campaignData = res?.map(el => {
+					// const discountRate = el.discountRate ? el.discountRate : el.discountPrice ? (el.discountPrice / this.productData.price) : 0;
+					// const discountPrice = el.discountPrice ? el.discountPrice : this.productData.price * (el.discountRate || 0);
+					return {
+						...el,
+						// discountRate: discountRate,
+						// discountPrice: discountPrice,
+						content: el.memo
+					};
+				}) || [];
       }).catch(err => {
         console.log("err :: ", err);
       });
@@ -303,6 +343,7 @@ export default class ProductCampaignTable extends LightningElement {
 		this.selectedProductIdByManagement = data[0].ProductId__c;
 		this.productNameByManagement = (typeof data[0].ProductId__c !== 'undefined') ? data[0].ProductId__r.Name : '';
 		this.isProductChange = false;
+		this.getInit();
 	}
 
 	get isMatching() {

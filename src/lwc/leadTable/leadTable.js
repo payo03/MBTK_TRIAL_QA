@@ -262,7 +262,7 @@ export default class leadTable extends NavigationMixin(LightningElement) {
 
 	// 화면 전환
 	redirectHandler() {
-		navItemPageNavigation(this,'Lead_Acquisition');
+		navItemPageNavigation(this,'LeadAcquisition');
 	}
 
 	// 모달 열기
@@ -274,7 +274,7 @@ export default class leadTable extends NavigationMixin(LightningElement) {
 			.map(({checked, url, ...lead}) => lead);
 
 		if (checkedLead.length === 0) {
-			const target = (targetName === "CreateTask") ? 'Task 생성' : '견적 생성';
+			const target = (targetName === "CreateTask") ? '영업활동 기록' : '견적 생성';
 			showToast(target + " Error", "선택한 리드가 없습니다.", "warning");
 			return;
 		}
@@ -307,6 +307,7 @@ export default class leadTable extends NavigationMixin(LightningElement) {
 			return;
 		}
 
+		this.isLoading = true;
 		saveTask({leadId : this.checkedRecordId, Subject : this.taskSubjectValue, description : this.taskDescriptionValue}).then(res => {
 			showToast("Success", "Task가 생성되었습니다.", "success");
 			this.getTaskList(this.checkedRecordId);
@@ -318,7 +319,7 @@ export default class leadTable extends NavigationMixin(LightningElement) {
 
 		}).catch(err => {
 			console.log('createTask err ::: ' + err)
-		})
+		}).finally(() => { this.isLoading = false; })
 	}
 
 	// task subject 값 받기

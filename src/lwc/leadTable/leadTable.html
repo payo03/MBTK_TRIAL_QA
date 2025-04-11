@@ -24,8 +24,8 @@
 					<div class="button-container">
 						<lightning-button-group>
 							<lightning-button label="리드 생성" onclick={redirectHandler}></lightning-button>
-							<lightning-button label="Task 생성" onclick={openModal} name="CreateTask"></lightning-button>
-							<lightning-button label="기회 변환" onclick={openModal} name="ConvertOppty"></lightning-button>
+							<lightning-button label="영업활동 기록" onclick={openModal} name="CreateTask"></lightning-button>
+							<lightning-button label="견적 생성" onclick={openModal} name="ConvertOppty"></lightning-button>
 						</lightning-button-group>
 					</div>
 				</header>
@@ -46,7 +46,7 @@
 								<div class="slds-truncate" title="Address">도로명주소</div>
 							</th>
 							<th class="" scope="col">
-								<div class="slds-truncate" title="Rating">Rating</div>
+								<div class="slds-truncate" title="Rating">등급</div>
 							</th>
 							<th class="" scope="col">
 								<div class="slds-truncate" title="CreateDate">생성일자</div>
@@ -110,7 +110,7 @@
 						<div class="slds-media__body">
 							<h2 class="slds-card__header-title">
 								<span class="slds-card__header-link slds-truncate">
-									<span>Task 목록</span>
+									<span>리드별 영업활동 목록</span>
 								</span>
 							</h2>
 						</div>
@@ -198,38 +198,41 @@
 
 	<!-- start CreateTask modal -->
 	<template if:true={isTaskModal}>
-	<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open">
-		<div class="slds-modal__container">
-			<button class="slds-button slds-button_icon slds-modal__close" onclick={closeModal} name="CreateTask">
-				<lightning-icon icon-name="utility:close" size="small" name="CreateTask"></lightning-icon>
-				<span class="slds-assistive-text">Cancel and close</span>
-			</button>
-			<div class="slds-modal__header">
-				<h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate" tabindex="-1">Task 작성</h1>
+		<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open">
+			<div class="slds-modal__container">
+				<button class="slds-button slds-button_icon slds-modal__close" onclick={closeModal} name="CreateTask">
+					<lightning-icon icon-name="utility:close" size="small" name="CreateTask"></lightning-icon>
+					<span class="slds-assistive-text">Cancel and close</span>
+				</button>
+				<div class="slds-modal__header">
+					<h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate" tabindex="-1">Task 작성</h1>
+				</div>
+				<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+					<lightning-combobox
+						name="subject"
+						label="제목"
+						value={taskSubjectValue}
+						options={taskSubjectOption}
+						onchange={handleTaskSubjectChange}>
+					</lightning-combobox>
+					<lightning-textarea
+						name="description"
+						label="내용"
+						placeholder="내용을 입력하세요"
+						value={taskDescriptionValue}
+						onkeyup={handleTaskDescriptionChange}>
+					</lightning-textarea>
+				</div>
+				<div class="slds-modal__footer">
+					<button class="slds-button slds-button_neutral" aria-label="Cancel and close" onclick={closeModal} name="CreateTask">취소</button>
+					<button class="slds-button slds-button_brand" onclick={createTask}>생성</button>
+				</div>
 			</div>
-			<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
-				<lightning-combobox
-					name="subject"
-					label="제목"
-					value={taskSubjectValue}
-					options={taskSubjectOption}
-					onchange={handleTaskSubjectChange}>
-				</lightning-combobox>
-				<lightning-textarea
-					name="description"
-					label="내용"
-					placeholder="내용을 입력하세요"
-					value={taskDescriptionValue}
-					onkeyup={handleTaskDescriptionChange}>
-				</lightning-textarea>
-			</div>
-			<div class="slds-modal__footer">
-				<button class="slds-button slds-button_neutral" aria-label="Cancel and close" onclick={closeModal} name="CreateTask">취소</button>
-				<button class="slds-button slds-button_brand" onclick={createTask}>생성</button>
-			</div>
-		</div>
-	</section>
-	<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+			<template lwc:if={isLoading}>
+				<lightning-spinner alternative-text="Loading" variant="brand" size="medium"></lightning-spinner>
+			</template>
+		</section>
+		<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
 	</template>
 	<!-- end task modal -->
 
@@ -243,7 +246,7 @@
 					<span class="slds-assistive-text">Cancel and close</span>
 				</button>
 				<div class="slds-modal__header">
-					<h1 id="modal-heading-02" class="slds-modal__title slds-hyphenate" tabindex="-1">기회 변환 전 차종, 캠페인 선택</h1>
+					<h1 id="modal-heading-02" class="slds-modal__title slds-hyphenate" tabindex="-1">견적 생성 전 차종, 캠페인 선택</h1>
 				</div>
 				<div class="slds-modal__content slds-p-around_medium">
 					<c-product-campaign-table onrowselect={handleRowSelect} ongetproductid={getProductIdByChild}></c-product-campaign-table>
@@ -253,6 +256,9 @@
 					<button class="slds-button slds-button_brand" onclick={convertHandler}>생성</button>
 				</div>
 			</div>
+			<template lwc:if={isLoading}>
+				<lightning-spinner alternative-text="Loading" variant="brand" size="medium"></lightning-spinner>
+			</template>
 		</section>
 		<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
 	</template>

@@ -8,14 +8,15 @@
  * 1.0       2025-03-21        chaebeom.do        Created
 **************************************************************/
 import { LightningElement, track, wire, api } from "lwc";
-import { CurrentPageReference } from "lightning/navigation";
-import { showToast } from "c/commonUtil";
+import { CurrentPageReference, NavigationMixin } from "lightning/navigation";
+import { showToast, recordNavigation } from "c/commonUtil";
 import { CloseActionScreenEvent } from "lightning/actions";
 
 import init from "@salesforce/apex/ContractCancelController.init";
 import cancelByCase from "@salesforce/apex/ContractCancelController.cancelByCase";
+import formFactor from "@salesforce/client/formFactor";
 
-export default class ContractRenegotiation extends LightningElement {
+export default class ContractRenegotiation extends NavigationMixin(LightningElement) {
     @api recordId;
     isLoading= false;
     contractNo;
@@ -24,6 +25,9 @@ export default class ContractRenegotiation extends LightningElement {
     getStateParameters(currentPageReference) {
       if (currentPageReference) {
         this.recordId = currentPageReference.state.recordId;
+      }
+      if (currentPageReference && !this.recordId) {
+        this.recordId = currentPageReference.state?.c__recordId;
       }
     }
 
@@ -37,11 +41,18 @@ export default class ContractRenegotiation extends LightningElement {
     }
 
     //선택 취소
-    handleCancel(){
+    handleCancel() {
       this.dispatchEvent(new CloseActionScreenEvent());
+      this.mobileReturnPage();
+    }
+  
+    mobileReturnPage() {
+      if(formFactor === "Small") {
+        recordNavigation(this, "Contract", this.recordId);
+      }
     }
 
-    //계약 취소 실행
+    //계약 재협상상 실행
     handleCancelContract(){
       this.isLoading = true;
       cancelByCase({type: 'renegotiation', opptyId: this.recordId}).then(result => {
@@ -53,6 +64,9 @@ export default class ContractRenegotiation extends LightningElement {
       }).finally(() => {
         this.handleCancel();
         this.isLoading = false;
+        setTimeout(() => {
+          location.reload();
+        }, 1000);
       });
     }
 }

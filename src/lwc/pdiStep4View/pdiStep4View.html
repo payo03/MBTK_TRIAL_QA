@@ -36,15 +36,13 @@
         </div>
         <div class="slds-col slds-size_2-of-5 slds-m-around_x-small">
             <div class="box-wrap">
-                <div class="slds-grid slds-grid_align-end slds-wrap slds-p-vertical_small filter-wrap">
+                <!-- <div class="slds-grid slds-grid_align-end slds-wrap slds-p-vertical_small filter-wrap">
                     <lightning-button-group>
                         <lightning-button label="설치 / 제거 (SAP)" data-name="INSTALL"
                                             onclick={handleMainModal}
                                             ></lightning-button>
-                        <!-- <lightning-button label="단계 취소" data-name="CANCELSTEP"
-                                            ></lightning-button> -->
                     </lightning-button-group>
-                </div>
+                </div> -->
                 <div>
                     <lightning-datatable
                         key-field="Id"
@@ -150,11 +148,11 @@
                     </button>
                 </div>
             </div>
-            <template lwc:if={isLoading}>
-                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
-            </template>
         </section>
         <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
     </template>
     <!-- Modal End -->
+    <template lwc:if={isLoading}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
 </template>
