@@ -168,6 +168,7 @@ export default class configView extends LightningElement {
         // 중복로드 방지
         if (this.jquery) return;
 
+        // Test
         // loadScript로 jQuery를 로드하고, 완료 후 후속 작업을 실행
         loadScript(this, jqueryTest).then(() => {
             this.jquery = window.jQuery;

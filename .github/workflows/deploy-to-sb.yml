@@ -42,9 +42,13 @@ jobs:
               if [[ "$file" == force-app/main/default/lwc/*/* ]]; then
                 bundle_dir=$(echo "$file" | cut -d/ -f1-5)
                 echo "🔁 LWC 번들 복사: $bundle_dir"
-                mkdir -p "deploy_src/$bundle_dir"
-                cp -r "$bundle_dir"/* "deploy_src/$bundle_dir/"
-
+                if [ -d "$bundle_dir" ]; then
+                  mkdir -p "deploy_src/$bundle_dir"
+                  cp -r "$bundle_dir"/* "deploy_src/$bundle_dir/"
+                else
+                  echo "⚠️ 디렉토리 없음: $bundle_dir"
+                fi
+          
               # ⚡ Aura 번들 전체 복사
               elif [[ "$file" == force-app/main/default/aura/*/* ]]; then
                 bundle_dir=$(echo "$file" | cut -d/ -f1-5)
