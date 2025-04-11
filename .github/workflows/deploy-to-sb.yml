@@ -30,63 +30,27 @@ jobs:
           git log -1 --name-only --pretty=format: > changed_files.txt
           cat changed_files.txt
 
-      - name: Generate package.xml
+      - name: Create Deployment ZIP (from src/)
         run: |
-          echo '<?xml version="1.0" encoding="UTF-8"?>' > package.xml
-          echo '<Package xmlns="http://soap.sforce.com/2006/04/metadata">' >> package.xml
+          mkdir -p deploy_zip/unpackaged
 
-          declare -A types_map
           while read -r file; do
-            case "$file" in
-              force-app/main/default/classes/*.cls)
-                types_map["ApexClass"]+=$(basename "$file" .cls)" "
-                ;;
-              force-app/main/default/triggers/*.trigger)
-                types_map["ApexTrigger"]+=$(basename "$file" .trigger)" "
-                ;;
-              force-app/main/default/pages/*.page)
-                types_map["ApexPage"]+=$(basename "$file" .page)" "
-                ;;
-              force-app/main/default/components/*.component)
-                types_map["ApexComponent"]+=$(basename "$file" .component)" "
-                ;;
-              force-app/main/default/staticresources/*.resource)
-                types_map["StaticResource"]+=$(basename "$file" .resource)" "
-                ;;
-              force-app/main/default/lwc/*/*)
-                lwcName=$(echo "$file" | cut -d/ -f5)
-                types_map["LightningComponentBundle"]+="$lwcName "
-                ;;
-              force-app/main/default/aura/*/*)
-                auraName=$(echo "$file" | cut -d/ -f5)
-                types_map["AuraDefinitionBundle"]+="$auraName "
-                ;;
-            esac
+            if [[ "$file" == src/* && -f "$file" ]]; then
+              mkdir -p "deploy_zip/unpackaged/$(dirname "${file#src/}")"
+              cp "$file" "deploy_zip/unpackaged/${file#src/}"
+            fi
           done < changed_files.txt
 
-          for metaType in "${!types_map[@]}"; do
-            echo "  <types>" >> package.xml
-            for member in ${types_map[$metaType]}; do
-              echo "    <members>$member</members>" >> package.xml
-            done
-            echo "    <name>$metaType</name>" >> package.xml
-            echo "  </types>" >> package.xml
-          done
-
-          echo "  <version>57.0</version>" >> package.xml
-          echo "</Package>" >> package.xml
-
-      - name: Convert to Metadata API Format
-        run: |
-          mkdir -p deploy_zip/mdapi
-          sfdx force:source:convert -r src -d deploy_zip/mdapi
+          cd deploy_zip
+          zip -r deploy.zip unpackaged > /dev/null
+          cd ..
 
       - name: Deploy to MTBK_SB
         run: |
           if [[ -s changed_files.txt ]]; then
             echo "🚀 변경된 파일만 배포 중..."
             sfdx force:mdapi:deploy \
-              -d deploy_zip/mdapi \
+              -f deploy_zip/deploy.zip \
               -u MTBK_SB \
               --testlevel NoTestRun \
               --ignorewarnings \
