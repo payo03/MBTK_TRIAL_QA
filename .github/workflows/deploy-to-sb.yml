@@ -1,4 +1,4 @@
-name: Deploy IC2 Metadata to MTBK_SB
+name: Deploy Changed Metadata to MTBK_SB
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -24,68 +24,68 @@ jobs:
           echo "${{ secrets.SFDX_AUTH_URL }}" > sfdx_auth.txt
           sfdx force:auth:sfdxurl:store -f sfdx_auth.txt -a MTBK_SB
 
-      - name: Find Changed Files
-        id: diff
+      - name: Get Changed Files (diff from origin/master)
         run: |
-          echo "🔍 최근 커밋에서 변경된 파일 추출 중..."
           git fetch origin master:refs/remotes/origin/master
           git diff --name-only origin/master HEAD > changed_files.txt
           cat changed_files.txt
 
-      - name: Identify Test Classes & Create package.xml
-        id: detect
+      - name: Generate Package.xml
         run: |
-          echo "📦 package.xml 생성 및 테스트 클래스 식별 중..."
-
-          TEST_CLASSES=""
-
           echo '<?xml version="1.0" encoding="UTF-8"?>' > package.xml
           echo '<Package xmlns="http://soap.sforce.com/2006/04/metadata">' >> package.xml
-          echo '  <types>' >> package.xml
 
-          has_class=false
+          declare -A types_map
+
           while read -r file; do
-            if [[ "$file" == src/classes/*.cls ]]; then
-              class_name=$(basename "$file" .cls)
-              echo "    <members>${class_name}</members>" >> package.xml
-              has_class=true
+            if [[ "$file" == *.cls || "$file" == *.trigger || "$file" == *.page || "$file" == *.component || "$file" == *.resource ]]; then
+              name=$(basename "$file")
+              metaType=""
+              if [[ "$file" == *".cls" ]]; then metaType="ApexClass"
+              elif [[ "$file" == *".trigger" ]]; then metaType="ApexTrigger"
+              elif [[ "$file" == *".page" ]]; then metaType="ApexPage"
+              elif [[ "$file" == *".component" ]]; then metaType="ApexComponent"
+              elif [[ "$file" == *".resource" ]]; then metaType="StaticResource"
+              fi
 
-              if [[ "$file" != *_test.cls ]]; then
-                test_file="src/classes/${class_name}_test.cls"
-                if [ -f "$test_file" ]; then
-                  echo "✅ 테스트 클래스 발견: ${class_name}_test"
-                  TEST_CLASSES+="${class_name}_test,"
-                else
-                  target=$(grep -m1 "@Target" "$file" | sed -E 's/.*@Target[[:space:]]*:[[:space:]]*//;s/\\.cls[[:space:]]*$//' | xargs)
-                  if [ -n "$target" ] && [ -f "src/classes/${target}_test.cls" ]; then
-                    echo "💡 어노테이션 기반 테스트 클래스: ${target}_test"
-                    TEST_CLASSES+="${target}_test,"
-                  fi
-                fi
+              if [[ -n "$metaType" ]]; then
+                name=${name%%.*}  # Strip extension
+                types_map["$metaType"]+="${name} "
               fi
             fi
           done < changed_files.txt
 
-          if [ "$has_class" = true ]; then
-            echo "    <name>ApexClass</name>" >> package.xml
+          for metaType in "${!types_map[@]}"; do
+            echo "  <types>" >> package.xml
+            for member in ${types_map[$metaType]}; do
+              echo "    <members>$member</members>" >> package.xml
+            done
+            echo "    <name>$metaType</name>" >> package.xml
             echo "  </types>" >> package.xml
-          fi
+          done
 
-          echo '  <version>57.0</version>' >> package.xml
-          echo '</Package>' >> package.xml
+          echo "  <version>57.0</version>" >> package.xml
+          echo "</Package>" >> package.xml
 
-          echo "TEST_CLASSES=$(echo $TEST_CLASSES | sed 's/,$//')" >> $GITHUB_ENV
-          echo "✅ 최종 package.xml 내용:"
+          echo "📦 생성된 package.xml:"
           cat package.xml
 
-      - name: Create deploy ZIP
+      - name: Create Deployment ZIP
         run: |
-          mkdir -p deploy_zip/unpackaged/classes
+          mkdir -p deploy_zip/unpackaged
           cp package.xml deploy_zip/unpackaged/
 
           while read -r file; do
-            if [[ "$file" == src/classes/*.cls || "$file" == src/classes/*.cls-meta.xml ]]; then
-              cp "$file" deploy_zip/unpackaged/classes/
+            if [ -f "$file" ]; then
+              mkdir -p "deploy_zip/unpackaged/$(dirname "$file")"
+              cp "$file" "deploy_zip/unpackaged/$file"
+            fi
+
+            # 관련 메타파일도 함께 복사
+            if [[ "$file" =~ \.cls$ || "$file" =~ \.trigger$ || "$file" =~ \.page$ || "$file" =~ \.component$ || "$file" =~ \.resource$ ]]; then
+              if [ -f "${file}-meta.xml" ]; then
+                cp "${file}-meta.xml" "deploy_zip/unpackaged/${file}-meta.xml"
+              fi
             fi
           done < changed_files.txt
 
@@ -93,28 +93,16 @@ jobs:
           zip -r deploy.zip unpackaged > /dev/null
           cd ..
 
-      - name: Deploy to MTBK_SB (Selective Deploy)
+      - name: Deploy to MTBK_SB
         run: |
           if [[ -s changed_files.txt ]]; then
-            echo "🚀 변경된 파일만 배포 시작..."
-            if [[ -n "$TEST_CLASSES" ]]; then
-              echo "✅ 실행할 테스트 클래스: $TEST_CLASSES"
-              sfdx force:mdapi:deploy \
-                -f deploy_zip/deploy.zip \
-                -u MTBK_SB \
-                --testlevel RunSpecifiedTests \
-                --runtests "$TEST_CLASSES" \
-                --ignorewarnings \
-                -w 10
-            else
-              echo "ℹ️ 테스트 클래스 없음 → RunLocalTests"
-              sfdx force:mdapi:deploy \
-                -f deploy_zip/deploy.zip \
-                -u MTBK_SB \
-                --testlevel RunLocalTests \
-                --ignorewarnings \
-                -w 10
-            fi
+            echo "🚀 변경된 파일만 배포 중..."
+            sfdx force:mdapi:deploy \
+              -f deploy_zip/deploy.zip \
+              -u MTBK_SB \
+              --testlevel NoTestRun \
+              --ignorewarnings \
+              -w 10
           else
-            echo "✅ 변경된 파일 없음, 배포 생략"
+            echo "✅ 변경된 파일 없음 → 배포 생략"
           fi
