@@ -88,15 +88,23 @@ jobs:
           echo "📂 변환 결과 파일:"
           find deploy_zip/mdapi
 
-      - name: Deploy using source:deploy
+      - name: Rename LWC Folder to lightningComponentBundles
+        run: |
+          if [ -d deploy_zip/mdapi/lwc ]; then
+            echo "📦 LWC 디렉토리 이름 변경 → lightningComponentBundles"
+            mv deploy_zip/mdapi/lwc deploy_zip/mdapi/lightningComponentBundles
+          fi
+
+      - name: Deploy to MTBK_SB
         run: |
           if [[ -s changed_files.txt ]]; then
-            echo "🚀 변경된 파일 배포 중 (source:deploy)..."
-            sfdx force:source:deploy \
-              -p deploy_src \
+            echo "🚀 변경된 파일만 배포 중..."
+            sfdx force:mdapi:deploy \
+              -d deploy_zip/mdapi \
               -u MTBK_SB \
+              --testlevel NoTestRun \
               --ignorewarnings \
-              --loglevel fatal
+              -w 10
           else
             echo "✅ 변경된 파일 없음 → 배포 생략"
           fi
