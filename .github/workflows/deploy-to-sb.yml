@@ -91,8 +91,19 @@ jobs:
           echo "📂 변환 결과 파일:"
           find deploy_zip/mdapi
           
+      - name: Rename LWC Folder
+        run: |
+          if [ -d deploy_zip/mdapi/lwc ]; then
+            echo "📦 LWC 디렉토리 이름 변경 → lightningComponentBundles"
+            mv deploy_zip/mdapi/lwc deploy_zip/mdapi/lightningComponentBundles
+            ls -R deploy_zip/mdapi
+          fi
+
+          echo "🧾 최종 디렉토리 구조 확인:"
+            find deploy_zip/mdapi
+          
           echo "🔧 package.xml 내용:"
-          cat deploy_zip/mdapi/package.xml
+          cat deploy_zip/mdapi/package.xml\
 
       - name: Deploy to MTBK_SB
         run: |
