@@ -29,6 +29,11 @@ jobs:
           echo "${{ secrets.SFDX_AUTH_URL }}" > sfdx_auth.txt
           sfdx force:auth:sfdxurl:store -f sfdx_auth.txt -a MTBK_SB
 
+#      소스 원복시 주석풀고 사용
+#      - name: Get Changed Files between commits
+#        run: |
+#          git diff --name-only <정상커밋> <원복할커밋> > changed_files.txt
+    
       - name: Get Changed Files from PR
         run: |
           BASE_SHA=$(git rev-parse HEAD^1)
