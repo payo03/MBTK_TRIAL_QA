@@ -13,6 +13,7 @@ public with sharing class AccountInterface {
     public static Account fetchRecord(String recordId) {
         System.debug('TEST86');
         System.debug('TEST87');
+        System.debug('TEST89');
         return [
                 SELECT Id, BusinessNumber__c, BusinessName__c, IDNumber__pc, PersonEmail, PostalCode__c, RoadAddress__c, PersonMobilePhone
                 FROM Account
