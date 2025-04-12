@@ -128,13 +128,6 @@ jobs:
           echo "✅ deploy_src 디렉토리 구성 완료"
           find deploy_src || echo "🚫 복사된 파일 없음!"
 
-      - name: Append deploy_src to sfdx-project.json
-        run: |
-          echo "🔧 sfdx-project.json에 deploy_src 경로 추가"
-          cp sfdx-project.json sfdx-project.original.json
-          jq '.packageDirectories += [{"path":"deploy_src","default":false}]' sfdx-project.original.json > sfdx-project.json
-          cat sfdx-project.json
-
       - name: Convert to Metadata API Format
         run: |
           echo "🔁 deploy_src → Metadata API 포맷 변환 시작..."
