@@ -34,11 +34,14 @@ jobs:
 #        run: |
 #          git diff --name-only <정상커밋> <원복할커밋> > changed_files.txt
     
-      - name: Get Changed Files from PR
+      - name: Get Changed Files from PR (use base/head)
         run: |
-          BASE_SHA=$(git rev-parse HEAD^1)
-          echo "🔍 BASE_SHA: $BASE_SHA"
-          git diff --name-only $BASE_SHA HEAD > changed_files.txt
+          echo "🧩 PR BASE SHA: ${{ github.event.pull_request.base.sha }}"
+          echo "🧩 PR HEAD SHA: ${{ github.event.pull_request.head.sha }}"
+          
+          git fetch origin ${{ github.event.pull_request.base.ref }}          
+          git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} > changed_files.txt
+      
           echo "✅ 변경된 파일 목록[기본]:"
           cat changed_files.txt
 
