@@ -37,7 +37,7 @@ jobs:
       - name: Get Changed Files from PR (use base/head)
         run: |
           echo "🧩 PR BASE SHA: ${{ github.event.pull_request.base.sha }}"
-          echo "🧩 PR HEAD SHA: ${{ github.event.pull_request.head.sha }}
+          echo "🧩 PR HEAD SHA: ${{ github.event.pull_request.head.sha }}"
           
           git fetch origin ${{ github.event.pull_request.base.ref }}          
           git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- src/ > changed_files.txt
