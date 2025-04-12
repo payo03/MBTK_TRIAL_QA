@@ -14,6 +14,7 @@ private class AccountInterface_test {
     static void setup() {
         System.debug('TEST88');
         System.debug('TEST90');
+        System.debug('TEST92');
         TestObjectBuilder.createObjects();
     }
 
