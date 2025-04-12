@@ -29,9 +29,11 @@ jobs:
           echo "${{ secrets.SFDX_AUTH_URL }}" > sfdx_auth.txt
           sfdx force:auth:sfdxurl:store -f sfdx_auth.txt -a MTBK_SB
 
-      - name: Get Changed Files from Last Commit
+      - name: Get Changed Files from PR
         run: |
-          git log -1 --name-only --pretty=format: > changed_files.txt
+          git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
+          git diff --name-only origin/${{ github.event.pull_request.base.ref }} > changed_files.txt
+          echo "✅ 변경된 파일 목록:"
           cat changed_files.txt
 
           # js, html, css 파일이 변경되었으면 4종셋트를 추가
