@@ -2,7 +2,8 @@ name: Deploy Changed Metadata to MTBK_SB
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - master
     paths-ignore:
@@ -11,6 +12,7 @@ on:
 
 jobs:
   deploy:
+    if: github.event.pull_request.merged == true  # 👉 머지된 경우에만 실행
     runs-on: ubuntu-latest
 
     steps:
