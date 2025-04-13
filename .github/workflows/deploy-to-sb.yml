@@ -2,7 +2,8 @@ name: Deploy Changed Metadata to MTBK_SB
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - master
     paths-ignore:
@@ -11,6 +12,7 @@ on:
 
 jobs:
   deploy:
+    if: github.event.pull_request.merged == true  # 👉 머지된 경우에만 실행
     runs-on: ubuntu-latest
 
     steps:
@@ -27,9 +29,20 @@ jobs:
           echo "${{ secrets.SFDX_AUTH_URL }}" > sfdx_auth.txt
           sfdx force:auth:sfdxurl:store -f sfdx_auth.txt -a MTBK_SB
 
-      - name: Get Changed Files from Last Commit
+#      소스 원복시 주석풀고 사용
+#      - name: Get Changed Files between commits
+#        run: |
+#          git diff --name-only <정상커밋> <원복할커밋> > changed_files.txt
+    
+      - name: Get Changed Files from PR (use base/head)
         run: |
-          git log -1 --name-only --pretty=format: > changed_files.txt
+          echo "🧩 PR BASE SHA: ${{ github.event.pull_request.base.sha }}"
+          echo "🧩 PR HEAD SHA: ${{ github.event.pull_request.head.sha }}"
+          
+          git fetch origin ${{ github.event.pull_request.base.ref }}          
+          git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- src/ > changed_files.txt
+      
+          echo "✅ 변경된 파일 목록[기본]:"
           cat changed_files.txt
 
           # js, html, css 파일이 변경되었으면 4종셋트를 추가
@@ -61,7 +74,7 @@ jobs:
             fi
           done < changed_files.txt
 
-          echo "✅ 변경된 파일 목록: "
+          echo "✅ 변경된 파일 목록[반영]: "
           cat changed_files.txt
 
       - name: Copy Changed Files to deploy_src (All Metadata Types)
@@ -122,13 +135,6 @@ jobs:
 
           echo "✅ deploy_src 디렉토리 구성 완료"
           find deploy_src || echo "🚫 복사된 파일 없음!"
-
-      - name: Append deploy_src to sfdx-project.json
-        run: |
-          echo "🔧 sfdx-project.json에 deploy_src 경로 추가"
-          cp sfdx-project.json sfdx-project.original.json
-          jq '.packageDirectories += [{"path":"deploy_src","default":false}]' sfdx-project.original.json > sfdx-project.json
-          cat sfdx-project.json
 
       - name: Convert to Metadata API Format
         run: |
