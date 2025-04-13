@@ -10,7 +10,7 @@
 import { LightningElement, api, track, wire } from 'lwc';
 import { CurrentPageReference } from "lightning/navigation";
 import { showToast } from "c/commonUtil";
-
+// Test
 import fetchRecord from "@salesforce/apex/AccountInterface.fetchRecord";
 import updateRecord from "@salesforce/apex/AccountInterface.updateRecord";
 import sendCustomerInfo from "@salesforce/apex/AccountInterface.sendCustomerInfo";
