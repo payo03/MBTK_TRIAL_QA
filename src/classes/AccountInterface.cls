@@ -11,6 +11,12 @@ public with sharing class AccountInterface {
     
     @AuraEnabled
     public static Account fetchRecord(String recordId) {
+        System.debug('TEST86');
+        System.debug('TEST87');
+        System.debug('TEST89');
+        System.debug('TEST91');
+        System.debug('TEST92');
+        System.debug('TEST93');
         return [
                 SELECT Id, BusinessNumber__c, BusinessName__c, IDNumber__pc, PersonEmail, PostalCode__c, RoadAddress__c, PersonMobilePhone
                 FROM Account
