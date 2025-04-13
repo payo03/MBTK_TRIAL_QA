@@ -15,7 +15,9 @@ on:
 
 jobs:
   deploy:
-    if: github.event.pull_request.merged == true  # 👉 머지된 경우에만 실행
+    if: >
+      github.event_name == 'push' ||   # 👉 PUSH(ROLLBACK) Case 실행
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)  # 👉 MERGE Case 실행
     runs-on: ubuntu-latest
 
     steps:
