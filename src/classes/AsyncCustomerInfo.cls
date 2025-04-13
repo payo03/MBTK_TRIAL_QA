@@ -15,6 +15,7 @@ public without sharing class AsyncCustomerInfo implements Queueable, Database.Al
     public List<String> idList;
     public AsyncVAInfo.SEND_TYPE sendType;
     public AsyncCustomerInfo(List<String> idList, AsyncVAInfo.SEND_TYPE sendType) {
+        System.debug('Rollback Test4');
         this.idList = idList;
         this.sendType = sendType;
     }
