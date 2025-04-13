@@ -11,7 +11,6 @@ public with sharing class AccountInterface {
     
     @AuraEnabled
     public static Account fetchRecord(String recordId) {
-        System.debug('Rollback Step1');
         return [
                 SELECT Id, BusinessNumber__c, BusinessName__c, IDNumber__pc, PersonEmail, PostalCode__c, RoadAddress__c, PersonMobilePhone
                 FROM Account
