@@ -16,8 +16,8 @@ on:
 jobs:
   deploy:
     if: >
-      github.event_name == 'push' ||   # 👉 PUSH(ROLLBACK) Case 실행
-      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)  # 👉 MERGE Case 실행
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
 
     steps:
