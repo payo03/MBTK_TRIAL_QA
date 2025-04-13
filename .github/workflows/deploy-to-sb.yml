@@ -1,9 +1,5 @@
 name: Deploy Changed Metadata to MTBK_SB
 
-concurrency:
-  group: deploy-${{ github.ref }}
-  cancel-in-progress: true
-  
 on:
   workflow_dispatch:
   push:
