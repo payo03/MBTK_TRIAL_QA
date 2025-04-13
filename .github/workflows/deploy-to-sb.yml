@@ -35,6 +35,7 @@ jobs:
           sfdx force:auth:sfdxurl:store -f sfdx_auth.txt -a MTBK_SB
     
       - name: Get Changed Files
+        id: get_changes
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             echo "🔁 Pull Request 기반 변경 파일 추출"
@@ -86,6 +87,7 @@ jobs:
           cat changed_files.txt
 
       - name: Copy Changed Files to deploy_src (All Metadata Types)
+        if: steps.get_changes.outputs.has_changes == 'true'
         run: |
           mkdir -p deploy_src
           echo "📁 복사 대상 목록:"
@@ -145,6 +147,7 @@ jobs:
           find deploy_src || echo "🚫 복사된 파일 없음!"
 
       - name: Convert to Metadata API Format
+        if: steps.get_changes.outputs.has_changes == 'true'
         run: |
           echo "🔁 deploy_src → Metadata API 포맷 변환 시작..."
           mkdir -p deploy_zip/mdapi
@@ -159,6 +162,7 @@ jobs:
           cat deploy_zip/mdapi/package.xml\
 
       - name: Deploy to MTBK_SB
+        if: steps.get_changes.outputs.has_changes == 'true'
         run: |
           if [[ -s changed_files.txt ]]; then
             echo "🚀 변경된 파일만 배포 중..."
