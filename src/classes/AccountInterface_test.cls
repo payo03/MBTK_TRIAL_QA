@@ -12,8 +12,6 @@ private class AccountInterface_test {
     // Test
     @TestSetup
     static void setup() {
-        System.debug('Rollback Test3');
-        System.debug('Rollback Test4');
         TestObjectBuilder.createObjects();
     }
 
