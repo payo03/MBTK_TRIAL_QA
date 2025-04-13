@@ -1,5 +1,9 @@
 name: Deploy Changed Metadata to MTBK_SB
 
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+  
 on:
   workflow_dispatch:
   push:
@@ -16,7 +20,7 @@ on:
 jobs:
   deploy:
     if: >
-      (github.event_name == 'push' && github.event.head_commit.message != 'Merge pull request') ||
+      github.event_name == 'push' ||
       (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
 
