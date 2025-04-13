@@ -13,6 +13,7 @@ private class AccountInterface_test {
     @TestSetup
     static void setup() {
         System.debug('Rollback Step2');
+        System.debug('Rollback Step3');
         TestObjectBuilder.createObjects();
     }
 
