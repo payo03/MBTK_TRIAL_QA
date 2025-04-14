@@ -26,6 +26,8 @@
           <option value="$PROJECT_DIR$/src/classes/adjustUser_ba.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/AssignRequest_tr.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/AsyncCustomsInfo.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/AsyncOrderConfirm.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/AsyncPurchaseInvoice.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/AsyncTaxInvoiceIssuance.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/AvisConfig_tr.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/AvisOrderInfo_tr.cls-meta.xml" />

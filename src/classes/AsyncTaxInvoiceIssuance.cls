@@ -10,7 +10,8 @@
 public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Database.AllowsCallouts {
 
     private static final Integer VAT_RATE = 11;
-    private static final String LOG_TYPE = 'TAX_INVOICE';
+    private static final String LOG_TYPE_S = 'TAX_INVOICE';
+    private static final String LOG_TYPE_C = 'TAX_INVOICE_CANCEL';
     private static final String IF_ID = InterfaceSAP.IF_SMS013;
 
     public List<String> opptyIdList;
@@ -26,6 +27,7 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                 ? new Map<String, Object>()
                 : paramMap;
         Boolean isCreate = paramInfoMap.isEmpty() ? true : Boolean.valueOf(paramInfoMap.get('isCreate'));
+        String logType = isCreate ? LOG_TYPE_S : LOG_TYPE_C;
 
         // 취소데이터인경우, logId를 기존것으로 재활용
         Map<String, String> logIdMap = new Map<String, String>();   // KEY : OpportunityId, Value : Log Id
@@ -33,7 +35,7 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                 SELECT Id, ExternalId__c, fm_LogId__c
                 FROM IFAuditLogDetail__c
                 WHERE ExternalId__c IN :opptyIdList
-                AND fm_LogType__c = :LOG_TYPE
+                AND fm_LogType__c = :LOG_TYPE_S
                 AND IsResponse__c = 'Y'         // 전송완료한건에 대해서 GET
                 ORDER BY CreatedDate
         ]) {
@@ -360,8 +362,8 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
             Datetime responseTime;
 
             List<Opportunity> updateList = new List<Opportunity>();
-            Map<String, IFAuditLog__c> internalLogMap = new Map<String, IFAuditLog__c>();
-            Map<String, IFAuditLogDetail__c> internalLogDetailMap = new Map<String, IFAuditLogDetail__c>();
+            Map<String, IFAuditLog__c> logMap = new Map<String, IFAuditLog__c>();
+            Map<String, IFAuditLogDetail__c> logDetailMap = new Map<String, IFAuditLogDetail__c>();
             try {
                 // 세금계산서 또한.... LogId - 데이터 1개로 추정... 내가 고치지 뭐...
                 for (String logId : logSalesInfoListMap.keySet()) {
@@ -371,16 +373,12 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
 
                     // 취소면 신규LogId 생성, 신규일경우 추출한 logId사용
                     // 취소Case. Body값의 logId는 기존 전송건
-                    String internalLogId = isCreate
-                            ? logId
-                            : CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.PREFIX_TAX);
-
                     Map<String, Object> infoMap = new Map<String, Object>();
-                    String reqBody = CommonUtilCustomController.parseStringSAP(IF_ID, salesInfoList, internalLogId);
+                    String reqBody = CommonUtilCustomController.parseStringSAP(IF_ID, salesInfoList, logId);
 
                     infoMap.put('ifId', IF_ID);
-                    infoMap.put('logId', internalLogId);
-                    infoMap.put('logType', LOG_TYPE);
+                    infoMap.put('logId', logId);
+                    infoMap.put('logType', logType);
                     infoMap.put('items', salesInfoList);
                     infoMap.put('isLog', false);
 
@@ -395,11 +393,11 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                     // IFAuditLog
                     IFAuditLog__c log = new IFAuditLog__c();
                     log.IF_Id__c = IF_ID;
-                    log.Name = internalLogId;
-                    log.Type__c = LOG_TYPE;
+                    log.Name = logId;
+                    log.Type__c = logType;
                     log.RawData__c = reqBody;
                     log.ResponseBody__c = responseBody;
-                    internalLogMap.put(internalLogId, log);
+                    logMap.put(logId, log);
 
                     // Heroku 통신 완료시. Sync
                     // IFAuditLogDetail
@@ -430,7 +428,7 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                         // 세금계산서 발행 성공시 일자 Update
                         if(resultCode == 'Y') updateList.add(oppty);
                     }
-                    internalLogDetailMap.put(internalLogId, logDetail);
+                    logDetailMap.put(logId, logDetail);
                 }
                 responseTime = Datetime.now();
             } catch(Exception e) {
@@ -442,15 +440,15 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                 System.debug(e.getMessage());
             } finally {
                 if(isCreate && !updateList.isEmpty()) update updateList;    // 세금계산서 발행일때, 발행일 Update
-                if(!internalLogMap.isEmpty()) {
+                if(!logMap.isEmpty()) {
                     // SAP I/F 감사로그 Bulk Insert
-                    insert internalLogMap.values();
+                    insert logMap.values();
 
                     List<IFAuditLogDetail__c> details = new List<IFAuditLogDetail__c>();
-                    for(String internalLogId : internalLogDetailMap.keySet()) {
-                        IFAuditLogDetail__c detail = internalLogDetailMap.get(internalLogId);
+                    for(String internalLogId : logDetailMap.keySet()) {
+                        IFAuditLogDetail__c detail = logDetailMap.get(internalLogId);
 
-                        detail.IFAuditLog__c = internalLogMap.get(internalLogId).Id;
+                        detail.IFAuditLog__c = logMap.get(internalLogId).Id;
                         details.add(detail);
                     }
                     insert details;
