@@ -86,6 +86,7 @@
           <option value="$PROJECT_DIR$/src/classes/Product2_tr.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/Quote_tr.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/QuoteLineItem_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/SalesCondition_ba.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/SAPInterface.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/SAPInterface_test.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/StageUpdateCommonController.cls-meta.xml" />
