@@ -6,10 +6,13 @@
   Ver      Date            Author                           Modification
   ===================================================================================
   1.0      2025-02-28      payo03@solomontech.net           Created
+  1.1      2025-04-14      payo03@solomontech.net           취소 IF 추가
 */
 public without sharing class AsyncCustomsInfo implements Queueable, Database.AllowsCallouts {
 
     private static final Integer WEIGHT = 70;
+    private static final String LOG_TYPE_S = 'CUSTOMS_INFO';
+    private static final String LOG_TYPE_C = 'CUSTOMS_INFO_CANCEL';
     public List<String> idList;
     public Map<String, Object> infoMap;
 
@@ -25,20 +28,43 @@ public without sharing class AsyncCustomsInfo implements Queueable, Database.All
 
         String logId = CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.PREFIX_CUSTOMS_INFO);
         Boolean isCreate = dataMap.isEmpty() ? true : Boolean.valueOf(dataMap.get('isCreate'));
+        String logType = isCreate ? LOG_TYPE_S : LOG_TYPE_C;
+
+        // ver1.1 취소 IF 추가
+        // 취소데이터인경우, logId를 기존것으로 재활용
+        Map<String, String> logIdMap = new Map<String, String>();   // KEY : AvisOrderInfoId, Value : Log Id
+        for(IFAuditLogDetail__c existIFLog : [
+                SELECT Id, ExternalId__c, fm_LogId__c
+                FROM IFAuditLogDetail__c
+                WHERE ExternalId__c IN :idList
+                AND fm_LogType__c = :LOG_TYPE_S
+                AND IsResponse__c = 'Y'         // 전송완료한건에 대해서 GET
+                ORDER BY CreatedDate
+        ]) {
+            logIdMap.put(existIFLog.ExternalId__c, existIFLog.fm_LogId__c);
+        }
 
         List<AvisOrderInfo__c> infoList = SAPCommon.fetchOrderInfoList(idList);
         Map<String, SpoilerPart__c> spoilerMap = SAPCommon.fetchSpoilerMap(infoList);
 
-        List<IF_DTO.CustomsInfo> customsInfoList = new List<IF_DTO.CustomsInfo>();
         Map<String, String> keyMap = new Map<String, String>();
+        Map<String, List<IF_DTO.CustomsInfo>> logCustomsInfoListMap = new Map<String, List<IF_DTO.CustomsInfo>>();
         for(AvisOrderInfo__c info : infoList) {
+            // ver1.1 취소 IF 추가
+            String internalLogId = !isCreate && logIdMap.containsKey(info.Id)
+                    ? logIdMap.get(info.Id)
+                    : logId;
+            List<IF_DTO.CustomsInfo> customsInfoList = logCustomsInfoListMap.containsKey(internalLogId)
+                    ? logCustomsInfoListMap.get(internalLogId)
+                    : new List<IF_DTO.CustomsInfo>();
+
             VehicleStock__c stock = info.VehicleStock__r;
             String externalKey = info.OrderIntakeNo__c + ', ' + stock.VehicleNo__c + ', ' + stock.Name;
             keyMap.put(info.Id, externalKey);
 
             IF_DTO.CustomsInfo customsInfo = new IF_DTO.CustomsInfo(info, isCreate);
-            customsInfo.IFID = logId;
             customsInfo.ITEM_TYPE = 'V';
+            customsInfo.IFID = internalLogId;
 
             // Spoiler 패키지 항목추가
             String key = CommonUtilCustomController.getSpoilerKey(info);
@@ -61,19 +87,24 @@ public without sharing class AsyncCustomsInfo implements Queueable, Database.All
                 customsInfo.ITEMAMT = subPriceAmt;
             }
             customsInfoList.add(customsInfo);
+            logCustomsInfoListMap.put(internalLogId, customsInfoList);
         }
 
-        if(!customsInfoList.isEmpty()) {
-            Map<String, Object> infoMap = new Map<String, Object>();
-            infoMap.put('ifId', InterfaceSAP.IF_SMS012_ASYNC);
-            infoMap.put('logId', logId);
-            infoMap.put('logType', 'CUSTOMS_INFO');
-            infoMap.put('keyMap', keyMap);
-            infoMap.put('items', customsInfoList);
-            infoMap.put('isLogDetail', true);
+        // ver1.2 취소 IF 추가
+        if(!logCustomsInfoListMap.isEmpty()) {
+            for (String internalLogId : logCustomsInfoListMap.keySet()) {
+                Map<String, Object> infoMap = new Map<String, Object>();
 
-            Map<String, Object> resultMap = InterfaceSAP.doCallOutSAPLog(infoMap);
-            SAPCommon.asyncLogDetailUpdate(logId, resultMap);   // Heroku 통신 완료시. Async
+                infoMap.put('ifId', InterfaceSAP.IF_SMS012_ASYNC);
+                infoMap.put('logId', internalLogId);
+                infoMap.put('logType', logType);
+                infoMap.put('keyMap', keyMap);
+                infoMap.put('items', logCustomsInfoListMap.get(internalLogId));
+                infoMap.put('isLogDetail', true);
+
+                Map<String, Object> resultMap = InterfaceSAP.doCallOutSAPLog(infoMap);
+                SAPCommon.asyncLogDetailUpdate(internalLogId, resultMap);   // Heroku 통신 완료시. Async
+            }
         }
     }
 }

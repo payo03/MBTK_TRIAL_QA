@@ -400,10 +400,10 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
                         info.SpecShort__c, info.CabMark__c, info.WheelBase__c
                 };
                 String reportKey = String.join(reportKeyList, '^');
-                p2Obj.CarAmt__c = p2ReportMap.containsKey(reportKey) ? p2ReportMap.get(reportKey).CarAmt__c : null;
-                p2Obj.PurePrice__c = p2ReportMap.containsKey(reportKey) ? p2ReportMap.get(reportKey).PurePrice__c : null;
-                p2Obj.PurePriceWsc__c = p2ReportMap.containsKey(reportKey) ? p2ReportMap.get(reportKey).PurePriceWsc__c : null;
-                p2Obj.PurePriceWscCfx__c = p2ReportMap.containsKey(reportKey) ? p2ReportMap.get(reportKey).PurePriceWscCfx__c : null;
+                p2Obj.CarAmt__c             = p2ReportMap.containsKey(reportKey) ? p2ReportMap.get(reportKey).CarAmt__c             : null;
+                p2Obj.PurePrice__c          = p2ReportMap.containsKey(reportKey) ? p2ReportMap.get(reportKey).PurePrice__c          : null;
+                p2Obj.PurePriceWsc__c       = p2ReportMap.containsKey(reportKey) ? p2ReportMap.get(reportKey).PurePriceWsc__c       : null;
+                p2Obj.PurePriceWscCfx__c    = p2ReportMap.containsKey(reportKey) ? p2ReportMap.get(reportKey).PurePriceWscCfx__c    : null;
 
                 insertP2List.add(p2Obj);
                 p2KeyMap.put(key, p2Obj);
