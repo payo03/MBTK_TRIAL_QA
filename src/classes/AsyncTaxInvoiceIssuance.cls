@@ -175,6 +175,13 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                                 detailInfo.LINETOTAL = String.valueOf(innerCalPrice);
                                 detailInfoList.add(detailInfo); // ERP 전송건들 ADD
 
+                                /* 25-03-26 송찬영.
+                                    # 세금계산서 발행 총액(sumSaleTOT)
+                                        AS_IS 세금계산서 발행금액에 ERPPrice를 더하고있으나
+                                        데이터는 0원임으로 로직 제외함
+                                    # 차량 총액
+                                        AS_IS 차량 총액에 판가를 더함
+                                */
                                 optionPrice += quoteDetail.fm_Price__c;
                             } else if ('서비스품목'.equals(detailType)) {
                                 // AS_IS기준. EW, RMC
@@ -193,7 +200,6 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                                 detailInfo.LINETOTAL = String.valueOf(ERPCalPrice);
                                 detailInfoList.add(detailInfo); // ERP 전송건들 ADD
 
-                                optionPrice += quoteDetail.fm_Price__c;
                                 /* 25-03-26 송찬영.
                                     # 세금계산서 발행 총액(sumSaleTOT)
                                         AS_IS 세금계산서 발행금액에 ERPPrice를 더함
@@ -203,6 +209,7 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                                         2. 차량 총액에 EOPrice(Engine Oil Price)를 가감. 데이터 0원이므로 로직 제외
                                         3. Option.DefaultEwRmc = false일때, ERP가격을 가감. 데이터 0원이므로 로직 제외
                                 */
+                                optionPrice += quoteDetail.fm_Price__c;
                                 sumSaleTOT += ERPPrice;
                                 sumSaleVAT += ERPOptionVAT;
                                 sumSalePrice += ERPCalPrice;
@@ -224,7 +231,6 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                                     detailInfoExtra.LINETOTAL = String.valueOf(ERPCalPrice);
                                     detailInfoList.add(detailInfoExtra);
 
-                                    optionPrice += quoteDetail.fm_Price__c;
                                     /* 25-03-26 송찬영.
                                         # 세금계산서 발행 총액(sumSaleTOT)
                                             AS_IS 세금계산서 발행금액에 ERPPrice를 더함
@@ -234,6 +240,7 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                                             2. 차량 총액에 EOPrice(Engine Oil Price)를 가감. 데이터 0원이므로 로직 제외
                                             3. Option.DefaultEwRmc = false일때, ERP가격을 가감. 데이터 0원이므로 로직 제외
                                     */
+                                    optionPrice += quoteDetail.fm_Price__c;
                                     sumSaleTOT += ERPPrice;
                                     sumSaleVAT += ERPOptionVAT;
                                     sumSalePrice += ERPCalPrice;
