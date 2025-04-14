@@ -1,7 +1,7 @@
 /**
 * @Author            : payo03@solomontech.net
 * @Description 		 : BF1버튼을 통한 VehicleStock 생성 batch
-* @Target            : 
+* @Target            :
 * @Modification Log
   Ver      Date            Author                           Modification
   ===================================================================================
@@ -10,7 +10,7 @@
   1.2      2024-12-16      payo03@solomontech.net           SAP Interface 자동화
   1.3      2025-01-13      payo03@solomontech.net           ERPCode값이 NULL일경우 Insert PASS
   1.4      2025-02-19      payo03@solomontech.net           Spoiler장착된 차량Case 적용
-  2.0      2025-04-10      payo03@solomontech.net           Product Key : IsSpoiler여부 제거. Stock Status Update조건 IsCompleted 제거, IF 분리
+  2.0      2025-04-10      payo03@solomontech.net           Product Key : IsSpoiler여부 제거. Stock Status Update조건 IsCompleted 제거, IF 분리, Product2 CarAmount 복제
 */
 public without sharing class CreateVehicleStock_ba implements Database.Batchable<SObject>, Database.Stateful, Database.AllowsCallouts {
 
@@ -85,8 +85,7 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
             vinNumberSet.add(info.ChassisFrameNo__c);
             infoList.add(info);
 
-            //
-            /*
+            /* ver2.0 IF 분리
             // ver1.2 SAP Interface 자동화
             if(info.fm_OrderConfirmSAP__c) orderConfirmList.add(info.Id);
             */
@@ -110,7 +109,7 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
         Map<String, AvisOrderInfo__c> keyMap = new Map<String, AvisOrderInfo__c>();             // Mapping Product2
         Map<String, AvisOrderInfo__c> vehicleNoMap = new Map<String, AvisOrderInfo__c>();       // Mapping VehicleStock
 
-        Map<String, SpoilerPart__c> spoilerMap = SAPCommon.fetchSpoilerMap(infoList);      // ver1.4 Spoiler장착된 차량Case 적용
+        Map<String, SpoilerPart__c> spoilerMap = SAPCommon.fetchSpoilerMap(infoList);           // ver1.4 Spoiler장착된 차량Case 적용
         System.debug(infoList);
         for(AvisOrderInfo__c info : infoList) {
             Boolean isCompleted = infoMap.containsKey('isCompleted') ? Boolean.valueOf(infoMap.get('isCompleted')) : info.IsCompleted__c;
@@ -317,13 +316,22 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
         newCategoryList.addAll(insertCategoryList);
 
         Map<String, Product2> p2KeyMap = new Map<String, Product2>();
+        Map<String, Product2> p2ReportMap = new Map<String, Product2>();
         for(Product2 obj : [
                 SELECT Id, SpecShort__c, TrimLevel__c, Segment1__c, Segment2__c, CabMark__c, WheelBase__c, Generation__c,
                         IsOTV__c, IsLNS__c,  IsPTO__c, IsSpoiler__c,
-                        ModelYear__c, LocalYear__c
+                        ModelYear__c, LocalYear__c, CarAmt__c, PurePrice__c, PurePriceWsc__c, PurePriceWscCfx__c
                 FROM Product2
                 WHERE VehicleCategory__r.ERPCode__c IN: ERPCodeInfoMap.keySet()
         ]) {
+            // ver2.0 Product2 CarAmount 복제
+            String cabMark = CommonUtilController.getPicklistLabelForLabel('Product2', 'CabMark__c', obj.CabMark__c);
+            String wheelBase = CommonUtilController.getPicklistLabelForLabel('Product2', 'WheelBase__c', obj.WheelBase__c);
+            List<String> reportKeyList = new List<String>{
+                    obj.SpecShort__c.trim(), cabMark, wheelBase
+            };
+            String reportKey = String.join(reportKeyList, '^');
+
             String key = obj.SpecShort__c +
                     obj.Segment1__c +
                     obj.Segment2__c +
@@ -339,6 +347,7 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
                     obj.Generation__c;
 
             p2KeyMap.put(key, obj);
+            if(obj.CarAmt__c != null) p2ReportMap.put(reportKey, obj);
         }
 
         // 모수는 AvisOrderInfo의 List
@@ -385,6 +394,16 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
 
                 p2Obj.SpecShort__c = info.fm_SpecShort__c;
                 p2Obj.TRPCategory__c = info.fm_TRPCategory__c;
+
+                // ver2.0 Product2 CarAmount 복제
+                List<String> reportKeyList = new List<String>{
+                        info.SpecShort__c, info.CabMark__c, info.WheelBase__c
+                };
+                String reportKey = String.join(reportKeyList, '^');
+                p2Obj.CarAmt__c = p2ReportMap.containsKey(reportKey) ? p2ReportMap.get(reportKey).CarAmt__c : null;
+                p2Obj.PurePrice__c = p2ReportMap.containsKey(reportKey) ? p2ReportMap.get(reportKey).PurePrice__c : null;
+                p2Obj.PurePriceWsc__c = p2ReportMap.containsKey(reportKey) ? p2ReportMap.get(reportKey).PurePriceWsc__c : null;
+                p2Obj.PurePriceWscCfx__c = p2ReportMap.containsKey(reportKey) ? p2ReportMap.get(reportKey).PurePriceWscCfx__c : null;
 
                 insertP2List.add(p2Obj);
                 p2KeyMap.put(key, p2Obj);
