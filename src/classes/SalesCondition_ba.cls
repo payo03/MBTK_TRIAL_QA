@@ -6,6 +6,7 @@
   Ver      Date            Author                           Modification
   ===================================================================================
   1.0      2024-12-03      payo03@solomontech.net           Created
+  1.1      2025-04-14      payo03@solomontech.net           판매조건 Key값 변경
 */
 public without sharing class SalesCondition_ba implements Database.Batchable<SObject>, Database.Stateful, Database.AllowsCallouts, Schedulable {
 
@@ -69,7 +70,7 @@ public without sharing class SalesCondition_ba implements Database.Batchable<SOb
                     obj.Attribute9__c +
                     ym;
 
-            deleteMap.put(key, obj);
+            deleteMap.put(key.toUpperCase(), obj);
             detailMap.put(obj.Id, obj);
         }
 
@@ -99,7 +100,7 @@ public without sharing class SalesCondition_ba implements Database.Batchable<SOb
                     String.valueOf(obj.EndDate__c) +
                     ym;
 
-            if(deleteMap.get(key) != null) {
+            if(deleteMap.get(key.toUpperCase()) != null) {
                 // 동일한 데이터는 삭제처리(예약 혹은 특정row 변경을 할때 같이 올림. Report데이터를 위해 삭제처리)
                 deleteConditionList.add(obj);
             } else {
@@ -136,7 +137,7 @@ public without sharing class SalesCondition_ba implements Database.Batchable<SOb
             master.ConfigDetail__c = id;
 
             // 유효하지 않은 데이터 비활성화 처리(일 배치. 혹은 관리자 지정날짜 기준)
-            if(!(master.StartDate__c <= basisDate && master.EndDate__c >= basisDate))  master.IsActive__c = false;
+            if(!(master.StartDate__c <= basisDate && master.EndDate__c >= basisDate)) master.IsActive__c = false;
 
             String key = master.Model__c.trim() +
                     master.Generation__c +
@@ -145,23 +146,56 @@ public without sharing class SalesCondition_ba implements Database.Batchable<SOb
                     master.ModelYear__c +
                     master.EmissionLevel__c;
 
-            p2KeySet.add(master.Model__c);
-            System.debug(key.toUpperCase());
+            // ver1.1 판매조건 Key값 변경
+            Integer lastIndex = master.Model__c.lastIndexOf(' ');
+            Integer sLastIndex = master.Model__c.lastIndexOf(' ', lastIndex - 1);
+
+            String model1 = master.Model__c.substring(0, sLastIndex);                   // "TGX 28.510 6x2=2 LL SA"
+            String model2 = master.Model__c.substring(sLastIndex + 1, lastIndex);       // "GX"
+            String model3 = master.Model__c.substring(lastIndex + 1);                   // "3300"
+            String p2Key = model1 + '^' + model2 + '^' + model3;
+
+            p2KeySet.add(p2Key);
             keyMap.put(key.toUpperCase(), master);
+
+            System.debug(p2Key);
+            System.debug(key.toUpperCase());
         }
         upsert keyMap.values();
 
         // 2. 해당 Model에 대한 Product2 Lookup
+        /*
         List<Product2> productList = [
-                SELECT Id, SpecShort__c, SalesConditionMaster__c, Generation__c,
+                SELECT Id, SalesConditionMaster__c, SpecShort__c, CabMark__c, WheelBase__c, Generation__c,
                         Segment2__c, LocalYear__c, ModelYear__c, EmissionLevel__c
                 FROM Product2
                 WHERE SpecShort__c IN :p2KeySet
         ];
+        */
+        // ver1.1 판매조건 Key값 변경
+        String selectFields     = 'Id, SalesConditionMaster__c, SpecShort__c, CabMark__c, WheelBase__c, Generation__c, Segment2__c, LocalYear__c, ModelYear__c, EmissionLevel__c';
+        String fromObject       = 'Product2';
+        String whereConditions  = '';
+        for(String key : p2KeySet) {
+            List<String> keyFields = key.split('\\^');
+
+            whereConditions += '(SpecShort__c = \'' + keyFields.get(0) + '\' AND toLabel(CabMark__c) = \'' + keyFields.get(1) + '\' AND toLabel(WheelBase__c) = \'' + keyFields.get(2) + '\') OR ';
+        }
+        whereConditions = whereConditions.substring(0, whereConditions.length() - 3);
+
+        String buildQuery = CommonUtilController.buildQuery(selectFields, fromObject, whereConditions);
+        List<Product2> productList = Database.query(buildQuery);
 
         for(Product2 obj : productList) {
             // Product2-SalesConditionMaster Lookup 유효한 데이터만 Mapping (Id or NULL)
-            String key = obj.SpecShort__c.trim() +
+            // ver1.1 판매조건 Key값 변경
+            String cabMark = CommonUtilController.getPicklistLabelForLabel('Product2', 'CabMark__c', obj.CabMark__c);
+            String wheelBase = CommonUtilController.getPicklistLabelForLabel('Product2', 'WheelBase__c', obj.WheelBase__c);
+            List<String> modelKeyList = new List<String>{
+                    obj.SpecShort__c.trim(), cabMark, wheelBase
+            };
+
+            String key = String.join(modelKeyList, ' ') +
                     obj.Generation__c +
                     obj.Segment2__c +
                     obj.LocalYear__c +
