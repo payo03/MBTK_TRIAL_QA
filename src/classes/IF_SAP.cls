@@ -106,7 +106,7 @@ global without sharing class IF_SAP {
             Integer depositAmount = Integer.valueOf(info.doc_total);
 
             // log는 무조건 Insert
-            paymentLog.Name = CommonUtilController.formatDate(Datetime.now(), 'C') + '_' + virtualAccountNumber;
+            paymentLog.Name = virtualAccountNumber + '_' + CommonUtilController.formatDate(Datetime.now(), 'C');
             paymentLog.Amount__c = depositAmount;
             paymentLog.InternalDocumentId__c = documentId;
             paymentLog.PaymentTracker__c = TRACKER_ID;   // Dummy용 데이터. 오류없을시 finally에서 실데이터로 매핑
