@@ -10,7 +10,7 @@
   1.2      2024-12-16      payo03@solomontech.net           SAP Interface 자동화
   1.3      2025-01-13      payo03@solomontech.net           ERPCode값이 NULL일경우 Insert PASS
   1.4      2025-02-19      payo03@solomontech.net           Spoiler장착된 차량Case 적용
-  2.0      2025-04-10      payo03@solomontech.net           Product Key : IsSpoiler여부 제거. Stock Status Update조건 IsCompleted 제거, IF 분리, Product2 CarAmount 복제
+  2.0      2025-04-10      payo03@solomontech.net           Product Key : IsSpoiler여부 제거. Stock Status Update조건 IsCompleted 제거, IF 분리, Product2 금액 복제
 */
 public without sharing class CreateVehicleStock_ba implements Database.Batchable<SObject>, Database.Stateful, Database.AllowsCallouts {
 
@@ -395,7 +395,7 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
                 p2Obj.SpecShort__c = info.fm_SpecShort__c;
                 p2Obj.TRPCategory__c = info.fm_TRPCategory__c;
 
-                // ver2.0 Product2 CarAmount 복제
+                // ver2.0 Product2 금액 복제
                 List<String> reportKeyList = new List<String>{
                         info.SpecShort__c, info.CabMark__c, info.WheelBase__c
                 };
