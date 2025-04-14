@@ -48,7 +48,7 @@ public without sharing class SalesCondition_ba implements Database.Batchable<SOb
         Date basisDate = basisDate != null ? basisDate : Date.today();
 
         Map<String, ConfigDetail__c> deleteMap = new Map<String, ConfigDetail__c>();   // 같은데이터 Truncate & Insert할경우, Report데이터를 위해 삭제처리
-        Map<String, ConfigDetail__c> detailMap = new Map<String, ConfigDetail__c>();
+        List<ConfigDetail__c> detailList = new List<ConfigDetail__c>();
         for(SObject record : records) {
             ConfigDetail__c obj = (ConfigDetail__c) record;
 
@@ -58,110 +58,105 @@ public without sharing class SalesCondition_ba implements Database.Batchable<SOb
             String discount = String.valueOf(Integer.valueOf(obj.Attribute7__c.trim().replaceAll('[.,%]', '')));
             String ym = obj.Attribute10__c != null ? obj.Attribute10__c.replace('-', '') : '';
 
-            String key = obj.Name.trim() +
-                    obj.Attribute1__c +
-                    segmentValue +
-                    obj.Attribute3__c +
-                    obj.Attribute4__c +
-                    emissionLevelValue +
-                    listPrice +
-                    discount +
-                    obj.Attribute8__c +
-                    obj.Attribute9__c +
-                    ym;
+            List<String> keyList = new List<String>{
+                    obj.Name.trim(),
+                    obj.Attribute1__c,
+                    segmentValue,
+                    obj.Attribute3__c,
+                    obj.Attribute4__c,
+                    emissionLevelValue,
+                    listPrice,
+                    discount,
+                    obj.Attribute8__c,
+                    obj.Attribute9__c, ym
+            };
+            String key = String.join(keyList, '^').toUpperCase();
 
-            deleteMap.put(key.toUpperCase(), obj);
-            detailMap.put(obj.Id, obj);
+            deleteMap.put(key, obj);
+            detailList.add(obj);
         }
 
         // 1. SalesCondition StartDate-EndDate 사이의 Condition IsActive Update
-        Map<Id, SalesConditionMaster__c> masterDetailMap = new Map<Id, SalesConditionMaster__c>();
         List<SalesConditionMaster__c> deleteConditionList = new List<SalesConditionMaster__c>();
         for(SalesConditionMaster__c obj : [
-                SELECT Id, ConfigDetail__c,
-                        Model__c, Generation__c, Segment2__c, LocalYear__c, ModelYear__c, EmissionLevel__c, ListPrice__c, Discount__c,
+                SELECT Id, Model__c, Generation__c, Segment2__c, LocalYear__c, ModelYear__c, EmissionLevel__c, ListPrice__c, Discount__c,
                         StartDate__c, EndDate__c, YearMonth__c, IsActive__c
                 FROM SalesConditionMaster__c
-                WHERE IsActive__c = TRUE
         ]) {
             Integer listPrice = Integer.valueOf(obj.ListPrice__c);
             Integer discount = Integer.valueOf(String.valueOf(obj.Discount__c).replaceAll('[.,%]', ''));
             String ym = obj.YearMonth__c != null ? obj.YearMonth__c.replace('-', '') : '';
 
-            String key = obj.Model__c.trim() +
-                    obj.Generation__c +
-                    obj.Segment2__c +
-                    obj.LocalYear__c +
-                    obj.ModelYear__c +
-                    obj.EmissionLevel__c +
-                    listPrice +
-                    discount +
-                    String.valueOf(obj.StartDate__c) +
-                    String.valueOf(obj.EndDate__c) +
-                    ym;
-
-            if(deleteMap.get(key.toUpperCase()) != null) {
+            List<String> keyList = new List<String>{
+                    obj.Model__c.trim(),
+                    obj.Generation__c,
+                    obj.Segment2__c,
+                    obj.LocalYear__c,
+                    obj.ModelYear__c,
+                    obj.EmissionLevel__c,
+                    String.valueOf(listPrice),
+                    String.valueOf(discount),
+                    String.valueOf(obj.StartDate__c),
+                    String.valueOf(obj.EndDate__c),
+                    ym
+            };
+            String key = String.join(keyList, '^').toUpperCase();
+            if(deleteMap.get(key) != null) {
                 // 동일한 데이터는 삭제처리(예약 혹은 특정row 변경을 할때 같이 올림. Report데이터를 위해 삭제처리)
                 deleteConditionList.add(obj);
-            } else {
-                // 신규데이터 Insert
-                masterDetailMap.put(obj.ConfigDetail__c, obj);
             }
         }
         if(!deleteConditionList.isEmpty()) delete deleteConditionList;
 
         Set<String> p2KeySet = new Set<String>();
+        List<SalesConditionMaster__c> conditionList = new List<SalesConditionMaster__c>();
         Map<String, SalesConditionMaster__c> keyMap = new Map<String, SalesConditionMaster__c>();
-        for(String id : detailMap.keySet()) {
-            ConfigDetail__c detail = detailMap.get(id);
-
-            SalesConditionMaster__c master = masterDetailMap.containsKey(id) ? masterDetailMap.get(id) : new SalesConditionMaster__c();
+        for(ConfigDetail__c detail : detailList) {
+            SalesConditionMaster__c conditionMaster = new SalesConditionMaster__c();
             String ym = detail.Attribute10__c != null ? detail.Attribute10__c.replace('-', '') : '';
 
-            master.Model__c = detail.Name;
-            master.Generation__c = detail.Attribute1__c;
-            master.LocalYear__c = detail.Attribute3__c;
-            master.ModelYear__c = detail.Attribute4__c;
+            conditionMaster.Model__c = detail.Name;
+            conditionMaster.Generation__c = detail.Attribute1__c;
+            conditionMaster.LocalYear__c = detail.Attribute3__c;
+            conditionMaster.ModelYear__c = detail.Attribute4__c;
 
-            master.Segment2__c = SEGMENT2_MAP.get(detail.Attribute2__c);
-            master.EmissionLevel__c = EMISSION_LEVEL_MAP.get(detail.Attribute5__c.toUpperCase());
+            conditionMaster.Segment2__c = SEGMENT2_MAP.get(detail.Attribute2__c);
+            conditionMaster.EmissionLevel__c = EMISSION_LEVEL_MAP.get(detail.Attribute5__c.toUpperCase());
 
-            master.ListPrice__c = Decimal.valueOf(detail.Attribute6__c.replaceAll('[.,]', ''));
-            master.Discount__c = Decimal.valueOf(detail.Attribute7__c.replace(',', '.').replace('%', ''));
-            master.StartDate__c = Date.valueOf(detail.Attribute8__c);
-            master.EndDate__c = Date.valueOf(detail.Attribute9__c);
-            master.YearMonth__c = ym;
-
-            // 유효한 데이터 Lookup
-            master.IsActive__c = true;
-            master.ConfigDetail__c = id;
+            conditionMaster.ListPrice__c = Decimal.valueOf(detail.Attribute6__c.replaceAll('[.,]', ''));
+            conditionMaster.Discount__c = Decimal.valueOf(detail.Attribute7__c.replace(',', '.').replace('%', ''));
+            conditionMaster.StartDate__c = Date.valueOf(detail.Attribute8__c);
+            conditionMaster.EndDate__c = Date.valueOf(detail.Attribute9__c);
+            conditionMaster.YearMonth__c = ym;
 
             // 유효하지 않은 데이터 비활성화 처리(일 배치. 혹은 관리자 지정날짜 기준)
-            if(!(master.StartDate__c <= basisDate && master.EndDate__c >= basisDate)) master.IsActive__c = false;
+            conditionMaster.IsActive__c = true;
+            if(!(conditionMaster.StartDate__c <= basisDate && conditionMaster.EndDate__c >= basisDate)) conditionMaster.IsActive__c = false;
 
-            String key = master.Model__c.trim() +
-                    master.Generation__c +
-                    master.Segment2__c +
-                    master.LocalYear__c +
-                    master.ModelYear__c +
-                    master.EmissionLevel__c;
+            List<String> keyList = new List<String>{
+                    conditionMaster.Model__c.trim(),
+                    conditionMaster.Generation__c,
+                    conditionMaster.Segment2__c,
+                    conditionMaster.LocalYear__c,
+                    conditionMaster.ModelYear__c,
+                    conditionMaster.EmissionLevel__c
+            };
+            String key = String.join(keyList, '^').toUpperCase();
 
             // ver1.1 판매조건 Key값 변경
-            Integer lastIndex = master.Model__c.lastIndexOf(' ');
-            Integer sLastIndex = master.Model__c.lastIndexOf(' ', lastIndex - 1);
+            Integer lastIndex = conditionMaster.Model__c.lastIndexOf(' ');
+            Integer sLastIndex = conditionMaster.Model__c.lastIndexOf(' ', lastIndex - 1);
 
-            String model1 = master.Model__c.substring(0, sLastIndex);                   // "TGX 28.510 6x2=2 LL SA"
-            String model2 = master.Model__c.substring(sLastIndex + 1, lastIndex);       // "GX"
-            String model3 = master.Model__c.substring(lastIndex + 1);                   // "3300"
+            String model1 = conditionMaster.Model__c.substring(0, sLastIndex);                   // "TGX 28.510 6x2=2 LL SA"
+            String model2 = conditionMaster.Model__c.substring(sLastIndex + 1, lastIndex);       // "GX"
+            String model3 = conditionMaster.Model__c.substring(lastIndex + 1);                   // "3300"
             String p2Key = model1 + '^' + model2 + '^' + model3;
 
             p2KeySet.add(p2Key);
-            keyMap.put(key.toUpperCase(), master);
-
-            System.debug(p2Key);
-            System.debug(key.toUpperCase());
+            conditionList.add(conditionMaster);
+            if(conditionMaster.IsActive__c) keyMap.put(key, conditionMaster);
         }
-        upsert keyMap.values();
+        insert conditionList;
 
         // 2. 해당 Model에 대한 Product2 Lookup
         /*
@@ -173,7 +168,7 @@ public without sharing class SalesCondition_ba implements Database.Batchable<SOb
         ];
         */
         // ver1.1 판매조건 Key값 변경
-        String selectFields     = 'Id, SalesConditionMaster__c, SpecShort__c, CabMark__c, WheelBase__c, Generation__c, Segment2__c, LocalYear__c, ModelYear__c, EmissionLevel__c';
+        String selectFields     = getFields2();
         String fromObject       = 'Product2';
         String whereConditions  = '';
         for(String key : p2KeySet) {
@@ -195,16 +190,16 @@ public without sharing class SalesCondition_ba implements Database.Batchable<SOb
                     obj.SpecShort__c.trim(), cabMark, wheelBase
             };
 
-            String key = String.join(modelKeyList, ' ') +
-                    obj.Generation__c +
-                    obj.Segment2__c +
-                    obj.LocalYear__c +
-                    obj.ModelYear__c +
-                    obj.EmissionLevel__c;
-
-            System.debug(key.toUpperCase());
-            SalesConditionMaster__c master = keyMap.get(key.toUpperCase());
-            obj.SalesConditionMaster__c = (master != null && master.IsActive__c) ? master.Id : null;
+            List<String> keyList = new List<String>{
+                    String.join(modelKeyList, ' '),
+                    obj.Generation__c,
+                    obj.Segment2__c,
+                    obj.LocalYear__c,
+                    obj.ModelYear__c,
+                    obj.EmissionLevel__c
+            };
+            String key = String.join(keyList, '^').toUpperCase();
+            obj.SalesConditionMaster__c = keyMap.containsKey(key) ? keyMap.get(key).Id : null;
         }
         update productList;
     }
@@ -219,5 +214,11 @@ public without sharing class SalesCondition_ba implements Database.Batchable<SOb
         return 'Id, Name, ' +
                 'Attribute1__c, Attribute2__c, Attribute3__c, Attribute4__c, Attribute5__c, ' +
                 'Attribute6__c, Attribute7__c, Attribute8__c, Attribute9__c, Attribute10__c ';
+    }
+
+    public static String getFields2() {
+        return 'Id, SalesConditionMaster__c, ' +
+                'SpecShort__c, CabMark__c, WheelBase__c, Generation__c, ' +
+                'Segment2__c, LocalYear__c, ModelYear__c, EmissionLevel__c';
     }
 }
