@@ -79,10 +79,18 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                                 VehicleOptionMaster__r.EwWscPrice__c,
                                 VehicleOptionMaster__r.RmcPrice__c
                         FROM QuoteDetail__r
+                        ORDER BY Name DESC  // No Carefree -> Carefree 순서
                 )
                 FROM Quote
                 WHERE Status = 'Published'
                 AND OpportunityId IN :opptyIdList
+                AND (
+                        Opportunity.VehicleStock__r.Product__r.CarAmt__c != NULL OR
+                        (
+                            Opportunity.VehicleStock__r.Product__r.PurePrice__c != NULL AND
+                            Opportunity.VehicleStock__r.Product__r.PurePriceWsc__c != NULL AND
+                            Opportunity.VehicleStock__r.Product__r.PurePriceWscCfx__c != NULL)
+                )
         ]) {
             // Quote[Published] : Oppty = 1 : 1
             opptyQuoteMap.put(quote.OpportunityId, quote);
@@ -117,6 +125,7 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
             Decimal optionPrice = 0;                        // 옵션금액. (TO_BE 변환)
 
             String CFDivision = 'NC';
+            Decimal CFAmount = 0;
             Integer seq = 1;
             String vatType = oppty.VATType__c;
             List<IF_DTO.SalesDetailInfo> detailInfoList = new List<IF_DTO.SalesDetailInfo>();
@@ -164,8 +173,8 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                                 detailInfo.AMT = String.valueOf(innerOptionPrice);
                                 detailInfo.VAT = String.valueOf(innerOptionVAT);
                                 detailInfo.LINETOTAL = String.valueOf(innerCalPrice);
-
                                 detailInfoList.add(detailInfo); // ERP 전송건들 ADD
+
                                 /* 25-03-26 송찬영.
                                     # 세금계산서 발행 총액(sumSaleTOT)
                                         AS_IS 세금계산서 발행금액에 ERPPrice를 더하고있으나
@@ -176,8 +185,8 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                                 optionPrice += quoteDetail.fm_Price__c;
                             } else if ('서비스품목'.equals(detailType)) {
                                 // AS_IS기준. EW, RMC
-                                // No Carefree는 Default. 추가선택시 해당옵션으로 금액반영
-                                if (!'NC'.equals(CFDivision)) CFDivision = optionMaster.fm_CFDivision__c;
+                                // No Carefree Default. 추가선택시 해당옵션으로 금액반영
+                                CFDivision = optionMaster.fm_CFDivision__c;
 
                                 Decimal ERPPrice = optionMaster.EwWscPrice__c;
                                 Decimal ERPOptionVAT = vatType != 'A61'
@@ -189,7 +198,6 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                                 detailInfo.AMT = String.valueOf(ERPPrice);
                                 detailInfo.VAT = String.valueOf(ERPOptionVAT);
                                 detailInfo.LINETOTAL = String.valueOf(ERPCalPrice);
-
                                 detailInfoList.add(detailInfo); // ERP 전송건들 ADD
 
                                 /* 25-03-26 송찬영.
@@ -201,11 +209,10 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                                         2. 차량 총액에 EOPrice(Engine Oil Price)를 가감. 데이터 0원이므로 로직 제외
                                         3. Option.DefaultEwRmc = false일때, ERP가격을 가감. 데이터 0원이므로 로직 제외
                                 */
+                                optionPrice += quoteDetail.fm_Price__c;
                                 sumSaleTOT += ERPPrice;
                                 sumSaleVAT += ERPOptionVAT;
                                 sumSalePrice += ERPCalPrice;
-
-                                optionPrice += quoteDetail.fm_Price__c;
 
                                 // 1행 -> 2행으로 분리한것처럼 전송해야함
                                 if (optionMaster.OptionCodeRMC__c != null) {
@@ -216,11 +223,12 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                                     ERPCalPrice = ERPPrice - ERPOptionVAT;
 
                                     IF_DTO.SalesDetailInfo detailInfoExtra = detailInfo.clone();
-                                    detailInfoExtra.ITEMTP = 'R';
-                                    detailInfo.AMT = String.valueOf(ERPPrice);
-                                    detailInfo.VAT = String.valueOf(ERPOptionVAT);
-                                    detailInfo.LINETOTAL = String.valueOf(ERPCalPrice);
+                                    detailInfoExtra.ROWNO = String.valueOf(seq++);
 
+                                    detailInfoExtra.ITEMTP = 'R';
+                                    detailInfoExtra.AMT = String.valueOf(ERPPrice);
+                                    detailInfoExtra.VAT = String.valueOf(ERPOptionVAT);
+                                    detailInfoExtra.LINETOTAL = String.valueOf(ERPCalPrice);
                                     detailInfoList.add(detailInfoExtra);
 
                                     /* 25-03-26 송찬영.
@@ -232,12 +240,12 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                                             2. 차량 총액에 EOPrice(Engine Oil Price)를 가감. 데이터 0원이므로 로직 제외
                                             3. Option.DefaultEwRmc = false일때, ERP가격을 가감. 데이터 0원이므로 로직 제외
                                     */
+                                    optionPrice += quoteDetail.fm_Price__c;
                                     sumSaleTOT += ERPPrice;
                                     sumSaleVAT += ERPOptionVAT;
                                     sumSalePrice += ERPCalPrice;
-
-                                    optionPrice += quoteDetail.fm_Price__c;
                                 }
+                                CFAmount = ERPPrice;
                             }
                         }
                     } else {
@@ -247,7 +255,6 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                         detailInfo.PRICE = '0';
                         detailInfo.ITEMCD = 'C';
                         detailInfo.QTY = String.valueOf(quoteDetail.OilCouponCount__c);
-
                         detailInfoList.add(detailInfo);  // ERP 전송건 ADD
                     }
                 } else {
@@ -256,7 +263,6 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                         # 차량 총액
                             AS_IS 차량 총액에 판가를 더함
                     */
-
                     optionPrice += quoteDetail.fm_Price__c;
                 }
             }
@@ -268,9 +274,9 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
             Decimal discountAmt = oppty.DiscountAmt__c != null ? oppty.DiscountAmt__c : 0;
             Decimal vehiclePrice = 0;
             switch on CFDivision {
-                when 'NC'   { vehiclePrice = stock.Product__r?.PurePrice__c          != null ? stock.Product__r?.PurePrice__c         : 0; }
-                when 'CF'   { vehiclePrice = stock.Product__r?.PurePriceWsc__c       != null ? stock.Product__r?.PurePriceWsc__c      : 0; }
-                when 'CFX'  { vehiclePrice = stock.Product__r?.PurePriceWscCfx__c    != null ? stock.Product__r?.PurePriceWscCfx__c   : 0; }
+                when 'NC'   { vehiclePrice = stock.Product__r.PurePrice__c          != null ? stock.Product__r.PurePrice__c         : stock.Product__r.CarAmt__c + CFAmount; }
+                when 'CF'   { vehiclePrice = stock.Product__r.PurePriceWsc__c       != null ? stock.Product__r.PurePriceWsc__c      : stock.Product__r.CarAmt__c + CFAmount; }
+                when 'CFX'  { vehiclePrice = stock.Product__r.PurePriceWscCfx__c    != null ? stock.Product__r.PurePriceWscCfx__c   : stock.Product__r.CarAmt__c + CFAmount; }
             }
 
             Decimal carTOT = vehiclePrice + optionPrice - discountAmt;
