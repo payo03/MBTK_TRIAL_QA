@@ -15,13 +15,11 @@ import { getRecord } from "lightning/uiRecordApi";
 import userId from "@salesforce/user/Id";
 
 // Controller
-// import getInit from "@salesforce/apex/HandoverSchedulerController.getInit";
 import getFilteredHandoverList from "@salesforce/apex/HandoverSchedulerController.getFilteredHandoverList";
 import updateCheckHandoverList from "@salesforce/apex/HandoverSchedulerController.updateCheckHandoverList";
 import getVehicleStockList from "@salesforce/apex/HandoverSchedulerController.getVehicleStockList";
 import doCompleteHandover from "@salesforce/apex/HandoverSchedulerController.doCompleteHandover";
 import updateHandoverStockList from "@salesforce/apex/HandoverSchedulerController.updateHandoverStockList";
-// import updateHandoverStock from "@salesforce/apex/HandoverSchedulerController.updateHandoverStock";
 import getCalendarInit from "@salesforce/apex/TaxInvoiceSchedulerController.getCalendarInit";
 import insertHandoverDateAllocationHistory
 	from "@salesforce/apex/TaxInvoiceSchedulerController.insertHandoverDateAllocationHistory";
@@ -134,6 +132,9 @@ export default class handoverScheduler extends LightningElement {
 		return this.isModalHeader ? defaultClass : headlessClass;
 	}
 
+	/**
+	 * @description SA 프로필 여부
+	 */
 	get isSA() {
 		return this.profileName === "MTBK Agent";
 	}
@@ -193,6 +194,7 @@ export default class handoverScheduler extends LightningElement {
 		this.lastEndDate = `=${lastMonthRange.endDate}`;
 	}
 
+	// interval 삭제
 	// disconnectedCallback() {
 	// 	if (this.intervalId) {
 	// 		clearInterval(this.intervalId);
@@ -312,27 +314,19 @@ export default class handoverScheduler extends LightningElement {
 				stockId: row.stockId,
 				opportunityId: row.opp.Id
 			}));
-			// const isNull = completeList.some(el => el.stockId == null);
-			// if (isNull) {
-			// 	showToast("차량이 배정되지 않은 데이터가 포함되어 있습니다.", "", "warning");
-			// 	this.isLoading = false;
-			// 	return;
-			// }
-			doCompleteHandover({ completeList: completeList }).then(res => {
-				console.log("doCompleteHandover :: ", res);
+			doCompleteHandover({ completeList: completeList }).then(() => {
 				successProcess("출고처리");
 			}).catch(err => {
-				console.log("err :: ", err);
+				console.error("err :: ", err);
 				this.failedProcess(err);
 			}).finally(() => this.isLoading = false);
 		}
 		// 업데이트 확인
 		else if (this.modalMap.checkUpdate) {
-			updateCheckHandoverList({ handoverIdList: this.selectedRowIdList }).then(res => {
-				console.log("updateCheckHandoverList :: ", res);
+			updateCheckHandoverList({ handoverIdList: this.selectedRowIdList }).then(() => {
 				successProcess("업데이트 확인");
 			}).catch(err => {
-				console.log("err :: ", err);
+				console.error("err :: ", err);
 				this.failedProcess(err);
 			}).finally(() => this.isLoading = false);
 		}
@@ -377,7 +371,7 @@ export default class handoverScheduler extends LightningElement {
 			updateHandoverStockList({ dataList: dataList }).then(() =>
 				successProcess(this.modalMap.viewVIN ? "차량 변경" : "배정 취소")
 			).catch(err => {
-				console.log("err :: ", err);
+				console.error("err :: ", err);
 				this.failedProcess(err);
 			}).finally(() => this.isLoading = false);
 		}
@@ -471,13 +465,12 @@ export default class handoverScheduler extends LightningElement {
 			this.isLoading = true;
 			getVehicleStockList({ filterMap: this.stockFilterMap }).then(res => {
 				this.selectedStockRowList = [];
-				console.log("getVehicleStockList :: ", res);
 				this.stockList = res?.map(el => ({
 					...el,
 					product: el.Product__r.Name
 				}));
 			}).catch(err => {
-				console.log("err :: ", err);
+				console.error("err :: ", err);
 				this.failedProcess(err);
 			}).finally(() => this.isLoading = false);
 		}
@@ -498,7 +491,6 @@ export default class handoverScheduler extends LightningElement {
 			this.toggleModal("viewVIN");
 			const productId = currentRow.vehicleStock?.Product__c || currentRow.opp.Contract.Quote__r.Product__c;
 			getVehicleStockList({ filterMap: { Product__c: productId } }).then(res => {
-				console.log("getVehicleStockList :: ", res);
 				this.stockList = res?.map(el => ({
 					...el,
 					product: el.Product__r.Name
@@ -507,16 +499,14 @@ export default class handoverScheduler extends LightningElement {
 				this.stockFilterMap.Product__c = productId;
 				this.currentHandover = currentRow;
 			}).catch(err => {
-				console.log("err :: ", err);
+				console.error("err :: ", err);
 				this.failedProcess(err);
 			}).finally(() => this.isLoading = false);
 		}
 		// 출고일 클릭
 		else if (actionName === "handoverDate") {
-			// this.toggleModal("calendar");
 			this.selectedHandoverDateRow = currentRow;
 			getCalendarInit({ vehicleStockId: currentRow.stockId }).then(res => {
-				console.log("getCalendarInit :: ", res);
 				this.handoverDateList = res.handoverDateList;
 				this.optionDelayList = res.optionDelayList
 				.sort((a, b) => a.Attribute2__c - b.Attribute2__c)
@@ -526,7 +516,7 @@ export default class handoverScheduler extends LightningElement {
 				}));
 				this.toggleModal("calendar");
 			}).catch(err => {
-				console.log("err :: ", err);
+				console.error("err :: ", err);
 				this.failedProcess(err);
 			});
 		}
@@ -634,8 +624,6 @@ export default class handoverScheduler extends LightningElement {
 					"fm_PaymentStatus__c": "paymentStatus",
 					"fm_HandoverDate__c": "handoverDate",
 					"fm_TaxInvoiceDate__c": "taxInvoiceDate"
-					// "LastModifiedDate": "lastModifiedDate",
-					// "LastModifiedById": "lastModifiedBy"
 				};
 
 				const fieldList = el.updatedFieldList?.flatMap(field =>
@@ -662,12 +650,11 @@ export default class handoverScheduler extends LightningElement {
 		this.isLoading = true;
 		this.currentFilterMap = filterMap;
 		getFilteredHandoverList({ filterMap: filterMap }).then(res => {
-			console.log("getFilteredHandoverList :: ", res);
 			this.handoverList = res;
 			this.setFieldStyle();
 			this.getExportList();
 		}).catch(err => {
-			console.log("err :: ", err);
+			console.error("err :: ", err);
 			this.failedProcess(err);
 		}).finally(() => this.isLoading = false);
 	}
@@ -706,7 +693,6 @@ export default class handoverScheduler extends LightningElement {
 
 			return { ...updateHandover };
 		}) || [];
-		console.log("exportList :: ", JSON.stringify(this.exportList));
 	}
 
 	/**
@@ -770,7 +756,9 @@ export default class handoverScheduler extends LightningElement {
 		});
 	}
 
-	// 로직 실패 시 토스트 띄우기
+	/**
+	 * @description 로직 실패 시 토스트 띄우기
+ 	 */
 	failedProcess(err) {
 		const errTitle = err?.body?.message || err.message || "ERROR";
 		const errBody = errTitle === "ERROR" ? "관리자에게 문의 부탁드립니다" : "";

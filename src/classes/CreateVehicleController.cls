@@ -8,6 +8,7 @@
   1.0      2024-11-21      payo03@solomontech.net           Created
   1.1      2024-11-27      payo03@solomontech.net           ListView의 Filter된 idList값을 VF Page로 Return
   1.2      2025-03-25      payo03@solomontech.net           세관정보 전송버튼 추가
+  2.0      2025-04-15      payo03@solomontech.net           Interface기능 분리
 */
 public with sharing class CreateVehicleController {
     public String filterId { get; set; }
@@ -86,6 +87,23 @@ public with sharing class CreateVehicleController {
         ];
     }
 
+    // ver2.0 Interface기능 분리
+    @AuraEnabled
+    public static List<IFAuditLogDetail__c> selectLogList(List<String> idList) {
+        return [
+                SELECT Id, fm_LogId__c, fm_LogType__c, IsRequest__c, IsResponse__c, IsResult__c, ResultDatetime__c, Description__c, ExternalKey__c
+                FROM IFAuditLogDetail__c
+                WHERE ExternalId__c IN :idList
+                AND fm_LogType__c IN (
+                        'ORDER_CONFIRM', 'ORDER_CONFIRM_CANCEL',
+                        'PURCHASE_INVOICE', 'PURCHASE_INVOICE_CANCEL',
+                        'CUSTOMS_INFO', 'CUSTOMS_INFO_CANCEL'
+                )
+                AND IsResult__c = 'Y' // 임시
+                ORDER BY CreatedDate, fm_LogType__c
+        ];
+    }
+
     // Batch Call(Async)
     @AuraEnabled
     public static void createVehicleStock(List<AvisOrderInfo__c> orderList) {
@@ -100,8 +118,10 @@ public with sharing class CreateVehicleController {
         Database.executeBatch(new CreateVehicleStock_ba(null, whereQuery), 200);
     }
 
+    /*
     @AuraEnabled
     public static void sendCustomsInfo(List<String> idList) {
         System.enqueueJob(new AsyncCustomsInfo(idList, null));
     }
+    */
 }

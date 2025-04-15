@@ -13,11 +13,11 @@ public class VehiclePackageCoverController {
     public String docImage2{get;set;}
     public String docImage3{get;set;}
     public String docImage4{get;set;}
-//    public String uzIngam{get; set;}
     public String docDate{get; set;}
     public Opportunity opportunity{get; set;}
     public VehicleStock__c vehicleStock{get; set;}
     public String Validity{get; set;}//유효기간
+
     public void init(){
 
         String year = ApexPages.currentPage().getParameters().get('year');
@@ -32,7 +32,6 @@ public class VehiclePackageCoverController {
         docImage2 = PDFCommonController.getDocumentId('doc_covertable_img1');
         docImage3 = PDFCommonController.getDocumentId('doc_covertable_img2');
         docImage4 = PDFCommonController.getDocumentId('doc_profidrive_img1');
-//        uzIngam = PDFCommonController.getDocumentId('man_useingam');
         String vehicleStockId = ApexPages.currentPage().getParameters().get('Id').trim();
         opportunity = PDFCommonController.getOpportunity(vehicleStockId).get(0);
         vehicleStock = PDFCommonController.getVehicleStock(vehicleStockId);

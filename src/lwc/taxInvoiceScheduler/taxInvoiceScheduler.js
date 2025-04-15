@@ -23,6 +23,7 @@ import callTaxInvoice from "@salesforce/apex/TaxInvoiceSchedulerController.callT
 
 import { columns, fieldApiMapping, contractStatusStyles, vehicleStatusStyles, paymentStatusStyles } from "./taxInvoiceSchedulerColumns";
 import {showToast, getFormattedDate, labelList} from "c/commonUtil";
+import formFactor from "@salesforce/client/formFactor";
 import {notifyRecordUpdateAvailable} from "lightning/uiRecordApi";
 
 export default class TaxInvoiceScheduler extends LightningElement {
@@ -418,9 +419,28 @@ export default class TaxInvoiceScheduler extends LightningElement {
 
       // Blob URL 생성
       this.pdfUrl = URL.createObjectURL(blob);
-      window.open(this.pdfUrl, '_blank');
+      alert(this.pdfUrl)
+
+      if (formFactor === "Large") {
+        window.open(this.pdfUrl, '_blank');
+      } else {
+        // const downloadLink = document.createElement("a");
+        // downloadLink.href = `data:text/csv;charset=utf-8,${encodeURI(csvFile)}`;
+        // downloadLink.target = "_blank";
+        // downloadLink.download = `${this.exportTitle}.csv`;
+        // downloadLink.click();
+
+        // const link = document.createElement('a');
+        // link.href = this.pdfUrl;
+        // link.target = "_blank";
+        // link.download = `${this.selectedRowInfo.customer}_입금영수증.pdf`;
+        // document.body.appendChild(link);
+        // link.click();
+        // document.body.removeChild(link);
+        window.location.href = this.pdfUrl;
+      }
     }).catch(err => {
-      console.log('err :::' + JSON.stringify(err));
+      console.log('err :::' + err.message);
     }).finally(() => {
       this.isLoading = false;
     })

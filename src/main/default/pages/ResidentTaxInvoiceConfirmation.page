@@ -1,0 +1,76 @@
+<!--
+- @Author            : jh.jung
+- @Description 		 : 
+- @Target            : 
+- @Modification Log
+- Ver      Date            Author           Modification
+- ===================================================================================
+- 1.0      2025-03-04      jh.jung           Created
+-->
+<apex:page id="ResidentTaxInvoiceConfirmation" applyHtmlTag="false" applyBodyTag="false" sidebar="false" showHeader="false" renderAs="advanced_pdf" docType="html-5.0">
+  <head>
+    <style>
+      @page {
+        size: A4 portrait;
+        border: 1px gray;
+      }
+      body { font-family: Arial Unicode MS; font-size: 12px; }
+      .section { margin-top: 15px; }
+      .label { font-weight: bold; }
+      /*.table { width: 100%; border-collapse: collapse; }*/
+      /*.table td { border: 1px solid #000; padding: 5px; }*/
+      .signature { margin-top: 30px; text-align: center; }
+    </style>
+  </head>
+  <body>
+    <table style="width: 100%;">
+      <colgroup>
+        <col style="width: 85%;" />
+        <col style="width: 15%;" />
+      </colgroup>
+      <tr>
+        <td>
+          <h2>MAN Truck &amp; Bus (Korea) Ltd.</h2>
+          <h3>Subsidiary of MAN Truck &amp; Bus AG</h3>
+        </td>
+        <td>
+          <apex:image value="{!$Resource.MAN_LOGO}" style="width: 100px; height: auto;"/>
+        </td>
+      </tr>
+    </table>
+    <h1 style="text-align: center;">세금계산서 (주민등록번호) 발행 확인서</h1>
+    <p>아래의 고객 (이하 “을”이라 칭함)은 만트럭버스코리아주식회사(이하 “갑”이라 칭함)에게 아래 사항을 요청했음을 확인합니다.</p>
+
+    <div class="section">
+<!--      <p class="label">1. 고객 및 차량 정보</p>-->
+      <h3>1. 고객 및 차량 정보</h3>
+      <p>고객명: ______________________</p>
+      <p>차종: ______________________</p>
+      <p>판매가: ______________________</p>
+      <p>출고일: ______________________</p>
+      <p>영업담당자: ______________________</p>
+    </div>
+
+    <div class="section">
+<!--      <p class="label">2. 세금계산서 발행</p>-->
+      <h3>2. 세금계산서 발행</h3>
+      <p>차량구입을 위한 세금계산서 발행 시 사업자번호가 아닌 “을”의 주민등록번호를 “공급받는 자”로 지정해서 발행하도록 요청합니다.</p>
+      <p>또한 부가세 신고 및 부가세 환급절차에 따른 책임은 전적으로 “을”에게 있음을 확인합니다.</p>
+      <p>고객 주민등록번호 : ______________________</p>
+      <p>고객 주소 : ______________________</p>
+    </div>
+
+    <div class="section">
+<!--      <p class="label">3. 개인정보처리방침</p>-->
+      <h3>3. 개인정보처리방침</h3>
+      <p>부가가치세법 제32조에 따라 세금의 신고 및 납부를 위해 주민등록번호를 수집 및 이용하는 것에 동의합니다.</p>
+      <p>“을”은 위의 내용에 대하여 확인하는 바이며, 일체의 이의가 없음을 동의합니다.</p>
+    </div>
+
+    <div class="signature">
+      <p>20XX년 XX월 XX일</p>
+      <p>성명 (고객명): ____________________ (서명)</p>
+    </div>
+    <h2 style="text-align: center;">만트럭버스코리아주식회사 귀중</h2>
+  </body>
+</apex:page>

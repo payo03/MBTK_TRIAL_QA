@@ -1,0 +1,245 @@
+<!--
+ * @author : San.Kang
+ * @date : 2025-02-14
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-02-14      San.Kang          Initial Version
+-->
+<apex:page showHeader="false" renderAs="pdf" sidebar="false" controller="ReleaseScheduleController" action="{!init}">
+    <center>
+        <apex:outputLabel value="출 고 증" style="font-family: Arial Unicode MS; font-size: 18pt"/>
+    </center>
+    <p>
+        &nbsp;
+    </p>
+    <table border="0" cellpadding="0" cellspacing="0" align="center">
+        <tbody>
+        <tr>
+            <td style="width:150px;">
+                &nbsp;<apex:outputText value="□ 계약번호" style="font-family: Arial Unicode MS; font-size:12pt;"/>
+
+            </td>
+            <td style="width:550px;">
+
+                &nbsp;<apex:outputText value="{!$CurrentPage.parameters.Id}"
+                                       style="font-family: Arial Unicode MS; font-size:13pt;"/>
+            </td>
+        </tr>
+        <tr>
+            <td style="width:150px;">
+                &nbsp;<apex:outputText value="□ 양수인성명" style="font-family: Arial Unicode MS; font-size:12pt;"/>
+
+            </td>
+            <td style="width:550px;">
+
+                &nbsp;
+                <!--<apex:outputText value="{!IF(opportunity.TaxAccount__c!=null, opportunity.TaxAccount__r.Name, opportunity.Account.Name)}" style="font-family: Arial Unicode MS; font-size:13pt;" />-->
+                <apex:outputText value="{!opportunity.Account.Name}"
+                                 style="font-family: Arial Unicode MS; font-size:13pt;"/>
+            </td>
+        </tr>
+        <tr>
+            <td style="width:150px;height:54px;">
+                &nbsp;<apex:outputText value="□ 양수인 주소" style="font-family: Arial Unicode MS; font-size:12pt;"/>
+
+            </td>
+            <td style="width:550px;height:54px;">
+
+                &nbsp;<apex:outputText value="{!opportunity.Account.RoadAddress__c + ' ' + opportunity.Account.DetailAddress__c}"
+                    style="font-family: Arial Unicode MS; font-size:13pt;"/>
+                <!--<apex:outputText value="{!IF(opportunity.TaxPubType__c=='주민등록번호', opportunity.TaxAccount__r.RoadAddress__r.Name +' '+ IF(opportunity.TaxAccount__r.RoadAddressDetail__c!=null,opportunity.TaxAccount__r.RoadAddressDetail__c,''), opportunity.TaxAccount__r.bAddr__r.Name +' '+ IF(opportunity.TaxAccount__r.bAddrDetail__c!=null,opportunity.TaxAccount__r.bAddrDetail__c,''))}" style="font-family: Arial Unicode MS; font-size:13pt;" />-->
+            </td>
+        </tr>
+        <tr>
+            <td style="width:150px;height:37px;">
+                &nbsp;<apex:outputText value="□ 출고일" style="font-family: Arial Unicode MS; font-size:12pt;"/>
+
+            </td>
+            <td style="width:550px;height:37px;">
+                &nbsp;<apex:outputText value="{!$CurrentPage.parameters.year}년 {!$CurrentPage.parameters.month}월 {!$CurrentPage.parameters.day}일"
+                    style="font-family: Arial Unicode MS; font-size: 12pt"/>
+            </td>
+        </tr>
+        <tr>
+            <td style="width:150px;height:28px;">
+                &nbsp;<apex:outputText value="□ 내" style="font-family: Arial Unicode MS; font-size:12pt;"/>
+                &nbsp; &nbsp;
+                &nbsp;<apex:outputText value="역" style="font-family: Arial Unicode MS; font-size:12pt;"/>
+
+            </td>
+            <td style="width:550px;height:28px;">
+
+                &nbsp;
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    &nbsp;
+    <table align="center" border="1" cellpadding="0" cellspacing="0"
+           style="border-left:none;border-right:none;border-bottom:none;">
+        <tbody>
+        <tr>
+            <td style="width:177px;height:28px;" align="center">
+                &nbsp;<apex:outputText value="구" style="font-family: Arial Unicode MS; font-size:12pt;"/>
+                &nbsp;&nbsp;
+                &nbsp;<apex:outputText value="분" style="font-family: Arial Unicode MS; font-size:12pt;"/>
+
+            </td>
+            <td style="width:400px;height:28px;" align="center">
+                &nbsp;<apex:outputText value="내" style="font-family: Arial Unicode MS; font-size:12pt;"/>
+                &nbsp;&nbsp;&nbsp;
+                &nbsp;<apex:outputText value="용" style="font-family: Arial Unicode MS; font-size:12pt;"/>
+
+            </td>
+        </tr>
+        <tr>
+            <td style="width:177px;height:29px;">
+                &nbsp;<apex:outputText value="계약지점 / 판매자" style="font-family: Arial Unicode MS; font-size:12pt;"/>
+
+            </td>
+            <td style="width:400px;height:29px;">
+
+                &nbsp;<apex:outputText value="{!opportunity.Account.Owner.Agency__c} / {!opportunity.Account.Owner.Name}"
+                    style="font-family: Arial Unicode MS; font-size:13pt;"/>
+            </td>
+        </tr>
+        <tr>
+            <td style="width:177px;height:29px;">
+                &nbsp;<apex:outputText value="품명" style="font-family: Arial Unicode MS; font-size:12pt;"/>
+
+            </td>
+            <td style="width:400px;height:29px;">
+
+                &nbsp;<apex:outputText value="{!opportunity.VehicleStock__r.Product__r.Name}"
+                                       style="font-family: Arial Unicode MS; font-size:13pt;"/>
+            </td>
+        </tr>
+        <tr>
+            <td style="width:177px;height:28px;">
+                &nbsp;<apex:outputText value="차대번호" style="font-family: Arial Unicode MS; font-size:12pt;"/>
+
+            </td>
+            <td style="width:400px;height:28px;">
+
+                &nbsp;<apex:outputText value="{!opportunity.VehicleStock__r.Name}"
+                                       style="font-family: Arial Unicode MS; font-size:13pt;"/>
+            </td>
+        </tr>
+        <tr>
+            <td style="width:177px;height:28px;">
+                &nbsp;<apex:outputText value="Works No." style="font-family: Arial Unicode MS; font-size:12pt;"/>
+
+            </td>
+            <td style="width:400px;height:28px;">
+
+                &nbsp;<apex:outputText value="{!opportunity.VehicleStock__r.VehicleNo__c}"
+                                       style="font-family: Arial Unicode MS; font-size:13pt;"/>
+            </td>
+        </tr>
+        <tr>
+            <td style="width:177px;height:29px;">
+                &nbsp;<apex:outputText value="원동기번호" style="font-family: Arial Unicode MS; font-size:12pt;"/>
+
+            </td>
+            <td style="width:400px;height:29px;">
+
+                &nbsp;<apex:outputText value="{!opportunity.VehicleStock__r.EngineNumber__c}"
+                                       style="font-family: Arial Unicode MS; font-size:13pt;"/>
+            </td>
+        </tr>
+        <tr>
+            <td style="width:177px;height:29px;">
+                &nbsp;<apex:outputText value="최대적재량" style="font-family: Arial Unicode MS; font-size:12pt;"/>
+
+            </td>
+            <td style="width:400px;height:29px;">
+
+                &nbsp;<apex:outputText value="{!MaxLoad} 톤" style="font-family: Arial Unicode MS; font-size:13pt;"/>
+            </td>
+        </tr>
+        <!--            <apex:variable value="" var="" rendered="{!opportunity.VehicleStock__r.Product__r.Segment__c!='Tipper'}">-->
+        <apex:variable value="" var="">
+            <tr>
+                <td style="width:177px;height:28px;">
+                    &nbsp;<apex:outputText value="총중량" style="font-family: Arial Unicode MS; font-size:12pt;"/>
+
+                </td>
+                <td style="width:400px;height:28px;">
+
+                    &nbsp;<apex:outputText value="{!TotalWeight}톤"
+                                           style="font-family: Arial Unicode MS; font-size:13pt;"/>
+                </td>
+            </tr>
+        </apex:variable>
+        <tr>
+            <td style="width:177px;height:29px;">
+                &nbsp;<apex:outputText value="년식" style="font-family: Arial Unicode MS; font-size:12pt;"/>
+
+            </td>
+            <td style="width:400px;height:29px;">
+                &nbsp;<apex:outputText value="{!IF(year+1945>=2019,IF(year+1945>=2024,IF(year+1943>=2025,year+1942,year+1943),year+1944),year+1945)}년"
+                    style="font-family: Arial Unicode MS; font-size:13pt;"/>
+            </td>
+        </tr>
+        <tr>
+            <td style="width:177px;height:29px;">
+                &nbsp;<apex:outputText value="색상" style="font-family: Arial Unicode MS; font-size:12pt;"/>
+
+            </td>
+            <td style="width:400px;height:29px;">
+
+                &nbsp;<apex:outputText value="{!opportunity.VehicleStock__r.CarColor__c}"
+                                       style="font-family: Arial Unicode MS; font-size:13pt;"/>
+            </td>
+        </tr>
+        <tr>
+            <td style="width:177px;height:30px;">
+                &nbsp;<apex:outputText value="출고장소" style="font-family: Arial Unicode MS; font-size:12pt;"/>
+
+            </td>
+            <td style="width:400px;height:30px;">
+
+                &nbsp;<apex:outputText value="만트럭버스 출고장" style="font-family: Arial Unicode MS; font-size:13pt;"/>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width:577px;height:96px;border:none;">
+                &nbsp;<apex:outputText value="상기와 같이 위 고객의 차량을 출고함을 확인합니다."
+                                       style="font-family: Arial Unicode MS; font-size:12pt;"/>
+                <br/>
+                <br/>
+                <br/>
+            </td>
+        </tr>
+        <tr>
+            <td style="width:177px;height:74px;border:none;">
+
+                &nbsp;
+            </td>
+            <td style="width:400px;height:74px;border:none;" align="right">
+                <apex:outputText value="{!$CurrentPage.parameters.year}년 {!$CurrentPage.parameters.month}월 {!$CurrentPage.parameters.day}일"
+                    style="font-family: Arial Unicode MS; font-size: 12pt"/>
+            </td>
+        </tr>
+        <tr>
+            <td style="width:177px;height:95px;border:none;">
+                <apex:image url="/servlet/servlet.FileDownload?file={!docImage1}" width="150" height="60"/>
+            </td>
+            <td style="width:400px;height:95px;border:none;">
+                <p>
+                    <apex:outputText value="만트럭버스 코리아㈜" style="font-family: Arial Unicode MS; font-size:13pt;"/>
+                    <br/>
+                    <apex:outputText value="경기도 평택시 포승읍 서동대로 437-55"
+                                     style="font-family: Arial Unicode MS; font-size:12pt;"/>
+                    <br/>
+                    <br/>
+                    <apex:outputText value="만트럭 출고사무소" style="font-family: Arial Unicode MS; font-size:13pt;"/>
+                </p>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</apex:page>

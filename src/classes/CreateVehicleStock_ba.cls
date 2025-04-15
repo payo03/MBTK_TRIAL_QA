@@ -62,7 +62,6 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
         Map<String, Object> infoMap = (this.infoMap == null || this.infoMap.isEmpty())
                 ? new Map<String, Object>()
                 : this.infoMap;
-        infoMap.put('isCreate', true);
 
         Set<String> vinNumberSet = new Set<String>();
         List<AvisOrderInfo__c> infoList = new List<AvisOrderInfo__c>();
@@ -397,7 +396,7 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
 
                 // ver2.0 Product2 금액 복제
                 List<String> reportKeyList = new List<String>{
-                        info.SpecShort__c, info.CabMark__c, info.WheelBase__c
+                        info.fm_SpecShort__c, info.CabMark__c, info.WheelBase__c
                 };
                 String reportKey = String.join(reportKeyList, '^');
                 p2Obj.CarAmt__c             = p2ReportMap.containsKey(reportKey) ? p2ReportMap.get(reportKey).CarAmt__c             : null;
