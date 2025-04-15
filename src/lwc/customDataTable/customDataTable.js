@@ -10,7 +10,7 @@
 import LightningDatatable from "lightning/datatable";
 import helpTextColumn from "./helpTextColumn.html";
 import nameHelpTextTemplate from "./nameHelpTextTemplate.html";
-// Test
+
 export default class customDataTable extends LightningDatatable {
 
 	static customTypes = {
