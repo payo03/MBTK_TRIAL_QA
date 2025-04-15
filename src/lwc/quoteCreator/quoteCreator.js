@@ -201,7 +201,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	}
 
 	/**
-	 * @description 페이지 접속 시 마다 호출됨
+	 * @description 페이지 접속 시 마다 호출됨 test
 	 * @param pageRef
 	 */
 	@wire(CurrentPageReference)
