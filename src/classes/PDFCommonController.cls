@@ -9,8 +9,10 @@
 **************************************************************/
 public without sharing class PDFCommonController {
 
+    // 차량재고 공통 쿼리
     @AuraEnabled
     public static VehicleStock__c getVehicleStock(String vehicleStockId){
+
         String obj_fields = getField(Schema.SObjectType.VehicleStock__c.fields.getMap());
         String selectFields = obj_fields +
                                 ' , Product__r.VehicleCategory__r.CabMark__c,Product__r.Segment2__c, Product__r.SelfCertWeightLabel__c, Product__r.VehicleCategory__r.ModelType__c, ' +
@@ -20,14 +22,14 @@ public without sharing class PDFCommonController {
         String whereConditions = 'Id = \'' + vehicleStockId + '\'';
 
         String query = CommonUtilController.buildQuery(selectFields, 'VehicleStock__c', whereConditions);
-        System.debug(query);
         return Database.query(query);
 
     }
 
+    // 기회 공통 쿼리
     @AuraEnabled
     public static List<Opportunity> getOpportunity(String recordId){
-        System.debug(recordId);
+
         String objName = Id.valueOf(recordId).getSobjectType().getDescribe().getName();
         String obj_fields = getField(Schema.SObjectType.Opportunity.fields.getMap());
         String selectFields = obj_fields +
@@ -42,14 +44,7 @@ public without sharing class PDFCommonController {
         return Database.query(query);
     }
 
-//    public static List<Contact> getContacts(String accountId){
-//        String obj_fields = getField(Schema.SObjectType.Contact.fields.getMap());
-//
-//        String selectFields = obj_fields;
-//        String whereConditions = ' AccountId = \'' + accountId + '\'';
-//        String query = CommonUtilController.buildQuery(selectFields, 'Contact', whereConditions);
-//        return Database.query(query);
-//    }
+    // PaymentTracker 공통 쿼리
     @AuraEnabled
     public static List<PaymentTracker__c> getPaymentTracker(String opportunityId){
         String obj_fields = getField(Schema.SObjectType.PaymentTracker__c.fields.getMap());
@@ -62,6 +57,7 @@ public without sharing class PDFCommonController {
         return Database.query(query);
     }
 
+    // Account 공통 쿼리
     public static List<Account> getAccounts(String accountId){
         String obj_fields = getField(Schema.SObjectType.Account.fields.getMap());
 
@@ -72,7 +68,9 @@ public without sharing class PDFCommonController {
         return Database.query(query);
     }
 
+    // Quote Detail 공통 쿼리
     public static List<QuoteDetail__c> getQuoteDetail(String quoteId){
+
         String obj_fields = getField(Schema.SObjectType.QuoteDetail__c.fields.getMap());
         String selectFields = obj_fields + ' ,CampaignMaster__r.Name ';
         String whereConditions = ' Quote__c = \'' + quoteId + '\'';
@@ -81,15 +79,9 @@ public without sharing class PDFCommonController {
         return Database.query(query);
     }
 
-//    public static List<AvisOrderInfo__c> getAvisOrderInfo(String vehicleStockId){
-//        String obj_fields = getField(Schema.SObjectType.AvisOrderInfo__c.fields.getMap());
-//        String selectFields = obj_fields;
-//        String whereConditions = ' ChassisFrameNo__c = \'' + vehicleStockId + '\'';
-//        String query = CommonUtilController.buildQuery(selectFields, 'AvisOrderInfo__c', whereConditions);
-//
-//        return Database.query(query);
-//    }
+    // Quote 공통 쿼리
     public static Quote getQuote(String recordId) {
+
         Quote resultQuote;
 
         try {
@@ -108,7 +100,7 @@ public without sharing class PDFCommonController {
 
             // 쿼리 생성 및 실행
             String query = CommonUtilController.buildQuery(selectFields, 'Quote', whereConditions);
-            System.debug('Query:: ' + query);
+
 
             // 결과가 존재할 경우에만 할당
             List<Quote> quotes = Database.query(query);
@@ -123,19 +115,9 @@ public without sharing class PDFCommonController {
         return resultQuote;
     }
 
-
-//    @AuraEnabled
-//    public static List<ProductOption__c> getProductOption(String productId, Boolean division){
-//        String obj_fields  = getField(Schema.SObjectType.ProductOption__c.fields.getMap());
-//        String selectFields = obj_fields + ' ,VehicleOptionMaster__r.Name, VehicleOptionMaster__r.Price__c ';
-//        String whereConditions = ' Product__c = \'' + productId + '\' and VehicleOptionMaster__r.Division__c ';
-//                whereConditions += division == true ? ' = \'' + '기본제공' + '\' ' : ' != \'' + '기본제공' +'\' ';
-//        String query = CommonUtilController.buildQuery(selectFields, 'ProductOption__c', whereConditions, 'VehicleOptionMaster__r.Price__c Desc');
-//
-//        return Database.query(query);
-//    }
-
+    // ProductOption 갯수 공통 쿼리
     public static List<AggregateResult> getProductOptionCnt(String productId){
+
         String selectFields = ' Count(Id) cnt, Name ';
         String whereConditions = ' Product__c = \'' + productId + '\' Group By Name ';
         String query = CommonUtilController.buildQuery(selectFields, 'ProductOption__c', whereConditions, 'Name');
@@ -144,10 +126,12 @@ public without sharing class PDFCommonController {
     }
 
     public static Boolean isNewAddress(Date releaseDate){
+
         return releaseDate >= Date.newInstance(2017,2,23);
     }
 
     public static String getField(Map<String, Schema.SObjectField> ObjMap){
+
         List<String> accessibleFields = new List<String>();
 
         for (String fieldName : ObjMap.keySet()) {
@@ -160,17 +144,23 @@ public without sharing class PDFCommonController {
         return String.join(accessibleFields, ', ');
     }
 
+    // User Role 공통 쿼리
     public static List<User> getUsersByRole(String roleName) {
+
         return [SELECT Id, Name, Street, IDNumber__c
                 FROM User
                 WHERE UserRole.Name = :roleName];
     }
 
+    // PDF 날짜 별 Validate
     public static String getValidate(Date mDate){
+
         Date pDate = Date.newInstance(2018, 6, 1);
         String Validity = mDate >= pDate ? '90' : '60';
         return Validity;
     }
+
+    // Document 공통 쿼리
     public static Id getDocumentId(String documentName){
 
         return  [SELECT Id
@@ -178,9 +168,10 @@ public without sharing class PDFCommonController {
                 WHERE DeveloperName =:documentName].Id;
     }
 
+    // PDF 다운로드
     @AuraEnabled
     public static String downloadSelectedPDFs(String vfUrl) {
-        System.debug(vfUrl);
+
         PageReference pr = new PageReference(vfUrl);
         Blob pdfBlob;
         try {
@@ -191,17 +182,20 @@ public without sharing class PDFCommonController {
         return EncodingUtil.base64Encode(pdfBlob);
     }
 
+    // opportunityPDF Init
     @AuraEnabled
     public static Map<String, Object> getOpportunityInit(String recordId){
+
         return new Map<String, Object> {
                 'opportunity' => getOpportunity(recordId),
                 'paymentTracker' => getPaymentTracker(recordId),
                 'checkSAPermission' => checkSAPermissionSet()
         };
     }
-
+    // vehicleStockPDF Init
     @AuraEnabled
     public static Map<String, Object> getVehicleStockInit(String recordId){
+
         return new Map<String, Object> {
                 'opportunity' => getOpportunity(recordId),
                 'vehicleStock' => getVehicleStock(recordId),
@@ -212,9 +206,10 @@ public without sharing class PDFCommonController {
         };
     }
 
+    // 임시운행 PDF 데이터
     @AuraEnabled
     public static void updatedTempDriver(String recordId, Map<String,Object> tempDriverMap){
-        System.debug(Date.valueOf(String.valueOf(tempDriverMap.get('tempReqDate'))));
+
         try{
             VehicleStock__c vehicleStock = [SELECT Id, TempReqDate__c, DrivePurpose__c, DriveDays__c FROM VehicleStock__c WHERE Id =:recordId];
             if(vehicleStock != null){
@@ -227,21 +222,22 @@ public without sharing class PDFCommonController {
         }catch (Exception e){
             System.debug('err =>' + e);
         }
-
-
     }
+
+    // 현재 유저 profile 체크
     @AuraEnabled
     public static Boolean profileCheck(String profileName){
 
         Id profileId = [SELECT ProfileId FROM User WHERE Id = :UserInfo.getUserId()].ProfileId;
         String userProfile = [SELECT Name FROM Profile WHERE Id = :profileId].Name;
-        System.debug(userProfile);
         Boolean checkProfile = userProfile == profileName ? true : false;
         return checkProfile;
     }
 
+    // 현재 유저 SA Permission 인지 체크
     @AuraEnabled
     public static Boolean checkSAPermissionSet() {
+
         Id userId = UserInfo.getUserId();
         List<PermissionSetAssignment> permissionSets = [SELECT Id, PermissionSet.Name, PermissionSet.Label FROM PermissionSetAssignment WHERE AssigneeId = :userId AND PermissionSet.Name = 'SA'];
 

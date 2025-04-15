@@ -1,8 +1,8 @@
 /*************************************************************
  * @author : th.kim
  * @date : 2025-01-23
- * @description : 
- * @target : 
+ * @description : 핸드오버 스케줄러 Controller
+ * @target : handoverScheduler
 ==============================================================
  * Ver          Date            Author          Modification
  * 1.0          2025-01-23      th.kim          Created
@@ -65,6 +65,11 @@ public without sharing class HandoverSchedulerController {
         if (!updateList.isEmpty()) update updateList;
     }
 
+    /**
+     * @author th.kim
+     * @description 선택한 핸드오버 리스트의 차량 변경해주기
+     * @param dataList 핸드오버 데이터 리스트
+     */
     @AuraEnabled
     public static void updateHandoverStockList(List<Map<String, String>> dataList) {
 
@@ -127,73 +132,6 @@ public without sharing class HandoverSchedulerController {
             throw new AuraHandledException(e.getMessage());
         }
     }
-
-//    /**
-//     * @author th.kim
-//     * @description 선택한 핸드오버의 차량 변경
-//     * @param currentHandover 선택된 핸드오버 데이터
-//     * @param currentStock 선택한 차량
-//     */
-//    @AuraEnabled
-//    public static void updateHandoverStock(String currentHandover, VehicleStock__c currentStock) {
-//
-//        SchedulerMainController.HandoverWrap handoverWrap = (SchedulerMainController.HandoverWrap) JSON.deserialize(currentHandover, SchedulerMainController.HandoverWrap.class);
-//        String handoverId = handoverWrap.id;
-//        String stockId = currentStock?.Id;
-//        Opportunity opportunity = handoverWrap.opp;
-//
-//        // 차량 변경 업데이트
-//        if (handoverId != null) {
-//
-//            List<SObject> updateList = new List<SObject>();
-//
-//            if (opportunity != null) {
-//                String opportunityId = opportunity.Id;
-//                if (String.isNotBlank(opportunityId)) {
-//                    // 기회 차량 업데이트
-//                    Opportunity updateOpportunity = new Opportunity(
-//                        Id = opportunityId,
-//                        VehicleStock__c = stockId
-//                    );
-//                    updateList.add(updateOpportunity);
-//                }
-//
-//                String contractId = opportunity.ContractId;
-//                if (String.isNotBlank(contractId)) {
-//                    // 계약 차량 업데이트
-//                    Contract contract = new Contract(
-//                        Id = contractId,
-//                        VehicleStock__c = stockId
-//                    );
-//                    updateList.add(contract);
-//                }
-//            }
-//
-//            // 한 번의 DML로 업데이트
-//            if (!updateList.isEmpty()) {
-//                update updateList;
-//
-//                CustomNotificationType notificationType = [SELECT Id FROM CustomNotificationType WHERE DeveloperName = 'Custom' LIMIT 1];
-//
-//                Set<String> userIdSet = new Set<String>();
-//                // 핸드오버 차량 변경 알림 대상 공유 그룹
-//                for (GroupMember groupMember : [SELECT Id, UserOrGroupId FROM GroupMember WHERE Group.DeveloperName = 'HandoverStockChangeGroup']) {
-//                    userIdSet.add(groupMember.UserOrGroupId);
-//                }
-//                userIdSet.add((String) opportunity.get('OwnerId'));
-//
-//                // 알림 발송
-//                CommonUtilController.sendNotification(new CommonUtilController.NotificationWrap(
-//                    '[핸드오버 차량 변경됨] - [' + handoverWrap.oppName + ']',
-//                    '[' + handoverWrap.VIN + '] -> ' + '[' + currentStock.Name + '] 으로 변경됨',
-//                    notificationType.Id,
-//                    UserInfo.getUserId(),
-//                    handoverWrap.opp.Id,
-//                    userIdSet
-//                ));
-//            }
-//        }
-//    }
 
     /**
      * @author th.kim

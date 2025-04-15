@@ -1,0 +1,153 @@
+<!--
+ * @author : San.Kang
+ * @date : 2025-02-19
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-02-19      San.Kang          Initial Version
+-->
+<!--<apex:page standardController="VehicleStock__c" renderAs="pdf" applyHtmlTag="false" showHeader="false"  docType="html-5.0">-->
+<apex:page renderAs="pdf" applyHtmlTag="false" showHeader="false" docType="html-5.0"
+		   controller="CompliancePDFController" action="{!getInit}">
+	
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+		
+		<style type="text/css">
+			@page {
+				size: A4;
+			}
+			
+			body {
+				font-size: 15px;
+				font-family: Arial Unicode MS;
+				
+			}
+			
+			table {
+				border: 1.5px solid black;
+			}
+		
+		</style>
+	</head>
+	<table width="100%">
+		<tr>
+			<td width="1%"></td>
+			<td colspan="2" width="27.73%">최초제작자 : MAN</td>
+			<td width="9.81%"></td>
+			<td colspan="3" width="32.98%">수입자명 : 만트럭버스코리아㈜</td>
+			<td width="10.38%"></td>
+			<td width="1%"></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td colspan="2">제작년월일 :
+				<apex:outputtext value="{0, date, yyyy. MM. dd}">
+					<apex:param value="{!IF(ISBLANK(vehicleStock.Exworks__c), '', vehicleStock.Exworks__c)}" />
+					<apex:outputText value=" {!IF(ISBLANK(vehicleStock.Product__r.TotalWeight__c), '', vehicleStock.Product__r.TotalWeight__c)}" />
+				</apex:outputtext>
+				<!--                <apex:outputtext value="{0, date, yyyy. MM.  dd}" rendered="{!if(vehicleStock.CarType__r.Segment__c == 'Bus', false, true)}">-->
+				<!--                    <apex:param value="{!vehicleStock.Exworkss__c}" />-->
+				<!--                </apex:outputtext>-->
+				<!--                <apex:outputtext value="{0, date, yyyy. MM.  dd}" rendered="{!if(vehicleStock.CarType__r.Segment__c == 'Bus', true, false)}">-->
+				<!--                    <apex:param value="{!vehicleStock.Bodybuilder_Production_Date__c}" />-->
+				<!--                </apex:outputtext>-->
+			</td>
+			<td colspan="5"></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td colspan="2">차량총중량 :
+				<apex:outputText value=" {!vehicleStock.Product__r.TotalWeight__c}" />
+			</td>
+			<td colspan="5"></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td colspan="7">　</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td colspan="2" style="text-align:center">적차시하중</td>
+			<td colspan="2" style="text-align:center">타이어형식</td>
+			<td colspan="2" style="text-align:center">공기압</td>
+			<td style="text-align:center">림형식</td>
+			<td></td>
+		</tr>
+		
+		<apex:repeat value="{!SWLD}" var="swlds">
+			<tr>
+				<td></td>
+				<td>
+					<apex:outputText value="{!IF(ISBLANK(swlds.Shaft__c), '', swlds.Shaft__c)}" />
+				</td>
+				<td style="font-size:16px;font-family:Arial Unicode MS;">
+					<apex:outputText value="{!IF(ISBLANK(swlds.Weight__c), '', swlds.Weight__c)}" />
+				</td>
+				<td colspan="2" style="font-size:16px;font-family:Arial Unicode MS;text-align:center">
+					<apex:outputText value="{!IF(ISBLANK(swlds.Tire__c), '', swlds.Tire__c)}" />
+				</td>
+				<td colspan="2" style="font-size:16px;font-family:Arial Unicode MS;text-align:center">
+					<apex:outputText value="{!IF(ISBLANK(swlds.Pressure__c), '', swlds.Pressure__c)}" />
+				</td>
+				<td style="font-size:16px;font-family:Arial Unicode MS;text-align:center;">
+					<apex:outputText value="{!IF(ISBLANK(swlds.Rim__c), '', swlds.Rim__c)}" />
+				</td>
+				<td></td>
+			</tr>
+		</apex:repeat>
+		
+		<tr>
+			<td></td>
+			<td colspan="7">　</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td colspan="7">이 자동차는 대한민국 자동차관리법령에 적합하게 제작(수입)되었습니다.</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td colspan="7">　</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>차대번호 :</td>
+			<td colspan="2" style="font-size:16px;font-family:Arial Unicode MS;">
+				<apex:outputText value="{!IF(ISBLANK(vehicleStock.Name), '', vehicleStock.Name)}" />
+			</td>
+			<td></td>
+			<td colspan="3"></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>차&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;종 :</td>
+			<td colspan="2" style="font-size:16px;font-family:Arial Unicode MS;">{!modelTypeName}</td>
+			<td></td>
+			<td colspan="2">차&nbsp;&nbsp;&nbsp;&nbsp;명
+				:
+				<apex:outputText value="{!IF(ISBLANK(vehicleStock.Product__r.VehicleCategory__r.ModelType__c), '', vehicleStock.Product__r.VehicleCategory__r.ModelType__c)}" />
+			</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td colspan="7">　</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td colspan="7" style="text-align:center; font-family:'Sans-Serif'; font-size: 24px;"><strong>MAN Truck
+					&amp; Bus Korea</strong></td>
+			<td></td>
+		</tr>
+	</table>
+</apex:page>

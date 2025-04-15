@@ -9,8 +9,6 @@
 */
 import { LightningElement, api, track } from 'lwc';
 
-// import getVehicleIssue from "@salesforce/apex/PdiController.getVehicleIssue";
-
 const bulkColumns = [
     { label: '워크넘버', fieldName: 'WorkNo', hideDefaultActions: 'true' },
     { label: '주행거리', fieldName: 'DriveDistance', hideDefaultActions: 'true' },
@@ -22,7 +20,6 @@ export default class pdiStep1View extends LightningElement {
 
     @track _selectedVIN;
 
-    // @track data;
     @track searchKey;
     driveDistance;
     vehicleIssue;
@@ -32,28 +29,12 @@ export default class pdiStep1View extends LightningElement {
 
     @api
     set isBulk(value) {
-        console.log('PDI Step1 View. isBulk : ' + value);
         this.varIsBulk = value;
         this.bulkData = [];
     }
     get isBulk() {
         return this.varIsBulk;
     }
-
-    // @api
-    // set varStockList(value) {
-    //     if (value) {
-    //         console.log('PDI Step1 View : ', JSON.stringify(value));
-
-    //         this.data = value.map(item => ({
-    //             ...item,
-    //             ProductName: item.Product__r ? item.Product__r.Name : ''
-    //         }));
-    //     }
-    // }
-    // get varStockList() {
-    //     return this.data;
-    // }
 
     @api
 	set selectedVin(value) {
@@ -75,32 +56,11 @@ export default class pdiStep1View extends LightningElement {
         this.dispatchEvent(customEvent);
     }
 
-    // handleSearch(event) {
-    //     this.searchKey = event.target.value;
-    // }
-
-    // handleKeyDown(event) {
-    //     if(event.key === 'Enter') {
-    //         event.preventDefault();
-    //         this.handleSearchButton();
-    //     }
-    // }
-
     @api
     handleUpdateIssue() {
         const currentIssue = this.template.querySelector('.vehicleIssue');
         currentIssue.submit();
     }
-
-    // handleSearchButton() {
-    //     console.log('searchKey : ', this.searchKey);
-    //     const customEvent = new CustomEvent('searchvin', {
-    //         detail: {
-    //             searchKey: this.searchKey
-    //         }
-    //     });
-    //     this.dispatchEvent(customEvent);
-    // }
 
     handlePaste(event) {
         event.preventDefault();
@@ -113,7 +73,6 @@ export default class pdiStep1View extends LightningElement {
 
         rows.map(row => {
             let dataRow = row.split('\t');
-            console.log('datarow: ', dataRow);
             this.addBulkRow(dataRow);
         });
 

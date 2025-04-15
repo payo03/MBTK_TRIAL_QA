@@ -17,16 +17,11 @@ public with sharing class OpptyFileUploaderController {
 
         String accName = [SELECT Id, AccountId, Account.Name FROM Opportunity WHERE Id =: recordId].Account.Name;
 
-        System.debug('accName ::: ' +  accName);
-
         return accName;
     }
 
     @AuraEnabled
     public static void updateIsCheck(String opportunityId, Map<String, Boolean> opportunityFieldMap) {
-        // Opportunity 레코드 가져오기
-        System.debug('updateIsCheck 시작');
-        System.debug('key :::' + opportunityFieldMap.keySet());
         Opportunity opp = [SELECT Id, IsJumin__c, IsBusiness__c, IsVAT__c FROM Opportunity WHERE Id = :opportunityId LIMIT 1];
 
         for(String key : opportunityFieldMap.keySet()) {
@@ -67,7 +62,6 @@ public with sharing class OpptyFileUploaderController {
                 WHERE Id IN :cvList
             ];
         }
-        System.debug('initFileList ::: ' + fileList);
 
         return fileList;
     }
@@ -75,16 +69,8 @@ public with sharing class OpptyFileUploaderController {
     @AuraEnabled
     public static void updateFileName(List<String> fileIds, String sectionName, String username, Integer fileIndex) {
 
-        System.debug('fileIds ::: ' + fileIds);
-        System.debug('sectionName ::: ' + sectionName);
-        System.debug('username ::: ' + username);
-
         try {
             List<ContentVersion> cvList = [SELECT Id, Title FROM ContentVersion WHERE Id IN :fileIds];
-
-            System.debug('cvList ::: ' + cvList);
-
-//            Integer index = 1;
 
             for (ContentVersion cv : cvList) {
 
@@ -115,8 +101,6 @@ public with sharing class OpptyFileUploaderController {
             return null;
         }
     
-        System.debug('업로드된 파일 목록 ::: ' + cvList);
-    
         Set<Id> contentDocumentIds = new Set<Id>();
         for (ContentDocumentLink cdLink : [
             SELECT ContentDocumentId
@@ -125,8 +109,6 @@ public with sharing class OpptyFileUploaderController {
         ]) {
             contentDocumentIds.add(cdLink.ContentDocumentId);
         }
-    
-        System.debug('기존 ContentDocumentIds ::: ' + contentDocumentIds);
     
         Map<String, Boolean> checkFileMap = new Map<String, Boolean>();
         for (ContentVersion cv : [
@@ -138,8 +120,6 @@ public with sharing class OpptyFileUploaderController {
                 checkFileMap.put(cv.Type__c, true);
             }
         }
-    
-        System.debug('기존 checkFileMap ::: ' + checkFileMap);
     
         List<ContentVersion> versionsToUpdate = new List<ContentVersion>();
         for (ContentVersion cv : [
@@ -155,7 +135,6 @@ public with sharing class OpptyFileUploaderController {
     
         if (!versionsToUpdate.isEmpty()) {
             update versionsToUpdate;
-            System.debug('Type__c 업데이트 완료 ::: ' + versionsToUpdate);
         }
     
         return checkFileMap;

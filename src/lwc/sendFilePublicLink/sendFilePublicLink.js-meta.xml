@@ -7,8 +7,8 @@
         <target>lightning__RecordAction</target>
         <target>lightning__RecordPage</target>
         <target>lightning__AppPage</target>
-        <target>lightning__UrlAddressable</target>
-        <!-- URL 호출할 수 있도록 설정 --></targets>
+        <target>lightning__UrlAddressable</target> <!-- URL 호출할 수 있도록 설정 -->
+    </targets>
     <targetConfigs>
         <targetConfig targets="lightning__RecordAction">
             <actionType>ScreenAction</actionType>

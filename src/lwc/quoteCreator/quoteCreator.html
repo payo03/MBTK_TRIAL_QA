@@ -147,42 +147,6 @@
 				</div>
 				<!-- 기회 Wrap End -->
 				
-				<!--				<template lwc:if={isViewStock}>-->
-				<!--					<template lwc:if={productData}>-->
-				<!--						<div class="slds-grid slds-wrap slds-size_1-of-2 slds-p-around_small body-header">-->
-				<!--							<div class="slds-size_1-of-1 slds-text-align_right box-wrap body-wrap stock-table-wrap">-->
-				<!--								<template lwc:if={productData.stockList.length}>-->
-				<!--									<div class="slds-grid slds-size_1-of-1 stock-table-wrap-header">-->
-				<!--										<div class="slds-text-color_error">* 추가할인 차량 선택은 차량 확정 배정이 아님.</div>-->
-				<!--										<lightning-button-icon icon-name="utility:refresh" slot="actions"-->
-				<!--										                       data-name="stock"-->
-				<!--										                       onclick={handleRefresh}></lightning-button-icon>-->
-				<!--									</div>-->
-				<!--									<div class="slds-size_1-of-1 slds-scrollable_y">-->
-				<!--										<lightning-datatable-->
-				<!--											key-field="Id"-->
-				<!--											columns={stockColumns}-->
-				<!--											data={productData.stockList}-->
-				<!--											onrowselection={handleRowSelection}-->
-				<!--											selected-rows={selectedStockIdList}-->
-				<!--											data-name="stock"-->
-				<!--											max-row-selection="1"-->
-				<!--											min-column-width="120"-->
-				<!--											column-widths-mode="auto"-->
-				<!--										></lightning-datatable>-->
-				<!--									</div>-->
-				<!--								</template>-->
-				<!--								<template lwc:else>-->
-				<!--									<div class="slds-text-heading_small slds-text-align_center">-->
-				<!--										<strong>추가할인 가능한 차량이 없습니다.</strong>-->
-				<!--									</div>-->
-				<!--								</template>-->
-				<!--							</div>-->
-				<!--						</div>-->
-				<!--					</template>-->
-				<!--				</template>-->
-				<!--				<template lwc:else>-->
-				
 				<!-- Summary Wrap Start -->
 				<div
 					class="slds-grid slds-wrap slds-size_1-of-2 slds-p-around_small slds-text-heading_small body-header summary-wrap">
@@ -302,7 +266,6 @@
 									<lightning-button-icon icon-name="utility:edit" slot="actions"
 									                       onclick={toggleModal}></lightning-button-icon>
 									<div class="slds-card__body slds-p-around_small slds-p-top_none">
-										<!--										<template lwc:if={selectedOptionData}>-->
 										<template lwc:if={isSelectedOptionData}>
 											<div class="slds-size_1-of-1">
 												<lightning-datatable
@@ -319,10 +282,6 @@
 										<template lwc:else>
 											옵션을 선택해주세요.
 										</template>
-										<!--										</template>-->
-										<!--										<template lwc:else>-->
-										<!--											옵션을 선택해주세요.-->
-										<!--										</template>-->
 									</div>
 								</lightning-card>
 							</lightning-accordion-section>
@@ -365,9 +324,6 @@
 									                 message-when-range-overflow={tableDataMap.discountDetail.overflowMessage}
 									                 data-name="oilCoupon"
 									></lightning-input>
-									<!--									<template if:false={isCheckOilCouponCount}>-->
-									<!--										<p class="slds-text-color_error">* 가용 수량: 0 ~ {availableOilCouponQty} (장)</p>-->
-									<!--									</template>-->
 									<lightning-input type="number" label="주유상품권 총액"
 									                 value={tableDataMap.discountDetail.oilCouponPrice}
 									                 formatter="currency" disabled></lightning-input>
@@ -446,23 +402,6 @@
 										value={tableDataMap.financial.financeId}
 										onchange={handleChange}
 									></lightning-combobox>
-									<!--									<template lwc:if={tableDataMap.financial.financeId}>-->
-									<!--										<lightning-record-picker-->
-									<!--											label="금융회사"-->
-									<!--											object-api-name="Finance__c"-->
-									<!--											onchange={handleChange}-->
-									<!--											data-name="financeId"-->
-									<!--											value={tableDataMap.financial.financeId}-->
-									<!--										></lightning-record-picker>-->
-									<!--									</template>-->
-									<!--									<template lwc:else>-->
-									<!--										<lightning-record-picker-->
-									<!--											label="금융회사"-->
-									<!--											object-api-name="Finance__c"-->
-									<!--											onchange={handleChange}-->
-									<!--											data-name="financeId"-->
-									<!--										></lightning-record-picker>-->
-									<!--									</template>-->
 									<lightning-input type="text" label="이자율 범위" disabled
 									                 value={tableDataMap.financial.interestRateRange}
 									></lightning-input>
@@ -517,7 +456,6 @@
 									<lightning-input type="number" label="출고보험료" onchange={handleChange}
 									                 data-name="insurance"
 									                 value={tableDataMap.extraExpenses.insurance}></lightning-input>
-									<!--									<lightning-input type="number" label="인지대"></lightning-input>-->
 									<lightning-input type="checkbox" label="인지대 노출"
 									                 class="slds-m-top_xx-small" onchange={handleChange}
 									                 data-name="stampDuty"

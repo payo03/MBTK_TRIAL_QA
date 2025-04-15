@@ -1,0 +1,47 @@
+<!--
+- @Author            : jh.jung
+- @Description 		 : 
+- @Target            : 
+- @Modification Log
+- Ver      Date            Author           Modification
+- ===================================================================================
+- 1.0      2025-04-07      jh.jung           Created
+-->
+<!-- Create Quote By Biz Account -->
+<template>
+  <lightning-quick-action-panel header="견적 생성 전 차종, 캠페인 선택">
+    <div class="slds-size_1-of-1 slds-card slds-p-around_x-small sub-wrap">
+      <div class="slds-card slds-size_1-of-1 slds-p-around_x-small">
+        <div class="slds-card__body slds-card__body_inner filter-wrap">
+          <div class="slds-grid slds-wrap button-wrap">
+            <div class="slds-modal__content slds-p-around_medium">
+              <c-product-campaign-table onrowselect={handleRowSelect} ongetproductid={getProductIdByChild}></c-product-campaign-table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div slot="footer" class="slds-align_absolute-center">
+      <div class="slds-m-bottom_small slds-align_absolute-center">
+        <lightning-button
+          class="slds-m-right_xx-small"
+          label="취소"
+          onclick={handleCancel}>
+        </lightning-button>
+        <lightning-button
+          variant="brand"
+          class=""
+          type="submit"
+          label="견적 생성"
+          onclick={convertHandler}>
+        </lightning-button>
+      </div>
+    </div>
+  </lightning-quick-action-panel>
+  <!-- start loading spinner-->
+  <template lwc:if={isLoading}>
+    <lightning-spinner alternative-text="Loading" variant="brand" size="medium"></lightning-spinner>
+  </template>
+  <!-- end loading spinner-->
+</template>

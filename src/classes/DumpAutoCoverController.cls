@@ -14,12 +14,13 @@ public class DumpAutoCoverController {
     public String docImage2{get;set;}
     public String docImage3{get;set;}
     public String docImage4{get;set;}
-//    public String uzIngam{get; set;}
     public Opportunity opportunity{get; set;}
     public VehicleStock__c vehicleStock{get; set;}
     public String Validity{get; set;}//유효기간
     public String docDate{get; set;}
+
     public void init(){
+
         String year = ApexPages.currentPage().getParameters().get('year');
         String month = ApexPages.currentPage().getParameters().get('month');
         String day = ApexPages.currentPage().getParameters().get('day');
@@ -27,20 +28,10 @@ public class DumpAutoCoverController {
             Date mDate = Date.newInstance(Integer.valueOf(year),Integer.valueOf(month),Integer.valueOf(day));
             Validity = PDFCommonController.getValidate(mDate);
         }
-//        uzIngam = PDFCommonController.getDocumentId('man_useingam');
         docImage1 = PDFCommonController.getDocumentId('MAN_Truck_Bus_Korea_LOGO');
         docImage2 = PDFCommonController.getDocumentId('doc_covertable_img1');
         docImage3 = PDFCommonController.getDocumentId('doc_covertable_img2');
         docImage4 = PDFCommonController.getDocumentId('doc_profidrive_img1');
-
-//        List<ManCode__c> mc = [SELECT Id, Name, PlainValue1__c FROM ManCode__c WHERE Category__c = 'sales_head'];
-//        if(!mc.isEmpty()){
-//            salesHead = mc[0];
-//        }
-//        List<ManCode__c> mc2 = [SELECT Id, Name, PlainValue1__c FROM ManCode__c WHERE Category__c = 'handover_head'];
-//        if(!mc2.isEmpty()){
-//            handoverHead = mc2[0];
-//        }
         String vehicleStockId = ApexPages.currentPage().getParameters().get('Id').trim();
         vehicleStock = PDFCommonController.getVehicleStock(vehicleStockId);
         opportunity = PDFCommonController.getOpportunity(vehicleStockId).get(0);

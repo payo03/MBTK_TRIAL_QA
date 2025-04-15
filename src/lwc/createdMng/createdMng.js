@@ -19,31 +19,17 @@ import {CloseActionScreenEvent} from "lightning/actions";
 import {CurrentPageReference} from "lightning/navigation";
 import formFactor from "@salesforce/client/formFactor";
 
-
+// 제원관리번호/형식승인번호 필터 초기화
 const filterDefault = { ModelYear__c: "", EngineType__c: "", Remark__c: "", Remark2__c: "", Remark3__c: "" };
-// const initDataMap = {
-//     this.resultList: [],
-//     selectedRows:[],
-//     sortBy: [],
-//     sortDirection: []
-// }
-//
 
 export default class createdMng extends LightningElement {
 
-    // @track specTypeNoMap  = {
-    //     mngNoMap: { ...initDataMap,, selectedMngNo: '' },
-    //     ,
-    //     type: ''
-    // }
-    //
-    @track filterMap = { ...filterDefault };
-    @track categoryOptions = [''];
-    @track resultList = [];
-    selectedRows = [];
-    selectedRowIds = [];
-    
-    selectedNo;
+    @track filterMap = { ...filterDefault };  
+    @track modelYears = ['']; // 모델 년도
+    @track resultList = []; // 제원관리/형식승인번호 리스트
+    selectedRows = []; // 선택 row
+    selectedRowIds = []; //선택 row Id
+    selectedNo; // 선택 제원관리/형식승인번호
     columns;
     recordId;
     sortBy;
@@ -53,10 +39,12 @@ export default class createdMng extends LightningElement {
     dataFlag = false;
     type = '';
 
+    // 제목
     get cardTitle() {
         return (this.selectedRowIds?.length > 0) ? `${this.type} : ${this.selectedNo}` : this.type;
     }
 
+    // 모바일
     @wire(CurrentPageReference)
     getPageReference(pageRef) {
         if (pageRef && pageRef.state) {
@@ -104,9 +92,7 @@ export default class createdMng extends LightningElement {
                 this.resultList = [];
                 this.dataFlag = false;
             }
-            console.log(res.modelYear);
-            // this.categoryOptions = res && res.modelYear ? res.modelYear : [];
-            this.categoryOptions = res?.modelYear ? res.modelYear : [];
+            this.modelYears = res?.modelYear ? res.modelYear : [];
             this.columns = this.mngNoFlag ? mngNoColumns : typeNoColumns;
         }).catch(err => {
             console.log("err :: ", err);
@@ -147,7 +133,6 @@ export default class createdMng extends LightningElement {
     adjustTableHeight() {
         const tableWrapEl = this.template.querySelector(`.master-table-wrap[data-tab='${this.activeTab}']`);
         let lightningTableEl = this.template.querySelector(`lightning-datatable[data-tab='${this.activeTab}']`);
-        console.log('window.outerHeight :: ', window.outerHeight);
         const vh25 = window.outerHeight * 0.25;
 
         if (lightningTableEl && tableWrapEl) {
@@ -173,7 +158,6 @@ export default class createdMng extends LightningElement {
         this.isLoading = true;
         this.selectedRowIds = [];
         searchSpecTypeNo({ type: this.type, vehicleStockId : this.recordId, filterMap: this.filterMap}).then(res => {
-            console.log(res?.length);
             this.resultList = res;
             this.selectedRows = [];
         }).catch(err => {

@@ -77,15 +77,6 @@ const modalOptionColumns = [
 		label: "가격",
 		hideDefaultActions: true
 	}
-	// {
-	// 	type: "button-icon",
-	// 	initialWidth: 32,
-	// 	hideDefaultActions: true,
-	// 	typeAttributes: {
-	// 		iconName: "utility:delete",
-	// 		name: "delete",
-	// 	}
-	// },
 ];
 
 const optionColumns = [...modalOptionColumns, {

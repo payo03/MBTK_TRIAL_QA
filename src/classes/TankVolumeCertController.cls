@@ -31,8 +31,6 @@ public class TankVolumeCertController {
         }else{
             Schema.DescribeFieldResult fieldResult = Schema.getGlobalDescribe().get('AvisOrderInfo__c')
                     .getDescribe().fields.getMap().get('ref_TankVolumeList__c').getDescribe();
-            System.debug('avisOrderInfo start');
-            System.debug('avisOrderInfo start' + vin);
             List<AvisOrderInfo__c> avisOrderInfo = [SELECT Id, ref_TankVolumeList__c FROM AvisOrderInfo__c WHERE ChassisFrameNo__c =:vin ];
             if(!avisOrderInfo.isEmpty()){
                 for (Schema.PicklistEntry entry : fieldResult.getPicklistValues()) {
@@ -48,7 +46,5 @@ public class TankVolumeCertController {
         if(!checkDump){
             checkDump = (('TGS_41.510_8x4_BB_CH'.equals(vehicleStock.Product__r.VehicleCategory__r.Name) || 'TGS_41.470_8x4_BB_CH'.equals(vehicleStock.Product__r.VehicleCategory__r.Name)) && 'NN'.equals(vehicleStock.Product__r.VehicleCategory__r.CabMark__c));
         }
-
-//        AccNo = String.isEmpty(vehicleStock.AcceptedNo_Formula__c) ? vehicleStock.CarType__r.AcceptedNo__c : vehicleStock.AcceptedNo_Formula__c;
     }
 }

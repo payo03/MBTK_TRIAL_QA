@@ -1,0 +1,231 @@
+<!--
+ * @author : San.Kang
+ * @date : 2025-02-10
+ * @description : 임시운행허가신청서 PDF
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-02-10      San.Kang          Initial Version
+-->
+<apex:page renderAs="pdf" sidebar="false" applyBodyTag="false" applyHtmlTag="false" showHeader="false" controller="TempDrivePermitController" action="{!init}">
+    <head>
+        <style>
+                   @page{
+/*                        zoom : 2.0;*/
+                   margin-top: 0.8cm;
+                   margin-bottom: 0.5cm;
+                   margin-left: 0.5cm;
+                   margin-right: 0.5cm;
+                   }
+                   td{bordercolor:#FFFFFF; border:1.5px solid;font-size:9pt;font-family:Arial Unicode MS;padding-left:4px;padding-right:4px;border:1px solid;}
+        </style>
+    </head>
+    <span style="margin-left:20px;font-family:Arial Unicode MS;font-size:9pt;">■자동차관리법 시행규칙 [별지 제16호서식]&nbsp;&nbsp;</span>
+    <span style="color:blue;font-family:Arial Unicode MS;font-size:9pt;">&lt;개정 2016.2.11.&gt;</span>
+    <br/>
+    <div style="height:35px;text-align:center;font-family:Arial Unicode MS;font-size:15pt">임시운행허가 신청서</div>
+    <table border="1" cellpadding="0" cellspacing="0" align="center" style="width:100%;border-collapse:collapse;border-top:none;border-left:none;border-right:none;border-bottom:none;">
+        <tbody>
+        <tr style="height:35px;">
+            <td colspan="4" style="vertical-align:top;font-size:9pt;border-color:#BDBDBD;background-color:#E6E6E6;width:25%;border-left:none;">
+                접수번호
+            </td>
+            <td colspan="4" style="vertical-align:top;font-size:9pt;border-color:#BDBDBD;background-color:#E6E6E6;width:25%;">
+                접수일
+            </td>
+            <td colspan="4" style="vertical-align:top;font-size:9pt;border-color:#BDBDBD;background-color:#E6E6E6;width:25%;">
+                발급일
+            </td>
+            <td colspan="4" style="vertical-align:top;font-size:9pt;border-color:#BDBDBD;background-color:#E6E6E6;width:25%;border-right:none;">
+                처리기간&nbsp;&nbsp;&nbsp;&nbsp;즉시<br/>
+                (자율주행자동차의 임시운행허가는 20일)
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <table border="1" cellpadding="0" cellspacing="0" align="center" style="width:100%;border-collapse:collapse;border-top:none;border-left:none;border-right:none;border-bottom:none;">
+        <tbody>
+        <tr style="height:5.65pt;"></tr>
+        <tr style="height:35px;">
+            <td colspan="2" rowspan="2" style="font-size:11pt;width:12.5%;vertical-align:middle;text-align:center;border-right-color:#BDBDBD;border-left:none;">
+                신청인
+            </td>
+            <td colspan="2" style="vertical-align:top;width:12.5%;border-right-color:#BDBDBD;border-bottom-color:#BDBDBD;border-left:none;border-right:none;">
+                성명
+            </td>
+            <td colspan="4" style="vertical-align:middle;text-align:center;width:25%;border-right-color:#BDBDBD;border-bottom-color:#BDBDBD;border-left:none;border-right:none;">
+                <div style="font-size:12pt;">{!$CurrentPage.parameters.name}</div>
+            </td>
+            <td colspan="3" style="vertical-align:bottom;width:18.75%;border-right-color:#BDBDBD;border-bottom-color:#BDBDBD;border-left:none;">
+                <div style="float:right;font-size:7pt;color:#646464;"> (서명 또는 인)</div>
+            </td>
+            <td colspan="5" style="width:31.25%;vertical-align:top;border-bottom-color:#BDBDBD;border-right:none;border-left:none;">
+                주민등록번호
+                <div style="font-size:10pt;text-align:center;">{!$CurrentPage.parameters.rrn}</div>
+            </td>
+        </tr>
+        <tr style="height:35px;">
+            <td colspan="14" style="vertical-align:top;border-right:none;border-left:none;border-top:none;">
+                주소
+                <div style="font-size:10pt;text-align:center;">{!$CurrentPage.parameters.addr}</div>
+            </td>
+        </tr>
+        <tr style="height:5.65pt;"></tr>
+        <tr style="height:35px;">
+            <td colspan="2" rowspan="3" style="font-size:11pt;width:12.5%;vertical-align:middle;text-align:center;border-right-color:#BDBDBD;border-left:none;">
+                사용자
+            </td>
+            <td colspan="2" style="vertical-align:top;width:12.5%;border-right-color:#BDBDBD;border-bottom-color:#BDBDBD;border-left:none;border-right:none;">
+                상호(명칭)
+            </td>
+            <td colspan="7" style="vertical-align:middle;text-align:center;width:43.75%;border-right-color:#BDBDBD;border-bottom-color:#BDBDBD;border-left:none;">
+                <div style="font-size:12pt;">{!IF(ISBLANK(account.Name), '', account.Name)}</div>
+            </td>
+            <td colspan="5" style="width:31.25%;vertical-align:top;border-bottom-color:#BDBDBD;border-right:none;border-left:none;">
+                전화번호
+                <div style="font-size:10pt;text-align:center;">{!IF(ISBLANK(account.PersonMobilePhone), '', account.PersonMobilePhone)}</div>
+            </td>
+        </tr>
+        <tr style="height:35px;">
+            <td colspan="2" style="vertical-align:top;width:12.5%;border-right-color:#BDBDBD;border-bottom-color:#BDBDBD;border-left:none;border-right:none;border-top:none;">
+                성명(대표자)
+            </td>
+            <td colspan="7" style="vertical-align:middle;text-align:center;width:43.75%;border-right-color:#BDBDBD;border-bottom-color:#BDBDBD;border-left:none;border-top:none;">
+                <div style="font-size:12pt;">{!account.Name}</div>
+            </td>
+            <td colspan="5" style="width:31.25%;vertical-align:top;border-bottom-color:#BDBDBD;border-right:none;border-left:none;border-top:none;">
+                주민등록번호
+                <div style="font-size:10pt;text-align:center;">{!IF(opportunity.Account.RecordType.Name=='법인사업자', IF(ISBLANK(account.BusinessNumber__c), '', account.BusinessNumber__c), IF(ISBLANK(account.IDNumber__pc), '', account.IDNumber__pc))}</div>
+            </td>
+        </tr>
+        <tr style="height:35px;">
+            <td colspan="14" style="vertical-align:top;border-right:none;border-left:none;border-top:none;">
+                주소
+                <div style="font-size:10pt;text-align:center;">    {!IF(ISBLANK(account.RoadAddress__c), '', account.RoadAddress__c) + IF(ISBLANK(account.DetailAddress__c), '', account.DetailAddress__c)}</div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <table border="1" cellpadding="0" cellspacing="0" align="center" style="width:100%;border-collapse:collapse;border-top:none;border-left:none;border-right:none;border-bottom:none;">
+        <tbody>
+        <tr style="height:5.65pt;"></tr>
+        <tr style="height:35px;">
+            <td colspan="2" rowspan="4" style="font-size:11pt;width:12.5%;vertical-align:middle;text-align:center;border-right-color:#BDBDBD;border-left:none;">
+                신청사항
+            </td>
+            <td colspan="6" style="width:37.5%;vertical-align:top;border-right-color:#BDBDBD;border-bottom-color:#BDBDBD;border-left:none;">
+                차종
+                <div style="font-size:10pt;text-align:center;">{!IF(Segment==1,'특수화물차(견인용)','화물자동차')}</div>
+            </td>
+            <td colspan="8" style="width:50%;vertical-align:top;border-bottom-color:#BDBDBD;border-right:none;border-left:none;">
+                차명
+                <div style="font-size:10pt;text-align:center;">{!IF(ISBLANK(vehicleStock.SpecPrefix__c), '', vehicleStock.SpecPrefix__c)}</div>
+            </td>
+        </tr>
+        <tr style="height:35px;">
+            <td colspan="6" style="width:37.5%;vertical-align:top;border-right-color:#BDBDBD;border-bottom-color:#BDBDBD;border-left:none;border-top:none;">
+                차대번호
+                <div style="font-size:12pt;text-align:center;">{!IF(ISBLANK(vehicleStock.Name), '', vehicleStock.Name)}</div>
+            </td>
+            <td colspan="8" style="width:50%;vertical-align:top;border-bottom-color:#BDBDBD;border-right:none;border-left:none;border-top:none;">
+                임시운행허가 번호판 규격
+                <div style="font-size:11pt;text-align:center;">
+                    335&nbsp;&nbsp;<span style="font-size:7pt;color:#646464;">X</span>
+                    170&nbsp;&nbsp;<span style="font-size:7pt;color:#646464;">(mm)</span>
+                </div>
+            </td>
+        </tr>
+        <tr style="height:35px;">
+            <td colspan="14" style="vertical-align:top;border-bottom-color:#BDBDBD;border-right:none;border-left:none;border-top:none;">
+                운행목적
+                <div style="font-size:10pt;text-align:center;">{!$CurrentPage.parameters.drivePurpose}</div>
+            </td>
+        </tr>
+        <tr style="height:35px;">
+            <td colspan="14" style="vertical-align:top;border-right:none;border-left:none;border-top:none;">
+                운행기간
+                <div style="font-size:10pt;text-align:center;">
+                    <apex:outputText value="{0,date,yyyy'-'MM'-'dd}">
+                        <apex:param value="{!tempReqDate}" />
+                    </apex:outputText>
+                    &nbsp;&nbsp;~&nbsp;&nbsp;
+                    <apex:outputText value="{0,date,yyyy'-'MM'-'dd}">
+                        <apex:param value="{!CalDate}" />
+                    </apex:outputText>
+                </div>
+            </td>
+        </tr>
+        <tr style="height:35px;">
+            <td colspan="16" style="vertical-align:middle;text-align:left;margin-left:20px;border-left:none;border-right:none;border-bottom:none;">
+                「자동차관리법」제27조제1항, 같은 법 시행령 제7조 및 같은 법 시행규칙 제26조제1항에 따라 위와 같이 임시운행허가를 신청합니다.
+            </td>
+        </tr>
+        <tr style="height:25px;">
+            <td colspan="16" style="font-size:8pt;vertical-align:middle;text-align:right;border:none;">
+                <apex:outputText value="{0,date,yyyy'년  'M'월  'd' 일'}" rendered="{!NOT(ISBLANK(vehicleStock.TempReqDate__c))}">
+                    <apex:param value="{!vehicleStock.TempReqDate__c}" />
+                </apex:outputText>
+            </td>
+        </tr>
+        <tr style="height:25px;">
+            <td colspan="16" style="font-size:13pt;vertical-align:middle;border-left:none;border-right:none;border-top:none;border-bottom:2px solid;">
+                국토교통부장관, 시ㆍ도지사 또는 시장ㆍ군수ㆍ구청장 <span style="font-size:9pt">귀하</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <br/>
+    <table border="1" cellpadding="0" cellspacing="0" align="center" style="width:100%;border-collapse:collapse;border-top:none;border-left:none;border-right:none;border-bottom:none;">
+        <tbody>
+        <tr style="height:70px;">
+            <td colspan="2" style="width:12.5%;vertical-align:top;font-size:7.5pt;border-color:#BDBDBD;border-left:none;">
+                첨부서류
+            </td>
+            <td colspan="11" style="width:68.75%;vertical-align:middle;font-size:7.5pt;border-color:#BDBDBD;line-height:1.7em">
+                1.「자동차관리법」제27조제1항 단서에 따른 자율주행자동차의 임시운행허가의 경우 <br/>
+                &nbsp;&nbsp;&nbsp;가. 시험ㆍ연구 계획서<br/>
+                &nbsp;&nbsp;&nbsp;나. 자율주행자동차의 구조 및 기능에 대한 설명서<br/>
+                &nbsp;&nbsp;&nbsp;다. 제26조의2에 따른 안전운행요건 적합 여부 확인을 위하여 필요한 서류로서 국토교통부장관이<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;정하여 고시하는 서류<br/>
+                2. 「자동차관리법 시행령」제7조제1항제11호에 따른 시험ㆍ연구목적의 임시운행허가의 경우<br/>
+                &nbsp;&nbsp;&nbsp;가. 「자동차관리법 시행령」제7조제1항제11호 각 목의 어느 하나에 해당함을 증명하는 서류<br/>
+                &nbsp;&nbsp;&nbsp;나. 시험ㆍ연구 계획서<br/>
+            </td>
+            <td colspan="3" style="width:18.75%;text-align:justify;vertical-align:top;font-size:7.5pt;border-color:#BDBDBD;border-right:none;">
+                <span style="text-align:left;">수수료</span><br/>
+                1대에 대하여 1,800원. 다만, 법 제27조제2항 단서에 따른 임시운행허가의 경우에는 수수료를 부과하지 않습니다.
+            </td>
+        </tr>
+        <tr style="height:5.65pt;"></tr>
+        <tr style="height:25px;">
+            <td colspan="16" style="font-size:10pt;text-align:center;border-bottom-color:#BDBDBD;background-color:#E6E6E6;border-left:none;border-right:none;border-top:2px solid;">
+                유의사항
+            </td>
+        </tr>
+        <tr style="height:140px;">
+            <td colspan="16" style="font-size:7.5pt;border-bottom-color:#BDBDBD;border-top:none;border-left:none;border-right:none;line-height:1.7em;">
+                1. 운행목적별 임시운행의 허가기간(「자동차관리법 시행령」제7조제2항 및 제4항)은 아래와 같습니다.<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;가. 신규등록신청ㆍ차대번호 표기ㆍ자동차검사 또는 전시 등을 위한 운행: 10일 이내<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;나. 수출을 위한 운행: 20일 이내<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;다. 자기인증에 필요한 시험ㆍ확인 또는 특수한 설비 설치를 위한 운행: 40일 이내<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;라. 제작자 등의 시험ㆍ연구 목적의 운행: 2년 이내(친환경ㆍ첨단미래형 자동차의 개발ㆍ보급을 위한 경우에는 5년)<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;마. 자율주행자동차의 시험ㆍ연구 목적의 운행 : 5년 이내<br/>
+                <div style="margin-top:4px;margin-bottom:4px;">
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;※ 자율주행자동차의 임시운행허가를 신청하는 경우 안전운행요건 적합 여부 확인을 위하여 국토교통부장관이 정하는 날짜 및 장소에 임시운행하려는<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;자율주행자동차를 제시하여야 합니다.
+                </div>
+                2. 임시운행허가기간이 만료한 날부터 5일 이내에 임시운행허가증 및 임시운행허가번호판을 교부한 관청에 반납하여야 합니다. 다만, 신규등록을 신청하는 경우에는<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;임시운행허가기간 내에 신규등록신청서에 첨부하여 등록관청에 반납하여야 합니다.<br/>
+                3. 임시운행허가증 및 임시운행허가번호판을 반납기간 내에 반납하지 아니하는 경우에는 「자동차관리법」 제84조제1항제12호에 따라 100만원 이하 의 과태료가 부과될<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;수 있습니다.<br/>
+                4.「자동차관리법」 제27조제2항 단서에 따라 신청하는 경우에는 임시운행허가번호판 발급을 생략할 수 있습니다.
+            </td>
+        </tr>
+        <tr>
+            <td colspan="16" style="border:none;font-size:8pt;text-align:right;">
+                210mm×297mm[백상지 80g/㎡ 또는 중질지 80g/㎡]
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</apex:page>

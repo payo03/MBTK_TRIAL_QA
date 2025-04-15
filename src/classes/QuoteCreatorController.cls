@@ -38,7 +38,6 @@ public without sharing class QuoteCreatorController {
             'campaignList' => String.isNotBlank(productId) ? getCampaignList() : null,
             'campaignDupList' => campaignDupList,
             'baseDiscount' => String.isNotBlank(productId) ? getBaseDiscount() : null,
-//            'availableOilCouponQty' => getAvailableOilCouponQty(),
             'financialList' => getFinancialList()
         };
     }
@@ -207,6 +206,8 @@ public without sharing class QuoteCreatorController {
             if (String.isNotBlank(quoteId)) quote = getCurrentQuote();
 
             productId = product.id;
+
+            // 추가할인 차량 선택 안했을 시 차량 할당
             if (String.isBlank(stockId)) {
                 stockId = [
                     SELECT Id
@@ -252,6 +253,7 @@ public without sharing class QuoteCreatorController {
             quote.TotalVehiclePrice__c = summaryData.get('totalPrice');
             quote.MonthlyPayment__c = summaryData.get('monthlyPayment');
 
+            // 버전업 시 새로 생성
             if (isNewQuote) {
                 quote.OwnerId = ownerId;
                 insert quote;
@@ -261,6 +263,7 @@ public without sharing class QuoteCreatorController {
 
             String quoteId = quote.Id;
 
+            // 이전 Item 삭제
             List<QuoteDetail__c> beforeQuoteDetailList = [SELECT Id FROM QuoteDetail__c WHERE Quote__c = :quoteId];
             List<QuoteLineItem> beforeQuoteLineItemList = [SELECT Id FROM QuoteLineItem WHERE QuoteId = :quoteId];
             if (!beforeQuoteDetailList.isEmpty()) delete beforeQuoteDetailList;
@@ -268,7 +271,6 @@ public without sharing class QuoteCreatorController {
 
             List<QuoteLineItem> quoteLineItemList = new List<QuoteLineItem>();
             List<QuoteDetail__c> quoteDetailList = new List<QuoteDetail__c>();
-//            OpportunityLineItem opportunityLineItem;
             if (product != null) {
                 List<PricebookEntry> pricebookEntryList = [SELECT Id FROM PricebookEntry WHERE Pricebook2Id = :pricebook.Id AND IsActive = TRUE AND Product2Id = :product.id LIMIT 1];
                 if (pricebookEntryList.isEmpty()) {
@@ -281,12 +283,15 @@ public without sharing class QuoteCreatorController {
                     insert insertPricebookEntry;
                 }
                 PricebookEntry pricebookEntry = [SELECT Id FROM PricebookEntry WHERE Pricebook2Id = :pricebook.Id AND IsActive = TRUE AND Product2Id = :product.id LIMIT 1];
+
+                // 견적 세부사항 추가 (차종)
                 quoteDetailList.add(new QuoteDetail__c(
                     Quote__c = quoteId,
                     Type__c = '차종',
                     Name = product.name,
                     Product__c = product.id
                 ));
+                // 견적 Line Item 추가
                 quoteLineItemList.add(new QuoteLineItem(
                     QuoteId = quoteId,
                     Product2Id = product.id,
@@ -295,6 +300,7 @@ public without sharing class QuoteCreatorController {
                     Quantity = 1
                 ));
 
+                // 견적 세부사항 추가 (옵션)
                 if (!product.optionList.isEmpty()) {
                     for (OptionWrap optionWrap : product.optionList) {
                         quoteDetailList.add(new QuoteDetail__c(
@@ -306,6 +312,7 @@ public without sharing class QuoteCreatorController {
                     }
                 }
             }
+            // 견적 세부사항 추가 (옵션 - 기본제공)
             if (defaultOptionList != null && !defaultOptionList.isEmpty()) {
                 for (OptionWrap option : defaultOptionList) {
                     quoteDetailList.add(new QuoteDetail__c(
@@ -316,6 +323,7 @@ public without sharing class QuoteCreatorController {
                     ));
                 }
             }
+            // 견적 세부사항 추가 (캠페인)
             if (promotion != null && !promotion.promotionList.isEmpty()) {
                 for (PromotionWrap promotionWrap : promotion.promotionList) {
                     quoteDetailList.add(new QuoteDetail__c(
@@ -326,6 +334,7 @@ public without sharing class QuoteCreatorController {
                     ));
                 }
             }
+            // 견적 세부사항 추가 (주유상품권)
             if (oilCouponCount > 0) {
                 quoteDetailList.add(new QuoteDetail__c(
                     Quote__c = quoteId,
@@ -334,6 +343,7 @@ public without sharing class QuoteCreatorController {
                     OilCouponCount__c = oilCouponCount
                 ));
             }
+            // 견적 세부사항 추가 (특장)
             if (specialWrapList != null && !specialWrapList.isEmpty()) {
                 for (SpecialWrap specialWrap : specialWrapList) {
                     if (String.isNotBlank(specialWrap.subOption)) {
@@ -350,6 +360,8 @@ public without sharing class QuoteCreatorController {
                     }
                 }
             }
+
+            // // 견적 세부사항, Line Item 생성
             if (!quoteDetailList.isEmpty()) insert quoteDetailList;
             if (!quoteLineItemList.isEmpty()) insert quoteLineItemList;
 
@@ -369,7 +381,6 @@ public without sharing class QuoteCreatorController {
     public static Map<String, Object> getQuoteDetail() {
 
         try {
-            System.debug(oppId);
             Map<String, Object> returnValue = new Map<String, Object>{
                 'name' => String.join(new List<String>{
                     getOppData()?.Owner.Name ?? '',
@@ -379,8 +390,15 @@ public without sharing class QuoteCreatorController {
                 }, '-')
             };
 
+            /**
+            * 기회 버튼으로 데이터 가져올 시
+            * 1순위. Published
+            * 2순위. Canceled
+            * 3순위 가장 마지막 Version
+            */
             if (String.isBlank(quoteId)) {
                 List<Quote> quoteList = new List<Quote>();
+                // 1순위
                 quoteList = [
                     SELECT Id
                     FROM Quote
@@ -389,6 +407,7 @@ public without sharing class QuoteCreatorController {
                     ORDER BY ConfigurationNo__c DESC NULLS LAST, VersionNo__c DESC NULLS LAST
                     LIMIT 1
                 ];
+                // 2순위
                 if (quoteList.isEmpty()) {
                     quoteList = [
                         SELECT Id
@@ -399,6 +418,7 @@ public without sharing class QuoteCreatorController {
                         LIMIT 1
                     ];
                 }
+                // 3순위
                 if (quoteList.isEmpty()) {
                     quoteList = [
                         SELECT Id
@@ -408,7 +428,7 @@ public without sharing class QuoteCreatorController {
                         LIMIT 1
                     ];
                 }
-                System.debug('quoteList :: ' + quoteList);
+
                 if (!quoteList.isEmpty()) {
                     quoteId = quoteList[0].Id;
                 } else {
@@ -422,11 +442,13 @@ public without sharing class QuoteCreatorController {
                 return returnValue;
             }
 
+            ProductWrap productWrap;
             List<OptionWrap> optionWrapList = new List<OptionWrap>();
             List<PromotionWrap> promotionWrapList = new List<PromotionWrap>();
             List<SpecialWrap> specialWrapList = new List<SpecialWrap>();
-            ProductWrap productWrap;
             Decimal oilCouponCount = 0;
+
+            // 견적 세부사항 가져오기
             for (QuoteDetail__c detail : quote.QuoteDetail__r) {
                 String type = detail.Type__c;
                 switch on type {
@@ -457,6 +479,7 @@ public without sharing class QuoteCreatorController {
 
             String financeId;
             String financialName;
+            // 기존에 선택된 금융 데이터 있으면 가져오기
             if (String.isNotBlank(quote.Finance__c)) {
                 Finance__c finance = [SELECT Id, Name FROM Finance__c WHERE Id = :quote.Finance__c];
                 financeId = finance.Id;
@@ -507,6 +530,7 @@ public without sharing class QuoteCreatorController {
             AND (Segment2__c = :product.Segment2__c OR AllSegment2__c = TRUE)
             ORDER BY Name
         ];
+
         List<Map<String, Object>> financialMapList = new List<Map<String, Object>>();
         for (Finance__c finance : financialList) {
             financialMapList.add(new Map<String, Object>{
@@ -559,10 +583,11 @@ public without sharing class QuoteCreatorController {
      * @return 현재 견적 데이터
      */
     private static Quote getCurrentQuote() {
+
         List<Quote> quoteList = [
             SELECT Id, Name, Status, OpportunityId, SalesconditionDiscountAmt__c, DefaultInterestRate__c, MonthDivideInputMonth__c, DiscountAmt__c,
-                Product__c, Finance__c, Finance__r.Name, /*LoanAmount__c,*/ ConsignmentPrice__c, InsurancePrice__c, VehicleStock__c, HopeHandoverDate__c,
-                /*RegistrationTax__c,*/ StampDuty__c, /*TotalSpecialPrice__c,*/ Deposit__c, InterestDefermentVAT__c, AdditionalLossPrice__c,
+                Product__c, Finance__c, Finance__r.Name, ConsignmentPrice__c, InsurancePrice__c, VehicleStock__c,
+                HopeHandoverDate__c, StampDuty__c, Deposit__c, InterestDefermentVAT__c, AdditionalLossPrice__c,
                 AdvancePayment__c, CapitalDefermentAmount__c, fm_VehicleDiscountPrice__c, Opportunity.OwnerId, (
                 SELECT Id, Type__c, Product__c, CampaignMaster__c, OilCouponCount__c, SpecialOption__c, SpecialSubOption__c, SpecialPrice__c,
                     SpecialAccount__c, SpecialFinal__c, CampaignMaster__r.Name, CampaignMaster__r.ExpireDate__c, CampaignMaster__r.DiscountPrice__c,
@@ -611,7 +636,7 @@ public without sharing class QuoteCreatorController {
             return null;
         }
 
-        Product2 item = productList[0]; // 공통으로 사용할 SObject 변수
+        Product2 item = productList[0];
 
         ProductWrap productWrap = new ProductWrap(
             item.Id,
@@ -739,17 +764,6 @@ public without sharing class QuoteCreatorController {
 
     /**
      * @author th.kim
-     * @description 가용 주유상품권 수량을 가져옴
-     *
-     *  @return 가용 주유상품권 수량 || 0
-     */
-//    private static Decimal getAvailableOilCouponQty() {
-//
-//        return [SELECT Quantity__c FROM OilCouponMaster__c LIMIT 1]?.Quantity__c ?? 0;
-//    }
-
-    /**
-     * @author th.kim
      * @description 배정된 기회 차량 제외
      * @return 배정된 기회 Set<Id>
      */
@@ -868,7 +882,6 @@ public without sharing class QuoteCreatorController {
     public class FinancialWrap {
         @AuraEnabled public String financeId { get; set; }
         @AuraEnabled public String financialName { get; set; }
-//        @AuraEnabled public String interestRateRange { get; set; }
         @AuraEnabled public Decimal advancePayment { get; set; }
         @AuraEnabled public Decimal interestRate { get; set; }
         @AuraEnabled public Decimal loanTermMonth { get; set; }
@@ -909,16 +922,14 @@ public without sharing class QuoteCreatorController {
         @AuraEnabled public Decimal stampDuty { get; set; }
         @AuraEnabled public Decimal notarizedFee { get; set; }
         @AuraEnabled public Decimal totalExpenses { get; set; }
-//        @AuraEnabled public Decimal registrationTax { get; set; }
         @AuraEnabled public Boolean isStampDuty { get; set; }
 
-        public ExtraExpensesWrap(Decimal consignment, Decimal insurance, Decimal stampDuty, Decimal notarizedFee, Decimal totalExpenses/*, Decimal registrationTax*/) {
+        public ExtraExpensesWrap(Decimal consignment, Decimal insurance, Decimal stampDuty, Decimal notarizedFee, Decimal totalExpenses) {
             this.consignment = consignment;
             this.insurance = insurance;
             this.stampDuty = stampDuty;
             this.notarizedFee = notarizedFee;
             this.totalExpenses = totalExpenses;
-//            this.registrationTax = registrationTax;
             this.isStampDuty = stampDuty > 0;
         }
     }
