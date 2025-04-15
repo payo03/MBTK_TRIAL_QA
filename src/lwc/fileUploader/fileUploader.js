@@ -16,6 +16,7 @@ import fileStyle from "@salesforce/resourceUrl/fileStyle";
 
 export default class FileUploader extends NavigationMixin(LightningElement) {
 
+	// 테스트3
 	@api recordId;
 	file1Details = null;
 	file2Details = null;

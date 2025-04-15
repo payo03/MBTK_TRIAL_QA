@@ -1,0 +1,491 @@
+<!--
+ * @author : San.Kang
+ * @date : 2025-02-17
+ * @description : 차량인수인계서 PDF
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-02-17      San.Kang          Initial Version
+-->
+<apex:page sidebar="false" applyBodyTag="false" applyHtmlTag="false" showHeader="false" renderAs="pdf"
+           controller="PdfTakeTruckController"
+           action="{!init}">
+    <head>
+
+        <style type="text/css" media="print">
+
+            @page {
+
+                @top-center {
+
+                    content: element(header);
+
+                }
+
+                @bottom-left {
+
+                    content: element(footer);
+
+                }
+
+            }
+
+            div.header {
+
+                padding: 10px;
+
+                position: running(header);
+
+            }
+
+            div.footer {
+
+                display: block;
+
+                padding: 5px;
+
+                position: running(footer);
+
+            }
+
+            .pagenumber:before {
+
+                content: counter(page);
+
+            }
+
+            .pagecount:before {
+
+                content: counter(pages);
+
+            }
+
+        </style>
+
+    </head>
+    <div class="footer">
+        <div align="center"><span class="pagenumber"/> / <span class="pagecount"/></div>
+    </div>
+    <div style="page-break-after:always;">
+        <table border="1" cellpadding="0" cellspacing="0" align="center" style="width:700px;border:none;">
+            <tr>
+                <td style="width:450px;border:none;" align="center">
+                    <apex:outputText value="차량 인수인계서" style="font-family: Arial Unicode MS; font-size:18pt;"/>
+                </td>
+                <td align="right" valign="bottom" style="width:190px;border:none;">
+                    <apex:image url="/servlet/servlet.FileDownload?file={!docImage1}" width="150" height="60"/>
+                </td>
+            </tr>
+        </table>
+        <br/>
+        <table align="center" border="1" cellpadding="0" cellspacing="0"
+               style="width:700px;border-collapse:collapse;border-style:solid;">
+            <tr style="font-family: Arial Unicode MS;background:#F6F6F6;font-size:10pt;" align="center">
+                <td>
+                    차대번호
+                </td>
+                <td>
+                    샤시번호
+                </td>
+                <td colspan="2">
+                    차종
+                </td>
+            </tr>
+            <tr style="font-family: Arial Unicode MS;font-size:10pt;" align="center">
+                <td>
+                    <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.Name))}" value="{!vehicleStock.Name}"/>
+                    <apex:outputText rendered="{!ISBLANK(vehicleStock.Name)}" value=" - "/>
+                </td>
+                <td>
+                    <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.VehicleNo__c))}" value="{!vehicleStock.VehicleNo__c}"/>
+                    <apex:outputText rendered="{!ISBLANK(vehicleStock.VehicleNo__c)}" value=" - "/>
+                </td>
+                <td colspan="2">
+                    <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.Product__r.Name))}" value="{!vehicleStock.Product__r.Name}"/>
+                    <apex:outputText rendered="{!ISBLANK(vehicleStock.Product__r.Name)}" value=" - "/>
+                </td>
+            </tr>
+            <tr style="font-family: Arial Unicode MS;background:#F6F6F6;font-size:10pt;" align="center">
+                <td>
+                    수주번호
+                </td>
+                <td>
+                    고객명
+                </td>
+                <td>
+                    판매자
+                </td>
+                <td>
+                    출고일자
+                </td>
+            </tr>
+            <tr style="font-family: Arial Unicode MS;font-size:10pt;" align="center">
+
+                <td>
+                    <apex:outputText rendered="{!NOT(ISBLANK(opportunity.Id))}" value="{!opportunity.Id}"/>
+                    <apex:outputText rendered="{!ISBLANK(opportunity.Id)}" value=" - "/>
+                </td>
+                <td>
+                    <apex:outputText rendered="{!NOT(ISBLANK(opportunity.Account.Name))}" value="{!opportunity.Account.Name}"/>
+                    <apex:outputText rendered="{!ISBLANK(opportunity.Account.Name)}" value=" - "/>
+                </td>
+                <td>
+                    <apex:outputText rendered="{!NOT(ISBLANK(opportunity.Account.Owner.Name))}" value="{!opportunity.Account.Owner.Name}"/>
+                    <apex:outputText rendered="{!ISBLANK(opportunity.Account.Owner.Name)}" value=" - "/>
+                </td>
+                <td>
+                    <apex:outputText rendered="{!NOT(ISBLANK(opportunity.HandoverDate__c))}" value="{0,date,yyyy'년 'M'월 'd'일'}" style="font-family: Arial Unicode MS; font-size: 11pt">
+                        <apex:param value="{!opportunity.HandoverDate__c}"/>
+                    </apex:outputText>
+                </td>
+            </tr>
+        </table>
+        <div>
+            <div style="margin-left:20pt">
+                <p>
+                    <apex:outputText value="1. 지급물품내역" style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+
+                <div style="margin-left:10pt">
+
+                    <apex:outputText value="1) 옵션 및 프로모션 (품목 및 수량 선택)"
+                                     style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                    <br/>
+                    <div style="margin-left:40pt;">
+                        &nbsp;<apex:outputText value="{!productOption}"
+                                               style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                        <!--
+                        &nbsp;<apex:outputText value="스포일러, PTO, 저상커플러, 주유상품권, Efficient 쿠폰북, 타이어" style="font-family: Arial Unicode MS; font-size:9pt;" />
+                        <apex:outputText value="출고기념품(가방, 긴팔,반팔셔츠, 점퍼, 전구세트, 썬바이져, 엔진오일 각1개)" style="font-family: Arial Unicode MS; font-size:9pt;" />
+                        <apex:outputText value="에어혼, 바닥매트, 트랙터발판, 가죽시트, 자동호루" style="font-family: Arial Unicode MS; font-size:9pt;" />
+-->
+                    </div>
+                    <br/>
+
+
+                    <apex:outputText value="2) 기본지급품목 (차종별)" style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                    <div style="margin-left:40pt;">
+                        &nbsp;
+                        <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.Product__r.SupplyItem__c))}" value="{!vehicleStock.Product__r.SupplyItem__c}" style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                        <apex:outputText rendered="{!ISBLANK(vehicleStock.Product__r.SupplyItem__c)}" value=" - " style="font-family: Arial Unicode MS; font-size:9pt;"/>
+
+                        <!--
+                        <apex:outputText value="소화기, 의료함, 견인고리, 공기주입기, 삼각대, 오일자키, 유리세척솔, OVM공구, 연결소켓 12,24V , 사용자설명서, 작동 KEY, 케이블(ABS,흰색,검정색), 동영상DVD, 보증서, 유지관리기록부, 프로핏체크리플릿, 간략한소개, 오디오설명서,야광조끼" style="font-family: Arial Unicode MS; font-size:9pt;" />
+-->
+                    </div>
+                    <br/>
+
+
+                    <div>
+                        <apex:outputText value="3) 등록서류 (차종별)" style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                    </div>
+                    <br/>
+
+                </div>
+            </div>
+            <div style="margin-left:20pt">
+                <apex:outputText value="2. 교육내용 (MTBK FM 255 checklist handover)"
+                                 style="font-family: Arial Unicode MS; font-size:9pt;"/>
+
+                <div style="margin-left:10pt">
+
+                    <p>
+                        <apex:outputText value="1) 실내교육" style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                    </p>
+
+                    <p>
+
+                        &nbsp;&nbsp;<apex:outputText value="□ 대쉬보드 / 계기판 / 각종스위치"
+                                                     style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                    </p>
+                    <p>
+
+                        &nbsp;&nbsp;<apex:outputText value="□ MAN 브레이크 매틱 / 인타더 (적용시)"
+                                                     style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                    </p>
+                    <p>
+                        &nbsp;&nbsp;<apex:outputText value="□ 정속주행 / 속도 제한장치"
+                                                     style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                    </p>
+                    <p>
+
+                        &nbsp;&nbsp;<apex:outputText value="□ 라이트 테스트"
+                                                     style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                    </p>
+                    <p>
+
+                        &nbsp;&nbsp;<apex:outputText value="□ 시트, 핸들, 각미러 조정 및 고정"
+                                                     style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                    </p>
+                    <p>
+
+                        &nbsp;&nbsp;<apex:outputText value="□ 변속기 조작방법 ( DX, DM, 학습, 자동/수동 모드)"
+                                                     style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                    </p>
+                    <p>
+
+                        &nbsp;&nbsp;<apex:outputText value="□ 열선 및 통풍시트 작동 (적용시)"
+                                                     style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                    </p>
+                    <p>
+
+                        &nbsp;&nbsp;<apex:outputText value="□ 무시동 에어컨 작동 (적용시)"
+                                                     style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                    </p>
+                    <p>
+
+                        &nbsp;&nbsp;<apex:outputText value="□ 차선이탈방지시스템(LGS) 및 전자식 차량안정제어장치(ESP) 기능 (적용시)"
+                                                     style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                    </p>
+                    <p>
+
+                        &nbsp;&nbsp;<apex:outputText value="□ 차동기어 잠금 장치의 기능 (디퍼렌셜 락)"
+                                                     style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                    </p>
+                    <p>
+
+                        &nbsp;&nbsp;<apex:outputText value="□ 엔진 스타팅을 위한 절차"
+                                                     style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="page-break-after:always;">
+        <div style="margin-left:20pt">
+            <div style="margin-left:10pt">
+
+
+                <p>
+                    <apex:outputText value="2) 외부 / 점검 교육" style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+                <p>
+
+                    &nbsp;&nbsp;<apex:outputText value="□ 전면서비스 도어내 냉각수, 엔진오일, 워셔액 확인"
+                                                 style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+                <p>
+
+                    &nbsp;&nbsp;<apex:outputText value="□ 외부동력 인출장치(PTO)의 적절한 사용 (적용시)"
+                                                 style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+                <p>
+
+                    &nbsp;&nbsp;<apex:outputText value="□ 1차 연료필터/ 유수분리기 사용법 (적용시)"
+                                                 style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+                <p>
+
+                    &nbsp;&nbsp;<apex:outputText value="□ 캡-틸팅의 작동"
+                                                 style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+                <p>
+
+                    &nbsp;&nbsp;<apex:outputText value="□ 견인을 위한 준비"
+                                                 style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+                <p>
+
+                    &nbsp;&nbsp;<apex:outputText value="□ MAN 정품배터리 확인/배터리 취급 및 관리방법"
+                                                 style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+                <p>
+
+                    &nbsp;&nbsp;<apex:outputText value="□ 스포일러의 올바른 사용법 및 조작법(적용시)"
+                                                 style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+                <p>
+
+                    &nbsp;&nbsp;<apex:outputText value="□ 전구 교환 방법"
+                                                 style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+                <p>
+
+                    &nbsp;&nbsp;<apex:outputText value="□ 전기장치/배선 임의 조작 및 설치금지"
+                                                 style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+                <p>
+
+                    &nbsp;&nbsp;<apex:outputText value="□ 각종 그리스 주입 및 관리방법"
+                                                 style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+                <p>
+
+                    &nbsp;&nbsp;<apex:outputText value="□ 요소수 공급장치 관리방법"
+                                                 style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+
+                <apex:outputText value="3) 기타교육" style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                <p>
+
+                    &nbsp;&nbsp;<apex:outputText value="□ 최고속도 85km/h, 90km/h 선택에 따른 연비 비교 및 경제적인 운행설명"
+                                                 style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+                <p>
+
+                    &nbsp;&nbsp;<apex:outputText value="□ 차종별 보증기간 및 보증연장 프로그램 설명"
+                                                 style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+                <p>
+
+                    &nbsp;&nbsp;<apex:outputText value="□ 프로핏체크(Profit-check)및 메인터넌스 프로그램 설명"
+                                                 style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+                <p>
+
+                    &nbsp;&nbsp;<apex:outputText value="□ 지정지급품 인도"
+                                                 style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+                <p>
+
+                    &nbsp;&nbsp;<apex:outputText value="□ 사용자 취급설명서 등 전달"
+                                                 style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+                <p>
+
+                    &nbsp;&nbsp;<apex:outputText value="□ 자동차 안전기준 (건설기계안전기준) 및 도로교통법에 따라 해당차량의 적용 중량 및 제한중량을"
+                                                 style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                    <br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<apex:outputText value="준수하여야 합니다."
+                                                                   style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+                <p>
+
+                    &nbsp;&nbsp;<apex:outputText value="□ 도로교통법에 따른 전체 차량 결합중량( 트랙터/차량+트레일러)은 최대 40 톤(ton)입니다."
+                                                 style="font-family: Arial Unicode MS; font-size:9pt;"/>
+                </p>
+            </div>
+        </div>
+        <br/>
+        <apex:outputText value="차량과 지급물품을 모두 인수/인계 하였고, 교육을 완료하였습니다."
+                         style="font-family: Arial Unicode MS; font-size:11pt;"/>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <div style="float:right;">
+            <br/>
+            <br/>
+            <apex:outputText value="인수자: " style="font-family: Arial Unicode MS; font-size:11pt;"/>
+            <apex:outputText rendered="{!NOT(ISBLANK(opportunity.Account.Name))}" value="{!opportunity.Account.Name}" style="font-family: Arial Unicode MS; font-size:13pt;"/>
+            <apex:outputText rendered="{!ISBLANK(opportunity.Account.Name)}" value=" - " style="font-family: Arial Unicode MS; font-size:13pt;"/>
+                            <apex:image url="{!sig.Url__c}" width="120" height="45" style="float:right" rendered="{!sig!=null}" />
+        </div>
+    </div>
+    <div>
+        <table border="1" cellpadding="0" cellspacing="0" align="center" style="width:700px;border:none;">
+            <tr>
+                <td style="width:450px;border:none;" align="center">
+                    <apex:outputText value="차량 점검 리포트" style="font-family: Arial Unicode MS; font-size:18pt;"/>
+                </td>
+                <td align="right" valign="bottom" style="width:190px;border:none;">
+                    <apex:image url="/servlet/servlet.FileDownload?file={!docImage1}" width="150" height="60"/>
+                </td>
+            </tr>
+        </table>
+        <br/>
+        <table align="center" border="1" cellpadding="0" cellspacing="0"
+               style="width:700px;border-collapse:collapse;border-style:solid;">
+            <tr style="font-family: Arial Unicode MS;background:#F6F6F6;font-size:10pt;" align="center">
+                <td>
+                    차대번호
+                </td>
+                <td>
+                    샤시번호
+                </td>
+                <td colspan="2">
+                    차종
+                </td>
+            </tr>
+            <tr style="font-family: Arial Unicode MS;font-size:10pt;" align="center">
+                <td>
+                    <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.Name))}" value="{!vehicleStock.Name}"/>
+                    <apex:outputText rendered="{!ISBLANK(vehicleStock.Name)}" value=" - "/>
+                </td>
+                <td>
+                    <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.VehicleNo__c))}" value="{!vehicleStock.VehicleNo__c}"/>
+                    <apex:outputText rendered="{!ISBLANK(vehicleStock.VehicleNo__c)}" value=" - "/>
+                </td>
+                <td colspan="2">
+                    <apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.Product__r.Name))}" value="{!vehicleStock.Product__r.Name}"/>
+                    <apex:outputText rendered="{!ISBLANK(vehicleStock.Product__r.Name)}" value=" - "/>
+                </td>
+            </tr>
+            <tr style="font-family: Arial Unicode MS;background:#F6F6F6;font-size:10pt;" align="center">
+                <td>
+                    수주번호
+                </td>
+                <td>
+                    고객명
+                </td>
+                <td>
+                    판매자
+                </td>
+                <td>
+                    출고일자
+                </td>
+            </tr>
+            <tr style="font-family: Arial Unicode MS;font-size:10pt;" align="center">
+                <td>
+                    {!opportunity.Id}
+                </td>
+                <td>
+                    {!opportunity.Account.Name}
+                </td>
+                <td>
+                    {!opportunity.Account.Owner.Name}
+                </td>
+                <td>
+                    <apex:outputText value="{0,date,yyyy'년 'M'월 'd'일'}"
+                                     style="font-family: Arial Unicode MS; font-size: 11pt">
+                        <apex:param value="{!IF(opportunity.VehicleStock__r.WantedOutDT__c!=null,opportunity.VehicleStock__r.WantedOutDT__c,opportunity.HandoverDate__c)}"/>
+                    </apex:outputText>
+                </td>
+            </tr>
+        </table>
+        <br/>
+        <br/>
+        <apex:image url="/servlet/servlet.FileDownload?file={!selectImage}" width="700px"/>
+        <br/>
+        <br/>
+        <br/>
+        <table align="center" border="1" cellpadding="0" cellspacing="0"
+               style="width:700px;border-collapse:collapse;border-style:solid;">
+            <tr style="height:40pt;font-family: Arial Unicode MS;font-size:12pt;" align="left">
+                <td colspan="1" style="width:150px;">
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;고객 확인란
+                </td>
+                <td colspan="3" style="background:#F6F6F6;">
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;차량을 이상없이 인수함.
+                </td>
+            </tr>
+            <tr style="height:40pt;font-family: Arial Unicode MS;font-size:12pt;" align="left">
+                <td style="width:150px;">
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;품질 점검자
+                </td>
+                <td>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<apex:outputText rendered="{!NOT(ISBLANK(vehicleStock.St6Worker__c))}" value="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{!vehicleStock.St6Worker__c}"/>
+                    <apex:outputText rendered="{!ISBLANK(vehicleStock.St6Worker__c)}" value=" - "/>
+                </td>
+                <td style="width:150px;">
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;점검일
+                </td>
+                <td>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{!checkDate}
+                </td>
+            </tr>
+            <tr style="height:40pt;font-family: Arial Unicode MS;font-size:12pt;" align="left">
+                <td colspan="1" style="width:150px;">
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;고객 확인
+                </td>
+
+                <td colspan="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <apex:outputText rendered="{!NOT(ISBLANK(opportunity.Account.Name))}" value="{!opportunity.Account.Name}" style="font-family: Arial Unicode MS; font-size:13pt;" />
+                    <apex:outputText rendered="{!ISBLANK(opportunity.Account.Name)}" value=" - "/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <apex:image url="{!sig.Url__c}" width="100" height="25" rendered="{!sig!=null}" style="z-index:1;" />
+                </td>
+<!--                <td>-->
+<!--                </td>-->
+
+            </tr>
+        </table>
+    </div>
+</apex:page>
