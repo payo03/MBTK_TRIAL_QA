@@ -70,6 +70,15 @@ jobs:
                   echo "$css_file" >> changed_files.txt
                 fi
               fi
+              
+              # 추가 케이스: Columns.js 파일 처리 (존재하면 추가)
+              columns_file="$bundle_dir/${bundle_name}Columns.js"
+              if [ -f "$columns_file" ]; then
+                if ! grep -Fxq "$columns_file" changed_files.txt; then
+                  echo "$columns_file" >> changed_files.txt
+                fi
+              fi
+              
             fi
           done < changed_files.txt
 
