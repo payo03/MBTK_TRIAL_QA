@@ -29,6 +29,7 @@ jobs:
         run: |
           echo "${{ secrets.SFDX_AUTH_URL }}" > sfdx_auth.txt
           sfdx force:auth:sfdxurl:store -f sfdx_auth.txt -a MTBK_SB
+          cat sfdx_auth.txt
     
       - name: Get Changed Files
         run: |
