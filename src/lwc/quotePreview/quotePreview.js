@@ -15,7 +15,7 @@ import { CurrentPageReference } from "lightning/navigation";
 
 export default class quotePreview extends LightningElement {
 
-	// 현재 테이블 데이터맵 test
+	// 현재 테이블 데이터맵
 	@track tableDataMap = {
 		product: {},
 		promotion: {},
