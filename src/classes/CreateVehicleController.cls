@@ -91,7 +91,8 @@ public with sharing class CreateVehicleController {
     @AuraEnabled
     public static List<IFAuditLogDetail__c> selectLogList(List<String> idList) {
         return [
-                SELECT Id, fm_LogId__c, fm_LogType__c, IsRequest__c, IsResponse__c, IsResult__c, ResultDatetime__c, Description__c, ExternalKey__c
+                SELECT Id, ExternalId__c,
+                        fm_LogId__c, fm_LogType__c, IsRequest__c, IsResponse__c, IsResult__c, ResultDatetime__c, Description__c, ExternalKey__c
                 FROM IFAuditLogDetail__c
                 WHERE ExternalId__c IN :idList
                 AND fm_LogType__c IN (
@@ -118,10 +119,27 @@ public with sharing class CreateVehicleController {
         Database.executeBatch(new CreateVehicleStock_ba(null, whereQuery), 200);
     }
 
-    /*
     @AuraEnabled
-    public static void sendCustomsInfo(List<String> idList) {
-        System.enqueueJob(new AsyncCustomsInfo(idList, null));
+    public static void handleIFAction(Map<String, Object> paramMap) {
+        String IFType = String.valueOf(paramMap.get('type'));
+        List<Object> objectList = (List<Object>) paramMap.get('infoIdList');
+
+        List<String> idList = new List<String>();
+        for(Object obj : objectList) {
+            idList.add(String.valueOf(obj));
+        }
+
+        // 취소 IF의 경우 IFType은 ~~~Cancel
+        Map<String, Object> infoMap = new Map<String, Object>{
+                'isCreate' => !IFType.endsWith('Cancel')
+        };
+
+        if (IFType.contains('OrderConfirm')) {
+            System.enqueueJob(new AsyncOrderConfirm(idList, infoMap));
+        } else if (IFType.contains('CustomsInfo')) {
+            System.enqueueJob(new AsyncCustomsInfo(idList, infoMap));
+        } else {
+            System.enqueueJob(new AsyncPurchaseInvoice(idList, infoMap));
+        }
     }
-    */
 }

@@ -92,14 +92,6 @@
                     // 호출: ActionFunction 호출
                     await fetchAvisOrderInfo(filterId, actionType);
                 }
-                // CUSTOMS_INFO AvisOrderInfo
-                if (event.data.type === 'CUSTOMS_INFO_LWC') {
-                    const filterId = event.data.filterId;
-                    const actionType = 'CUSTOMS_INFO_VF';
-
-                    // 호출: ActionFunction 호출
-                    await fetchAvisOrderInfo(filterId, actionType);
-                }
             });
         </script>
     </div>
