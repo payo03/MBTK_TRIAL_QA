@@ -263,7 +263,7 @@ export default class createVehicle extends LightningElement  {
         });
     }
 
-    // ver1.2 Interface기능 분리 Test
+    // ver1.2 Interface기능 분리
     nextButtonLog() {
         window.postMessage({
             type: 'SELECT_LOG_LWC',
