@@ -306,18 +306,6 @@ public with sharing class PdiController {
         vehicleStock.SpoilerPart__c = inputMap.get('spoilerId');
 
         update vehicleStock;
-
-        // PDIStep__c step = [
-        //     SELECT Id, IsPass__c
-        //     FROM PDIStep__c
-        //     WHERE VehicleStock__c = :inputMap.get('stockId')
-        //     AND Stage__c = 'STEP4'
-        // ];
-        // step.IsPass__c = false;
-        // step.StepStart__c = System.now();
-        // step.StepEnd__c = null;
-        // step.StepWorker__c = null;
-        // update step;
     }
 
     @AuraEnabled
@@ -338,8 +326,8 @@ public with sharing class PdiController {
     @AuraEnabled
     public static void spoilerDropoffSAP(List<Map<String, Object>> inputMapList) {
         System.enqueueJob(new AsyncSpoilerRequest(inputMapList));
-        String stockId = (String) inputMapList[0].get('stockId');
-        updateStep4(stockId);
+        // String stockId = (String) inputMapList[0].get('stockId');
+        // updateStep4(stockId);
     }
     //step4 End
 

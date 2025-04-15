@@ -36,7 +36,7 @@ export default class SendFilePublicLink extends NavigationMixin(LightningElement
   accId;
   domain = '';
   publicUrl = '';
-  pdfUrl;
+  previewUrl = '';
 
   @wire(CurrentPageReference)
   getStateParameters(currentPageReference) {
@@ -50,25 +50,11 @@ export default class SendFilePublicLink extends NavigationMixin(LightningElement
 
   connectedCallback() {
     getQuote({recordId: this.recordId}).then(res => {
-      console.log('res:: ' + res);
       this.quoteName = res.name;
       this.accId = res.acc;
-      this.pdfUrl = '/apex/QuotePdf?id=' + this.recordId + '&language=' + this.selectedValue;
     });
   }
 
-  // get radioOptions() {
-  //   return [
-  //       { label: '한글', value: 'KR' },
-  //       { label: '영어', value: 'EN' },
-  //   ];
-  // }
-
-  // handleChange(e) {
-  //   const selectedOption = e.detail.value;
-  //   this.selectedValue = selectedOption;
-  // }
-  
   handleSend() {
     let title;
     let msg;
@@ -92,8 +78,6 @@ export default class SendFilePublicLink extends NavigationMixin(LightningElement
           this.publicUrl = res.publicLink.substring(res.publicLink.indexOf('/sfc') + 1, res.publicLink.length);
           title = "링크가 전송되었습니다.";
           variant = "success";
-          console.log('domain check :: ' + this.domain);
-          console.log(this.publicUrl);
           this.callKakaoAlimTalk();
           this.updateQuoteStatus();
           this.handleCancel();
@@ -175,14 +159,7 @@ export default class SendFilePublicLink extends NavigationMixin(LightningElement
     if (!this.selectedValue) {
       showToast("", "견적서를 출력할 언어를 선택해주세요.", "warning");
     } else {
-      // window.open('/apex/QuotePdf?id=' + this.recordId + '&language=' + this.selectedValue);
-      const pdfUrl = '/apex/QuotePdf?id=' + this.recordId + '&language=' + this.selectedValue;
-      this[NavigationMixin.Navigate]({
-        type: 'standard__webPage',
-        attributes: {
-          url: pdfUrl
-        }
-      });
+      window.open('/apex/QuotePdf?id=' + this.recordId + '&language=' + this.selectedValue);
     }
   }
 
@@ -232,7 +209,6 @@ export default class SendFilePublicLink extends NavigationMixin(LightningElement
 
       kakaoAlimTalk({paramMap : infoMap}).then(response => {
           let result = response;
-
           console.log('카톡결과::: ' + JSON.stringify(result));
       }).catch(error => {
           console.log('카톡에러::: ' + error);

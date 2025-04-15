@@ -8,24 +8,6 @@
  * 1.0          2025-01-22      th.kim          Initial Version
  **************************************************************/
 const columns = [
-	// {
-	// 	label: "대리점",
-	// 	fieldName: "agency",
-	// 	type: "text",
-	// 	hideDefaultActions: true,
-	// 	cellAttributes: {
-	// 		style: { fieldName: "agencyStyle" }
-	// 	}
-	// },
-	// {
-	// 	label: "영업사원",
-	// 	fieldName: "agent",
-	// 	type: "text",
-	// 	hideDefaultActions: true,
-	// 	cellAttributes: {
-	// 		style: { fieldName: "agentStyle" }
-	// 	}
-	// },
 	{
 		label: "고객명",
 		fieldName: "customer",
@@ -122,24 +104,6 @@ const columns = [
 			style: { fieldName: "paymentStatusStyle" }
 		}
 	}
-	// {
-	// 	label: "최종 수정일",
-	// 	fieldName: "lastModifiedDate",
-	// 	type: "text",
-	// 	hideDefaultActions: true,
-	// 	cellAttributes: {
-	// 		style: { fieldName: "lastModifiedDateStyle" }
-	// 	}
-	// },
-	// {
-	// 	label: "최종 수정자",
-	// 	fieldName: "lastModifiedBy",
-	// 	type: "text",
-	// 	hideDefaultActions: true,
-	// 	cellAttributes: {
-	// 		style: { fieldName: "lastModifiedByStyle" }
-	// 	}
-	// }
 ];
 
 const handoverProfileColumns = columns.map(col =>

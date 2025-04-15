@@ -14,13 +14,11 @@ public class PdfTakeTruckController {
     public String productOption{get; set;}
     public String docImage1{get; set;}
     public String selectImage{get; set;}
-
-//    public Boolean noApplyOilReceipt{get; set;}
     public Signature__c sig{get; set;}
-//    public Document checkImg{get; set;}
 
     public PdfTakeTruckController(){}
     public void init(){
+
         vehicleStock = PDFCommonController.getVehicleStock(ApexPages.currentPage().getParameters().get('id'));
         docImage1 = PDFCommonController.getDocumentId('MAN_Truck_Bus_Korea_LOGO');
         List<Opportunity> opportunities = PDFCommonController.getOpportunity(vehicleStock.Id);
@@ -35,29 +33,13 @@ public class PdfTakeTruckController {
                     productOption += ar.get('Name') + ':' + String.valueOf(ar.get('cnt')) + ', ';
                 }
             }
+
             if(!quoteDetails.isEmpty()){
                 for(QuoteDetail__c quoteDetail: quoteDetails){
                     productOption += quoteDetail.CampaignMaster__r.Name == null ? '' :  quoteDetail.CampaignMaster__r.Name + ', ' ;
                 }
             }
-//            List<selSpec__c> sel = [SELECT Option__r.Name, ItemCount__c FROM selSpec__c WHERE Opportunity__c =:opportunity.Id ORDER BY Option__r.Name];
-//            polsel='';
-//            String sels='';
 
-//            for(Integer i=0;i<sel.size();i++){
-//                sels += (sel[i].Option__r.Name+':' + String.valueOf(sel[i].ItemCount__c));
-//                if(i<sel.size()-1)
-//                    sels += ', ';
-//            }
-//            polsel = pols + sels;
-
-            /* List<InstalledParts__c> ba = [SELECT PrintPartName__c FROM InstalledParts__c WHERE Type__c='B' ORDER BY PrintPartName__c];
-             basic='';
-             for(Integer i=0;i<ba.size();i++){
-                 basic += ba[i].PrintPartName__c;
-                 if(i<ba.size()-1)
-                     basic+= ', ';
-             }*/
             if([SELECT COUNT() FROM Signature__c WHERE VehicleStock__c =:vehicleStock.Id AND signType__c = '차량재고-차량인수서명'] > 0)
                 sig = [SELECT Url__c FROM Signature__c WHERE VehicleStock__c=:vehicleStock.Id AND signType__c = '차량재고-차량인수서명' LIMIT 1];
 
@@ -70,6 +52,7 @@ public class PdfTakeTruckController {
 
     }
     public static List<QuoteDetail__c> getQuoteDetail(String quoteId) {
+
         List<QuoteDetail__c> quoteDetails = new List<QuoteDetail__c>();
 
         // null-safe 필드 추출

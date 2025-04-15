@@ -20,16 +20,16 @@ import formFactorPropertyName from '@salesforce/client/formFactor';
 export default class OpportunityPDF extends NavigationMixin(LightningElement) {
 
     @track allDocuments = [
+        // 모든 PDF 리스트                                        선택           보기
         {label: '최종 견적서', value: '/apex/QuotePdf?id=', selected: false, isOpen: false},
         {label: '출고예정서', value: '/apex/ReleaseSchedule?id=', selected: false, isOpen: false},
-        // {label: '보관확인서', value: '/apex/StorageCertification?id=', selected: false, isOpen: false},
         {label: '양도증명서 및 제작증', value: '/apex/TransCert?id=', selected: false, isOpen: false},
-        // {label: 'MDS 가입서류', value: '/apex/MDSRegisterImgForm?id=', selected: false, isOpen: false},
         {label: '국세환급금양도요구서', value: '/apex/TaxRefund?id=', selected: false, isOpen: false},
         {label: '판매정산결과 REPORT', value: '/apex/SalesResultReport?id=', selected: false, isOpen: false},
         {label: '제작증', value: '/apex/VehiceManufactCert?id=', selected: false, isOpen: false}
 
     ];
+    // PDF Validation
     @track exceptionMap = {
         '양도증명서 및 제작증': [],
         '제작증': [],
@@ -38,30 +38,27 @@ export default class OpportunityPDF extends NavigationMixin(LightningElement) {
     };
 
     @track filteredDocuments = [...this.allDocuments];
-    @track downloadAll = false;
     @track selectedDocument = '';
-    @track allCheckBtn = false;
+    @track allCheckBtn = false; // 전체 체크
 
     quoteId;
 
+    //모바일, PC 분기
     @wire(CurrentPageReference)
     getPageReference(pageRef) {
         if (pageRef && pageRef.state) {
             if (formFactorPropertyName === 'Large') {
-                console.log('컴퓨터');
                 this.recordId = pageRef.state.recordId;
             } else {
-                console.log('모바일');
                 this.recordId = pageRef.state?.c__recordId;
             }
-            console.log('recordId:', this.recordId);
         }
     }
 
+
     connectedCallback() {
-        this.resizePop();
+        this.resizePop(); // 모달창 크기
         getOpportunityInit({recordId: this.recordId}).then(res => {
-            console.log(res.opportunity?.[0]?.Contract?.Quote__c);
             this.quoteId = res.opportunity?.[0]?.Contract?.Quote__c;
             const checkAccount = res?.opportunity?.[0]?.AccountId == null;
             const checkVehicleStock = res?.opportunity?.[0]?.VehicleStock__c == null;
@@ -69,17 +66,14 @@ export default class OpportunityPDF extends NavigationMixin(LightningElement) {
             const checkPaymentTracker = res.paymentTracker === null;
             const checkPaymentType = res.paymentTracker?.[0]?.PaymentTypes__r === null;
             if(res.checkSAPermission) this.filteredDocuments = this.filteredDocuments.filter(doc => doc.label !== '판매정산결과 REPORT');
-            console.log('>>>>',res.checkSAPermission);
 
+            // PDF Validation
             Object.assign(this.exceptionMap, {
                 ['최종 견적서']: this.quoteId == null,
                 ['출고예정서']: checkVehicleStock || res.opportunity[0].TaxInvoiceDate__c == null,
                 ['제작증']: checkVehicleStock || this.quoteId == null,
                 ['양도증명서 및 제작증']: checkVehicleStock || checkAccount,
-                ['판매정산결과 REPORT']: checkVehicleStock || checkAccount || checkProduct || checkPaymentTracker || checkPaymentType || this.quoteId == null,
-                // ['Sales Summary REPORT EN']: checkVehicleStock || checkAccount || checkProduct || checkPaymentTracker || checkPaymentType || this.quoteId == null
-                // ['Sales Summary REPORT EN']: false,
-                // ['판매정산결과 REPORT']: false
+                ['판매정산결과 REPORT']: checkVehicleStock || checkAccount || checkProduct || checkPaymentTracker || checkPaymentType || this.quoteId == null
             })
         })
         .catch(error => {
@@ -88,6 +82,7 @@ export default class OpportunityPDF extends NavigationMixin(LightningElement) {
 
     }
 
+    // 모달 사이즈
     resizePop() {
         let modalBody = document.querySelector('.modal-body');
         let closeIcon = document.querySelector('.closeIcon');
@@ -107,6 +102,7 @@ export default class OpportunityPDF extends NavigationMixin(LightningElement) {
         }
     }
 
+    // PDF 리스트 선택 시 색 변경
     get docsWithClass() {
         return this.filteredDocuments.map(doc => {
             let baseClass = 'cellBorder slds-p-vertical_xx-small slds-m-bottom_xx-small';
@@ -123,21 +119,14 @@ export default class OpportunityPDF extends NavigationMixin(LightningElement) {
         event.stopPropagation();
     }
 
-    // handleFromNoChange(event) {
-    //     this.firstNo = event.target.value;
-    // }
-    //
-    // handleToNoChange(event) {
-    //     this.lastNo = event.target.value;
-    // }
-
+    // 리스트 영역 선택
     handleRowClick(event) {
         event.stopPropagation();
         const docValue = event.currentTarget.dataset.id;
         this.filteredDocuments = this.filteredDocuments.map(doc => {
             if (doc.value === docValue) {
                 if (this.exceptionMap[doc.label]) {
-                    this.exceptionToast(doc.label);
+                    this.exceptionToast(doc.label); // PDF Validation
                 }else{
                     return {...doc, selected: !doc.selected};
                 }
@@ -146,13 +135,14 @@ export default class OpportunityPDF extends NavigationMixin(LightningElement) {
         });
     }
 
+    // 전체 선택
     handleSelectAllChange(event) {
         const value = event.target.checked;
         try {
             this.allCheckBtn = value;
             this.filteredDocuments = this.filteredDocuments.map(doc => {
                 if (this.exceptionMap[doc.label] && value) {
-                    this.exceptionToast(doc.label);
+                    this.exceptionToast(doc.label); // Validation 처리
                     return doc;
                 }
                 return {...doc, selected: value};
@@ -162,6 +152,25 @@ export default class OpportunityPDF extends NavigationMixin(LightningElement) {
         }
     }
 
+    // 보기 버튼
+    handleViewRow(event) {
+        event.stopPropagation();
+        const docValue = event.currentTarget.dataset.id;
+        this.filteredDocuments = this.filteredDocuments.map(doc => {
+            if (doc.value === docValue) {
+                if (this.exceptionMap[doc.label]) {
+                    this.exceptionToast(doc.label); // Validation
+                } else if (doc.label === '최종 견적서') {
+                    window.open(doc.value + this.quoteId + '&language=KR', 'PDF Viewer', 'width=1100,height=600,scrollbars=yes,resizable=yes');
+                } else {
+                    window.open(doc.value + this.recordId, 'PDF Viewer', 'width=1100,height=600,scrollbars=yes,resizable=yes');
+                }
+            }
+            return doc;
+        });
+    }
+
+    // 다운로드 버튼 클릭
     handleDownloadSelected() {
         this.allCheckBtn = false;
         // 먼저, undefined나 null인 요소를 제거
@@ -172,7 +181,6 @@ export default class OpportunityPDF extends NavigationMixin(LightningElement) {
         }
         this.filteredDocuments = validDocs.map(doc => {
             if (doc.selected) {
-                console.log(doc.label);
                 let vfUrl = doc.value + this.recordId;
                 if (doc.label === '최종 견적서') {
                     vfUrl = doc.value + this.quoteId + '&language=KR';
@@ -198,23 +206,6 @@ export default class OpportunityPDF extends NavigationMixin(LightningElement) {
         });
     }
 
-    handleViewRow(event) {
-        event.stopPropagation();
-        const docValue = event.currentTarget.dataset.id;
-        this.filteredDocuments = this.filteredDocuments.map(doc => {
-            if (doc.value === docValue) {
-                if (this.exceptionMap[doc.label]) {
-                    this.exceptionToast(doc.label);
-                } else if (doc.label === '최종 견적서') {
-                    window.open(doc.value + this.quoteId + '&language=KR', 'PDF Viewer', 'width=1100,height=600,scrollbars=yes,resizable=yes');
-                } else {
-                    window.open(doc.value + this.recordId, 'PDF Viewer', 'width=1100,height=600,scrollbars=yes,resizable=yes');
-                }
-            }
-            return doc;
-        });
-    }
-
     // base64 문자열을 Blob으로 변환하는 헬퍼 함수
     base64ToBlob(base64, contentType) {
         contentType = contentType || '';
@@ -236,13 +227,13 @@ export default class OpportunityPDF extends NavigationMixin(LightningElement) {
         return new Blob(byteArrays, {type: contentType});
     }
 
+    // 체크 박스 클릭 이벤트
     handleCheckboxChange(event) {
         event.stopPropagation(); // 이벤트 전파 방지
         const value = event.target.value;
 
         this.filteredDocuments = this.filteredDocuments.map(doc => {
             if (doc.value === value) {
-                console.log(doc.value);
                 if (this.exceptionMap[doc.label]) {
                     event.target.checked = false;
                     this.exceptionToast(doc.label);
@@ -256,57 +247,12 @@ export default class OpportunityPDF extends NavigationMixin(LightningElement) {
 
     }
 
-    // handlePrint() {
-    //     // 입력값 검증
-    //     if (isNaN(this.firstNo) || isNaN(this.lastNo)) {
-    //         alert('숫자만 입력해주세요.');
-    //         return;
-    //     }
-    //     const fromNumber = parseInt(this.firstNo, 10);
-    //     const toNumber = parseInt(this.lastNo, 10);
-    //     if (fromNumber > toNumber) {
-    //         alert('시작 번호가 끝 번호보다 큽니다.');
-    //         return;
-    //     }
-    //     if ((toNumber - fromNumber) > 100) {
-    //         alert('한번에 100매 이하로 출력 바랍니다.');
-    //         return;
-    //     }
-    //
-    //     this.taxRefundURL = '&from_no=' + fromNumber + '&to_no=' + toNumber;
-    //     // 새 창에서 URL 열기
-    //     this.isTaxRefundModal = !this.isTaxRefundModal;
-    //     console.log(this.downloadAll);
-    //     if (this.downloadAll) {
-    //         this.downloadAll = !this.downloadAll;
-    //         this.handleDownloadSelected();
-    //
-    //     } else {
-    //         this.filteredDocuments = this.filteredDocuments.map(doc => {
-    //             if (doc.value === this.clickedDoc.value) {
-    //                 return {...doc, selected: true};
-    //             }
-    //             return doc;
-    //         });
-    //     }
-    //     // else if (doc.label === '최종 견적서') {
-    //     //     window.open(this.clickedDoc.value + this.quoteId + '&language=KR' + this.taxRefundURL, 'PDF Viewer', 'width=1100,height=600,scrollbars=yes,resizable=yes');
-    //     // } else {
-    //     //     window.open(this.clickedDoc.value + this.recordId + this.taxRefundURL, 'PDF Viewer', 'width=1100,height=600,scrollbars=yes,resizable=yes');
-    //     // }
-    //
-    // }
-
-    // closeModal() {
-    //     this.isTaxRefundModal = !this.isTaxRefundModal;
-    //     this.allCheckBtn = false;
-    //     this.filteredDocuments = this.filteredDocuments.map(doc => ({...doc, selected: false}));
-    // }
-
+    // Validation 메세지
     exceptionToast(label) {
         showToast(label, "PDF 생성에 필요한 필수 데이터가 누락되었습니다.", "warning");
     }
 
+    // 취소 버튼
     handleCancel() {
         this.dispatchEvent(new CloseActionScreenEvent());
     }

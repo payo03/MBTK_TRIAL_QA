@@ -9,17 +9,18 @@
 */
 import { LightningElement, api, track } from 'lwc';
 
-const columns = [
-    { label: '워크넘버', fieldName: 'VehicleNo__c', hideDefaultActions: 'true' },
-    { label: 'VIN', fieldName: 'Name', hideDefaultActions: 'true' },
-    { label: 'Model Name', fieldName: 'ProductName', hideDefaultActions: 'true' },
-    { label: '진행할 단계', fieldName: 'fm_PdiNextStep__c', hideDefaultActions: 'true' },
-    { label: 'Pdi 상태', fieldName: 'VehicleStatus__c', hideDefaultActions: 'true' },
-    { label: '통관일', fieldName: 'RealArrivalDate__c', hideDefaultActions: 'true' },
+const columns = [		
+    { label: '워크넘버', fieldName: 'VehicleNo__c', hideDefaultActions: 'true' },		
+    { label: 'VIN', fieldName: 'Name', hideDefaultActions: 'true' },		
+    { label: 'Model Name', fieldName: 'ProductName', hideDefaultActions: 'true' },		
+    { label: '진행할 단계', fieldName: 'fm_PdiNextStep__c', hideDefaultActions: 'true' },		
+    { label: 'Pdi 상태', fieldName: 'VehicleStatus__c', hideDefaultActions: 'true' },		
+    { label: '통관일', fieldName: 'RealArrivalDate__c', hideDefaultActions: 'true' },		
 ];
 
 const bulkColumns = [
-    { label: 'VIN', fieldName: 'Name', hideDefaultActions: 'true' },
+    { label: '워크넘버', fieldName: 'WorkNo', hideDefaultActions: 'true' },
+    { label: '주행거리', fieldName: 'DriveDistance', hideDefaultActions: 'true' },
     { label: '처리결과', fieldName: 'RequestRes', hideDefaultActions: 'true' }
 ];
 
@@ -32,6 +33,7 @@ export default class pdiStep0View extends LightningElement {
     @track data;
     @track selectedId;
     @track searchKey;
+    driveDistance;
 
     selectedStockRowList = [];
 
@@ -81,13 +83,8 @@ export default class pdiStep0View extends LightningElement {
     connectedCallback() {
         this.selectedStockRowList = [this._selectedVIN?.Id];
     }
-
-    handleRowAction(event) {
-        console.log('event : ', event.detail);
-    }
     
     handleRowSelection(event) {
-        console.log('event : ', event.detail);
         let selectedId = event.detail.selectedRows.map(row => row.Id);
         if (JSON.stringify(selectedId) === JSON.stringify(this.selectedId)) return;
 
@@ -112,7 +109,6 @@ export default class pdiStep0View extends LightningElement {
     }
 
     handleSearchButton() {
-        console.log('searchKey : ', this.searchKey);
         const customEvent = new CustomEvent('searchvin', {
             detail: {
                 searchKey: this.searchKey || ''
@@ -132,7 +128,6 @@ export default class pdiStep0View extends LightningElement {
 
         rows.map(row => {
             let dataRow = row.split('\t');
-            console.log('datarow: ', dataRow);
             this.addBulkRow(dataRow);
         });
 
@@ -145,7 +140,8 @@ export default class pdiStep0View extends LightningElement {
     addBulkRow(dataRow) {
         let row = {
             id: `row-${this.bulkData.length + 1}`,
-            Name: dataRow[0].replace('\r', '') || ''
+            WorkNo: dataRow[0].replace('\r', '') || '',
+            DriveDistance: dataRow[1].replace('\r', '') || ''
         };
 
         this.bulkData = [ ...this.bulkData, row ];
@@ -153,6 +149,13 @@ export default class pdiStep0View extends LightningElement {
 
     @api
     fetchResultBulkRow(result){
-        this.bulkData = result;
+        Object.keys(result).forEach(el => {
+            this.bulkData = this.bulkData.map(row => {
+                if (row.WorkNo === el) {
+                    row.RequestRes = result[el].RequestRes;
+                }
+                return row
+            });
+        })
     }
 }

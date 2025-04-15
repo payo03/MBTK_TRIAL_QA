@@ -30,11 +30,6 @@ public with sharing class OilReceiptController_test {
         ApexPages.currentPage().getParameters().put('id', opportunity.VehicleStock__c);
         Test.startTest();
         OilReceiptController ctrl = new OilReceiptController();
-        System.debug('총액: ' + ctrl.TotalOilCouponAmt);
-        System.debug('총액: ' + ctrl.paramId);
-        System.debug('서명: ' + ctrl.signature);
-        System.debug('기회: ' + ctrl.opportunity);
-        System.debug('차량: ' + ctrl.vehicleStock);
         OilReceiptController.getQuoteDetail(quoteDetail[0].Quote__c);
         OilReceiptController.getField(Schema.SObjectType.QuoteDetail__c.fields.getMap());
         Test.stopTest();

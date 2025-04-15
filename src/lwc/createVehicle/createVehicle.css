@@ -95,7 +95,7 @@
     width: 100%; /* 테이블 너비 전체 사용 */
     margin-top: 0.5rem; /* 위쪽 여백 */
 }
-/* 데이터 셀 스타일 (td만 가운데 정렬) */
+/* 데이터 셀 스타일 */
 .slds-table td {
     text-align: center; /* 셀 데이터를 가운데 정렬 */
     vertical-align: middle; /* 세로 중앙 정렬 */
@@ -107,7 +107,7 @@
     background-color: #f4f6f9; /* 헤더 배경색 */
     color: #333; /* 헤더 텍스트 색상 */
     font-weight: bold; /* 텍스트 강조 */
-    text-align: left; /* 헤더는 왼쪽 정렬 (필요 시 변경 가능) */
+    text-align: center; /* 헤더 중앙 정렬 */
     border-bottom: 2px solid #d8dde6; /* 헤더 하단 경계선 */
     padding: 0.5rem; /* 여백 최적화 */
 }

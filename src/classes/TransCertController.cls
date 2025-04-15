@@ -14,7 +14,6 @@ public class TransCertController {
     public String Address{get; set;}
     public String Name{get; set;}
     public String expect{get; set;}
-//    public String uzIngam{get; set;}
     public String docImage1{get; set;}
     public String printSegment{get; set;}
     public Boolean isNewAddress{get; set;}
@@ -28,10 +27,11 @@ public class TransCertController {
     public TransCertController(){}
     public TransCertController(ApexPages.StandardController controller){
     }
+
     public void init() {
+
         opportunity = PDFCommonController.getOpportunity(ApexPages.currentPage().getParameters().get('Id')).get(0);
         docImage1 = PDFCommonController.getDocumentId('MAN_Truck_Bus_Korea_LOGO');
-        // uzIngam = PDFCommonController.getDocumentId('man_useingam');
 
         egMap = new Map<String, String>();
         sInvoiceDate = '     년           월          일';

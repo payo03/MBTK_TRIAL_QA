@@ -13,11 +13,11 @@ public with sharing class AdvancedSafetyDeviceController {
     public VehicleStock__c vehicleStock { get; set; }
     public Opportunity opportunity { get; set; }
     public Integer year { get; set; }
-//    public String uzIngam{get; set;}
     public String docImage1{get; set;}
     public String carName{get; set;}
 
     public void init() {
+
         List<String> tractorList = new List<String>{
                 'SAFETY PACKAGE PLUS TRACTOR'
         };
@@ -30,7 +30,6 @@ public with sharing class AdvancedSafetyDeviceController {
         String vehicleStockId = ApexPages.currentPage().getParameters().get('id');
         vehicleStock = PDFCommonController.getVehicleStock(vehicleStockId);
         opportunity = PDFCommonController.getOpportunity(vehicleStockId).get(0);
-//        uzIngam = PDFCommonController.getDocumentId('man_useingam');
         carName = vehicleStock.SpecShort__c != null && vehicleStock.SpecShort__c.length() >= 3 ? vehicleStock.SpecShort__c.substring(0, 3) : '';
         docImage1 = PDFCommonController.getDocumentId('MAN_Truck_Bus_Korea_LOGO');
         String description = (vehicleStock != null && vehicleStock.Safety_Package_Description__c != null) ? vehicleStock.Safety_Package_Description__c : '';

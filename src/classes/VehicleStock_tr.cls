@@ -27,6 +27,7 @@ public without sharing class VehicleStock_tr extends TriggerHandler {
 
     public override void beforeUpdate() {
 //        updateHandover();
+        syncNoShowStatus();
     }
 
     public override void afterInsert() {
@@ -237,79 +238,6 @@ public without sharing class VehicleStock_tr extends TriggerHandler {
         return fieldQuantityMap;
     }
 
-//    private void createSpecialProduct() {
-//        Set<String> productIdSet = new Set<String>();
-//        for (VehicleStock__c newStock : newList) {
-//            productIdSet.add(newStock.Product__c);
-//        }
-//
-//        List<Product2> productList = [
-//            SELECT Id, Name, SpecShort__c, Styling__c, VehicleCategory__c, LocalYear__c, ModelYear__c, Colour__c, DiscountKRW__c, Deviation__c, Remarks__c,
-//                IsOTV__c, IsPTO__c, IsSpoiler__c
-//            FROM Product2
-//            WHERE Id IN :productIdSet
-//        ];
-//        Map<String, Product2> productMap = new Map<String, Product2>();
-//        for (Product2 product : productList) {
-//            productMap.put(product.SpecShort__c, product);
-//        }
-//
-//        List<Product2> insertProductList = new List<Product2>();
-//        List<VehicleStock__c> updateStockList = new List<VehicleStock__c>();
-//        Map<String, VehicleStock__c> specShortStockMap = new Map<String, VehicleStock__c>();
-//
-//        // 복사본 생성: VehicleStock__c 읽기 전용 문제 해결
-//        Map<Id, VehicleStock__c> stockToUpdateMap = new Map<Id, VehicleStock__c>();
-//        for (VehicleStock__c stock : newList) {
-//            stockToUpdateMap.put(stock.Id, stock.clone(true, true)); // 수정 가능 복사본 생성
-//        }
-//
-//        for (VehicleStock__c newStock : stockToUpdateMap.values()) {
-//            VehicleStock__c oldStock = Trigger.isUpdate ? oldMap.get(newStock.Id) : null;
-//
-//            if (Trigger.isInsert || (Trigger.isUpdate && (oldStock?.IsSpecial__c != newStock.IsSpecial__c) && newStock.IsSpecial__c)) {
-//                System.debug('newStock.Id :: ' + newStock.Id);
-//                specShortStockMap.put(newStock.SpecShort__c, newStock);
-//                Product2 product = productMap.get(newStock.SpecShort__c);
-//                if (product.Styling__c == 'Special') {
-//                    newStock.Product__c = product.Id;
-//                    updateStockList.add(newStock);
-//                } else {
-//                    product = new Product2(
-//                        Name = product.Name,
-//                        SpecShort__c = newStock.SpecShort__c,
-//                        VehicleCategory__c = product.VehicleCategory__c,
-//                        LocalYear__c = product.LocalYear__c,
-//                        ModelYear__c = product.ModelYear__c,
-//                        Colour__c = product.Colour__c,
-//                        DiscountKRW__c = product.DiscountKRW__c,
-//                        Deviation__c = product.Deviation__c,
-//                        Remarks__c = product.Remarks__c,
-//                        Styling__c = product.Styling__c,
-//                        IsOTV__c = product.IsOTV__c,
-//                        IsPTO__c = product.IsPTO__c,
-//                        IsSpoiler__c = product.IsSpoiler__c,
-//                        IsSpecial__c = true
-//                    );
-//                    insertProductList.add(product);
-//                }
-//            }
-//        }
-//        if (!insertProductList.isEmpty()) insert insertProductList;
-//
-//        List<Product2> afterProductList = [SELECT Id, SpecShort__c FROM Product2 WHERE Id IN :insertProductList];
-//
-//        for (Product2 product : afterProductList) {
-//            VehicleStock__c stock = specShortStockMap.get(product.SpecShort__c);
-//            if (stock != null) {
-//                System.debug('stock :: ' + stock.Id);
-//                stock.Product__c = product.Id;
-//                updateStockList.add(stock);
-//            }
-//        }
-//        if (!updateStockList.isEmpty()) update updateStockList;
-//    }
-
     /**
      * @author th.kim
      * @description 차량 데이터 업데이트 시 핸드오버도 트리거 태워주기 위한 메서드
@@ -370,6 +298,32 @@ public without sharing class VehicleStock_tr extends TriggerHandler {
                 WHERE VehicleStock__c IN :inactiveStockIdSet
             ]);
             CommissionManagementController.deleteCommissionHistory(opportunityMap.keySet());
+        }
+    }
+
+    /**
+     * @author th.kim
+     * @description 재고 미노출, 재고 상태 필드 값 연동
+     */
+    private void syncNoShowStatus() {
+
+        for (VehicleStock__c newStock : newList) {
+            VehicleStock__c oldStock = oldMap.get(newStock.Id);
+            // 재고 상태 변경 시
+            if (oldStock.Status__c != newStock.Status__c) {
+                newStock.StockNoShow__c = newStock.Status__c == '재고 미노출(임시)';
+            }
+            // 재고 미노출 필드 업데이트 시
+            else if (oldStock.StockNoShow__c != newStock.StockNoShow__c) {
+                // 재고 미노출로 변경
+                if (newStock.StockNoShow__c) {
+                    newStock.Status__c = '재고 미노출(임시)';
+                }
+                // 재고 노출로 변경, 기존 재고 상태 재고 미노출일 시
+                else if (newStock.Status__c == '재고 미노출(임시)') {
+                    newStock.Status__c = '재고 노출';
+                }
+            }
         }
     }
 

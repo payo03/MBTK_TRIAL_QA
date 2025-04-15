@@ -9,7 +9,7 @@
 -->
 <!-- Margin Calculator -->
 <template>
-  <div class="slds-p-horizontal_small handover-scheduler-wrap">
+  <div class="slds-p-horizontal_small">
 
     <!-- Header Start -->
     <div class="slds-page-header slds-page-header_record-home box-wrap">
@@ -59,7 +59,7 @@
     <div class="slds-m-vertical_small">
       <div class="box-wrap">
         <div>
-          <c-custom-data-table
+          <lightning-datatable
             key-field="id"
             columns={columns}
             data={productConfigData}
@@ -67,7 +67,7 @@
             selected-rows={selectedRowIdList}
             column-widths-mode="auto"
             min-column-width="80"
-          ></c-custom-data-table>
+          ></lightning-datatable>
           <template if:false={productConfigData.length}>
             <div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">
               <strong>조회되는 데이터가 없습니다.</strong>

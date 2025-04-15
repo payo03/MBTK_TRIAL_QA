@@ -10,13 +10,11 @@
 public class CarSafetyStandardsController {
 
     public String vehicleStockId {get;set;}// 차량관리id
-//    public String uzIngam {get;set;}
-//    public Boolean check{get;set;}//_Ch 확인
     public VehicleStock__c vehicleStock {get;set;} // 차량관리개체
 
     public void init(){
+
         vehicleStockId = ApexPages.currentPage().getParameters().get('id');
         vehicleStock = PDFCommonController.getVehicleStock(vehicleStockId);
-//        uzIngam = PDFCommonController.getDocumentId('man_useingam');
     }
 }

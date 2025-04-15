@@ -48,12 +48,8 @@ export default class quoteCalculatorTable extends LightningElement {
 		const price = product?.price || 0;
 		const optionList = product?.optionList || [];
 		let totalPrice = price;
-		// let optionAdditionalPrice = 0;
 		optionList.forEach(el => {
-			if (el.price) {
-				totalPrice += el.price;
-				// if (el.isOilCouponExclude) optionAdditionalPrice += el.price;
-			}
+			if (el.price) totalPrice += el.price;
 		});
 
 		return {
@@ -61,7 +57,6 @@ export default class quoteCalculatorTable extends LightningElement {
 			price: price,
 			totalPrice: totalPrice,
 			optionList: product?.optionList || []
-			// optionAdditionalPrice: optionAdditionalPrice
 		};
 	}
 
@@ -159,10 +154,8 @@ export default class quoteCalculatorTable extends LightningElement {
 
 		const isVAT = financial?.isVAT || false;
 		const advancePayment = financial?.advancePayment || 0;
-		// const loanAmount = financial?.loanAmount || 0;
 		const deposit = 1000000;
 		const paymentDeferredAmount = financial?.paymentDeferredAmount || 0;
-		// const deliveryPrice = this.realSalesPrice - loanAmount - deposit;
 		const interestRate = financial?.interestRate || 0;
 		const loanTermMonth = financial?.loanTermMonth || 0;
 

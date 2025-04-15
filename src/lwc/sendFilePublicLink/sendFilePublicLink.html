@@ -16,16 +16,6 @@
         <p> 견적명: {quoteName}</p>
       </div>
       <div class="slds-size_1-of-2 slds-align_absolute-center">
-        <!-- <lightning-radio-group 
-          name="chooseLanguage"
-          label="언어 선택"
-          class="chooseLanguage slds-m-around_small"
-          options={radioOptions}
-          value={radioValue}
-          onchange={handleChange}
-          type="button"
-          >
-        </lightning-radio-group> -->
         <lightning-button
           variant="brand"
           size="large"
@@ -34,11 +24,6 @@
           onclick={handleOpenPdf}
           >
         </lightning-button>
-        <button><lightning-formatted-url
-          value={pdfUrl}
-          label="PDF 보기"
-          target="_blank"
-        ></lightning-formatted-url></button>
         <lightning-button
           variant="brand"
           size="large"
@@ -69,6 +54,9 @@
     </div>
   </lightning-modal-footer>
 
+  <template lwc:if={isSendPDF}>
+    <iframe src={previewUrl}></iframe>
+  </template>
 
   <template lwc:if={isLoading}>
     <lightning-spinner alternative-text="Loading" variant="brand" size="medium"></lightning-spinner>

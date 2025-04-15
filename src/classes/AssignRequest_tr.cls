@@ -158,7 +158,6 @@ public without sharing class AssignRequest_tr extends TriggerHandler {
             }
                 
             if(!updateOpptyList.isEmpty()) update updateOpptyList;
-            // if(!requestContractList.isEmpty()) update requestContractList;
             if(!usedVAMList.isEmpty()) update usedVAMList;
         }
         if(!requestContractList.isEmpty()) update requestContractList;

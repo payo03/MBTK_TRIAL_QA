@@ -22,7 +22,7 @@ import getServiceItem from "@salesforce/apex/QuoteCreatorController.getServiceIt
 import getFilteredOptionList from "@salesforce/apex/QuoteCreatorController.getFilteredOptionList";
 import doSaveQuote from "@salesforce/apex/QuoteCreatorController.doSaveQuote";
 import getCalendarInit from "@salesforce/apex/TaxInvoiceSchedulerController.getCalendarInit";
-// import getFinancial from "@salesforce/apex/QuoteCreatorController.getFinancial";
+
 // Util
 import {
 	campaignColumns,
@@ -114,7 +114,6 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	oilCouponCount = 0;
 	oilCouponPrice = 0;
 	availableOilCouponQty = 0;
-	isCheckOilCouponCount = true;
 
 	// 특장
 	specialOptions = specialOptions;
@@ -218,7 +217,6 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			this.quoteId = pageRef.state.c__quoteId;
 
 			getInit({ oppId: this.oppId, quoteId: this.quoteId }).then(res => {
-				console.log("res :: ", res);
 
 				// 차종 체크
 				if (!res.productData) {
@@ -236,7 +234,6 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				this.selectedOptionData = this.allOptionData?.filter(el => el.isRequired);
 				this.campaignDupList = res.campaignDupList;
 				this.financialList = [{ label: "선택안함", value: null }].concat(res.financialList);
-				// this.financialList = res.financialList;
 
 				const { name, quote, ...quoteDetail } = res.quoteDetail;
 				this.quoteName = name;
@@ -300,7 +297,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				this.getServiceItem();
 				this.getSummaryData();
 			}).catch(err => {
-				console.log("err :: ", err.message);
+				console.error("err :: ", err.message);
 			}).finally(() => this.isLoading = false);
 		}
 	}
@@ -509,7 +506,6 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 					this.isLoading = true;
 					// 차종 관련 데이터 가져오기
 					getProductChangeData({ oppId: this.oppId, productId: this.productId }).then(res => {
-						console.log("res :: ", res);
 						this.allOptionData = res.optionList;
 						this.selectedOptionData = this.allOptionData?.filter(el => el.isRequired);
 						this.hideRequiredOptionButton();
@@ -518,9 +514,11 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 						this.getSummaryData();
 						this.financialList = res.financialList;
 					}).catch(err => {
-						console.log("err :: ", err);
+						console.error("err :: ", err);
 					}).finally(() => this.isLoading = false);
-				} else {
+				}
+				// 차종 제거 시 데이터 초기화
+				else {
 					this.financeId = null;
 					this.tableDataMap.financial = {};
 					this.tableDataMap.financial.advancePayment = 1000000;
@@ -542,9 +540,6 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				break;
 			// 주유상품권
 			case "oilCoupon" :
-				// this.isCheckOilCouponCount = value >= 0 && value <= this.availableOilCouponQty;
-				// this.tableDataMap.discountDetail.oilCouponCount = this.isCheckOilCouponCount ? value : 0 || 0;
-				// this.tableDataMap.discountDetail.oilCouponPrice = this.tableDataMap.discountDetail.oilCouponCount * 100000;
 				this.tableDataMap.discountDetail.oilCouponCount = numValue || 0;
 				this.tableDataMap.discountDetail.oilCouponPrice = this.tableDataMap.discountDetail.oilCouponCount * 100000;
 				break;
@@ -582,19 +577,6 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				// Picklist
 				const finance = this.financialList?.find(el => el.value === value);
 				this.setFinancialData(this.tableDataMap.financial, finance);
-
-
-				// Lookup
-				// const financeId = e.detail.recordId;
-				// let financialName;
-				// getFinancial({ financeId: financeId }).then(res => {
-				// 	financialName = res.Name;
-				// }).catch(err => {
-				// 	financialName = "";
-				// }).finally(() => {
-				// 	this.tableDataMap.financial.financeId = financeId;
-				// 	this.tableDataMap.financial.financialName = financialName;
-				// });
 				break;
 			// 인도금
 			case "advancePayment" :
@@ -614,7 +596,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				break;
 			// 대출 개월 수
 			case "loanTermMonth" :
-				this.tableDataMap.financial.loanTermMonth = numValue;/*(value < 6 || value > 84) ? 0 : value;*/
+				this.tableDataMap.financial.loanTermMonth = numValue;
 				break;
 			// 탁송료
 			case "consignment":
@@ -642,7 +624,6 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 		if (name === "campaign") {
 			this.selectedCampaignIdList = [];
 			const currentStock = this.tableDataMap.product.stockList.length > 0 ? this.tableDataMap.product.stockList[0] : [];
-			// this.tableDataMap.promotion = { baseDiscount: this.baseDiscount, promotionList: [] };
 
 			Object.assign(this.tableDataMap.promotion, {
 				promotionList: [],
@@ -659,10 +640,13 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	// 모달 창 on/off
 	toggleModal(type) {
 		this.isModalOpen = !this.isModalOpen;
-		if (!type || typeof type !== "string") {
-			type = "option";
-		}
+
+		// 이벤트인지 함수 호출 파라미터인지 체크
+		if (!type || typeof type !== "string") type = "option";
+
+		// 모바일 모달 오픈 시 맨 위로 스크롤
 		if (this.isModalOpen && formFactor !== "Large") this.scrollToTop();
+
 		Object.keys(this.modalMap).forEach(el => this.modalMap[el] = el === type);
 	}
 
@@ -685,16 +669,19 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	handleCompareOpen() {
 		this.toggleModal("finance");
 		this.compareFinancialList = deepClone(initFinancialData);
-		// const currentFinancial = deepClone(this.tableDataMap.financial);
-		// currentFinancial.idx = 0;
-		// currentFinancial.checked = null;
-		//
-		// const childEl = this.template.querySelector("c-quote-calculator-table");
-		// currentFinancial.monthlyPayment = childEl?.calcMonthPayment(currentFinancial.loanAmount, currentFinancial.interestRate, currentFinancial.loanTermMonth) || 0;
 
-		this.compareFinancialList = this.compareFinancialList.map(el => this.getCurrentFinancial());/*= currentFinancial;*/
+		this.compareFinancialList = this.compareFinancialList.map((el, idx) => {
+			const financial = this.getCurrentFinancial();
+			return {
+				...financial,
+				idx: idx
+			}
+		});
 	}
 
+	/**
+	 * @description 현재 금융 데이터 가져오기
+	 */
 	getCurrentFinancial() {
 		const currentFinancial = deepClone(this.tableDataMap.financial);
 		currentFinancial.idx = 0;
@@ -770,14 +757,12 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 
 			// 이자율
 			case "interestRate":
-				// value = Number(value);
-				currentFinancial.interestRate = numValue;/*(value < selectedFinance.minInterestRate || value > selectedFinance.maxInterestRate) ? 0 : value;*/
+				currentFinancial.interestRate = numValue;
 				break;
 
 			// 대출 개월 수
 			case "loanTermMonth":
-				// value = Number(value);
-				currentFinancial.loanTermMonth = numValue;/*(value < selectedFinance.minimumDuration || value > selectedFinance.maximumDuration) ? 0 : value;*/
+				currentFinancial.loanTermMonth = numValue;
 				break;
 		}
 
@@ -797,22 +782,21 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			this.isLoading = true;
 			this.optionSearchMap = { ...this.optionSearchMap, product: this.productId };
 			getFilteredOptionList({ filterMap: this.optionSearchMap }).then(res => {
-				console.log("res :: ", res);
 				this.optionData = res;
 				this.selectedOptionIdList = [...this.selectedOptionIdList];
 			}).catch(err => {
-				console.log("err :: ", err);
+				console.error("err :: ", err);
 			}).finally(() => this.isLoading = false);
 		};
 
 		switch (name) {
+			// 옵션 검색 초기화 버튼
 			case "refresh":
 				this.optionSearchMap = { ...defaultOptionSearchMap };
 				break;
+			// 옵션 검색 버튼
 			case "search":
-				if (this.productId) {
-					getOptionData();
-				}
+				if (this.productId) getOptionData();
 				break;
 			case "save":
 				// 옵션 모달 저장
@@ -841,6 +825,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 
 					const selectedFinance = this.compareFinancialList.find(el => el.checked === "checked");
 
+					// 금융 비교 션택 여부 체크
 					if (!selectedFinance) {
 						showToast("원하는 금융 옵션을 선택해주세요.", "", "warning");
 						return;
@@ -906,6 +891,8 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				const loanTermMonth = financial?.loanTermMonth;
 				const capitalDeferment = financial?.capitalDeferment;
 				const advancePayment = financial?.advancePayment;
+
+				// Validation
 				if (interestRate < financial?.minInterestRate || interestRate > financial?.maxInterestRate) {
 					showToast("이자율 범위를 확인해주세요.", "", "warning");
 					return;
@@ -933,8 +920,8 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 					dataMap: JSON.stringify(this.tableDataMap),
 					summaryData: JSON.stringify(this.summaryData)
 				};
+
 				doSaveQuote({ paramMap: paramMap }).then(res => {
-					console.log("res ::", res);
 					showToast("견적을 저장하였습니다.", "", "success");
 					notifyRecordUpdateAvailable([{ recordId: res }]).then(() => {
 						setTimeout(() => {
@@ -943,13 +930,14 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 						}, 1000);
 					});
 				}).catch(err => {
-					console.log("err :: ", err);
+					console.error("err :: ", err);
 					showToast(err.body.message, "", "warning");
 					this.isLoading = false;
 				});
 				break;
 			// 견적 취소
 			case "cancel":
+				this.clearStyle();
 				this.navigateToBack();
 				break;
 			// 특장 추가
@@ -970,10 +958,8 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			// 캘린더
 			case "handover":
 				this.isLoading = true;
-				// this.toggleModal("calendar");
 				const stockId = this.selectedStockIdList.length > 0 ? this.selectedStockIdList[0] : null;
 				getCalendarInit({ vehicleStockId: stockId }).then(res => {
-					console.log("getCalendarInit :: ", res);
 					this.handoverDateList = res.handoverDateList;
 					this.optionDelayList = res.optionDelayList
 					.sort((a, b) => a.Attribute2__c - b.Attribute2__c)
@@ -983,12 +969,15 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 					}));
 					this.toggleModal("calendar");
 				}).catch(err => {
-					console.log("err :: ", err);
+					console.error("err :: ", err);
 				});
 				break;
 		}
 	}
 
+	/**
+	 * @description iframe 로드 (캘린더 선택) 시 캘린더 데이터 전송
+	 */
 	handleLoad(e) {
 		// iframe의 윈도우 객체를 저장
 		const iframeWindow = e.target.contentWindow;
@@ -1038,7 +1027,6 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			LightningConfirm.open({
 				message: `출고 희망일을 [${selectedDate}]로 변경하시겠습니까?`,
 				variant: "headerless"
-				// label: "기존 출고일 : " + this.handoverDate // 모달 제목
 			}).then(res => {
 				this.isLoading = true;
 				if (res) {
@@ -1062,6 +1050,8 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 
 		this.productId = productData?.id;
 		const productPrice = productData?.price || 0;
+
+		// 추가할인차량 데이터 리스트
 		const stockList = productData?.stockList?.map(stock => {
 			const baseDiscountPrice = baseDiscount / 100;
 			const longTermDiscountRate = (stock.LongtermDiscountRate__c || 0);
@@ -1072,6 +1062,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			const optionDiscountPrice = productPrice * optionDiscountRate;
 			const totalDiscountPrice = (productPrice * baseDiscountPrice) + longTermDiscountPrice + specialDiscountPrice + optionDiscountPrice;
 			const totalDiscountRate = (baseDiscount + (longTermDiscountRate * 100) + (specialDiscountRate * 100) + (optionDiscountRate * 100)).toFixed(2);
+
 			return {
 				...stock,
 				LMY: productData?.LMY,
@@ -1082,6 +1073,8 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				discountedPrice: productPrice - totalDiscountPrice
 			};
 		}) || [];
+
+		// 차종 데이터 세팅
 		this.productData = productData ? {
 			...productData,
 			optionList: this.selectedOptionData?.filter(el => el.type !== "기본제공"),
@@ -1089,9 +1082,11 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 		} : { segment: null, LMY: null, stockList: [] };
 		this.tableDataMap.product = this.productData;
 
+		// 옵션 데이터 세팅
 		this.optionData = optionList;
 		this.selectedOptionIdList = this.selectedOptionData?.map(el => el.id);
 
+		// 캠페인 데이터 세팅
 		this.baseDiscount = (productData?.price || 0) * (baseDiscount / 100);
 		this.campaignData = campaignList?.map(el => {
 			const discountRate = el.discountRate ? el.discountRate : el.discountPrice ? (el.discountPrice / this.productData.price) : 0;
@@ -1106,9 +1101,11 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 		this.selectedCampaignIdList = this.selectedCampaignList?.map(row => row.id);
 		const selectedCampaignList = this.campaignData?.filter(row => this.selectedCampaignIdList.includes(row.id));
 
+		// 선택된 추가할인차량 데이터 세팅
 		const currentStock = stockList?.find(el => el.Id === this.quoteData?.VehicleStock__c);
 		this.selectedStockIdList = [currentStock?.Id] || [];
 
+		// 프로모션 데이터 세팅
 		Object.assign(this.tableDataMap.promotion, {
 			promotionList: selectedCampaignList,
 			baseDiscount: this.baseDiscount,
@@ -1130,17 +1127,16 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	 * @description CareFree 옵션 선택 시 서비스 품목 데이터 가져오기
 	 */
 	getServiceItem() {
-		// isRequired - No Carefree 제외
 		const serviceItemList = this.selectedOptionData?.filter(el => el.type === "서비스품목");
 		if (serviceItemList && serviceItemList.length > 0) {
+			// Carefree 존재 시 No Carefree 제외
 			const serviceItem = serviceItemList.length === 1
 				? serviceItemList[0]
 				: serviceItemList.find(el => !el.isRequired) || serviceItemList.find(el => el.isRequired);
 			getServiceItem({ serviceItemId: serviceItem.id }).then(res => {
-				console.log("res :: ", res);
 				if (res) this.tableDataMap.serviceItem = res;
 			}).catch(err => {
-				console.log("err :: ", err);
+				console.error("err :: ", err);
 				this.tableDataMap.serviceItem = {};
 			});
 		} else {
@@ -1158,7 +1154,6 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			this.summaryData = childEl.calcSummary();
 			this.tableDataMap.extraExpenses = childEl.getExtraExpensesData();
 			const discountDetailData = childEl.getDiscountDetailData();
-			// const promotionData = childEl.getPromotionData();
 
 			const maxCount = discountDetailData.maxCount;
 			this.tableDataMap.discountDetail.maxCount = maxCount;
@@ -1168,11 +1163,12 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			const financial = childEl.getFinancialData();
 			const defermentVAT = financial?.defermentVAT || 0;
 			const minAdvancePayment = 1000000 + defermentVAT + financial.paymentDeferredAmount;
+
+			// 처음 로드 시 최솟값 자동 반영
 			if (this.isFirst) this.tableDataMap.financial.advancePayment = financial?.advancePayment || minAdvancePayment;
 			this.isFirst = false;
 
 			Object.assign(this.tableDataMap.financial, {
-				// advancePayment: advancePayment,
 				minAdvancePayment: minAdvancePayment,
 				defermentVAT: defermentVAT,
 				loanAmount: financial?.loanAmount || 0,
@@ -1219,26 +1215,41 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 		});
 	}
 
+	/**
+	 * @description 취소 버튼 클릭 시 이전 레코드 페이지로 돌아가기
+	 */
 	navigateToBack() {
 		let targetName, targetId;
+
+		// 이전 페이지 - Quote
 		if (this.quoteId) {
 			targetName = "Quote";
 			targetId = this.quoteId;
-		} else if (this.oppId) {
+		}
+		// 이전 페이지 - Opportunity
+		else if (this.oppId) {
 			targetName = "Opportunity";
 			targetId = this.oppId;
 		}
+
 		if (targetName) {
+			// 전역 스타일 제거 후 페이지 이동
 			this.clearStyle();
 			recordNavigation(this, targetName, targetId);
 		}
 	}
 
+	/**
+	 * @description 전역 스타일 제거하기
+	 */
 	clearStyle() {
 		const styleEl = document.querySelector(".custom-style");
 		if (styleEl) styleEl.remove();
 	}
 
+	/**
+	 * @description 스크롤 맨 위로
+	 */
 	scrollToTop() {
 		window.scrollTo({ top: 0, behavior: "smooth" });
 	}

@@ -35,9 +35,11 @@ public with sharing class MarginCalculatorController {
 
         List<Product2> productList = [
                 SELECT
-                        Id, Name, IsOTV__c, IsLNS__c, TrimLevel__c, VehicleCategory__r.Name, toLabel(EmissionLevel__c)
+                        Id, Name, IsOTV__c, IsLNS__c, TrimLevel__c, VehicleCategory__r.Name, toLabel(EmissionLevel__c),
+                        SalesConditionMaster__r.Discount__c, CarAmt__c, (SELECT AvisOrderInfo__r.BuyingPrice__c  FROM VehicleStock__r)
                 FROM Product2
-                WHERE VehicleCategory__r.Name IN :avgLocalCostMap.keySet()
+                WHERE SalesConditionMaster__c != NULL
+//                WHERE VehicleCategory__r.Name IN :avgLocalCostMap.keySet()
 //                AND Id IN (
 //                        SELECT Product__c
 //                        FROM VehicleStock__c
@@ -47,14 +49,12 @@ public with sharing class MarginCalculatorController {
         ];
 
         for(Product2 product : productList) {
-            if(avgLocalCostMap.containsKey(product.VehicleCategory__r.Name)) {
-                Map<String, Object> objMap = new Map<String, Object> {
-                        'product' => product
-                        , 'config' => avgLocalCostMap.get(product.VehicleCategory__r.Name)
-                };
+            Map<String, Object> objMap = new Map<String, Object> {
+                    'product' => product
+                    , 'config' => avgLocalCostMap.get(product.VehicleCategory__r.Name)
+            };
 //                returnMap.put(product.Id, objMap);
-                returnMap.put(product.Name, objMap);
-            }
+            returnMap.put(product.Name, objMap);
         }
 
         return returnMap;

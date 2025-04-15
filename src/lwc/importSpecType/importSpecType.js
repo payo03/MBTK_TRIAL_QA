@@ -97,59 +97,6 @@ export default class DynamicExcelDatatable extends LightningElement {
         return data;
     }
 
-    //     event.preventDefault();
-    //
-    //     let pastedText = (event.clipboardData || window.clipboardData).getData('text');
-    //
-    //     // 특정 패턴을 수정하여 올바르게 입력되도록 처리
-    //     pastedText = pastedText
-    //         .replace(/"제원관리번호\s*\n\s*형식승인번호"/g, '제원관리번호 형식승인번호') // 개행 포함된 헤더 병합
-    //         .replace(/\r/g, '') // 캐리지 리턴(\r) 제거
-    //         .replace(/"\s*\n\s*/g, ' ') // 큰따옴표 안 개행 제거
-    //         .replace(/\s*\n\s*/g, ' ') // 일반 개행 제거
-    //         .replace(/"/g, '')
-    //         .replace(/(^|\s)(?=\d+-\d+-\d+-\d+)/g, '\n');
-    //
-    //     console.log('이거', JSON.stringify(pastedText));
-    //
-    //     // 행을 개행 기준으로 분리하고 열을 탭(\t)으로 분리
-    //     const rows = pastedText.split(/\n/).map(row => row.split('\t').map(col => col.trim()));
-    //
-    //     console.log(JSON.stringify(rows));
-    //
-    //     if (rows.length === 0) return;
-    //
-    //     // 첫 번째 행(헤더)을 기반으로 컬럼명과 필드명을 매핑
-    //     this.excelMap.tableColumns = rows[0].map((col, colIndex) => ({
-    //         label: col || `열 ${colIndex + 1}`.replace(/_/g,' '), // 실제 컬럼명을 라벨로 사용
-    //         fieldName: col.replace(/\s+/g, '_') || `field_${colIndex + 1}`, // 필드명을 안전하게 변환
-    //         type: "text",
-    //         hideDefaultActions: true,
-    //         initialWidth: 150
-    //     }));
-    //
-    //     // 데이터 행 생성
-    //     this.excelMap.gridData = rows.slice(1).map((columns, rowIndex) => {
-    //         let row = { id: `row-${rowIndex}` };
-    //
-    //         // 부족한 열을 빈 값으로 채움
-    //         while (columns.length < this.excelMap.tableColumns.length) {
-    //             columns.push("");
-    //         }
-    //
-    //         this.excelMap.tableColumns.forEach((colDef, colIndex) => {
-    //             while (columns.length < this.excelMap.tableColumns.length) {
-    //                 columns.push("");
-    //             }
-    //             row[colDef.fieldName] = columns[colIndex] || "";
-    //
-    //         });
-    //         return row;
-    //     });
-    //
-    //     this.hasData = true;
-    // }
-
     handleInput(event) {
         event.preventDefault();
     }
@@ -168,7 +115,6 @@ export default class DynamicExcelDatatable extends LightningElement {
 
 // 변경된 데이터를 Apex API로 전달
         importExcelData({ excelList: this.excelMap.gridData }).then(res => {
-            console.log("res 데이터 확인:", JSON.stringify(res, null, 2));
 
             let keyOrder = {Id: -1};
 
@@ -184,8 +130,6 @@ export default class DynamicExcelDatatable extends LightningElement {
 
             const allKeys = Object.keys(keyOrder).sort((a, b) => keyOrder[a] - keyOrder[b]);
 
-            console.log("정렬된 키 리스트:", allKeys);
-
             this.successMap.tableColumns = [
                 ...allKeys.map((key) => ({
                     label: key,
@@ -195,8 +139,6 @@ export default class DynamicExcelDatatable extends LightningElement {
                     initialWidth: 150
                 }))
             ];
-
-            console.log("tableColumns:", JSON.stringify(this.successMap.tableColumns, null, 2));
 
             this.successMap.gridData = res.map((item, rowIndex) => {
                 let rowData = {
@@ -215,8 +157,6 @@ export default class DynamicExcelDatatable extends LightningElement {
             });
 
             this.successMap.gridData = [...this.successMap.gridData];
-
-            console.log("gridData:", JSON.stringify(this.successMap.gridData, null, 2));
 
             this.suceessFlag = true;
     }).catch(err => {
