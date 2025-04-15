@@ -9,7 +9,6 @@
 **************************************************************/
 public without sharing class Account_tr extends TriggerHandler {
 
-    // Test
     /** TriggerHandler */
     private final List<Account> newList { get; set; }
     private final List<Account> oldList { get; set; }
