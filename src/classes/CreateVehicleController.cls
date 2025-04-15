@@ -66,7 +66,7 @@ public with sharing class CreateVehicleController {
         actionType = type;
     }
 
-    // VF Page TEST
+    // VF Page
     public PageReference navigationPage() {
         String targetURL = ApexPages.currentPage().getParameters().get('targetURL');
 
