@@ -1,0 +1,104 @@
+<!--
+ * @author : San.Kang
+ * @date : 2025-03-14
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-03-14      San.Kang          Initial Version
+-->
+<apex:page sidebar="false" showheader="false" renderas="pdf" controller="AdvancedSafetyDeviceController" action="{!init}">
+
+<!--    <apex:variable value="" var="" rendered="{!checkDump}">-->
+        <body style="font-family: Arial Unicode MS;">
+
+        <table style="width:700px;">
+            <tr>
+                <td align="left" valign="bottom">
+                    <span style="color:#696969; font-size:23px">MAN Truck &amp; Bus Korea</span><br/>
+                </td>
+                <td align="right">
+                    <apex:image url="/servlet/servlet.FileDownload?file={!docImage1}" width="185" height="60"/>
+                </td>
+            </tr>
+        </table>
+
+        <table style="width:700px;margin-top:45px;">
+            <tr>
+                <td style="width:250px"></td>
+                <td align="left"><span style="font-size:15px">경기도 용인시 기흥구 보라하갈로 57 만트럭 버스코리아 ㈜ </span></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td align="left"><span style="font-size:15px; padding-left:15px;">Phone  :  031-8014-5700</span></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td align="left"><span style="font-size:15px; padding-left:15px;"> Fax     :  031-8014-5831</span></td>
+            </tr>
+        </table>
+        <table style="width:700px; margin-top:50px;">
+            <tr>
+                <td align="left"><span style="text-decoration: underline; font-size:23px">제목 : 첨단&nbsp; 안전&nbsp; 장치&nbsp; 설치&nbsp; 확인서 </span></td>
+            </tr>
+            <tr style="height:35px;">
+
+            </tr>
+            <tr>
+                <td align="left"><span style="font-size:16px;padding-left:50px;">1. 아래 건설기계는 차로이탈경고장치 및 비상자동제동장치가 장착되어 있는</span></td>
+            </tr>
+            <tr>
+                <td align="left"><span style="font-size:16px;padding-left:67px;">건설기계 임을 확인합니다.</span></td>
+            </tr>
+            <tr>
+                <td align="left">&nbsp;</td>
+            </tr>
+            <tr style="height:30px;">
+            </tr>
+            <tr>
+                <td align="center"><span style="font-size:18px;">- &nbsp;&nbsp;아&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 래&nbsp;&nbsp; - </span></td>
+            </tr>
+        </table>
+        <table style="width:700px; margin-top:40px; border-spacing:0px;">
+            <tr style="height:30px;">
+                <td style="border: 1px solid;" align="center">건설기계명</td>
+                <td style="border: 1px solid;" align="center">형 식</td>
+                <td style="border: 1px solid;" align="center">형식승인번호</td>
+                <td style="border: 1px solid;" align="center">제작일련번호</td>
+            </tr>
+            <tr style="height:40px;">
+                <td style="border: 1px solid; font-size:15px;" align="center">{!IF(ISBLANK(carName), '', carName)}</td>
+                <td style="border: 1px solid; font-size:15px;" align="center">{!IF(ISBLANK(vehicleStock.SpecShort__c), '', vehicleStock.SpecShort__c)}</td>
+                <td style="border: 1px solid; font-size:15px;" align="center">{!IF(ISBLANK(vehicleStock.SpecTypeNo__r.TypeNo__c), '', vehicleStock.SpecTypeNo__r.TypeNo__c)}</td>
+                <td style="border: 1px solid; font-size:15px;" align="center">{!IF(ISBLANK(vehicleStock.Name), '', vehicleStock.Name)}</td>
+            </tr>
+
+        </table>
+        <table style="width:700px; margin-top:60px;">
+            <tr>
+                <td align="right">
+                <span style="font-size:17px;padding-right:70px">
+                    <apex:outputText rendered="{!NOT(ISBLANK(opportunity.HandoverDate__c))}" value="{!YEAR(opportunity.HandoverDate__c)}년 {!MONTH(opportunity.HandoverDate__c)}월 {!DAY(opportunity.HandoverDate__c)}일" />
+                    <apex:outputText rendered="{!ISBLANK(opportunity.HandoverDate__c)}" value=" " />
+                </span>
+                </td>
+            </tr>
+            <tr style="height:100px">
+            </tr>
+            <tr>
+                <td align="center"><span style="font-size:21px;">만트럭 버스 코리아 (주)</span></td>
+            </tr>
+            <tr style="height:20px">
+            </tr>
+            <tr>
+                <td align="center"><span style="font-size:17px;padding-left:120px">대표 이사 피터 앤더슨&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (인)</span></td>
+            </tr>
+
+        </table>
+
+        </body>
+<!--    </apex:variable>-->
+</apex:page>

@@ -7,6 +7,7 @@
   ===================================================================================
   1.0      2024-11-20      payo03@solomontech.net           Created
   1.1      2024-11-27      payo03@solomontech.net           ListView의 idList값 VF Page로부터 수신
+  1.2      2025-04-15      payo03@solomontech.net           Interface기능 분리
 */
 import { LightningElement, wire, track, api } from 'lwc';
 import { loadStyle } from 'lightning/platformResourceLoader';
@@ -17,8 +18,9 @@ import styles from '@salesforce/resourceUrl/removeDataFormat';
 
 import screenInit from '@salesforce/apex/CreateVehicleController.screenInit';
 import selectInfoList from "@salesforce/apex/CreateVehicleController.selectInfoList";
+import selectLogList from "@salesforce/apex/CreateVehicleController.selectLogList";
 import createVehicleStock from "@salesforce/apex/CreateVehicleController.createVehicleStock";
-import sendCustomsInfo from "@salesforce/apex/CreateVehicleController.sendCustomsInfo";
+//import sendCustomsInfo from "@salesforce/apex/CreateVehicleController.sendCustomsInfo";
 
 export default class createVehicle extends LightningElement  {
 
@@ -29,6 +31,7 @@ export default class createVehicle extends LightningElement  {
     @track draftValues = [];
 
     @track inputVisible = true;
+    @track pageOrder = true;
     @track BLDocumentNo__c = '';
     @track BLDate__c = '';
     @track RealArrivalDate__c = '';
@@ -86,7 +89,13 @@ export default class createVehicle extends LightningElement  {
             console.log('LWC Receive : ', event.data.type);
             // Select AvisOrderInfo
             if (event.data.type === 'SELECT_ORDER_VF') {
-                this.moveNextPage(event.data.records);
+                this.pageOrder = true;
+                this.moveNextPageOrder(event.data.records);
+            }
+            // ver1.2 Interface기능 분리
+            if (event.data.type === 'SELECT_LOG_VF') {
+                this.pageOrder = false;
+                this.moveNextPageLog(event.data.records);
             }
             // CUSTOMS_INFO
             if (event.data.type === 'CUSTOMS_INFO_VF') {
@@ -157,6 +166,14 @@ export default class createVehicle extends LightningElement  {
         console.log(JSON.parse(JSON.stringify(logVar)));
     }
 
+    // ver1.2 Interface기능 분리
+    handleIF(event) {
+        let rowId = event.target.dataset.id;
+        let fieldLabelName = event.target.name;
+
+        console.log(fieldLabelName);
+    }
+
     handleCheckboxChange(event) {
         let rowId = event.target.dataset.id;
         let isChecked = event.target.checked;
@@ -182,6 +199,7 @@ export default class createVehicle extends LightningElement  {
         });
     }
 
+    /*
     handleCustomButton() {
 
         window.postMessage({
@@ -190,6 +208,7 @@ export default class createVehicle extends LightningElement  {
             debug: 'Custom Avis Order Info FROM ' + this.selectFilterId
         }, '*');
     }
+    */
 
 //    handleCancel() {
 //        this.draftValues = [];
@@ -246,43 +265,64 @@ export default class createVehicle extends LightningElement  {
         });
     }
 
-    nextButton() {
-
+    // ver1.2 Interface기능 분리
+    nextButtonLog() {
         window.postMessage({
-            type: 'SELECT_ORDER_LWC',
+            type: 'SELECT_LOG_LWC',
             filterId: this.selectFilterId,
-            debug: 'Select Avis Order Info FROM ' + this.selectFilterId
+            debug: 'Select IFAuditLogDetail FROM ' + this.selectFilterId
         }, '*');
     }
 
-    moveNextPage(records) {
+    nextButtonOrder() {
+        window.postMessage({
+            type: 'SELECT_ORDER_LWC',
+            filterId: this.selectFilterId,
+            debug: 'Select AvisOrderInfo FROM ' + this.selectFilterId
+        }, '*');
+    }
+
+    moveNextPageOrder(records) {
         selectInfoList({ idList: records }).then(res => {
-           let data = res;
-           data.forEach(item => {
-               item.BLDocumentNo__c = this.BLDocumentNo__c || item.BLDocumentNo__c;
-               item.BLDate__c = this.BLDate__c || item.BLDate__c;
-               item.RealArrivalDate__c = this.RealArrivalDate__c || item.RealArrivalDate__c;
-               item.IsMail__c = this.IsMail__c || item.IsMail__c;
-               /*
-               item.RealSailingDate__c = this.RealSailingDate__c || item.RealSailingDate__c;
-               item.SendTo__c = this.SendTo__c || item.SendTo__c;
-               item.Suffix__c = this.Suffix__c || item.Suffix__c;
-               */
+            let data = res;
+            data.forEach(item => {
+                item.BLDocumentNo__c = this.BLDocumentNo__c || item.BLDocumentNo__c;
+                item.BLDate__c = this.BLDate__c || item.BLDate__c;
+                item.RealArrivalDate__c = this.RealArrivalDate__c || item.RealArrivalDate__c;
+                item.IsMail__c = this.IsMail__c || item.IsMail__c;
+                /*
+                item.RealSailingDate__c = this.RealSailingDate__c || item.RealSailingDate__c;
+                item.SendTo__c = this.SendTo__c || item.SendTo__c;
+                item.Suffix__c = this.Suffix__c || item.Suffix__c;
+                */
 
-               // PickList 표시
-               item.CabMarkLabel = this.cabMarkPickList.find(obj => obj.label === item.CabMark__c)?.value || null;
-               item.SegmentLabel = this.segment1PickList.find(obj => obj.label === item.fm_Segment1__c)?.value || null;
-               item.WheelBaseLabel = this.wheelBasePickList.find(obj => obj.label === item.WheelBase__c)?.value || null;
-               item.CarColorLabel = this.carColorPickList.find(obj => obj.label === item.CarColor__c)?.value || null;
-               item.ArrivalHarborLabel = this.arrivalHarborCodePickList.find(obj => obj.label === item.ArrivalHarborCode__c)?.value || null;
-               /*
-               item.SendToLabel = this.sendToPickList.find(obj => obj.label === item.SendTo__c)?.value || null;
-               item.SuffixLabel = this.suffixPickList.find(obj => obj.label === item.Suffix__c)?.value || null;
-               */
-           });
+                // PickList 표시
+                item.CabMarkLabel = this.cabMarkPickList.find(obj => obj.label === item.CabMark__c)?.value || null;
+                item.SegmentLabel = this.segment1PickList.find(obj => obj.label === item.fm_Segment1__c)?.value || null;
+                item.WheelBaseLabel = this.wheelBasePickList.find(obj => obj.label === item.WheelBase__c)?.value || null;
+                item.CarColorLabel = this.carColorPickList.find(obj => obj.label === item.CarColor__c)?.value || null;
+                item.ArrivalHarborLabel = this.arrivalHarborCodePickList.find(obj => obj.label === item.ArrivalHarborCode__c)?.value || null;
+                /*
+                item.SendToLabel = this.sendToPickList.find(obj => obj.label === item.SendTo__c)?.value || null;
+                item.SuffixLabel = this.suffixPickList.find(obj => obj.label === item.Suffix__c)?.value || null;
+                */
+            });
 
-           this.data = data;
-           this.changePopup();
+            this.data = data;
+            this.changePopup();
+        }).catch(error => {
+            showToast('Error', 'Error SOQL', 'error', 'dismissable');
+            console.log(error);
+        });
+    }
+
+    moveNextPageLog(records) {
+        console.log('H');
+        selectLogList({ idList: records }).then(res => {
+
+            let data = res;
+            this.data = data;
+            this.changePopup();
         }).catch(error => {
             showToast('Error', 'Error SOQL', 'error', 'dismissable');
             console.log(error);

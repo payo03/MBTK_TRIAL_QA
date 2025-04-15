@@ -32,8 +32,6 @@ private class VehicleStockTableController_test {
         };
 
         Map<String, String> stringMap = new Map<String, String>();
-        System.debug('product' + vehicleStock.Product__c);
-        System.debug('VehicleCategory__c' + product.VehicleCategory__c);
         for (String key : filterMap.keySet()) {
             Object value = filterMap.get(key);
             stringMap.put(key, value != null ? String.valueOf(value) : null);
@@ -50,13 +48,9 @@ private class VehicleStockTableController_test {
         VehicleStockTableController.getProductWrap(categorykey,'sa');
         VehicleStockTableController.getProductWrap(categorykey,'admin');
         VehicleStockTableController.getFilteredCategoryList(stringMap);
-//        VehicleStockTableController.getDynamicProductWrapList(whereConditions);
         VehicleStockTableController.updateStockShow(vehiclestockIds,true);
         VehicleStockTableController.updateStockShow(vehiclestockIds,false);
-
         VehicleStockTableController.checkSAPermissionSet();
-
-//        VehicleStockTableController.VehicleDetailWrap(vehiclestockIds,false);
         Test.stopTest();
     }
 

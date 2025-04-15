@@ -1,0 +1,1210 @@
+<!--
+ * @author : San.Kang
+ * @date : 2025-03-17
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-03-17      San.Kang       Initial Version
+-->
+<apex:page controller="LandingPageController" lightningStylesheets="true" action="{!getCustomerConsent}"
+           showHeader="false">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+        <apex:slds />
+        <style type="text/css">
+            @media (max-width: 575px) {
+                .slds-modal {
+                    align-content: center;
+                }
+                .mainContent {
+                    padding-left: 30px;
+                    padding-right: 30px;
+                }
+                .slds-modal__content {
+                    overflow-x: auto;
+                }
+
+                .slds-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    table-layout: auto;
+                    word-break: break-word;
+                    white-space: normal;  /* ✅ 줄바꿈 허용 */
+                }
+                .table-scroll-wrapper {
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                    border: 1px solid #eee;
+                    border-radius: 8px;
+                    padding: 0.5rem;
+                    background-color: #fafafa;
+                    margin: 1rem 0;
+                }
+
+                .responsive-table {
+                    min-width: 600px;
+                    font-size: 0.8rem;
+                    border-collapse: collapse;
+                    width: 100%;
+                }
+
+                .responsive-table th,
+                .responsive-table td {
+                    padding: 0.6rem;
+                    border: 1px solid #ccc;
+                    vertical-align: top;
+                    word-break: break-word;
+                    background-color: white;
+                }
+
+                .responsive-table th {
+                    background-color: #f4f4f4;
+                    font-weight: bold;
+                    text-align: left;
+                }
+
+                .title{
+                    padding: inherit;
+                }
+
+            }
+
+            @media (min-width: 1200px) {
+                .mainContent {
+                    padding-left: 450px;
+                    padding-right: 450px;
+                }
+            }
+            .mainContent hr {
+                margin: 0.5rem 0;/* 원하는 만큼 조정 가능 (기본값보다 작게 설정) */
+            }
+
+            .slds-modal__header {
+                border-bottom: 1px solid #e0e0e0; /* 헤더와 본문을 구분 */
+                padding: 1rem 1.5rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .slds-modal__content {
+                padding: 1rem 1.5rem;
+                overflow-y: auto;
+                max-height: 60vh; /* 본문이 길 경우 스크롤 적용 */
+            }
+
+            .modal-footer {
+                padding: 1rem 1.5rem;
+                border-top: 1px solid #e0e0e0; /* 푸터와 본문을 구분 */
+                margin-top: 0.5rem;
+                text-align: center;
+            }
+
+            /* 모달 컨테이너 조정 */
+            .slds-modal__container {
+                margin: auto !important;
+                display: flex;
+                flex-direction: column;
+                background-color: white;
+                max-height: 85vh; /* 화면 높이에 따라 자동 조절 */
+                width: 90%;
+                max-width: 800px;
+                border-radius: 8px;
+            }
+
+            .modal {
+                display: none; /* ✅ 기본적으로 안 보이게 */
+                justify-content: center;
+                align-items: center;
+                position: fixed;
+                z-index: 1000;
+                left: 0;
+                top: 0;
+                width: 100vw;
+                height: 100vh;
+                background-color: rgba(0, 0, 0, 0.5);
+            }
+
+            /* 모달 배경 */
+            .slds-modal {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: fixed;
+                z-index: 1000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                opacity: 1;
+                transition: opacity 0.3s ease-in-out;
+                overflow-y: auto;
+            }
+
+            .slds-modal__container {
+                margin: auto !important; /* 수직/수평 중앙 */
+                max-width: 95vw;
+                width: 100%;
+                border-radius: 8px;
+                overflow-y: auto;
+                max-height: 90vh;
+                padding: 2rem;
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+                animation: fadeIn 0.3s ease-out;
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            @media screen and (max-width: 600px) {
+                .slds-modal__container {
+                    width: 95% !important;
+                    padding: 1rem !important;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                }
+
+                .slds-table {
+                    font-size: 0.85rem;
+                    white-space: normal; /* 모바일에서는 자동 줄바꿈 */
+                }
+
+                .slds-table th,
+                .slds-table td {
+                    padding: 8px;
+                    word-break: break-word;
+                }
+            }
+
+            /* 마케팅 수신 동의 체크박스 정렬 보정 */
+            .slds-grid .slds-col .slds-checkbox {
+                display: flex;
+                align-items: center;
+                height: 100%;
+                margin: auto;
+            }
+
+            .slds-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 15px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                white-space: nowrap;
+            }
+
+            .slds-table th,
+            .slds-table td {
+                border: 1px solid #ddd;
+                padding: 12px;
+                font-size: small;
+            }
+
+            .slds-table th {
+                background-color: #f3f3f3;
+                font-weight: bold;
+            }
+
+            .slds-button_brand:hover {
+                background-color: #005290;
+            }
+            .checkbox-error input[type="checkbox"] + label .slds-checkbox_faux {
+                border-color: #c23934 !important; /* 빨간 테두리 */
+                background-color: #fff0f0;         /* 약간 붉은 배경 (선택 사항) */
+            }
+
+            .checkbox-error label .slds-form-element__label {
+                color: #c23934 !important; /* 라벨 글씨 빨강 */
+            }
+        </style>
+    </head>
+    <body>
+    <apex:image url="{!$Resource.landingPageHeaderTest}" width="100%" style="margin-bottom: 30px;"/>
+    <div class="mainContent">
+        <div class="slds-grid slds-wrap slds-p-bottom_small slds-align_absolute-left">
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <h1 class="slds-text-heading_medium slds-text-align_left slds-p-bottom_small" style="font-weight: bold;">
+                    개인정보수집·이용·제공동의</h1>
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-text-align_right">
+                    <div class="slds-form-element">
+                        <div class="slds-checkbox">
+                            <input type="checkbox" id="checkbox-agree-all" onclick="selectAllCheck(this)" />
+                            <label class="slds-checkbox__label" for="checkbox-agree-all">
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">전체동의</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr />
+
+        <!-- 항목 1 -->
+        <div class="slds-grid slds-wrap slds-p-vertical_x-small">
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 title">
+                <span>개인정보 수집 및 이용동의(필수)<span style="color: #00BFFF; font-weight: bold;">*</span></span>
+                <div class="slds-form-element__help" id="error-msg-1" style="display: none; color: red;">* 필수 항목입니다.</div>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col slds-size_1-of-3">
+                        <div class="slds-checkbox">
+                            <input type="checkbox" name="checkbox" id="checkbox-unique-1-agree" class="agree box-1" onclick="checkAsRadio(this)"/>
+                            <label class="slds-checkbox__label" for="checkbox-unique-1-agree">
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">동의</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-3">
+                        <div class="slds-checkbox">
+                            <input type="checkbox" name="checkbox" id="checkbox-unique-1-disagree" class="disagree box-1" onclick="checkAsRadio(this)"/>
+                            <label class="slds-checkbox__label" for="checkbox-unique-1-disagree">
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">동의안함</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-3 slds-text-align_right">
+                        <button class="slds-button slds-button_neutral slds-text-not-truncate" style="white-space: nowrap;" onclick="openModal('버튼 1')">자세히 보기</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 항목 2 -->
+        <div class="slds-grid slds-wrap slds-p-vertical_x-small">
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 title">
+                <span>고유식별정보 수집 및 이용(필수)<span style="color: #00BFFF; font-weight: bold;">*</span></span>
+                <div class="slds-form-element__help" id="error-msg-2" style="display: none; color: red;">* 필수 항목입니다.</div>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col slds-size_1-of-3">
+                        <div class="slds-checkbox">
+                            <input type="checkbox" name="checkbox" id="checkbox-unique-2-agree" class="agree box-2" onclick="checkAsRadio(this)"/>
+                            <label class="slds-checkbox__label" for="checkbox-unique-2-agree">
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">동의</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-3">
+                        <div class="slds-checkbox">
+                            <input type="checkbox" name="checkbox" id="checkbox-unique-2-disagree" class="disagree box-2" onclick="checkAsRadio(this)"/>
+                            <label class="slds-checkbox__label" for="checkbox-unique-2-disagree">
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">동의안함</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-3 slds-text-align_right">
+                        <button class="slds-button slds-button_neutral slds-text-not-truncate" style="white-space: nowrap;" onclick="openModal('버튼 2')">자세히 보기</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 항목 3 -->
+        <div class="slds-grid slds-wrap slds-p-vertical_x-small">
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 title">
+                <span>개인정보의 제3자 제공 동의(필수)<span style="color: #00BFFF; font-weight: bold;">*</span></span>
+                <div class="slds-form-element__help" id="error-msg-3" style="display: none; color: red;">* 필수 항목입니다.</div>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col slds-size_1-of-3">
+                        <div class="slds-checkbox">
+                            <input type="checkbox" name="checkbox" id="checkbox-unique-3-agree" class="agree box-3" onclick="checkAsRadio(this)"/>
+                            <label class="slds-checkbox__label" for="checkbox-unique-3-agree">
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">동의</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-3">
+                        <div class="slds-checkbox">
+                            <input type="checkbox" name="checkbox" id="checkbox-unique-3-disagree" class="disagree box-3" onclick="checkAsRadio(this)"/>
+                            <label class="slds-checkbox__label" for="checkbox-unique-3-disagree">
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">동의안함</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-3 slds-text-align_right">
+                        <button class="slds-button slds-button_neutral slds-text-not-truncate" style="white-space: nowrap;" onclick="openModal('버튼 3')">자세히 보기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 항목 4 -->
+        <div class="slds-grid slds-wrap slds-p-vertical_x-small">
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 title">
+                <span>고유식별정보의 제3자 제공 동의(필수)<span style="color: #00BFFF; font-weight: bold;">*</span></span>
+                <div class="slds-form-element__help" id="error-msg-4" style="display: none; color: red;">* 필수 항목입니다.</div>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col slds-size_1-of-3">
+                        <div class="slds-checkbox">
+                            <input type="checkbox" name="checkbox" id="checkbox-unique-4-agree" class="agree box-4" onclick="checkAsRadio(this)"/>
+                            <label class="slds-checkbox__label" for="checkbox-unique-4-agree">
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">동의</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-3">
+                        <div class="slds-checkbox">
+                            <input type="checkbox" name="checkbox" id="checkbox-unique-4-disagree" class="disagree box-4" onclick="checkAsRadio(this)"/>
+                            <label class="slds-checkbox__label" for="checkbox-unique-4-disagree">
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">동의안함</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-3 slds-text-align_right">
+                        <button class="slds-button slds-button_neutral slds-text-not-truncate" style="white-space: nowrap;" onclick="openModal('버튼 4')">자세히 보기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 항목 5 -->
+        <div class="slds-grid slds-wrap slds-p-vertical_x-small">
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 title">
+                <span>개인정보 국외이전 동의(필수)<span style="color: #00BFFF; font-weight: bold;">*</span></span>
+                <div class="slds-form-element__help" id="error-msg-5" style="display: none; color: red;">* 필수 항목입니다.</div>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col slds-size_1-of-3">
+                        <div class="slds-checkbox">
+                            <input type="checkbox" name="checkbox" id="checkbox-unique-5-agree" class="agree box-5" onclick="checkAsRadio(this)"/>
+                            <label class="slds-checkbox__label" for="checkbox-unique-5-agree">
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">동의</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-3">
+                        <div class="slds-checkbox">
+                            <input type="checkbox" name="checkbox" id="checkbox-unique-5-disagree" class="disagree box-5" onclick="checkAsRadio(this)"/>
+                            <label class="slds-checkbox__label" for="checkbox-unique-5-disagree">
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">동의안함</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-3 slds-text-align_right">
+                        <button class="slds-button slds-button_neutral slds-text-not-truncate" style="white-space: nowrap;" onclick="openModal('버튼 5')">자세히 보기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--  6 detail -->
+        <div class="slds-grid slds-wrap slds-p-vertical_x-small">
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 title">
+                <span>개인정보 수집 및 이용(선택)</span>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col slds-size_1-of-3">
+                        <div class="slds-checkbox">
+                            <input type="checkbox" name="checkbox" id="checkbox-unique-6-agree" class="agree box-6" onclick="checkAsRadio(this)"/>
+                            <label class="slds-checkbox__label" for="checkbox-unique-6-agree">
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">동의</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-3">
+                        <div class="slds-checkbox">
+                            <input type="checkbox" name="checkbox" id="checkbox-unique-6-disagree" class="disagree box-6" onclick="checkAsRadio(this)"/>
+                            <label class="slds-checkbox__label" for="checkbox-unique-6-disagree">
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">동의안함</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-3 slds-text-align_right">
+                        <button class="slds-button slds-button_neutral slds-text-not-truncate" style="white-space: nowrap;" onclick="openModal('버튼 6')">자세히 보기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--  7 detail -->
+        <div class="slds-grid slds-wrap slds-p-vertical_x-small">
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 title">
+                <span>개인(신용)정보의 제3자 제공 동의(선택)</span>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col slds-size_1-of-3">
+                        <div class="slds-checkbox">
+                            <input type="checkbox" name="checkbox" id="checkbox-unique-7-agree" class="agree box-7" onclick="checkAsRadio(this)"/>
+                            <label class="slds-checkbox__label" for="checkbox-unique-7-agree">
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">동의</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-3">
+                        <div class="slds-checkbox">
+                            <input type="checkbox" name="checkbox" id="checkbox-unique-7-disagree" class="disagree box-7" onclick="checkAsRadio(this)"/>
+                            <label class="slds-checkbox__label" for="checkbox-unique-7-disagree">
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">동의안함</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-3 slds-text-align_right">
+                        <button class="slds-button slds-button_neutral slds-text-not-truncate" style="white-space: nowrap;" onclick="openModal('버튼 7')">자세히 보기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8번 -->
+        <div class="slds-grid slds-wrap slds-p-vertical_x-small">
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 title">
+                <span>개인(신용)정보 국외이전 동의(선택)</span>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col slds-size_1-of-3">
+                        <div class="slds-checkbox">
+                            <input type="checkbox" name="checkbox" id="checkbox-unique-8-agree" class="agree box-8" onclick="checkAsRadio(this)"/>
+                            <label class="slds-checkbox__label" for="checkbox-unique-8-agree">
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">동의</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-3">
+                        <div class="slds-checkbox">
+                            <input type="checkbox" name="checkbox" id="checkbox-unique-8-disagree" class="disagree box-8" onclick="checkAsRadio(this)"/>
+                            <label class="slds-checkbox__label" for="checkbox-unique-8-disagree">
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">동의안함</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-3 slds-text-align_right">
+                        <button class="slds-button slds-button_neutral slds-text-not-truncate" style="white-space: nowrap;" onclick="openModal('버튼 8')">자세히 보기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slds-col slds-size_1-of-1 slds-align_absolute-center slds-p-top_large">
+        <button class="slds-button slds-button_brand" onclick="saveConsent('{!Id}')">제출</button>
+    </div>
+
+    <!-- MODAL 1 START -->
+    <div id="id01" style="display: none;" class="modal">
+        <section role="dialog" tabindex="1" aria-labelledby="modal-heading" aria-hidden="true"
+                 aria-describedby="modal-content"
+                 class="slds-modal slds-fade-in-open slds-modal_medium">
+            <div class="slds-modal__container slds-grid_align-center">
+
+                <!-- 닫기 버튼 -->
+                <button class="slds-button slds-button_icon slds-modal__close"
+                        onclick="document.getElementById('id01').style.display='none'">
+                    <svg aria-hidden="true" class="slds-button__icon slds-button__icon_large"
+                         style="background: white; border-radius: 5px;">
+                        <use href="{!URLFOR($Asset.SLDS, 'assets/icons/utility-sprite/svg/symbols.svg#close')}"></use>
+                    </svg>
+                    <span class="slds-assistive-text">Cancel and close</span>
+                </button>
+
+                <!-- 헤더 -->
+                <header class="slds-modal__header slds-p-around_large">
+                    <h2 id="modal-heading1" class="slds-text-heading_medium slds-hyphenate">개인정보 수집 및 이용동의</h2>
+                </header>
+
+                <!-- 본문 -->
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content">
+                    <p>만트럭버스코리아 주식회사(이하 <strong>"회사"</strong>라 함)는 회사의 차량을 구매하는 고객의 개인정보 보호를 중요시하며 개인정보 보호법을 준수합니다.</p>
+                    <br/>
+
+                    <!-- 테이블 감싸기 -->
+                    <!-- ✅ 스크롤 가능한 테이블 래퍼 -->
+                    <div class="table-scroll-wrapper" style="overflow-x: auto; max-width: 100%;">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered responsive-table" style="min-width: 800px; table-layout: auto;">
+                            <thead>
+                            <tr>
+                                <span class="slds-text-title">회사는 아래과 같은 목적으로 다음과 같은 개인정보 항목을 수집하고 이용합니다.</span>
+                                <th style="white-space: nowrap;">목적</th>
+                                <th style="white-space: nowrap;">수집 항목</th>
+                                <th style="white-space: nowrap;">보유 및 이용 기간</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td rowspan="1">
+                                    차량 및 서비스 제공, 차량 판매 계약, <br/>차량 금융, 애프터케어, 고객 케어, 고객 지원
+                                </td>
+                                <td>
+                                   개인/개인 사업자: 성명, 자택 주소, 회사 주소, 개인 휴대폰 및 집 전화번호, 이메일 주소<br/>
+                                    법인 사업자:회사명, 주소, 부가가치세 ID, 업무용(휴대)전화번호, 업무용 이메일 주소,<br/> 사업자등록번호(마스터 데이터)<br/><br/>
+                                    귀하가 관심을 가지고 있는 제품, 제품 구성 또는 서비스, 또는 귀하가 견적을 요청했거나<br/> 최종 선택했는지 여부에 대한 기록(제안 및 주문 데이터)<br/>
+                                    차량 인도일, 차량번호판 번호, 차량 구매일, 차량 구매 금액, 세금계산서 날짜<br/>
+                                    금융 서비스 제공자, 상품, 조건(할부 원금, 할부기간, 계약금, 지급 유예 요청 등)
+                                </td>
+                                <td style="text-align: center;">처리 목적 달성 시까지</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+
+                    <br/>
+                    <p>귀하는 위 개인정보 수집 및 이용에 동의할 수 있으며, 동의를 거부할 권리가 있습니다.</p>
+                    <p>그러나 동의를 거부할 경우, 위 목적과 관련된 계약 체결 및 서비스 제공이 제한될 수 있습니다.</p>
+                </div> <!-- slds-modal__content -->
+                <footer class="modal-footer">
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button class="slds-button slds-button_brand"
+                                onclick="document.getElementById('id01').style.display='none'">닫기</button>
+                    </div>
+                </footer>
+
+            </div> <!-- slds-modal__container -->
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+    <!--MODAL 1 END -->
+
+    <!--MODAL 2 END -->
+    <div id="id02" style="display: none;" class="modal">
+        <section role="dialog" tabindex="1" aria-labelledby="modal-heading" aria-hidden="true"
+                 aria-describedby="modal-content"
+                 class="slds-modal slds-fade-in-open slds-modal_medium">
+            <div class="slds-modal__container">
+                <button class="slds-button slds-button_icon slds-modal__close"
+                        onclick="document.getElementById('id02').style.display='none'">
+                    <svg aria-hidden="true" class="slds-button__icon slds-button__icon_large"
+                         style="background: white; border-radius: 5px;">
+                        <use href="{!URLFOR($Asset.SLDS, 'assets/icons/utility-sprite/svg/symbols.svg#close')}"></use>
+                    </svg>
+                    <span class="slds-assistive-text">Cancel and close</span>
+                </button>
+                <header class="slds-modal__header slds-p-around_large">
+                    <h2 id="modal-heading2" class="slds-text-heading_medium slds-hyphenate">고유식별정보 수집 및 이용</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content" style="overflow-x: auto;">
+                    <h3>회사는 아래와 같은 목적으로 다음과 같은 개인정보 항목을 수집하고 이용합니다.</h3>
+                    <br/>
+                    <div class="table-scroll-wrapper">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered responsive-table">
+                            <thead>
+                            <tr>
+                                <th>제공 목적</th>
+                                <th>제공 항목</th>
+                                <th>보유 및 이용 기간</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>차량 판매 계약, 세금계산서 발행, 차량 등록</td>
+                                <td>주민등록번호, 외국인등록번호, 여권번호</td>
+                                <td>차량 인도 후 3개월 또는 계약 금액 최종 지불 후 3개월<br/>
+                                    또는 차량 등록 후 3개월 중 나중에 도래하는 날까지 </td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <br/>
+                    <p>※ 고유식별정보는 관련 법령에서 허용하는 범위 내에서만 업무 처리 목적으로 수집됩니다.<br/>
+                        ※ 고유식별정보는 전자적으로 마스킹 처리되어 관리되며 다른 목적으로는 사용되지 않습니다.<br/>
+                        ※ 주민등록번호의 경우, 부가가치세법 제32조에 따라 세금계산서 발행을 위해 수집되며, 목적 달성 후 즉시 폐기됩니다.<br/><br/>
+                        귀하는 위 개인(신용)정보 수집·이용에 대한 동의를 거부할 권리가 있습니다. 그러나 동의를 거부할 경우, 위 목적을 위한 계약 체결 또는 서비스 제공이 제한될 수 있습니다.<br/>
+                        본인은 회사의 외국인등록번호, 여권번호 수집 및 이용에 동의하며, 법령에 따른 주민등록번호 처리에 대해 고지받았습니다.</p>
+                </div>
+                <footer class="modal-footer">
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button class="slds-button slds-button_brand"
+                                onclick="document.getElementById('id02').style.display='none'">닫기</button>
+                    </div>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+    <!-- MODAL 2 END -->
+
+    <!--MODAL 3 START -->
+    <div id="id03" style="display: none;" class="modal">
+        <section role="dialog" tabindex="1" aria-labelledby="modal-heading" aria-hidden="true"
+                 aria-describedby="modal-content"
+                 class="slds-modal slds-fade-in-open slds-modal_medium">
+            <div class="slds-modal__container">
+                <button class="slds-button slds-button_icon slds-modal__close"
+                        onclick="document.getElementById('id03').style.display='none'">
+                    <svg aria-hidden="true" class="slds-button__icon slds-button__icon_large"
+                         style="background: white; border-radius: 5px;">
+                        <use href="{!URLFOR($Asset.SLDS, 'assets/icons/utility-sprite/svg/symbols.svg#close')}"></use>
+                    </svg>
+                    <span class="slds-assistive-text">Cancel and close</span>
+                </button>
+                <header class="slds-modal__header slds-p-around_large">
+                    <h2 id="modal-heading3" class="slds-text-heading_medium slds-hyphenate">개인정보의 제3자 제공 동의</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content" style="overflow-x: auto;">
+                    <br/>
+                    <div class="table-scroll-wrapper">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered responsive-table">
+                            <thead>
+                            <tr>
+                                <th>제공 대상</th>
+                                <th>제공 목적</th>
+                                <th>제공 항목</th>
+                                <th>보유 및 이용 기간</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td><strong>트래톤파이낸셜서비스코리아㈜, 신한카드㈜,<br/> NH농협캐피탈㈜, 우리금융캐피탈㈜, 현대커머셜㈜</strong></td>
+                                <td><strong><u>금융서비스 제공</u></strong></td>
+                                <td><strong>개인/개인사업자</strong>: 성명, 자택 주소, 회사 주소,<br/> 개인 휴대전화 및 자택 전화번호, 이메일 주소, 세금계산서 날짜<br/><br/>
+                                    <strong>법인사업자</strong>: 회사명, 주소, 업무용(휴대)전화번호,<br/> 업무용 이메일 주소, 사업자등록번호(마스터 데이터)<br/><br/>
+                                    귀하가 금융 지원을 필요 하는 제품, 제품 구성 또는 서비스<br/>
+                                    금융 서비스 상품, 조건(할부 원금, 할부기간, 계약금, 지급 유예 요청 등) </td>
+                                <td>처리 목적 달성 시까지</td>
+                            </tr>
+                            <tr>
+                                <td><strong><u>(주) 모두싸인</u></strong></td>
+                                <td><strong><u>계약 서명</u></strong></td>
+                                <td><strong>개인/개인사업자</strong>: 성명, 휴대전화번호<br/><br/>
+                                    <strong>법인사업자</strong>: 회사명, 담당자 성명, 휴대전화번호</td>
+                                <td>처리 목적 달성 시까지</td>
+                            </tr>
+                            <tr>
+                                <td><strong><u><a href="https://mantruck.co.kr/home/network-servicecenter/" target="_blank">공식 에이 딜러십 &amp; 워크샵</a></u></strong></td>
+                                <td><strong><u>서비스, 수리 및 유지보수 - DMS 사용자</u></strong></td>
+                                <td><strong>개인/개인사업자</strong>: 성명, 주소, 자택 및 휴대전화번호, 이메일 주소<br/><br/>
+                                    <strong>법인사업자</strong>: 회사명, 담당자 성명, 주소, 휴대전화번호, 이메일 주소<br/><br/>
+                                    차량 정보: 차량 번호판 번호, 차량 유형, 제조일, <br/>기술 데이터, 인도일, 수리 및 유지보수 기록 </td>
+                                <td>처리 목적 달성 시까지</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <br/>
+                    <p>
+                        귀하는 위 개인(신용)정보의 제3자 제공에 대한 동의를 거부할 권리가 있습니다. 그러나 동의를 거부할 경우,<br/>
+                        위 목적을 위한 계약 체결 또는 서비스 제공이 제한될 수 있습니다.<br/>
+                        <strong>본인은 회사의 개인정보 제3자 제공에 동의합니다 (필수).</strong>
+                    </p>
+                </div>
+                <footer class="modal-footer">
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button class="slds-button slds-button_brand"
+                                onclick="document.getElementById('id03').style.display='none'">닫기</button>
+                    </div>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+    <!-- MODAL 3 END -->
+
+    <!-- MODAL 4 START -->
+    <div id="id04" style="display: none;" class="modal">
+        <section role="dialog" tabindex="1" aria-labelledby="modal-heading" aria-hidden="true"
+                 aria-describedby="modal-content"
+                 class="slds-modal slds-fade-in-open slds-modal_medium">
+            <div class="slds-modal__container">
+                <button class="slds-button slds-button_icon slds-modal__close"
+                        onclick="document.getElementById('id04').style.display='none'">
+                    <svg aria-hidden="true" class="slds-button__icon slds-button__icon_large"
+                         style="background: white; border-radius: 5px;">
+                        <use href="{!URLFOR($Asset.SLDS, 'assets/icons/utility-sprite/svg/symbols.svg#close')}"></use>
+                    </svg>
+                    <span class="slds-assistive-text">Cancel and close</span>
+                </button>
+                <header class="slds-modal__header slds-p-around_large">
+                    <h2 id="modal-heading4" class="slds-text-heading_medium slds-hyphenate">고유식별정보의 제3자 제공 동의</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content" style="overflow-x: auto;">
+                    <br/>
+                    <h3 class="slds-text-title">고유식별정보 활용</h3>
+                    <div class="table-scroll-wrapper">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered responsive-table">
+                            <thead>
+                            <tr>
+                                <th>제공받는 자</th>
+                                <th>제공 목적</th>
+                                <th>제공 항목</th>
+                                <th>보유 및 이용 기간</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td><strong><u>트래톤파이낸셜서비스코리아㈜, 신한카드㈜,<br/> NH농협캐피탈㈜, 우리금융캐피탈㈜, 현대커머셜㈜</u></strong></td>
+                                <td>금융 상품 제공 준비, 고객과의 최종 계약 체결,<br/> 신용 조회 수행 </td>
+                                <td>주민등록번호, 외국인등록번호, 여권번호</td>
+                                <td>차량 인도 후 3개월 또는 계약 금액 최종 지불 후<br/> 3개월 또는 차량 등록 후 3개월 중 나중에 도래하는 날까지</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <br/>
+                    <p>
+                        귀하는 위 개인(신용)정보의 제3자 제공에 대한 동의를 거부할 권리가 있습니다.<br/>
+                        그러나 동의를 거부할 경우, 위 목적을 위한 계약 체결 또는 서비스 제공이 제한될 수 있습니다.<br/>
+                        <strong>본인은 회사의 외국인등록번호, 여권번호 제3자 제공에 동의하며, 법령에 따른 주민등록번호 처리에 대해 고지받았습니다(필수).</strong>
+                    </p>
+                    <br/>
+                </div>
+                <footer class="modal-footer">
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button class="slds-button slds-button_brand"
+                                onclick="document.getElementById('id04').style.display='none'">닫기</button>
+                    </div>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+    <!-- MODAL 4 END -->
+
+    <!--MODAL 5 START -->
+    <div id="id05" style="display: none;" class="modal">
+        <section role="dialog" tabindex="1" aria-labelledby="modal-heading" aria-hidden="true"
+                 aria-describedby="modal-content"
+                 class="slds-modal slds-fade-in-open slds-modal_medium">
+            <div class="slds-modal__container">
+                <button class="slds-button slds-button_icon slds-modal__close"
+                        onclick="document.getElementById('id05').style.display='none'">
+                    <svg aria-hidden="true" class="slds-button__icon slds-button__icon_large"
+                         style="background: white; border-radius: 5px;">
+                        <use href="{!URLFOR($Asset.SLDS, 'assets/icons/utility-sprite/svg/symbols.svg#close')}"></use>
+                    </svg>
+                    <span class="slds-assistive-text">Cancel and close</span>
+                </button>
+                <header class="slds-modal__header slds-p-around_large">
+                    <h2 id="modal-heading5" class="slds-text-heading_medium slds-hyphenate">개인정보 국외이전 동의</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content" style="overflow-x: auto;">
+                    <br/>
+                    <div class="table-scroll-wrapper">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered responsive-table">
+                            <thead>
+                            <tr>
+                                <th>이전받는 자 </th>
+                                <th>이전 목적</th>
+                                <th>이전 항목</th>
+                                <th>보유 및 이용 기간</th>
+                                <th>이전국가, 시기 및 방법</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td><strong><u>Infobip LLC</u></strong></td>
+                                <td><strong><u>카카오톡 메시지 발송</u></strong></td>
+                                <td>
+                                   개인/개인 사업자: 성명, 자택 주소, 회사 주소, 개인 휴대전화 및 자택 전화번호, 이메일 주소<br/>
+                                    법인 사업자: 회사명, 주소, 업무용(휴대)전화번호, 업무용 이메일 주소(마스터 데이터)<br/>
+                                    귀하의 담당자 연락처. 구체적으로 성명, 전화번호, 이메일 주소
+                                </td>
+                                <td>처리 목적 달성 시까지</td>
+                                <td>이전국가: 인도네시아<br/><br/>
+                                    이전 시기 및 방법: 카카오톡 메시지 발송 시<br/> 보안 네트워크를 통한 전송 </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <br/>
+                    <p>
+                        귀하는 개인(신용)정보의 국외이전에 대한 동의를 거부할 권리가 있습니다. 그러나 동의를 거부할 경우,<br/> 위 목적을 위한 계약 체결 또는 서비스 제공이 제한될 수 있습니다.<br/>
+                        <strong>본인은 회사의 개인정보 국외이전에 동의합니다(필수).</strong>
+                    </p>
+                </div>
+                <footer class="modal-footer">
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button class="slds-button slds-button_brand"
+                                onclick="document.getElementById('id05').style.display='none'">닫기</button>
+                    </div>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+    <!--MODAL 5 END -->
+
+    <!--MODAL 6 START -->
+    <div id="id06" style="display: none;" class="modal">
+        <section role="dialog" tabindex="1" aria-labelledby="modal-heading" aria-hidden="true"
+                 aria-describedby="modal-content"
+                 class="slds-modal slds-fade-in-open slds-modal_medium">
+            <div class="slds-modal__container">
+                <button class="slds-button slds-button_icon slds-modal__close"
+                        onclick="document.getElementById('id06').style.display='none'">
+                    <svg aria-hidden="true" class="slds-button__icon slds-button__icon_large"
+                         style="background: white; border-radius: 5px;">
+                        <use href="{!URLFOR($Asset.SLDS, 'assets/icons/utility-sprite/svg/symbols.svg#close')}"></use>
+                    </svg>
+                    <span class="slds-assistive-text">Cancel and close</span>
+                </button>
+                <header class="slds-modal__header slds-p-around_large">
+                    <h2 id="modal-heading6" class="slds-text-heading_medium slds-hyphenate">개인정보 수집 및 이용</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content" style="overflow-x: auto;">
+                    <br/>
+                    <div class="table-scroll-wrapper">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered responsive-table">
+                            <thead>
+                            <tr>
+                                <th>목적</th>
+                                <th>수집 항목</th>
+                                <th>보유 및 이용 기간</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>
+                                    트럭 제품 및 브랜드 관련 정보(뉴스레터/카탈로그 포함),<br/>
+                                    향후 프로모션 및 이벤트 정보(각종 할인 이벤트 포함)를 SMS/UVIS(문자 메시지),<br/>
+                                    이메일, 우편 등을 통해 전달하고, 통계 분석 및 만족도 조사 등의 마케팅 목적
+                                </td>
+                                <td>
+                                   개인/개인 사업자: 성명, 자택 주소, 회사 주소, 개인 휴대전화 및 자택 전화번호, 이메일 주소<br/>
+                                    법인 사업자:회사명, 주소, 업무용(휴대)전화번호, 업무용 이메일 주소(마스터 데이터)<br/>
+                                    귀하의 담당자 연락처. 구체적으로 성명, 전화번호, 이메일 주소
+                                </td>
+                                <td>마케팅 서비스 이용 종료 시까지</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <br/>
+                    <p>
+                        귀하는 위 개인(신용)정보 수집·이용에 대한 동의를 거부할 수 있으나, 이 경우 위 목적을 위한 서비스 제공이 제한될 수 있습니다.<br/>
+                        <strong>본인은 회사의 개인정보 수집 및 이용에 동의합니다(선택).</strong>
+                    </p>
+                </div>
+                <footer class="modal-footer">
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button class="slds-button slds-button_brand"
+                                onclick="document.getElementById('id06').style.display='none'">닫기</button>
+                    </div>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+    <!--MODAL 6 END -->
+
+    <!-- MODAL 7 START -->
+    <div id="id07" style="display: none;" class="modal">
+        <section role="dialog" tabindex="1" aria-labelledby="modal-heading" aria-hidden="true"
+                 aria-describedby="modal-content"
+                 class="slds-modal slds-fade-in-open slds-modal_medium">
+            <div class="slds-modal__container">
+                <button class="slds-button slds-button_icon slds-modal__close"
+                        onclick="document.getElementById('id06').style.display='none'">
+                    <svg aria-hidden="true" class="slds-button__icon slds-button__icon_large"
+                         style="background: white; border-radius: 5px;">
+                        <use href="{!URLFOR($Asset.SLDS, 'assets/icons/utility-sprite/svg/symbols.svg#close')}"></use>
+                    </svg>
+                    <span class="slds-assistive-text">Cancel and close</span>
+                </button>
+                <header class="slds-modal__header slds-p-around_large">
+                    <h2 id="modal-heading7" class="slds-text-heading_medium slds-hyphenate">개인(신용)정보의 제3자 제공 동의</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content" style="overflow-x: auto;">
+                    <br/>
+                    <span class="slds-text-title">개인정보 제공 내역</span>
+                    <div class="table-scroll-wrapper">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered responsive-table">
+                            <thead>
+                            <tr>
+                                <th>제공받는 자</th>
+                                <th>제공 목적</th>
+                                <th>제공 항목</th>
+                                <th>보유 및 이용 기간</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td><strong><u>(주)인덴트코퍼레이션</u></strong></td>
+                                <td><strong><u>고객 경험 조사 및  결과 제공</u></strong></td>
+                                <td>
+                                   개인/개인 사업자: 성명, 주소, 자택 및 휴대전화번호 <br/>
+                                    법인 사업자: 회사명, 담당자 성명, 주소, (휴대)전화번호 <br/>
+                                    차량 정보: 차량 번호판 번호, 차량 유형, 차대번호(VIN), 인도일
+                                </td>
+                                <td>처리 목적 달성 시까지</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <br/>
+                    <p>
+                        귀하는 위 개인(신용)정보 제3자 제공에 대한 동의를 거부할 수 있으나, 이 경우 위 목적을 위한 서비스 제공이 제한될 수 있습니다.<br/>
+                        <strong>본인은 회사의 개인정보 제3자 제공에 동의합니다(선택).</strong>
+                    </p>
+                </div>
+                <footer class="modal-footer">
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button class="slds-button slds-button_brand"
+                                onclick="document.getElementById('id07').style.display='none'">닫기</button>
+                    </div>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+    <!-- MODAL 7 END -->
+
+    <!-- MODAL 8 START -->
+    <div id="id08" style="display: none;" class="modal">
+        <section role="dialog" tabindex="1" aria-labelledby="modal-heading" aria-hidden="true"
+                 aria-describedby="modal-content"
+                 class="slds-modal slds-fade-in-open slds-modal_medium">
+            <div class="slds-modal__container">
+                <button class="slds-button slds-button_icon slds-modal__close"
+                        onclick="document.getElementById('id08').style.display='none'">
+                    <svg aria-hidden="true" class="slds-button__icon slds-button__icon_large"
+                         style="background: white; border-radius: 5px;">
+                        <use href="{!URLFOR($Asset.SLDS, 'assets/icons/utility-sprite/svg/symbols.svg#close')}"></use>
+                    </svg>
+                    <span class="slds-assistive-text">Cancel and close</span>
+                </button>
+                <header class="slds-modal__header slds-p-around_large">
+                    <h2 id="modal-heading8" class="slds-text-heading_medium slds-hyphenate">개인(신용)정보 국외이전 동의</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content" style="overflow-x: auto;">
+                    <br/>
+                    <div class="table-scroll-wrapper">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered responsive-table">
+                            <thead>
+                            <tr>
+                                <th>이전받는 자</th>
+                                <th>이전 목적</th>
+                                <th>이전 항목</th>
+                                <th>보유 및 이용 기간</th>
+                                <th>이전국가, 시기 및 방법</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td><strong><u>Kantar GmbH</u></strong></td>
+                                <td><u>고객 경험 설문조사 수행 및 결과 제공</u></td>
+                                <td>
+                                   개인/개인 사업자: 성명, 주소, 자택 및 휴대전화번호<br/>
+                                    법인 사업자: 회사명, 담당자 성명, 주소, (휴대)전화번호 <br/>
+                                    차량 정보: 차량 번호판, 차량 유형, 차대번호(VIN), 인도일
+                                </td>
+                                <td>처리 목적 달성 시까지</td>
+                                <td>이전국가: 독일<br/>
+                                    이전 시기 및 방법: 동의서 제출 시 보안 네트워크를 통한 전송 </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <br/>
+                    <p>
+                        귀하는 위 개인(신용)정보 국외이전에 대한 동의를 거부할 수 있으나, 이 경우 위 목적을 위한 서비스 제공이 제한될 수 있습니다.<br/>
+                        <strong>본인은 회사의 개인정보 국외이전에 동의합니다(선택).</strong>
+                    </p>
+                </div>
+                <footer class="modal-footer">
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button class="slds-button slds-button_brand"
+                                onclick="document.getElementById('id08').style.display='none'">닫기</button>
+                    </div>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+    <!-- MODAL 8 END -->
+
+    <script type="text/javascript">
+        function openModal(title) {
+            if (title == '버튼 1') {
+                document.getElementById('id01').style.display = 'flex';
+            } else if (title == '버튼 2') {
+                document.getElementById('id02').style.display = 'flex';
+            } else if (title == '버튼 3') {
+                document.getElementById('id03').style.display = 'flex';
+            } else if (title == '버튼 4') {
+                document.getElementById('id04').style.display = 'flex';
+            } else if (title == '버튼 5') {
+                document.getElementById('id05').style.display = 'flex';
+            } else if (title == '버튼 6') {
+                document.getElementById('id06').style.display = 'flex';
+            } else if (title == '버튼 7') {
+                document.getElementById('id07').style.display = 'flex';
+            } else if (title == '버튼 8') {
+                document.getElementById('id08').style.display = 'flex';
+            }
+        }
+
+        function selectAllCheck(selectAll) {
+            var inputs = document.getElementsByTagName("input");
+            var checked = selectAll.checked;
+
+            for (var i = 0; i < inputs.length; i++) {
+                if (inputs[i].type === "checkbox") {
+                    if (inputs[i].classList.contains("agree")) {
+                        inputs[i].checked = checked;
+                    }
+                    if (inputs[i].classList.contains("disagree")) {
+                        inputs[i].checked = false;
+                    }
+                }
+            }
+
+            // ✅ 오류 메시지/스타일 초기화
+            const totalBoxes = 5;
+            for (var i = 1; i <= totalBoxes; i++) {
+                const wrapper = document.getElementById(`consent-box-${i}`);
+                const errorMsg = document.getElementById(`error-msg-${i}`);
+                const agreeCheckbox = document.getElementById(`checkbox-unique-${i}-agree`);
+                const disagreeCheckbox = document.getElementById(`checkbox-unique-${i}-disagree`);
+
+                if (wrapper) {
+                    wrapper.classList.remove('slds-has-error');
+                }
+                if (agreeCheckbox?.parentElement) {
+                    agreeCheckbox.parentElement.classList.remove('checkbox-error');
+                }
+                if (disagreeCheckbox?.parentElement) {
+                    disagreeCheckbox.parentElement.classList.remove('checkbox-error');
+                }
+                if (errorMsg) {
+                    errorMsg.style.display = 'none';
+                }
+            }
+        }
+
+
+        function checkAsRadio(select) {
+            var allCheck = document.getElementById("checkbox-agree-all");
+            allCheck.checked = false;
+
+            // box-1 ~ box-4 중 어떤 그룹인지 자동 판별
+            var classNo = Array.from(select.classList).find(cls => cls.startsWith('box-'));
+            if (!classNo) return;
+
+            const inputs = document.getElementsByClassName(classNo);
+            const index = classNo.split('-')[1]; // 예: box-2 → "2"
+            const wrapper = document.getElementById(`consent-box-${index}`);
+            const errorMsg = document.getElementById(`error-msg-${index}`);
+
+            // 동일 그룹 내 다른 체크박스는 해제
+            for (var i = 0; i < inputs.length; i++) {
+                if (inputs[i] !== select) {
+                    inputs[i].checked = false;
+                }
+            }
+            if (select.checked) {
+                select.checked = true;
+            } else {
+                select.checked = false;
+            }
+
+            if (wrapper) {
+                wrapper.classList.remove('slds-has-error');
+            }
+            if (select.parentElement) {
+                select.parentElement.classList.remove('checkbox-error');
+            }
+            if (inputs.length === 5) {
+                inputs[0].parentElement.classList.remove('checkbox-error');
+                inputs[1].parentElement.classList.remove('checkbox-error');
+                inputs[3].parentElement.classList.remove('checkbox-error');
+                inputs[4].parentElement.classList.remove('checkbox-error');
+                inputs[5].parentElement.classList.remove('checkbox-error');
+            }
+            if (errorMsg) {
+                errorMsg.style.display = 'none';
+            }
+        }
+
+        function saveConsent(ccId) {
+            const checkList = [];
+            let nullCheck = false;
+            const totalBoxes = 8;
+            const requiredCount = 5;
+
+            for (let i = 1; i <= totalBoxes; i++) {
+                const agreeCheckbox = document.querySelector(`#checkbox-unique-${i}-agree`);
+                const disagreeCheckbox = document.querySelector(`#checkbox-unique-${i}-disagree`);
+                const wrapper = document.getElementById(`consent-box-${i}`);
+                const errorMsg = document.getElementById(`error-msg-${i}`);
+
+                const isChecked = agreeCheckbox?.checked || disagreeCheckbox?.checked;
+
+                if (i <= requiredCount && !isChecked) {
+                    nullCheck = true;
+
+                    if (wrapper && !wrapper.className.includes('slds-has-error')) {
+                        wrapper.className += ' slds-has-error';
+                    }
+
+                    agreeCheckbox?.parentElement?.classList.add('checkbox-error');
+                    disagreeCheckbox?.parentElement?.classList.add('checkbox-error');
+                    if (errorMsg) errorMsg.style.display = 'block';
+
+                } else {
+                    wrapper?.classList.remove('slds-has-error');
+                    agreeCheckbox?.parentElement?.classList.remove('checkbox-error');
+                    disagreeCheckbox?.parentElement?.classList.remove('checkbox-error');
+                    if (errorMsg) errorMsg.style.display = 'none';
+
+                    checkList.push(!!agreeCheckbox?.checked); // true or false
+                }
+            }
+
+            if (nullCheck) {
+                // alert("필수 항목을 모두 선택해 주세요.");
+                return;
+            }
+
+            const essentialConsentFalse = checkList.slice(0, 5).includes(false);
+            if (essentialConsentFalse) {
+                const confirmResult = confirm("개인정보수집·이용·제공동의를 하지 않으시겠습니까?");
+                if (!confirmResult) return;
+            }
+
+            console.log('checkList::', JSON.stringify(checkList));
+
+            Visualforce.remoting.Manager.invokeAction(
+                '{!$RemoteAction.LandingPageController.updateCustomerConsent}',
+                ccId,
+                checkList,
+                function (result, event) {
+                    if (event.status) {
+                        alert('응답해주셔서 감사합니다.');
+                        window.close();
+                        document.body.innerHTML = `
+                        <div class="slds-grid slds-grid_align-center slds-grid_vertical-align-center" style="height: 100vh;">
+                            <div class="slds-theme_default slds-text-align_center">
+                                <h2 class="slds-text-heading_large slds-text-color_success">응답이 완료되었습니다.</h2>
+                                <p class="slds-m-top_small">페이지를 닫아주세요.</p>
+                            </div>
+                        </div>`;
+                    } else {
+                        alert('담당자에게 문의하시기 바랍니다.');
+                    }
+                }
+            );
+        }
+    </script>
+    </body>
+</apex:page>

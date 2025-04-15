@@ -9,6 +9,7 @@
 **************************************************************/
 public without sharing class OilReceiptController {
     public VehicleStock__c vehicleStock{
+
         get{
             if(vehicleStock == null){
                 vehicleStock = PDFCommonController.getVehicleStock(paramId);
@@ -17,20 +18,24 @@ public without sharing class OilReceiptController {
         }
         private set;
     }
+
     public String paramId{
+
         get{
-            System.debug('ApexPages.currentPage().getParameters() :: ' + ApexPages.currentPage().getParameters());
             return ApexPages.currentPage().getParameters().get('id');
         }
         private set;
     }
     public Opportunity opportunity{
+
         get{
             return PDFCommonController.getOpportunity(vehicleStock.Id).get(0);
         }
         private set;
     }
+
     public Decimal TotalOilCouponAmt{
+
         get{
             Decimal totalOilCouponAmt = 0;
             if(opportunity.Contract.Quote__c != null){
@@ -42,13 +47,13 @@ public without sharing class OilReceiptController {
                     }
                 }
             }
-            System.debug('opportunity.Contract '+opportunity.ContractId );
-            System.debug('opportunity.Contract.Quote__c '+opportunity.Contract.Quote__c );
             return totalOilCouponAmt;
         }
         private set;
     }
+
     public Signature__c signature{
+
         get{
             if(signature == null){
                 List<Signature__c> signatures = [SELECT Url__c FROM Signature__c WHERE VehicleStock__c=:vehicleStock.Id AND SignType__c = '차량관리-주유상품권서명' LIMIT 1];
@@ -61,6 +66,7 @@ public without sharing class OilReceiptController {
     }
 
     public static List<QuoteDetail__c> getQuoteDetail(String quoteId){
+
         String obj_fields = getField(Schema.SObjectType.QuoteDetail__c.fields.getMap());
         String selectFields = obj_fields + ' ,CampaignMaster__r.Name ';
         String whereConditions = ' Quote__c = \'' + quoteId + '\'';
@@ -70,6 +76,7 @@ public without sharing class OilReceiptController {
     }
 
     public static String getField(Map<String, Schema.SObjectField> ObjMap){
+
         List<String> accessibleFields = new List<String>();
 
         for (String fieldName : ObjMap.keySet()) {
@@ -81,5 +88,4 @@ public without sharing class OilReceiptController {
         }
         return String.join(accessibleFields, ', ');
     }
-
 }

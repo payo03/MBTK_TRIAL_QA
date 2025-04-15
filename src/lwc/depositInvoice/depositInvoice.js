@@ -48,7 +48,6 @@ export default class DepositInvoice extends LightningElement {
   
     connectedCallback() {
       getAcc({recordId: this.recordId}).then(res => {
-        console.log('res:: ', res);
         this.accName = res[0].accName;
         this.accPhone = res[0].accPhone;
         this.accBpCode = res[0].bpCode;
@@ -57,9 +56,6 @@ export default class DepositInvoice extends LightningElement {
         this.vehicleName = res[0].vehicleName;
         this.opptyId = res[0].opportunity;
         this.stockId = res[0].vehicleId;
-        console.log(this.accBpCode);
-        console.log(this.accBusinessName);
-        console.log(this.accBusinessNo);
       });
     }
 

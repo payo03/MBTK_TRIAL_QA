@@ -10,6 +10,8 @@
 import {LightningElement, wire, track} from 'lwc';
 import { showToast } from "c/commonUtil";
 import {columns, simulationColumns} from "./marginCalculatorColumns";
+import COMMISSION_RATE from "@salesforce/label/c.CommissionRate"
+import NDDR_RATE from "@salesforce/label/c.NDDRRate"
 
 import getInit from "@salesforce/apex/MarginCalculatorController.getInit";
 
@@ -58,13 +60,15 @@ export default class MarginCalculator extends LightningElement {
   wiredProductConfigData({ error, data }) {
     if (data) {
       // 데이터 가공하여 테이블 형식으로 변환
-      // this.productConfigData = Object.keys(data).map(productId => {
+      console.log('data ::: ' + JSON.stringify(data))
       this.productConfigData = Object.keys(data).map(key => {
         // const productObj = data[productId];
         const productObj = data[key];
         const product = productObj.product;
         const config = productObj.config;
-
+        let meanBuyingPrice = (product.VehicleStock__r || [])
+          .reduce((sum, r, _, arr) => sum + (r.AvisOrderInfo__r?.BuyingPrice__c || 0) / arr.length, 0);
+        meanBuyingPrice = Math.round(meanBuyingPrice * 1500);
         // TODO: 추가로 필요한 데이터 있으면 불러오기
         return {
           // id: productId,
@@ -73,18 +77,26 @@ export default class MarginCalculator extends LightningElement {
           isOTV: product.IsOTV__c ? 'Y' : 'N',
           isLNS: product.IsLNS__c ? 'Y' : 'N',
           isPremium: (product.TrimLevel__c === '1') ? 'Y' : 'N',
-          specShort: product.VehicleCategory__r.SpecShort__c,
-          reportSpec: product.VehicleCategory__r.Report_Spec__c,
+          reportSpec: product.VehicleCategory__r?.Name,
           emissionLevel: product.EmissionLevel__c,
-          localTotal: parseInt(config.LocalCostAvg__c) + parseInt(config.PdiCostAvg__c) + parseInt(config.OtherCostAvg__c),
-          localCost: config.LocalCostAvg__c,
-          pdiCost: config.PdiCostAvg__c,
-          otherCost: config.OtherCostAvg__c,
+          localTotal: parseInt(config?.LocalCostAvg__c || 0) + parseInt(config?.PdiCostAvg__c || 0) + parseInt(config?.OtherCostAvg__c || 0),
+          localCost: Number(config?.LocalCostAvg__c || 0).toLocaleString(),
+          pdiCost: Number(config?.PdiCostAvg__c || 0).toLocaleString(),
+          otherCost: Number(config?.OtherCostAvg__c || 0).toLocaleString(),
+          purchaseInvoicePrice: meanBuyingPrice.toLocaleString(),
+          oilCoupon: product.SalesConditionMaster__r?.Discount__c || 0,
+          saCommission: COMMISSION_RATE,
+          nddr: NDDR_RATE,
+          campaign: 0,
+          var: 0,
+          costComponents: Math.round((Number(COMMISSION_RATE) + Number(NDDR_RATE) + Number(product.SalesConditionMaster__r?.Discount__c || 0))*10)/10,
+          listPrice: product.CarAmt__c,
+          listPriceVat: Math.round(parseInt(product.CarAmt__c)*10/11),
         };
       });
       console.log('this.productConfigData ::: ' + this.productConfigData);
     } else if (error) {
-      console.error(error);
+      console.error(error.message);
     }
   }
 

@@ -20,10 +20,7 @@ import { loadStyle } from "lightning/platformResourceLoader";
 import getInitData from "@salesforce/apex/VehicleStockTableController.getInitData";
 import getProductWrap from "@salesforce/apex/VehicleStockTableController.getProductWrap";
 import getFilteredCategoryList from "@salesforce/apex/VehicleStockTableController.getFilteredCategoryList";
-// import getFilteredProductWrapList from "@salesforce/apex/VehicleStockTableController.getFilteredProductWrapList";
 import updateStockShow from "@salesforce/apex/VehicleStockTableController.updateStockShow";
-// import createPreAssignRequest from "@salesforce/apex/VehicleStockTableController.createPreAssignRequest";
-// import createOpp from "@salesforce/apex/VehicleStockTableController.createOpp";
 
 // Util
 import { showToast, sortData, resourceList } from "c/commonUtil";
@@ -88,16 +85,12 @@ export default class VehicleStockTable extends LightningElement {
 	isLoading; // 로딩바 Boolean
 	activeTab = "sa"; // 현재 활성화된 탭
 	checkSAUser = false;
-	// TODO :: 변수 관리 변경 필요
+
     @track profileDataMap = {
 		admin: { ...initDataMap, masterColumns: masterColumnsForAdmin, detailColumns: detailColumnsForAdmin },
 		sa: { ...initDataMap, masterColumns: masterColumnsForSA, detailColumns: detailColumns, additionalDetailColumns: additionalDetailColumns }
 	};
 
-	// 디테일
-	detailColumns = detailColumns; // 디테일 컬럼
-	additionalDetailColumns = additionalDetailColumns; // 디테일 컬럼
-	detailColumnsForAdmin = detailColumnsForAdmin; // 디테일 컬럼
 	@track detailData; // 디테일 데이터 리스트
 	@track additionalFlag = false;
 	@track selectedRowDetail = [];
@@ -117,7 +110,6 @@ export default class VehicleStockTable extends LightningElement {
 
 	// 필터 - Admin
 	@track filterMapForAdmin = { ...filterDefault }; // 적용할 필터 맵
-	optionValueForAdmin;
 
 	// 모달
 	isModalOpen; // 모달 창 on/off 변수
@@ -140,23 +132,7 @@ export default class VehicleStockTable extends LightningElement {
 				operator: "eq",
 				value: userId
 			}
-			// {
-			// 	fieldPath: 'Website',
-			// 	operator: 'eq',
-			// 	value: null,
-			// },
-			// {
-			// 	fieldPath: 'Type',
-			// 	operator: 'ne',
-			// 	value: 'Partner',
-			// },
-			// {
-			// 	fieldPath: 'Parent.Name',
-			// 	operator: 'like',
-			// 	value: 'Acme%',
-			// },
 		]
-		// filterLogic: '(1 OR 2) AND NOT(4) AND 3',
 	};
 
 	// 모달 - Admin
@@ -165,7 +141,6 @@ export default class VehicleStockTable extends LightningElement {
 	@wire(CurrentPageReference)
 	getStateParameters(pageRef) {
 		if (pageRef) {
-			console.log("pageRef :: ", pageRef.state);
 			this.stockId = pageRef.state.c__stockId;
 			this.oppId = pageRef.state.c__oppId;
 		}
@@ -177,7 +152,6 @@ export default class VehicleStockTable extends LightningElement {
 	@wire(getRecord, { recordId: userId, fields: ["User.Name", "User.Profile.Name"] })
 	currentUserInfo({ error, data }) {
 		if (data) {
-			console.log("data :: ", data);
 			this.userName = data.fields.Name.value;
 			this.isAdminUser = data.fields.Profile.displayValue === "System Administrator" || data.fields.Profile.displayValue === "시스템 관리자";
 		}
@@ -191,36 +165,10 @@ export default class VehicleStockTable extends LightningElement {
 		return this.activeTab === "sa";
 	}
 
-	/**
-	 * @description 동적으로 데이터테이블 높이 조절
-	 * @returns {string}
-	 */
-	// get dynamicTableHeight() {
-	// 	if(this.profileDataMap.sa.masterData?.length >= 10) {
-	// 		return "height: 50vh;";
-	// 	} else {
-	// 		return "height: auto;";
-	// 	}
-	// }
-
 	connectedCallback() {
-     console.log('ref1');
 		this.isLoading = true;
 		loadStyle(this, resourceList.CustomTableStyle).catch(err => console.log("err ::", err));
 		this.doInit();
-		// 전체화면
-		// getVehicleStock({recordId: this.recordId}).then(res => {
-		// 	console.log("res :: ", res);
-		// 	this.replaceChildren(res);
-		// 	this.data = res;
-		//
-		// 	requestAnimationFrame(() => {
-		// 		const grid = this.template.querySelector("lightning-tree-grid");
-		// 		grid.expandAll();
-		// 	});
-		// }).catch(err => {
-		// 	console.log("err ::", err);
-		// });
 	}
 
 	doInit() {
@@ -228,16 +176,13 @@ export default class VehicleStockTable extends LightningElement {
 			this.checkSAUser = res.saPermission;
 			this.profileDataMap.sa.masterData = res.categoryList.filter(el => el.quantity > 0 || el.after30DaysQty > 0 || el.after60DaysQty > 0);
 			this.profileDataMap.admin.masterData = res.categoryList;
-            console.log('test',res.categoryList.styling);
 			this.formatCountField();
 			this.filterOptions.segment = [{ label: "선택안함", value: "" }].concat(res.segment);
 			this.filterOptions.wheelbase = [{ label: "선택안함", value: "" }].concat(res.wheelbase);
 			this.filterOptions.axle = [{ label: "선택안함", value: "" }].concat(res.axle);
-			// this.filterOptions.trimLevel = [{ label: "선택안함", value: "" }].concat(res.trimLevel);
 			this.filterOptions.styling = [{ label: "선택안함", value: "" }].concat(res.styling);
 			this.stockId = res.stockId;
 			this.profileDataMap.sa.currentCategoryKey = this.profileDataMap.admin.currentCategoryKey || res.currentCategoryKey;
-			console.log("this.filterOptions.styling ",res.currentCategoryKey);
 			this.profileDataMap.admin.currentCategoryKey = this.profileDataMap.admin.currentCategoryKey || res.currentCategoryKey;
 
 			// 파라미터 값 존재 시
@@ -246,36 +191,7 @@ export default class VehicleStockTable extends LightningElement {
 				this.getDetailData(this.profileDataMap.sa.currentCategoryKey, "sa");
 				this.profileDataMap.admin.selectedRowsMaster = [this.profileDataMap.admin.currentCategoryKey];
 				this.getDetailData(this.profileDataMap.admin.currentCategoryKey, "admin");
-
-				// requestAnimationFrame(() => {
-				// 	const datatableEl = this.template.querySelector("lightning-datatable");
-				// 	console.log("datatable :: ", datatableEl);
-				// 	console.log("datatable :: ", datatableEl.selectedRows);
-				// 	console.log("datatable :: ", JSON.stringify(datatableEl.data));
-				// 	datatableEl.data.forEach(el => {
-				// 		if (el.id === profileDataMap.sa.currentCategoryKey) {
-				// 			el.focus;
-				// 		}
-				// 	})
-				// 	console.log("this.profileDataMap.sa.currentCategoryKey :: ", profileDataMap.sa.currentCategoryKey);
-				// 	const rowIndex = this.profileDataMap.sa.masterData.findIndex(row => row.id === profileDataMap.sa.currentCategoryKey);
-				// 	console.log("rowIndex :: ", rowIndex);
-				//
-				// 	if (rowIndex !== -1) {
-				// 		setTimeout(() => {
-				// 			const rowElement = datatableEl.querySelectorAll(".slds-table tbody tr");
-				// 			console.log("rowElement :: ", rowElement);
-				// 			if (rowElement) {
-				// 				rowElement.scrollIntoView({ behavior: "smooth", block: "center" });
-				// 				rowElement.focus();
-				// 			}
-				// 		});
-				// 	}
-				// });
 			}
-             console.log('test',this.profileDataMap[this.activeTab].currentCategoryKey);
-             console.log('res::::',res);
-             console.log('activeTab',[this.activeTab]);
 
 		}).catch(err => {
 			console.log("err :: ", err);
@@ -296,7 +212,6 @@ export default class VehicleStockTable extends LightningElement {
 			const action = e.detail.config.action;
 
 			const currentId = e.detail.config.value;
-            console.log('currentId::',currentId);
 			// 체크박스 이벤트 처리
 			const checkboxChange = (currentSelectedAllRow, currentSelectedRow) => {
                 let selectedStockIdList = [...this.profileDataMap[this.activeTab].selectedStockIdList];
@@ -304,7 +219,6 @@ export default class VehicleStockTable extends LightningElement {
                 let selectedRowDetail = this.profileDataMap[this.activeTab].selectedRowDetail;
                 let detailData = this.profileDataMap[this.activeTab].detailData;
 				const isParent = currentSelectedRow?.hasChildren;
-				// console.log("currentSelectedRows :: ", JSON.stringify(currentSelectedRows));
 				// 전체 선택
 				if (action === "selectAllRows") {
 					const selectedAllIdList = [];
@@ -323,15 +237,6 @@ export default class VehicleStockTable extends LightningElement {
                     this.profileDataMap[this.activeTab].selectedRowDetailId = selectedAllIdList; // 부모 ID 업데이트
                     this.profileDataMap[this.activeTab].selectedStockIdList = selectedAllChildIdList; // 자식 ID 업데이트
                     this.profileDataMap[this.activeTab].selectedRowDetail = currentSelectedAllRow;
-//					if (this.isSaTab) {
-//						this.profileDataMap.sa.selectedRowDetailId = selectedAllIdList; // 부모 ID 업데이트
-//						this.profileDataMap.sa.selectedStockIdList = selectedAllChildIdList; // 자식 ID 업데이트
-//						this.profileDataMap.sa.selectedRowDetail = currentSelectedAllRow;
-//					} else {
-//						this.profileDataMap.admin.selectedRowDetailId = selectedAllIdList;
-//						this.profileDataMap.admin.selectedStockIdList = selectedAllChildIdList;
-//						this.profileDataMap.admin.selectedRowDetail = currentSelectedAllRow;
-//					}
 				}
 				// 전체 선택 해제
 				else if (action === "deselectAllRows") {
@@ -414,7 +319,6 @@ export default class VehicleStockTable extends LightningElement {
 							selectedStockIdList = selectedStockIdList.filter(id => id !== currentId);
 
 							const parentId = getParentIdByChildId(currentSelectedAllRow, currentId);
-                            console.log('parenId:4', parenId);
 							if (parentId) {
 								// 자식의 부모도 해제
 								selectedRowDetailId = selectedRowDetailId.filter(id => id !== parentId);
@@ -441,7 +345,6 @@ export default class VehicleStockTable extends LightningElement {
 			// 디테일 체크박스
 			else {
 				let currentSelectedAllRow = e.detail.selectedRows;
-				console.log("currentSelectedAllRow :: ", currentSelectedAllRow);
 				if (this.isSaTab) {
 					this.profileDataMap.sa.selectedRowDetail = currentSelectedAllRow;
 					this.profileDataMap.sa.selectedStockIdList = currentSelectedAllRow.map(row => (row.id));
@@ -461,8 +364,6 @@ export default class VehicleStockTable extends LightningElement {
 	handleChange(e) {
 		const id = e.target.dataset.id;
 		const value = e.target.value;
-        console.log('id:',id);
-        console.log('value:',value);
 		const setFilterValue = (field, value) => {
 			const filterMap = this.profileDataMap[this.activeTab].filterMap;
 			filterMap[field] = value;
@@ -511,12 +412,9 @@ export default class VehicleStockTable extends LightningElement {
 			case "search":
 				this.isLoading = true;
                 this.profileDataMap[this.activeTab].masterData = [];
-                console.log('Map>:::',  this.profileDataMap[this.activeTab].filterMap);
-                console.log('Map>:::',  this.profileDataMap[this.activeTab].filterMap.value);
 
 
 				getFilteredCategoryList({ filterMap: this.profileDataMap[this.activeTab].filterMap}).then(res => {
-					console.log("res :: ", res);
 					if (this.isSaTab) {
 						this.profileDataMap.sa.masterData = res.filter(el => el.quantity > 0 || el.after30DaysQty > 0 || el.after60DaysQty > 0);
                     }else{
@@ -616,40 +514,6 @@ export default class VehicleStockTable extends LightningElement {
 			return;
 		}
 
-		// 필터 데이터 검색 후 디테일 데이터 설정
-		// const searchData = (filterMap) => {
-		// 	this.isLoading = true;
-		// 	getFilteredProductWrapList({ filterMap: filterMap, tab: this.activeTab }).then(res => {
-		// 		console.log("res :: ", res);
-		// 		this.replaceChildren(res);
-		// 			// 필터 검색 후 체크박스 초기화
-        //         this.profileDataMap[this.activeTab].selectedRowDetail = [];
-        //         this.profileDataMap[this.activeTab].selectedStockIdList = [];
-        //         this.profileDataMap[this.activeTab].selectedRowDetailId = [];
-		// 	}).catch(err => {
-		// 		console.log("err :: ", err);
-		// 		showToast("", err.body.message, "warning");
-		// 	}).finally(() => this.isLoading = false);
-		// };
-		//
-		// switch (id) {
-		// 	// 새고고침
-		// 	case "refresh" :
-		// 			this.profileDataMap[this.activeTab].optionValue = "";
-		// 		break;
-		// 	// 필터 검색
-		// 	case "search" :
-        //         const filterMap = {
-        //             "Product__r.VehicleCategory__c":  this.profileDataMap[this.activeTab].currentCategoryKey,
-        //         };
-        //         searchData(filterMap);
-		// 		break;
-		// 	// 모달 관리 (공통 처리)
-		// 	default:
-		// 		// 각 모달별 모달 데이터 설정
-		//
-		// 		break;
-		// }
 		if (id in modalMap) {
 			this.modalMap = modalMap[id];
 			this.handleModalChange();
@@ -661,9 +525,7 @@ export default class VehicleStockTable extends LightningElement {
 	 */
 	handleModalChange() {
 		const type = this.modalMap.type;
-        console.log('type',type);
 		const getSelectedData = (selectedRowDetail) => {
-			console.log("selectedRowDetail :: ", JSON.stringify(selectedRowDetail));
 			const childList = [];
 			selectedRowDetail.forEach(el => {
 				if (el.hasChildren) {
@@ -713,47 +575,6 @@ export default class VehicleStockTable extends LightningElement {
 		this.isLoading = true;
 		const type = this.modalMap.type;
 		switch (type) {
-			// // 사전배정요청 || 대기안건요청
-			// case "대기안건" :
-			// case "대기리스트" :
-			// 	const isOppIdNotExist = this.profileDataMap.sa.selectedData.some(el => !el.oppId);
-			//
-			// 	if (isOppIdNotExist) {
-			// 		showToast("", "기회를 선택해주세요.", "warning");
-			// 		this.isLoading = false;
-			// 		return;
-			// 	}
-			// 	const paramMap = {
-			// 		type: type,
-			// 		selectedData: JSON.stringify(this.profileDataMap.sa.selectedData)
-			// 	};
-			// 	createPreAssignRequest({ paramMap: paramMap }).then(() => {
-			// 		this.handleModalChange();
-			// 		showToast("", "success", "success");
-			// 	}).catch(err => {
-			// 		console.log("err :: ", err);
-			// 		showToast("", err.body.message, "warning");
-			// 	}).finally(() => this.isLoading = false);
-			// 	// recordFormEl.submit();
-			// 	break;
-			// 기회 생성
-			// case "createOpp" :
-			// 	const isAccountIdNotExist = this.profileDataMap.sa.selectedData.some(el => !el.accountId);
-			//
-			// 	if (isAccountIdNotExist) {
-			// 		showToast("", "게정을 선택해주세요.", "warning");
-			// 		this.isLoading = false;
-			// 		return;
-			// 	}
-			//
-			// 	createOpp({ selectedData: JSON.stringify(this.profileDataMap.sa.selectedData) }).then(() => {
-			// 		this.handleModalChange();
-			// 		showToast("", "success", "success");
-			// 	}).catch(err => {
-			// 		console.log("err :: ", err);
-			// 		showToast("", err.body.message, "warning");
-			// 	}).finally(() => this.isLoading = false);
-			// 	break;
 			// 재고 노출 || 미노출
 			default :
 				if (type in isStockNoShow) {
@@ -763,12 +584,7 @@ export default class VehicleStockTable extends LightningElement {
 					}).then(() => {
 						this.handleModalChange();
 						showToast("", "success", "success");
-						// this.profileDataMap.sa.masterData = [];
-						// this.profileDataMap.admin.masterData = [];
-						// this.detailData = [];
-						// this.detailData = [];
 						this.doInit();
-						// this.getDetailData(this.profileDataMap.admin.currentCategoryKey, "admin");
 					}).catch(err => {
 						console.log("err :: ", err);
 						showToast("", err.body.message, "warning");
@@ -819,7 +635,6 @@ export default class VehicleStockTable extends LightningElement {
 			return classList.join(" ");
 		};
 
-		// const profileDataMap.sa.masterData = this.isSaTab ? this.profileDataMap.sa.masterData : this.profileDataMap.admin.masterData;
 		this.profileDataMap.sa.masterData.forEach(el => {
 			formatFieldMap.forEach(({ key, formatKey }) => {
 				// 수량 필드에 클래스 할당
@@ -842,19 +657,11 @@ export default class VehicleStockTable extends LightningElement {
 	getDetailData(currentCategoryKey, tab) {
 		this.isLoading = true;
 		getProductWrap({ categoryKey: currentCategoryKey, tab: tab }).then(res => {
-			console.log("res :: ", JSON.stringify(res));
 			if (res) {
 				if (tab === "sa") {
 					this.profileDataMap.sa.detailData = res.productWrapList;
                     this.profileDataMap.sa.additionalDetailData = res.detailAdditionalWrapList;
-                    // res.forEach(parent => {
-                    //     parent.children.forEach(child => {
-                    //         additionalDetailData.push(child);
-                    //     });
-                    // });
-					// this.profileDataMap.sa.additionalDetailData = sortData(additionalDetailData, "totalDC", "desc");
 					this.replaceChildren(this.profileDataMap.sa.detailData);
-                    // this.replaceChildren(this.profileDataMap.sa.additionalDetailData, true);
 				} else {
 					this.profileDataMap.admin.detailData = res.productWrapList;
 					this.replaceChildren(this.profileDataMap.admin.detailData, true);
@@ -887,10 +694,8 @@ export default class VehicleStockTable extends LightningElement {
 	replaceChildren(item, isAdmin) {
 		// 퍼센트 계산
 		const calcPercent = (value) => (value || 0) / 100;
-        console.log('calcPercent' , calcPercent);
 		item.forEach(el => {
 			if (el.children) {
-				// el.DC = calcPercent(el.DC);
 				if (!this.isSaTab || isAdmin) {
 					el._children = el.children;
 					this.replaceChildren(el.children);

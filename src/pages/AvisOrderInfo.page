@@ -7,6 +7,7 @@
 - ===================================================================================
 - 1.0      2024-11-26      payo03@solomontech.net           Created
 - 1.1      2024-11-27      payo03@solomontech.net           VF Page의 Filter된 ID List값 전달
+- 1.2      2025-04-15      payo03@solomontech.net           Interface기능 분리
 -->
 <apex:page id="AvisOrderInfo"
            standardController="AvisOrderInfo__c"
@@ -79,6 +80,14 @@
                 if (event.data.type === 'SELECT_ORDER_LWC') {
                     const filterId = event.data.filterId;
                     const actionType = 'SELECT_ORDER_VF';
+
+                    // 호출: ActionFunction 호출
+                    await fetchAvisOrderInfo(filterId, actionType);
+                }
+                // ver1.2 Interface기능 분리
+                if (event.data.type === 'SELECT_LOG_LWC') {
+                    const filterId = event.data.filterId;
+                    const actionType = 'SELECT_LOG_VF';
 
                     // 호출: ActionFunction 호출
                     await fetchAvisOrderInfo(filterId, actionType);

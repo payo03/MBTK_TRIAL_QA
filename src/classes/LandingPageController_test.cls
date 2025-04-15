@@ -28,7 +28,6 @@ private class LandingPageController_test {
         LandingPageController.getCustomerConsent();
         for(CustomerConsent__c customerConsent : customerConsents){
             if(customerConsent.Opportunity__c == null){
-                System.debug('customer :: '+customerConsent);
                 LandingPageController.updateCustomerConsent(customerConsent.Id,LightConsentList);
                 LandingPageController.getSubCustomerConsent(customerConsent.Lead__c);
                 LandingPageController.resetLeadFields(lead);

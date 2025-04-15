@@ -25,6 +25,10 @@ public without sharing class IncentiveHistory_tr extends TriggerHandler {
         createCommissionIncentiveMaster();
     }
 
+    /**
+     * @author th.kim
+     * @description 인센티브 내역 생성 시 (커미션 & 인센티브) 마스터 생성
+     */
     private void createCommissionIncentiveMaster() {
 
         List<CommissionIncentiveMaster__c> commissionIncentiveMasterList = new List<CommissionIncentiveMaster__c>();

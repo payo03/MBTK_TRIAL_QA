@@ -1,0 +1,140 @@
+<!--
+- @Author            : jh.jung
+- @Description 		 : 
+- @Target            : 
+- @Modification Log
+- Ver      Date            Author           Modification
+- ===================================================================================
+- 1.0      2025-03-04      jh.jung           Created
+-->
+<apex:page id="HandoverAutorizationConfirmation" applyHtmlTag="false" applyBodyTag="false" sidebar="false" showHeader="false" renderAs="advanced_pdf" docType="html-5.0">
+  <head>
+    <style>
+        @page {
+          size: A4 portrait;
+          border: 1px gray;
+        }
+        body { font-family: Arial Unicode MS; font-size: 12px; }
+        .section { margin-top: 15px; }
+        .label { font-weight: bold; }
+        /*.table { width: 100%; border-collapse: collapse; }*/
+        /*.table td { border: 1px solid #000; padding: 5px; }*/
+        .signature { margin-top: 30px; text-align: center; }
+        .checkbox { font-size: 30px; vertical-align: top }
+        .custom-table {
+          border-collapse: collapse;
+        }
+        .custom-table td {
+          padding-bottom: 6px;
+          padding-left: 12px;
+          text-align: left;
+          line-height: 1;
+          border: 1px solid gray;
+        }
+    </style>
+  </head>
+  <body>
+    <table style="width: 100%;">
+      <colgroup>
+        <col style="width: 85%;" />
+        <col style="width: 15%;" />
+      </colgroup>
+      <tr>
+        <td>
+          <h2>MAN Truck &amp; Bus (Korea) Ltd.</h2>
+          <h3>Subsidiary of MAN Truck &amp; Bus AG</h3>
+        </td>
+        <td>
+          <apex:image value="{!$Resource.MAN_LOGO}" style="width: 100px; height: auto;"/>
+        </td>
+      </tr>
+    </table>
+    <h1 style="text-align: center;">차량 출고 위임장</h1>
+    <table>
+      <tr>
+        <td class="checkbox"> □ </td>
+        <td>
+          <h3>위임인  (위임인 사인 전송 필드랑 위임장 전송 핸드오버팀 프린트, 계약서 사인이랑 달라질수 있음.)</h3>
+          상호: ______________________
+          <br/>성명(고객명): ______________________
+          <br/>생년월일(사업자번호): ______________________
+          <br/>연락처: ______________________
+          <br/>주소: ______________________
+        </td>
+      </tr>
+
+      <tr>
+        <td class="checkbox"> □ </td>
+        <td>
+          <h3>수임인</h3>
+          성명: ______________________ (인) 수기 서명
+          <br/>위임인과의 관계: ______________________
+          <br/>생년월일: ______________________
+          <br/>연락처: ______________________
+          <br/>주소: ______________________
+        </td>
+      </tr>
+
+      <tr>
+        <td class="checkbox"> □ </td>
+        <td>
+          <h3>차량 출고 정보</h3>
+          차종: ______________________
+          <br/>차대번호: ______________________
+          <br/>출고일: ______________________
+          <br/>영업지점: ______________________
+          <br/>영업담당자: ______________________
+        </td>
+      </tr>
+    </table>
+
+    <div class="section">
+      상기 본인(위임인)은 만트럭버스코리아㈜와 계약한 상기 차량의 출고와 관련하여, 상기 수임인에게 다음 사항을 위임합니다. (위임 사항에 위임인 서명)
+    </div>
+    <div class="signature">
+      <p>20XX년 XX월 XX일</p>
+    </div>
+
+    <table class="custom-table" style="width: 100%">
+      <tr>
+        <td class="label" colspan="3" style="text-align: center">위임 사항</td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          1. 차량 실물 및 추가 지급품 일체의 인수
+          <br/>2. 차량 상태의 확인
+          <br/>3. 기타 차량 인수와 관련된 일체의 권한
+          <br/>4. 제반 등록서류의 수령
+          <br/>5. 개인 정보의 제공/ 활용 동의서(서면 또는 전산프로그램) 동의
+        </td>
+        <td>
+          위임인 서명
+        </td>
+      </tr>
+      <tr>
+        <td>
+          6. 주유상품권 금액 확인
+        </td>
+        <td style="text-align: center">
+          ___________________ 원
+        </td>
+        <td>
+          위임인 서명
+        </td>
+      </tr>
+<!--      <tr>-->
+<!--        <td>2. 차량 상태 확인</td>-->
+<!--        <td>_________</td>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <td>3. 차량 등록 관련 필요 문서 위임</td>-->
+<!--        <td>_________</td>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <td>4. 기타 관련 확인 및 위임</td>-->
+<!--        <td>_________</td>-->
+<!--      </tr>-->
+    </table>
+    <h2 style="text-align: center;">만트럭버스코리아주식회사 귀중</h2>
+  </body>
+</apex:page>

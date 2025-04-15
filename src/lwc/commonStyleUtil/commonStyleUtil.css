@@ -7,7 +7,7 @@
  * Ver          Date            Author          Modification
  * 1.0          2024-12-20      th.kim          Initial Version
 **************************************************************/
-.box-wrap {
+.box-wrap { 
      border: 0;
      box-shadow: 0 0 4px 1px lightgray;
      border-radius: 0.5rem;

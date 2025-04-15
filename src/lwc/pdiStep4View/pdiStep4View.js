@@ -12,8 +12,6 @@ import { api, track, LightningElement } from "lwc";
 import step4Init from "@salesforce/apex/PdiController.step4Init";
 import installSpoilerToVehicleStock from "@salesforce/apex/PdiController.installSpoilerToVehicleStock";
 import spoilerDropoffSAP from "@salesforce/apex/PdiController.spoilerDropoffSAP";
-import updateStep4 from "@salesforce/apex/PdiController.updateStep4";
-import fetchStatus from "@salesforce/apex/PdiController.fetchStatus";
 
 // Util
 import { showToast } from "c/commonUtil";
@@ -27,6 +25,7 @@ import {
 
 
 export default class PdiStep4View extends LightningElement {
+
 	groupColumns = columns;
 	groupDetailColumns = detailColumns;
 	optionColumns = optionColumns;
@@ -56,18 +55,10 @@ export default class PdiStep4View extends LightningElement {
 		this.isLoading = true;
 		step4Init({ selectVIN: this._selectedVIN.Id, installedSpoiler: this._selectedVIN.SpoilerPart__c }).then(response => {
 			console.log("### response : ", response);
-			
+
 			this.selectedOptionData = response?.selectedOption;
 			this.installList = response?.installList;
 			if(this.installList.length) this.installList[0].installDate = this.varStepList[3].StepEnd__c;
-			// if(this.installList.length) {
-			// 	let paramMap = {
-			// 		stockId: this._selectedVIN.Id,
-			// 		spoilerCode: this.installList[0].SpoilerCode__c,
-			// 		isAttach: true
-			// 	};
-			// 	this.paramMapList = [paramMap];
-			// }
 			this.groupList = response?.spoilerPartsJuntion;
 		}).catch(error => {
 			showToast("Error", "Error Loading step4 Init", "error", "dismissable");
@@ -163,7 +154,6 @@ export default class PdiStep4View extends LightningElement {
 				return;
 			}
 			installSpoilerToVehicleStock({inputMap: this.groupDetailList[0]}).then(() => {
-				console.log('update Stock Complete : ' + JSON.stringify(this.groupDetailList[0]));
 				this.installList = [this.groupDetailList[0]];
 				let paramMap = {
 					stockId: this._selectedVIN.Id,
@@ -201,11 +191,6 @@ export default class PdiStep4View extends LightningElement {
 		this.paramMapList = [paramMap];
 		this.isLoading = true;
 		installSpoilerToVehicleStock({inputMap: inputMap}).then(() => {
-			console.log('update Stock remove Spoiler Complete');
-			console.log('이전 장착 상태 : ' + this.installList.length);
-			console.log('paramMap : ' + JSON.stringify(paramMap));
-			console.log('paramMapList : ' + JSON.stringify(this.paramMapList));
-			// showToast('스포일러 제거 완료', '\'설치 / 제거 확인\' 버튼을 눌러 SAP 재고에 반영해주세요.', 'success');
 			showToast('스포일러 제거 완료', '제거 처리가 완료되었습니다.', 'success');
 			this.installList = [];
 			this.callSAP();

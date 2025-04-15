@@ -53,13 +53,8 @@ const simulationColumns = [
     editable: false,
   },
   {
-    label: 'Emissions',
+    label: 'Emissions Class',
     fieldName: 'emissionLevel',
-    editable: false,
-  },
-  {
-    label: 'Class',
-    fieldName: '',
     editable: false,
   },
   {
@@ -78,9 +73,49 @@ const simulationColumns = [
     editable: false,
   },
   {
-    label: '',
+    label: 'Purchase Invoice Price, KRW',
+    fieldName: 'purchaseInvoicePrice',
+    editable: false,
+  },
+  {
+    label: 'GLP, EUR',
     fieldName: '',
     editable: false,
+  },
+  {
+    label: 'Top Option, EUR',
+    fieldName: '',
+    editable: false,
+  },
+  {
+    label: 'Cost components, KRW',
+    fieldName: 'costComponents',
+    editable: false,
+  },
+  {
+    label: '\u00A0\u00A0\u00A0\u00A01) Oil coupon',
+    fieldName: 'oilCoupon',
+    editable: true,
+  },
+  {
+    label: '\u00A0\u00A0\u00A0\u00A02) SA Commission',
+    fieldName: 'saCommission',
+    editable: false,
+  },
+  {
+    label: '\u00A0\u00A0\u00A0\u00A03) NDDR',
+    fieldName: 'nddr',
+    editable: false,
+  },
+  {
+    label: '\u00A0\u00A0\u00A0\u00A04)Campaign',
+    fieldName: 'campaign',
+    editable: true,
+  },
+  {
+    label: '\u00A0\u00A0\u00A0\u00A05)Var',
+    fieldName: 'var',
+    editable: true,
   },
   {
     label: 'Local costs, KRW',
@@ -101,6 +136,16 @@ const simulationColumns = [
     label: '\u00A0\u00A0\u00A0\u00A03) Others',
     fieldName: 'otherCost',
     editable: true,
+  },
+  {
+    label: 'List price',
+    fieldName: 'listPrice',
+    editable: true,
+  },
+  {
+    label: 'List price(w/o VAT)',
+    fieldName: 'listPriceVat',
+    editable: false,
   },
 ];
 
