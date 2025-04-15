@@ -8,8 +8,7 @@
  * 1.0       2025-02-06        San.Kang           Created
 **************************************************************/
 public without sharing class Account_tr extends TriggerHandler {
-
-    // Git Test
+    
     /** TriggerHandler */
     private final List<Account> newList { get; set; }
     private final List<Account> oldList { get; set; }
