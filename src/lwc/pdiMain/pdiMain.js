@@ -10,7 +10,7 @@
 */
 import { LightningElement, track } from 'lwc';
 import { showToast } from "c/commonUtil";
-// Test
+
 import screenInit from '@salesforce/apex/PdiController.screenInit';
 import fetchStatus from '@salesforce/apex/PdiController.fetchStatus';
 import searchVINbyKey from '@salesforce/apex/PdiController.searchVINbyKey';
