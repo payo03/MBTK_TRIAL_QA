@@ -68,6 +68,7 @@
           <option value="$PROJECT_DIR$/src/classes/IF_SAP.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/IF_SAP_test.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/IF_Util.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/IF_Webhook.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/IF_Webhook_test.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/IFAuditLogDetail_tr.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/InterfaceSAP.cls-meta.xml" />
@@ -78,6 +79,7 @@
           <option value="$PROJECT_DIR$/src/classes/LeadAcquisitionController.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/ModuSignPDFController.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/Opportunity_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/PaymentTracker_tr.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/PaymentType_tr.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/PreAssignRequestAlimtalk_ba.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/PreAssignRequestAlimtalk_ba_Test.cls-meta.xml" />
