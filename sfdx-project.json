@@ -3,6 +3,10 @@
     {
       "path": "src",
       "default": true
+    },
+    {
+      "path": "deploy_src",
+      "default": false
     }
   ],
   "namespace": "",
