@@ -1,0 +1,14 @@
+{
+  "packageDirectories": [
+    {
+      "path": "src",
+      "default": true
+    },
+    {
+      "path": "deploy_src",
+      "default": false
+    }
+  ],
+  "namespace": "",
+  "sourceApiVersion": "63.0"
+}
