@@ -21,7 +21,6 @@ public without sharing class Account_tr extends TriggerHandler {
         oldMap = (Map<Id, Account>) Trigger.oldMap;
         newMap = (Map<Id, Account>) Trigger.newMap;
     }
-    // Test
 
     public override void beforeInsert() {
 
