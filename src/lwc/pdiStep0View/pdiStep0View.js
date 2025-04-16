@@ -109,6 +109,7 @@ export default class pdiStep0View extends LightningElement {
     }
 
     handleSearchButton() {
+        this.selectedId = null;
         const customEvent = new CustomEvent('searchvin', {
             detail: {
                 searchKey: this.searchKey || ''
