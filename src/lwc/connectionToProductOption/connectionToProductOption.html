@@ -1,0 +1,85 @@
+<template>
+	<lightning-quick-action-panel header="차종 목록">
+
+        <div class="slds-size_1-of-1 slds-card slds-p-around_x-small sub-wrap">
+            <div class="slds-card slds-size_1-of-1 slds-p-around_x-small">              
+                <div class="slds-card__body slds-card__body_inner filter-wrap">
+                    <div class="slds-grid slds-wrap button-wrap">
+                        <lightning-combobox
+                            class="slds-p-right_x-small"
+                            name="progress"
+                            label="세그먼트2"
+                            value={filterMap.Segment2__c}
+                            placeholder="선택안함"
+                            options={filterOptions.segment}
+                            onchange={handleChange}
+                            data-id="segment">
+                        </lightning-combobox>
+                        <lightning-input
+                            class="slds-p-right_x-small"
+                            label="모델명"
+                            data-id="name"
+                            value={filterMap.Name}
+                            onchange={handleChange}
+                            placeholder="모델명을 입력해주세요">
+                        </lightning-input>
+                        <!-- <lightning-input
+                            class="slds-p-right_x-small"
+                            label="모델명"
+                            data-id="specShort"
+                            value={filterMap.SpecShort__c}
+                            onchange={handleChange}
+                            placeholder="모델명을 입력해주세요">
+                        </lightning-input> -->
+                       
+                        <lightning-button-icon
+                            icon-name="utility:refresh" variant="border-filled"
+                            alternative-text="Refresh" class="slds-p-top_large slds-p-right_small"
+                            title="Refresh" onclick={handleSearch} data-id="refresh">
+                        </lightning-button-icon>
+                   
+                        <lightning-button
+                            data-id="search" variant="Neutral" label="Search" onclick={handleSearch} class="slds-p-top_large">
+                        </lightning-button>
+                    </div>   
+                </div>
+            </div>
+        </div>
+
+		<template lwc:if={isLoading}>
+			<lightning-spinner alternative-text="Loading" variant="brand" size="medium"></lightning-spinner>
+		</template>
+
+        <lightning-datatable
+            class="slds-text-body_small"
+            key-field="id"
+            data={masterData}
+            columns={columns}
+            onrowaction={handleRowAction}
+            onrowselection={handleRowAction}
+            data-id="master">
+        </lightning-datatable>
+
+        <template lwc:if={isNoData}>
+            <div class="slds-p-around_small">조건에 맞는 데이터가 없습니다.</div>
+        </template>
+
+		<div slot="footer" class="slds-align_absolute-center">
+            <div class="slds-m-bottom_small slds-align_absolute-center">
+                <lightning-button
+                    class="slds-m-right_xx-small"
+                    label="취소"
+                    onclick={handleCancel}>
+                </lightning-button>
+                <lightning-button
+                    variant="brand"
+                    class=""
+                    type="submit"
+                    label="저장"
+                    onclick={handleSave}>
+                </lightning-button>
+            </div>
+		</div>
+	</lightning-quick-action-panel>
+
+</template>
