@@ -44,34 +44,23 @@ jobs:
           echo "✅ 변경된 파일 목록[기본]:"
           cat changed_files.txt
 
-          # js, html, css 파일이 변경되었으면 4종셋트를 추가
+          # js, html, css 파일이 변경되었으면 해당 폴더 전체 파일 추가
+          temp_files=$(mktemp)
           while read -r file; do
-            if [[ "$file" =~ \.js$ || "$file" =~ \.html$ || "$file" =~ \.css$ ]]; then
-              # js, html, css 파일이 변경되었으면 해당 파일들 추가
-              bundle_name=$(basename "$file" | cut -d. -f1)  # 파일명만 추출 (확장자 제외)
-              bundle_dir=$(dirname "$file")  # 디렉토리 경로 추출
+            if [[ "$file" =~ \.(js|html|css)$ ]]; then
+              bundle_dir=$(dirname "$file")
+              echo "📁 폴더 전체 추가: $bundle_dir"
 
-              # js, html, css 파일이 존재하는지 확인 후 추가
-              for ext in js html js-meta.xml; do
-                target="$bundle_dir/$bundle_name.$ext"
-                if [ -f "$target" ]; then
-                  # 중복 방지: 이미 추가된 파일이면 다시 추가하지 않음
-                  if ! grep -Fxq "$target" changed_files.txt; then
-                    echo "$target" >> changed_files.txt
-                  fi
-                fi
-              done
-
-              # css 파일이 있을 경우만 추가
-              css_file="$bundle_dir/$bundle_name.css"
-              if [ -f "$css_file" ]; then
-                # 중복 방지
-                if ! grep -Fxq "$css_file" changed_files.txt; then
-                  echo "$css_file" >> changed_files.txt
-                fi
-              fi
+              # 해당 폴더 내의 모든 파일을 목록에 추가
+              find "$bundle_dir" -type f >> "$temp_files"
+            else
+              echo "$file" >> "$temp_files"
             fi
           done < changed_files.txt
+
+          # 중복 제거 후 최종 목록 저장
+          sort -u "$temp_files" > changed_files.txt
+          rm "$temp_files"
 
           echo "✅ 변경된 파일 목록[반영]: "
           cat changed_files.txt

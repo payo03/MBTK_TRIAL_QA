@@ -14,7 +14,7 @@ import { CurrentPageReference, NavigationMixin } from "lightning/navigation";
 import { notifyRecordUpdateAvailable } from "lightning/uiRecordApi";
 import formFactor from "@salesforce/client/formFactor";
 import LightningConfirm from "lightning/confirm";
-
+// Test
 // Controller
 import getInit from "@salesforce/apex/QuoteCreatorController.getInit";
 import getProductChangeData from "@salesforce/apex/QuoteCreatorController.getProductChangeData";
@@ -201,7 +201,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	}
 
 	/**
-	 * @description 페이지 접속 시 마다 호출됨
+	 * @description 페이지 접속 시 마다 호출됨 test
 	 * @param pageRef
 	 */
 	@wire(CurrentPageReference)

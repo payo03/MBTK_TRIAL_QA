@@ -20,7 +20,7 @@ import screenInit from '@salesforce/apex/CreateVehicleController.screenInit';
 import selectInfoList from "@salesforce/apex/CreateVehicleController.selectInfoList";
 import selectLogList from "@salesforce/apex/CreateVehicleController.selectLogList";
 import createVehicleStock from "@salesforce/apex/CreateVehicleController.createVehicleStock";
-//import sendCustomsInfo from "@salesforce/apex/CreateVehicleController.sendCustomsInfo";
+import handleIFAction from "@salesforce/apex/CreateVehicleController.handleIFAction";
 
 export default class createVehicle extends LightningElement  {
 
@@ -97,11 +97,6 @@ export default class createVehicle extends LightningElement  {
                 this.pageOrder = false;
                 this.moveNextPageLog(event.data.records);
             }
-            // CUSTOMS_INFO
-            if (event.data.type === 'CUSTOMS_INFO_VF') {
-                console.log(event.data.records);
-                this.customsInfo(event.data.records);
-            }
         });
     }
 
@@ -169,9 +164,23 @@ export default class createVehicle extends LightningElement  {
     // ver1.2 Interface기능 분리
     handleIF(event) {
         let rowId = event.target.dataset.id;
-        let fieldLabelName = event.target.name;
+        let buttonName = event.target.name;
+        console.log(buttonName);
 
-        console.log(fieldLabelName);
+        let infoMap = {
+            infoIdList: [...new Set(this.data.map(item => item.ExternalId__c))],
+            type: buttonName
+        };
+
+        handleIFAction({ paramMap : infoMap }).then(() => {
+            setTimeout(() => {
+//                this.closeModal();
+                showToast('Success', 'Success Interface Call', 'success', 'dismissable');
+            }, 1000);
+        }).catch(error => {
+            showToast('Error', 'Error Interface Call', 'error', 'dismissable');
+            console.log(error);
+        });
     }
 
     handleCheckboxChange(event) {
@@ -198,17 +207,6 @@ export default class createVehicle extends LightningElement  {
             console.log(error);
         });
     }
-
-    /*
-    handleCustomButton() {
-
-        window.postMessage({
-            type: 'CUSTOMS_INFO_LWC',
-            filterId: this.selectFilterId,
-            debug: 'Custom Avis Order Info FROM ' + this.selectFilterId
-        }, '*');
-    }
-    */
 
 //    handleCancel() {
 //        this.draftValues = [];
@@ -317,7 +315,6 @@ export default class createVehicle extends LightningElement  {
     }
 
     moveNextPageLog(records) {
-        console.log('H');
         selectLogList({ idList: records }).then(res => {
 
             let data = res;
@@ -325,19 +322,6 @@ export default class createVehicle extends LightningElement  {
             this.changePopup();
         }).catch(error => {
             showToast('Error', 'Error SOQL', 'error', 'dismissable');
-            console.log(error);
-        });
-    }
-
-    customsInfo(records) {
-        sendCustomsInfo({ idList: records }).then(res => {
-
-            setTimeout(() => {
-                this.closeModal();
-                showToast('Success', 'Success CustomsInfo I/F Request Call', 'success', 'dismissable');
-            }, 1000);
-        }).catch(error => {
-            showToast('Error', 'I/F Request Fail', 'error', 'dismissable');
             console.log(error);
         });
     }
