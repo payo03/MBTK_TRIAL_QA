@@ -17,6 +17,8 @@ import getInit from "@salesforce/apex/MarginCalculatorController.getInit";
 
 export default class MarginCalculator extends LightningElement {
 
+  // git test message
+
   columns = columns;
   simulationColumns = simulationColumns;
 
