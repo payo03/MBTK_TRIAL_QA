@@ -103,9 +103,9 @@ export default class pdiStep0View extends LightningElement {
     }
 
     handleKeyDown(event) {
+        event.preventDefault();    // 기본 동작 막기
+        event.stopPropagation();   // 이벤트 전파 막기
         if(event.key === 'Enter') {
-            event.preventDefault();    // 기본 동작 막기
-            event.stopPropagation();   // 이벤트 전파 막기
             this.handleSearchButton();
         }
     }
