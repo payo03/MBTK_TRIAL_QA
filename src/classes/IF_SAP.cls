@@ -227,41 +227,19 @@ global without sharing class IF_SAP {
             String logId = String.valueOf(requestMap.get('LOG_ID'));
             String message = String.valueOf(requestMap.get('Message'));
 
-            // 1. LogDetail. 호출결과 Update
+            // LogDetail. 호출결과 Update
             List<IFAuditLogDetail__c> logDetailList = [
-                SELECT Id, ExternalId__c
+                SELECT Id, IsResponse__c, Description__c
                 FROM IFAuditLogDetail__c
                 WHERE fm_LogId__c = :logId
             ];
 
-            List<String> idList = new List<String>();
             for(IFAuditLogDetail__c logDetail : logDetailList) {
 
                 logDetail.IsResponse__c = status;
                 logDetail.Description__c = message;
-
-                idList.add(logDetail.ExternalId__c);
             }
             if(!logDetailList.isEmpty()) update logDetailList;
-
-            // 2. AvisOrderInfo. OrderConfirmSAP Update
-            List<VehicleStock__c> stockList = [
-                    SELECT Id, AvisOrderInfo__c
-                    FROM VehicleStock__c
-                    WHERE Id IN :idList
-            ];
-
-            List<AvisOrderInfo__c> updateList = new List<AvisOrderInfo__c>();
-            for(VehicleStock__c stock : stockList) {
-                String infoId = stock.AvisOrderInfo__c;
-
-                AvisOrderInfo__c info = new AvisOrderInfo__c(Id = infoId, OrderConfirmSAP__c = status);
-
-                updateList.add(info);
-                idList.add(infoId);
-            }
-            if (!updateList.isEmpty()) update updateList;
-            if (status == 'Y') System.enqueueJob(new AsyncPurchaseInvoice(idList, null));
 
             response.statusCode = 200;
             response.responseBody = Blob.valueOf(responseMessage);
@@ -303,40 +281,19 @@ global without sharing class IF_SAP {
             String logId = String.valueOf(requestMap.get('LOG_ID'));
             String message = String.valueOf(requestMap.get('Message'));
 
-            // 1. LogDetail. 호출결과 Update
+            // LogDetail. 호출결과 Update
             List<IFAuditLogDetail__c> logDetailList = [
-                    SELECT Id, ExternalId__c
+                    SELECT Id, IsResponse__c, Description__c
                     FROM IFAuditLogDetail__c
                     WHERE fm_LogId__c = :logId
             ];
 
-            List<String> idList = new List<String>();
             for(IFAuditLogDetail__c logDetail : logDetailList) {
 
                 logDetail.IsResponse__c = status;
                 logDetail.Description__c = message;
-
-                idList.add(logDetail.ExternalId__c);
             }
             if(!logDetailList.isEmpty()) update logDetailList;
-
-            // 2. AvisOrderInfo. PurchaseInvoice Update
-            List<VehicleStock__c> stockList = [
-                    SELECT Id, AvisOrderInfo__c
-                    FROM VehicleStock__c
-                    WHERE Id IN :idList
-            ];
-
-            List<AvisOrderInfo__c> updateList = new List<AvisOrderInfo__c>();
-            for(VehicleStock__c stock : stockList) {
-                String infoId = stock.AvisOrderInfo__c;
-
-                AvisOrderInfo__c info = new AvisOrderInfo__c(Id = infoId, PurchaseInvoiceSAP__c = status);
-
-                updateList.add(info);
-                idList.add(infoId);
-            }
-            if (!updateList.isEmpty()) update updateList;
 
             response.statusCode = 200;
             response.responseBody = Blob.valueOf(responseMessage);
@@ -379,12 +336,13 @@ global without sharing class IF_SAP {
             String message = String.valueOf(requestMap.get('Message'));
 
             List<IFAuditLogDetail__c> logDetailList = [
-                    SELECT Id
+                    SELECT Id, IsResponse__c, Description__c
                     FROM IFAuditLogDetail__c
                     WHERE fm_LogId__c = :logId
             ];
 
             for(IFAuditLogDetail__c logDetail : logDetailList) {
+
                 logDetail.IsResponse__c = status;
                 logDetail.Description__c = message;
             }

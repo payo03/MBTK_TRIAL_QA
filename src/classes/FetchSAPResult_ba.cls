@@ -6,6 +6,7 @@
   Ver      Date            Author                           Modification
   ===================================================================================
   1.0      2025-03-10      payo03@solomontech.net           Created
+  1.1      2025-04-16      payo03@solomontech.net           취소IF Case 추가
 */
 public without sharing class FetchSAPResult_ba implements Database.Batchable<SObject>, Database.Stateful, Database.AllowsCallouts, Schedulable {
 
@@ -175,6 +176,9 @@ public without sharing class FetchSAPResult_ba implements Database.Batchable<SOb
 
                     List<IFAuditLog__c> logList = ifIdLogListMap.get(ifId);
                     for (IFAuditLog__c log : logList) {
+                        // ver1.1 취소IF Case 추가
+                        String updateCode = log.Type__c.contains('CANCEL') ? 'N' : resultCode;
+
                         // InterfaceId별 Log
                         List<IFAuditLogDetail__c> logDetails = log.IFAuditLogDetails__r;
                         for (IFAuditLogDetail__c logDetail : logDetails) {
@@ -203,11 +207,12 @@ public without sharing class FetchSAPResult_ba implements Database.Batchable<SOb
                                 AvisOrderInfo__c info = new AvisOrderInfo__c(Id = infoId);
                                 if(updateInfoMap.get(info.Id) != null) info = (AvisOrderInfo__c) updateInfoMap.get(info.Id);
 
-                                info.put(field, resultCode);
+                                info.put(field, updateCode);
                                 updateInfoMap.put(info.Id, info);
 
                                 // OrderConfirm 완료시.
-                                if (resultCode == 'Y' && isOrderConfirm) invoiceInfoIdList.add(infoId);
+                                // 1. 조회결과 Y, 2. CANCEL건x, 3. OrderConfirm IF
+                                if (resultCode == 'Y' && updateCode == 'Y' && isOrderConfirm) invoiceInfoIdList.add(infoId);
                             } else if (isCustoms) {
                                 // 세관통관 전송
                                 String infoId = externalIdMap.get(logDetail.Id);
@@ -263,7 +268,7 @@ public without sharing class FetchSAPResult_ba implements Database.Batchable<SOb
     }
 
     public static String getFields() {
-        return 'Id, Name, If_Id__c, RawData__c, ' +
+        return 'Id, Name, If_Id__c, RawData__c, Type__c, ' +
                 '( ' +
                 '   SELECT Id, ExternalId__c ' +
                 '   FROM IFAuditLogDetails__r ' +
