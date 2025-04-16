@@ -16,6 +16,7 @@ public with sharing class PdiController {
         return stockList;
     }
 
+    // git TEst
     @AuraEnabled
     public static List<PDIStep__c> fetchStatus(List<String> workNo) {
         List<PDIStep__c> steps = new List<PDIStep__c>();        // Return Value

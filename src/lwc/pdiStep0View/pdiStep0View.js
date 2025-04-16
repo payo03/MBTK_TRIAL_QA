@@ -85,6 +85,7 @@ export default class pdiStep0View extends LightningElement {
     }
     
     handleRowSelection(event) {
+        console.log('step0 handleRowSelection 실행됨');
         let selectedId = event.detail.selectedRows.map(row => row.Id);
         if (JSON.stringify(selectedId) === JSON.stringify(this.selectedId)) return;
 
@@ -102,8 +103,9 @@ export default class pdiStep0View extends LightningElement {
     }
 
     handleKeyDown(event) {
+        event.preventDefault();    // 기본 동작 막기
+        event.stopPropagation();   // 이벤트 전파 막기
         if(event.key === 'Enter') {
-            event.preventDefault();
             this.handleSearchButton();
         }
     }
