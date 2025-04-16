@@ -114,6 +114,17 @@ lightning-input:disabled {
             padding-left: 0;
         }
     }
+
+    lightning-accordion {
+        lightning-datatable,
+        lightning-input,
+        lightning-record-picker,
+        lightning-combobox,
+        c-custom-data-table,
+        span, div, h2 {
+            color: black !important;
+        }
+    }
 }
 
 /* 태블릿 */
