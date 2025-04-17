@@ -1,0 +1,602 @@
+<!--
+ * @author : San.Kang
+ * @date : 2025-02-13
+ * @description : 국세환급금양도요구서 PDF
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-02-13      San.Kang          Initial Version
+-->
+<apex:page showHeader="false" sidebar="false" applyBodyTag="false" applyHtmlTag="false" renderAs="PDF" action="{!init}"
+           controller="TaxRefundController">
+    <head>
+        <style>
+            @page {
+                size: A4;
+            }
+        </style>
+    </head>
+    <div
+        style="page-break-after:avoid;font-size:0.9em">
+        <div style="text-align:center;font-family: Arial Unicode MS;">
+            <table cellspacing="0" cellpadding="0"
+                   style="margin-right:auto; margin-left:auto; border-collapse:collapse; border:none; text-align:left;">
+                <tbody>
+                <tr style="height:22.1pt;">
+                    <td colspan="12" style="width:514.6pt; padding:1.4pt; vertical-align:middle; text-align:left;">
+                        <p style="margin-top:0pt; margin-bottom:0pt; line-height:230%; font-size:9pt;"><span
+                                style="line-height:230%; font-size:8pt; color:#0000ff; background-color:#ffffff;">■ 국세기본법 시행규칙 [별지 제24호의2서식]&nbsp;&lt;개정 2023. 3. 20.&gt;</span>
+                        </p>
+                    </td>
+                </tr>
+                <tr style="height:36.45pt;">
+                    <td colspan="12" style="width:514.6pt; padding:1.4pt; vertical-align:middle;">
+                        <p style="margin-top:0pt; margin-bottom:0pt; text-align:center; line-height:120%; font-size:16pt;">
+                            <strong><span style="">국세환급금양도요구서</span></strong></p>
+                    </td>
+                </tr>
+                <tr style="height:13.25pt;">
+                    <td colspan="10" style="width:351pt; padding:2.85pt 2.85pt 1.4pt; vertical-align:top;">
+                        <p style="margin-top:0pt; margin-bottom:0pt; line-height:120%; font-size:9pt;"><span
+                                style=" letter-spacing:-0.7pt;">&nbsp;</span></p>
+                    </td>
+                    <!--                        <td colspan="2" style="width:155pt; padding:2.85pt 2.85pt 1.4pt; vertical-align:top;">-->
+                    <!--                            <p style="margin-top:0pt; margin-bottom:0pt; text-align:right; line-height:120%; font-size:8pt;"><span style="">No.{!doc}</span></p>-->
+                    <!--                        </td>-->
+                </tr>
+                <tr style="height:25.0pt;">
+                    <td colspan="4"
+                        style="width:170.05pt; border-top:0.75pt solid #5d5d5d; border-right-style:solid; border-right-width:0.75pt; border-bottom:0.75pt solid #5d5d5d; padding:1.4pt 1.02pt 1.4pt 1.4pt; vertical-align:top; background-color:#b2b2b2;">
+                        <p style="margin-top:0pt; margin-bottom:0pt; font-size:9pt; text-align:left;">접수번호</p>
+                    </td>
+                    <td colspan="7"
+                        style="width:207.15pt; border-top:0.75pt solid #5d5d5d; border-right-style:solid; border-right-width:0.75pt; border-left-style:solid; border-left-width:0.75pt; border-bottom:0.75pt solid #5d5d5d; padding:0.75pt 0.38pt; vertical-align:top; background-color:#b2b2b2;">
+                        <p style="margin-top:0pt; margin-bottom:0pt; font-size:9pt; text-align:left;">접수일</p>
+                    </td>
+                    <td style="width:133.1pt; border-top:0.75pt solid #5d5d5d; border-left-style:solid; border-left-width:0.75pt; border-bottom:0.75pt solid #5d5d5d; padding:1.4pt 1.4pt 1.4pt 1.02pt; vertical-align:top; background-color:#b2b2b2;">
+                        <p style="margin-top:0pt; margin-bottom:0pt; font-size:9pt; text-align:left;">처리기간</p>
+                    </td>
+                </tr>
+                <tr style="height:8.0pt;">
+                    <td colspan="12">
+                    </td>
+                </tr>
+                <tr style="height:19.45pt;">
+                    <td rowspan="4"
+                        style="width:60.95pt; border-top-style:solid; border-top-width:1.5pt; border-right:0.75pt solid #5d5d5d; border-bottom-style:solid; border-bottom-width:1.5pt; padding:1.4pt 1.02pt 1.4pt 1.4pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:230%; font-size:11pt;"><span style="">양도자</span>
+                        </p>
+                    </td>
+                    <td colspan="3"
+                        style="width:106.3pt; border-top-style:solid; border-top-width:1.5pt; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span style="">①&nbsp;</span><span
+                                style=" letter-spacing:-1pt;">상 호(법인명)</span></p>
+                    </td>
+                    <td colspan="8"
+                        style="width:341.75pt; border-top-style:solid; border-top-width:1.5pt; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.4pt 1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt 4.4pt; font-size:9pt;"><span style=" letter-spacing:-1pt;">② 성 명(대표자)</span>
+                        </p>
+                    </td>
+                </tr>
+                <tr style="height:19.45pt;">
+                    <td colspan="3"
+                        style="width:106.3pt; border-top:0.75pt solid #7f7f7f; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-0.5pt;">③ 사업자등록번호</span></p>
+                    </td>
+                    <td colspan="8"
+                        style="width:341.75pt; border-top:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.4pt 1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt 4.4pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1pt;">④&nbsp;</span><span
+                                style=" letter-spacing:-0.5pt;">주민등록번호</span></p>
+                    </td>
+                </tr>
+                <tr style="height:29.45pt;">
+                    <td colspan="11"
+                        style="width:450.85pt; border-top:0.75pt solid #7f7f7f; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.4pt 1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-0.5pt;">⑤&nbsp;</span><span style=" letter-spacing:-1.2pt;">사업장 소재지</span>
+                        </p>
+                        <p style="margin-top:0pt; margin-bottom:0pt; text-align:right; font-size:9pt;"><span
+                                style="">(</span><span style=" letter-spacing:-0.6pt;">전화번호&nbsp;</span><span
+                                style="">:</span><span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
+                                style="">&nbsp;</span><span style="">)</span><span style=" letter-spacing:-0.6pt;">&nbsp;</span>
+                        </p>
+                    </td>
+                </tr>
+                <tr style="height:29.45pt;">
+                    <td colspan="11"
+                        style="width:450.85pt; border-top:0.75pt solid #7f7f7f; border-left:0.75pt solid #5d5d5d; border-bottom-style:solid; border-bottom-width:1.5pt; padding:1.4pt 1.4pt 1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:1pt 2pt 0pt; font-size:10pt;"><span
+                                style=" letter-spacing:-0.5pt;">⑥&nbsp;</span><span style="">주 소</span></p>
+                        <p style="margin-top:0pt; margin-bottom:0pt; text-align:right; font-size:10pt;"><span
+                                style=" font-size:9pt;">(전화번호 :</span><span style=" font-size:9pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
+                                style=" font-size:9pt;">&nbsp;</span><span style=" font-size:9pt;">)</span><span
+                                style="">&nbsp;</span></p>
+                    </td>
+                </tr>
+                <tr style="height:96.95pt;">
+                    <td colspan="12"
+                        style="width:514.6pt; border-top-style:solid; border-top-width:1.5pt; border-bottom-style:solid; border-bottom-width:1.5pt; padding:1.4pt; vertical-align:middle;">
+                        <table cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+                            <tbody>
+                            <tr style="height:16.65pt;">
+                                <td rowspan="4"
+                                    style="width:58.15pt; border-top-style:solid; border-top-width:1.5pt; border-right:0.75pt solid #5d5d5d; border-bottom-style:solid; border-bottom-width:1.5pt; padding:1.4pt 1.02pt 1.4pt 1.4pt; vertical-align:middle;">
+                                    <p style="margin:0pt 2pt; text-align:center; line-height:230%; font-size:11pt;">
+                                        <span style="">양수자</span></p>
+                                </td>
+                                <td style="width:207.7pt; border-top-style:solid; border-top-width:1.5pt; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.02pt; vertical-align:top;">
+                                    <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span style="">①&nbsp;</span><span
+                                            style=" letter-spacing:-1pt;">상 호(법인명) 만트럭버스코리아주식회사</span></p>
+                                </td>
+                                <td style="width:234.55pt; border-top-style:solid; border-top-width:1.5pt; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.4pt 1.4pt 1.02pt; vertical-align:top;">
+                                    <p style="margin:1pt 2pt 0pt 4.4pt; font-size:9pt;"><span
+                                            style=" letter-spacing:-1pt;">② 성 명(대표자) 피터 앤더슨</span></p>
+                                </td>
+                            </tr>
+                            <tr style="height:16.65pt;">
+                                <td style="width:207.7pt; border-top:0.75pt solid #7f7f7f; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.02pt; vertical-align:top;">
+                                    <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span style=" letter-spacing:-0.5pt;">③ 사업자등록번호 124-85-29163</span>
+                                    </p>
+                                </td>
+                                <td style="width:234.55pt; border-top:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.4pt 1.4pt 1.02pt; vertical-align:top;">
+                                    <p style="margin:1pt 2pt 0pt 4.4pt; font-size:9pt;"><span
+                                            style=" letter-spacing:-1pt;">④&nbsp;</span><span
+                                            style=" letter-spacing:-0.5pt;">주민등록번호 110111-2298944</span></p>
+                                </td>
+                            </tr>
+                            <tr style="height:26.65pt;">
+                                <td colspan="2"
+                                    style="width:445.05pt; border-top:0.75pt solid #7f7f7f; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.4pt 1.4pt 1.02pt; vertical-align:middle;">
+                                    <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span style=" letter-spacing:-0.5pt;">⑤&nbsp;</span><span
+                                            style=" letter-spacing:-1.2pt;">사업장 소재지</span></p>
+                                    <p style="margin-top:0pt; margin-bottom:0pt; text-align:right; font-size:9pt;"><span
+                                            style=" letter-spacing:-0.6pt;">경기도 평택시 포승읍 서동대로&nbsp;</span><span style="">437-55 (</span><span
+                                            style=" letter-spacing:-0.6pt;">전화번호&nbsp;</span><span
+                                            style="">:</span><span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
+                                            style="">&nbsp;</span><span style="">)</span><span
+                                            style=" letter-spacing:-0.6pt;">&nbsp;</span></p>
+                                </td>
+                            </tr>
+                            <tr style="height:26.65pt;">
+                                <td colspan="2"
+                                    style="width:445.05pt; border-top:0.75pt solid #7f7f7f; border-left:0.75pt solid #5d5d5d; border-bottom-style:solid; border-bottom-width:1.5pt; padding:1.4pt 1.4pt 1.4pt 1.02pt; vertical-align:middle;">
+                                    <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span style=" letter-spacing:-0.5pt;">⑥&nbsp;</span><span
+                                            style="">주 소&nbsp;</span></p>
+                                    <p style="margin-top:0pt; margin-bottom:0pt; text-align:right; font-size:9pt;"><span
+                                            style=" font-size:9pt;">(전화번호 :&nbsp;</span><span style=" font-size:9pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
+                                            style=" font-size:9pt;">)</span><span style="">&nbsp;</span></p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                <tr style="height:32.3pt;">
+                    <td rowspan="5"
+                        style="width:60.95pt; border-top-style:solid; border-top-width:1.5pt; border-right:0.75pt solid #5d5d5d; border-bottom-style:solid; border-bottom-width:1.5pt; padding:1.4pt 1.02pt 1.4pt 1.4pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:230%; font-size:11pt;"><span style="">국세환급금</span>
+                        </p>
+                        <p style="margin:0pt 2pt; text-align:center; line-height:230%; font-size:11pt;"><span style="">명세서</span>
+                        </p>
+                    </td>
+                    <td style="width:53.3pt; border-top-style:solid; border-top-width:1.5pt; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">세목</span>
+                        </p>
+                    </td>
+                    <td colspan="3"
+                        style="width:51.2pt; border-top-style:solid; border-top-width:1.5pt; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">납부기한</span>
+                        </p>
+                    </td>
+                    <td style="width:47.2pt; border-top-style:solid; border-top-width:1.5pt; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span
+                                style="">계</span></p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top-style:solid; border-top-width:1.5pt; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">내국세</span>
+                        </p>
+                    </td>
+                    <td style="width:49.75pt; border-top-style:solid; border-top-width:1.5pt; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">교육세</span>
+                        </p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top-style:solid; border-top-width:1.5pt; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">가산금</span>
+                        </p>
+                    </td>
+                    <td style="width:133.1pt; border-top-style:solid; border-top-width:1.5pt; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.4pt 1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">국세환급</span>
+                        </p>
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">가산금</span>
+                        </p>
+                    </td>
+                </tr>
+                <tr style="height:18.45pt;">
+                    <td style="width:53.3pt; border-top:0.75pt solid #7f7f7f; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td colspan="3"
+                        style="width:51.2pt; border-top:0.75pt solid #7f7f7f; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td style="width:47.2pt; border-top:0.75pt solid #7f7f7f; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top:0.75pt solid #7f7f7f; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td style="width:49.75pt; border-top:0.75pt solid #7f7f7f; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top:0.75pt solid #7f7f7f; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td style="width:133.1pt; border-top:0.75pt solid #7f7f7f; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.4pt 1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                </tr>
+                <tr style="height:18.45pt;">
+                    <td style="width:53.3pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td colspan="3"
+                        style="width:51.2pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td style="width:47.2pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td style="width:49.75pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td style="width:133.1pt; border-top:0.75pt solid #999999; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.4pt 1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                </tr>
+                <tr style="height:18.45pt;">
+                    <td style="width:53.3pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td colspan="3"
+                        style="width:51.2pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td style="width:47.2pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td style="width:49.75pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td style="width:133.1pt; border-top:0.75pt solid #999999; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.4pt 1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                </tr>
+                <tr style="height:18.45pt;">
+                    <td style="width:53.3pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom-style:solid; border-bottom-width:0.75pt; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin-top:0pt; margin-bottom:0pt; text-align:center; line-height:110%; font-size:9pt;">
+                            <span style=" letter-spacing:-1.3pt;">계</span></p>
+                    </td>
+                    <td colspan="3"
+                        style="width:51.2pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom-style:solid; border-bottom-width:0.75pt; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td style="width:47.2pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom-style:solid; border-bottom-width:0.75pt; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom-style:solid; border-bottom-width:0.75pt; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td style="width:49.75pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom-style:solid; border-bottom-width:0.75pt; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom-style:solid; border-bottom-width:0.75pt; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                    <td style="width:133.1pt; border-top:0.75pt solid #999999; border-left:0.75pt solid #5d5d5d; border-bottom-style:solid; border-bottom-width:0.75pt; padding:1.4pt 1.4pt 1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:1pt 2pt 0pt; font-size:9pt;"><span
+                                style=" letter-spacing:-1.3pt;">&nbsp;</span></p>
+                    </td>
+                </tr>
+                <tr style="height:3.8pt;">
+                    <td colspan="12"
+                        style="width:514.6pt; border-top-style:solid; border-top-width:1.5pt; border-bottom-style:solid; border-bottom-width:1.5pt; padding:1.4pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:230%; font-size:1pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                </tr>
+                <tr style="height:33.45pt;">
+                    <td rowspan="5"
+                        style="width:60.95pt; border-top-style:solid; border-top-width:1.5pt; border-right:0.75pt solid #5d5d5d; border-bottom-style:solid; border-bottom-width:1.5pt; padding:1.4pt 1.02pt 1.4pt 1.4pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:230%; font-size:11pt;"><span style="">양도하려는</span>
+                        </p>
+                        <p style="margin:0pt 2pt; text-align:center; line-height:230%; font-size:11pt;"><span style="">금액</span>
+                        </p>
+                    </td>
+                    <td style="width:53.3pt; border-top-style:solid; border-top-width:1.5pt; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">세목</span>
+                        </p>
+                    </td>
+                    <td colspan="3"
+                        style="width:51.2pt; border-top-style:solid; border-top-width:1.5pt; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">납부기한</span>
+                        </p>
+                    </td>
+                    <td style="width:47.2pt; border-top-style:solid; border-top-width:1.5pt; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span
+                                style="">계</span></p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top-style:solid; border-top-width:1.5pt; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">내국세</span>
+                        </p>
+                    </td>
+                    <td style="width:49.75pt; border-top-style:solid; border-top-width:1.5pt; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">교육세</span>
+                        </p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top-style:solid; border-top-width:1.5pt; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">가산금</span>
+                        </p>
+                    </td>
+                    <td style="width:133.1pt; border-top-style:solid; border-top-width:1.5pt; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt 1.4pt 1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">국세환급</span>
+                        </p>
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">가산금</span>
+                        </p>
+                    </td>
+                </tr>
+                <tr style="height:18.45pt;">
+                    <td style="width:53.3pt; border-top:0.75pt solid #7f7f7f; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td colspan="3"
+                        style="width:51.2pt; border-top:0.75pt solid #7f7f7f; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td style="width:47.2pt; border-top:0.75pt solid #7f7f7f; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top:0.75pt solid #7f7f7f; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td style="width:49.75pt; border-top:0.75pt solid #7f7f7f; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top:0.75pt solid #7f7f7f; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td style="width:133.1pt; border-top:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #999999; padding:1.4pt 1.4pt 1.4pt 1.02pt; vertical-align:top;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                </tr>
+                <tr style="height:18.45pt;">
+                    <td style="width:53.3pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td colspan="3"
+                        style="width:51.2pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td style="width:47.2pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td style="width:49.75pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td style="width:133.1pt; border-top:0.75pt solid #999999; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #999999; padding:1.4pt 1.4pt 1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                </tr>
+                <tr style="height:18.45pt;">
+                    <td style="width:53.3pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td colspan="3"
+                        style="width:51.2pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #5d5d5d; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td style="width:47.2pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td style="width:49.75pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #999999; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td style="width:133.1pt; border-top:0.75pt solid #999999; border-left:0.75pt solid #7f7f7f; border-bottom:0.75pt solid #999999; padding:1.4pt 1.4pt 1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                </tr>
+                <tr style="height:18.45pt;">
+                    <td style="width:53.3pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #5d5d5d; border-bottom-style:solid; border-bottom-width:0.75pt; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span
+                                style="">계</span></p>
+                    </td>
+                    <td colspan="3"
+                        style="width:51.2pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #5d5d5d; border-bottom-style:solid; border-bottom-width:0.75pt; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td style="width:47.2pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom-style:solid; border-bottom-width:0.75pt; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom-style:solid; border-bottom-width:0.75pt; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td style="width:49.75pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #7f7f7f; border-left:0.75pt solid #7f7f7f; border-bottom-style:solid; border-bottom-width:0.75pt; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td colspan="2"
+                        style="width:49.75pt; border-top:0.75pt solid #999999; border-right:0.75pt solid #5d5d5d; border-left:0.75pt solid #7f7f7f; border-bottom-style:solid; border-bottom-width:0.75pt; padding:1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td style="width:133.1pt; border-top:0.75pt solid #999999; border-left:0.75pt solid #5d5d5d; border-bottom-style:solid; border-bottom-width:0.75pt; padding:1.4pt 1.4pt 1.4pt 1.02pt; vertical-align:middle;">
+                        <p style="margin:0pt 2pt; text-align:center; line-height:150%; font-size:10pt;"><span style="">&nbsp;</span>
+                        </p>
+                    </td>
+                </tr>
+                <tr style="height:64.4pt;">
+                    <td colspan="12"
+                        style="width:514.6pt; border-top-style:solid; border-top-width:1.5pt; padding:1.4pt; vertical-align:middle;">
+                        <p style="margin:0pt 10pt 4pt 28.2pt; text-indent:-13.9pt; line-height:140%; font-size:10pt;">
+                            <span style=" letter-spacing:-0.2pt;">※&nbsp;</span><span style=" letter-spacing:-0.4pt;">가산금은 구 국세기본법(법률 제16097호로 일부개정되기 전의 것을 말합니다) 제2조제5호에 따른</span><span
+                                style=" letter-spacing:-0.2pt;">&nbsp;가산금으로 2020년 1월 1일 전 납세의무 분에 적용됩니다.</span></p>
+                        <p style="margin-top:0pt; margin-bottom:0pt; line-height:140%; font-size:4pt;"><span
+                                style=" letter-spacing:-0.1pt;">&nbsp;</span></p>
+                        <p style="margin-top:0pt; margin-bottom:0pt; line-height:140%; font-size:10pt;"><span
+                                style=" letter-spacing:-0.1pt; color:#ff0000;">(</span><span
+                                style=" letter-spacing:-0.1pt; color:#ff0000;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
+                                style=" letter-spacing:-0.1pt; color:#ff0000;">&nbsp;</span><span
+                                style=" letter-spacing:-0.1pt; color:#ff0000;">)의 국세환급금(국세환급가산금 포함) 등을 (&nbsp;</span><span
+                                style=" letter-spacing:-0.1pt; color:#ff0000;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
+                                style=" letter-spacing:-0.1pt; color:#ff0000;">)에게 양도하려고 「국세기본법」 제53조 및 같은 법 시행령 제43조의4제1항에 따라 위와 같이 요구합니다.</span><span
+                                style=" letter-spacing:-0.2pt; color:#ff0000;">&nbsp;</span></p>
+                    </td>
+                </tr>
+                <tr style="height:22.3pt;">
+                    <td colspan="12" style="width:514.6pt; padding:1.4pt; vertical-align:middle;">
+                        <p style="margin-top:0pt; margin-bottom:0pt; text-align:right; line-height:130%; font-size:10pt;">
+                            <span style="">년&nbsp;</span><span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
+                                style="">월&nbsp;</span><span style="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
+                                style="">일</span></p>
+                    </td>
+                </tr>
+                <tr style="height:22.3pt;">
+                    <td colspan="7" style="width:258.85pt; padding:1.4pt; vertical-align:middle;">
+                        <p style="margin-top:0pt; margin-bottom:0pt; text-align:right; line-height:130%; font-size:9pt;">
+                            <span style="">양도인</span></p>
+                    </td>
+                    <td colspan="5" style="width:252.95pt; padding:1.4pt; vertical-align:bottom;">
+                        <p style="margin-top:0pt; margin-bottom:0pt; text-align:right; line-height:130%; font-size:8pt;">
+                            <span style=" color:#666666;">(서명 또는 인)</span></p>
+                    </td>
+                </tr>
+                <tr style="height:22.3pt;">
+                    <td colspan="7" style="width:258.85pt; padding:1.4pt; vertical-align:middle;">
+                        <p style="margin-top:0pt; margin-bottom:0pt; text-align:right; line-height:130%; font-size:9pt;">
+                            <span style="">양수인</span></p>
+                    </td>
+                    <td colspan="5" style="width:252.95pt; padding:1.4pt; vertical-align:bottom;">
+                        <p style="margin-top:0pt; margin-bottom:0pt; text-align:right; line-height:130%; font-size:8pt;">
+                            <span style=" color:#666666;">만트럭버스코리아주식회사&nbsp;</span><span style=" color:#666666;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span
+                                style=" color:#666666;">&nbsp;</span><span style=" color:#666666;">(서명 또는 인)</span></p>
+                    </td>
+                </tr>
+                <tr style="height:24.3pt;">
+                    <td colspan="3"
+                        style="width:136.85pt; border-bottom:2.25pt solid #666666; padding:1.4pt; vertical-align:middle;">
+                        <p style="margin-top:0pt; margin-bottom:0pt; text-align:right; line-height:180%; font-size:13pt;">
+                            <strong><span style="">세무서장&nbsp;</span></strong></p>
+                    </td>
+                    <td colspan="9"
+                        style="width:374.95pt; border-bottom:2.25pt solid #666666; padding:1.4pt; vertical-align:middle;">
+                        <p style="margin-top:0pt; margin-left:7.5pt; margin-bottom:0pt; line-height:230%; font-size:10pt;">
+                            <span style="">귀하</span></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="12"
+                        style="width:514.6pt; border-top:2.25pt solid #7f7f7f; border-bottom:0.75pt solid #7f7f7f; padding:1.4pt; vertical-align:middle;">
+                        <p style="margin-top:0pt; margin-bottom:0pt; text-align:center; line-height:230%; font-size:1pt;">
+                            <span style="">&nbsp;</span></p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</apex:page>

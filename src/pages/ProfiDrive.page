@@ -1,0 +1,164 @@
+<!--
+ * @author : San.Kang
+ * @date : 2025-02-14
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-02-14      San.Kang          Initial Version
+-->
+<apex:page showHeader="false" applyBodyTag="false" applyHtmlTag="false" sidebar="false" renderAs="pdf" controller="DumpAutoCoverController" action="{!init}">
+    <head>
+        <style type="text/css" media="print">
+            @page{
+            
+            }
+            body{
+            align:center;
+            }
+            td{
+            align:center;
+            padding:8px;
+            font-size:12pt;
+            }
+            table{
+            width:700px;
+            border-spacing: 0px;
+            border:1px solid;
+            }
+            tr{
+            align:center;
+            }
+        </style>
+    </head>
+    <body style="font-family: Arial Unicode MS;">
+        <div style="page-break-after:always;">
+            <table style="border:none;padding-right:0px;">
+                <tr style="padding-right:0px;">
+                    <td align="right">
+                        <apex:image url="/servlet/servlet.FileDownload?file={!docImage1}" width="175" height="60"/>
+                    </td>
+                </tr>
+            </table>
+            <br/>
+            <table>
+                <tr>
+                    <td colspan="10" align="center">
+                        <h2 style="text-decoration:underline;">
+                            ProfiDrive 교육
+                        </h2>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="10" style="padding:15px;">
+                        <p>
+                            본 요청서를 소지하신 고객을 위하여 (아래 제원차량) 해당 서비스센터는 ProfiDrive 교육을 진행하여 주시기 바랍니다.
+                        </p>
+                        <p align="center">
+                            {!$CurrentPage.parameters.year}. {!$CurrentPage.parameters.month}. {!$CurrentPage.parameters.day}
+                        </p>
+                        <p align="right">
+                                <span style="font-size:13pt;">
+                                    만트럭버스코리아 주식회사
+                                </span>
+                        </p>
+                        <p align="right">
+                            <span style="font-size:11pt;">Head of Handover</span>
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <span style="font-size:13pt;">ByongJik Park</span>
+                            <img src="{!URLFOR($Resource.headSign, 'headSign/handover_head.png')}" width="120" height="60" style="vertical-align: middle;"/>
+
+                        </p>
+<!--                        <apex:variable value="" var="" rendered="{!URLFOR($Resource.headSign,'headSign/sales_head.png') == null}">-->
+<!--                            <p align="right">-->
+<!--                                <span style="font-size:11pt;">Head of Sales Truck</span>-->
+<!--                                &nbsp;&nbsp;&nbsp;&nbsp;-->
+<!--                                <span style="font-size:13pt;">ByongJik Park</span>-->
+<!--                                <img src="{!URLFOR($Resource.headSign, 'headSign/handover_head.png')}" width="120" height="60"/>-->
+
+<!--                            </p>-->
+<!--                        </apex:variable>-->
+<!--                        <apex:variable value="" var="" rendered="{!URLFOR($Resource.headSign,'headSign/sales_head.png') != null}">-->
+<!--                            <p align="right">-->
+<!--                                <span style="font-size:11pt;">Head of Sales Truck</span>-->
+<!--                                &nbsp;&nbsp;&nbsp;&nbsp;-->
+<!--                                <span style="font-size:13pt;">Evelyn Kassel</span>-->
+<!--                                <img src="{!URLFOR($Resource.headSign, 'headSign/sales_head.png')}" width="120" height="60"/>-->
+<!--                                &lt;!&ndash;                            <span style="font-size:11pt;">(인)</span>&ndash;&gt;-->
+<!--                                &lt;!&ndash;                            <apex:image url="/servlet/servlet.FileDownload?file={!uzIngam}" width="60" height="60"/>&ndash;&gt;-->
+<!--                            </p>-->
+<!--                        </apex:variable>-->
+                    </td>
+                </tr>
+                <tr align="center">
+                    <td colspan="1" style="border-top:1px solid; border-right:1px solid; width:20%;">샤시번호</td>
+                    <td colspan="4" style="border-top:1px solid; border-right:1px solid; width:30%;">
+                        <apex:outputText value="{!IF(ISBLANK(vehicleStock.VehicleNo__c), '', vehicleStock.VehicleNo__c)}" />
+                    </td>
+                    <td colspan="1" style="border-top:1px solid; border-right:1px solid; width:20%;">차대번호</td>
+                    <td colspan="4" style="border-top:1px solid; width:30%;">
+                        <apex:outputText value="{!IF(ISBLANK(vehicleStock.Name), '', vehicleStock.Name)}" />
+                    </td>
+                </tr>
+                <tr align="center">
+                    <td colspan="1" style="border-top:1px solid; border-right:1px solid;">고 객 명</td>
+                    <td colspan="4" style="border-top:1px solid; border-right:1px solid;">
+                        <apex:outputText value="{!IF(ISBLANK(opportunity.Account.Name), '', opportunity.Account.Name)}" />
+                    </td>
+                    <td colspan="1" style="border-top:1px solid; border-right:1px solid;">연 락 처</td>
+                    <td colspan="4" style="border-top:1px solid;">
+                        <apex:outputText value="{!IF(ISBLANK(opportunity.Account.PersonMobilePhone), '', opportunity.Account.PersonMobilePhone)}" />
+                    </td>
+                </tr>
+                <tr align="center">
+                    <td colspan="1" style="border-top:1px solid; border-right:1px solid;">교육 실시센터 명</td>
+                    <td colspan="4" style="border-top:1px solid; border-right:1px solid;">&nbsp;</td>
+                    <td colspan="1" style="border-top:1px solid; border-right:1px solid;">센터 교육자 명</td>
+                    <td colspan="4" style="border-top:1px solid;">&nbsp;</td>
+                </tr>
+                <tr align="center">
+                    <td colspan="1" style="border-top:1px solid; border-right:1px solid;">교육실시 일자</td>
+                    <td colspan="4" style="border-top:1px solid; border-right:1px solid;">&nbsp;</td>
+                    <td colspan="1" style="border-top:1px solid; border-right:1px solid;">고객 확인서명</td>
+                    <td colspan="4" style="border-top:1px solid;">&nbsp;</td>
+                </tr>
+            </table>
+            <br/><br/>
+            &lt;교육에 따른 안내 사항&gt;
+            <br/><br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1. 서비스센터에서 교육을 받으신 후, 작업지시서 및 위 고객 서명란에 확인 서명을 <br/><br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;해서 센터직원에게 주시기 바랍니다.<br/><br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2. 확인 서명 시, 제한적인 개인 정보 사용에 동의하는 것으로 간주 합니다.<br/><br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3. 교육이 제공 가능한 서비스센터는 뒷면을 참조하시기 바랍니다.<br/>
+            <br/><br/>
+            <span style="color:red;">*유효기한 : 차량의 보증 시작일과 같은 차량 최초 등록 일부터 {!Validity}일.</span><br/>
+        </div>
+        <!---------------------page 2----------------------------->
+        <div style="page-break-after:none;">
+            <table style="border:none;padding-right:0px;">
+                <tr style="padding-right:0px;">
+                    <td align="right">
+                        <apex:image url="/servlet/servlet.FileDownload?file={!docImage1}" width="175" height="60"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        아래의 서비스 센터에서 교육 제공이 가능합니다.
+                    </td>
+                </tr>
+                <!--
+                <tr>
+                    <td>
+                        
+                    </td>
+                </tr>
+                -->
+                <tr>
+                    <td align="center">
+                        <apex:image url="/servlet/servlet.FileDownload?file={!docImage4}" width="620" height="464"/>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </body>
+</apex:page>
