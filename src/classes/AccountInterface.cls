@@ -20,7 +20,7 @@ public with sharing class AccountInterface {
 
     @AuraEnabled
     public static void updateRecord(Account account) {
-        update account;// Test
+        update account;
     }
 
     @AuraEnabled
