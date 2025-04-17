@@ -1,0 +1,135 @@
+<!--
+ * @author : San.Kang
+ * @date : 2025-02-14
+ * @description : 임시운행허가신청서 PDF
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-02-14      San.Kang          Initial Version
+-->
+<apex:page showHeader="false" applyBodyTag="false"  sidebar="false" renderAs="pdf" controller="TankVolumeCertController" action="{!init}">
+    <head>
+        <style type="text/css" media="print">
+            @page{
+            
+            }
+            body{
+            align:center;
+            }
+            td{
+            align:center;
+            padding:8px;
+            font-size:12pt;
+            }
+            table{
+            width:700px;
+            border-spacing: 0px;
+            border:1px solid;
+            }
+            tr{
+            align:center;
+            }
+        </style>
+    </head>
+    <body style="font-family: Arial Unicode MS;">
+        <div>
+            <table style="border:none;padding-right:0px;">
+                <tr style="padding: 0 0 0 0;">
+                    <td style="padding: 0 0 0 0; font-weight:bolder; font-size:16pt; vertical-align: bottom;">
+                        MAN Truck &amp; Bus (Korea) Ltd.
+                    </td>
+                    <td align="right" style="padding: 0 0 0 0;">
+                        <apex:image url="/servlet/servlet.FileDownload?file={!docImage1}" width="175" height="60"/>
+                    </td>
+                </tr>
+                <tr style="padding: 0 0 0 0;">
+                    <td style="padding: 0 0 0 0; vertical-align: top;" colspan="2">
+                        3rd FL. 57, Borahagalro, GiHeung-gu, Yong-In Si, Gyeonggi-do, KOREA 17099
+                    </td>
+                </tr>
+            </table>
+            <br/>
+            <table style="border-left:none; border-right:none;">
+                <tr>
+                    <td width="20%" style="padding-bottom:0">
+                        수&nbsp;&nbsp;&nbsp;&nbsp;신&nbsp;:
+                    </td>
+                    <td width="30%" style="padding-bottom:0">
+                        자동차 등록 사업소
+                    </td>
+                    <td width="30%" style="padding-bottom:0">
+                    </td>
+                    <td style="padding-bottom:0">
+                        <apex:outputText value="{0,date,yyyy-MM-dd}">
+                            <apex:param value="{!TODAY()}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding-bottom:0">
+                        참&nbsp;&nbsp;&nbsp;&nbsp;조&nbsp;:
+                    </td>
+                    <td colspan="2" style="padding-bottom:0">
+                        담당자
+                    </td>
+                    <td style="padding-bottom:0">
+
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding-bottom:0">
+                        발&nbsp;&nbsp;&nbsp;&nbsp;신&nbsp;:
+                    </td>
+                    <td colspan="2" style="padding-bottom:0">
+                        만트럭버스코리아㈜ (Tel: 031-8014-5700)
+                    </td>
+                    <td style="padding-bottom:0">
+
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        제&nbsp;&nbsp;&nbsp;&nbsp;목&nbsp;:
+                    </td>
+                    <td colspan="2">
+                        연료탱크 용량 확인서
+                    </td>
+                    <td>
+
+                    </td>
+                </tr>
+
+            </table>
+            <br/><br/><br/>
+            1. 귀 원의 무궁한 발전을 기원합니다.
+            <br/><br/>
+            2. 당사에서 판매한 차량의 출하 시 연료탱크 용량을 아래와 같이 확인합니다.
+            <br/><br/><br/><br/>
+            ■ 확인 차량
+            <br/><br/>
+            <table style="border:none; border-collapse:collapse;">
+                <tr>
+                    <td width="50%" style="padding-bottom:0; padding-top:0; text-align:center; border:1px solid;">
+                        차대번호
+                    </td>
+                    <td width="50%" style="padding-bottom:0; padding-top:0; text-align:center; border:1px solid;">
+                        출하 시 장착된 연료탱크 용량
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding-bottom:0; padding-top:0; text-align:center; border:1px solid;">
+                        {!vin}
+                    </td>
+                    <td style="padding-bottom:0; padding-top:0; text-align:center; border:1px solid;">
+                        {!volume}&nbsp;L
+                    </td>
+                </tr>
+            </table>
+            <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+            <div style="text-align:center;">
+                만트럭버스코리아 주식회사<br/>
+                대 표 이 사&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;피터 앤더슨
+            </div>
+        </div>
+    </body>
+</apex:page>

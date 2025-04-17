@@ -1,0 +1,70 @@
+<!--
+ * @author : San.Kang
+ * @date : 2025-03-06
+ * @description : 
+ * @target : 
+==============================================================
+ * Ver          Date            Author          Modification
+ * 1.0          2025-03-06      San.Kang          Initial Version
+-->
+<apex:page showHeader="false" renderAs="pdf" sidebar="false" controller="SNSAgreementController" action="{!init}">
+
+    <body style="font-family: Arial Unicode MS; line-height:2em; padding: 1% 10% 1% 10%; margin: 1% 1% 1% 1%;">
+        <p align="center">
+            <span style="font-size:22pt;"><strong>고 객 &nbsp;동 의 서</strong></span><br/>
+            (SNS 업로드 및 홍보)
+        </p>
+        <p align="center">
+            &nbsp;
+        </p>
+        <ul>
+            <li>
+                <span>고객 성명&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;
+                    {!IF(ISNULL(opportunity.Account.RealDriver__pc), '', opportunity.Account.RealDriver__pc)}
+                </span>
+            </li>
+            <li>
+                고객 연락처&nbsp;<span style="font-size:4pt; line-height:2em;">&nbsp;</span>:&nbsp;
+                {!IF(ISNULL(opportunity.Account.RealDriverMobile__pc), '', opportunity.Account.RealDriverMobile__pc)}
+            </li>
+            <li>
+                <span>차대 번호&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;
+                        {!IF(ISNULL(opportunity.VehicleStock__r.Name), '', opportunity.VehicleStock__r.Name)}
+                </span>
+            </li>
+        </ul>
+        <p align="left">
+            &nbsp;
+        </p>
+        <p style="text-align: justify;">
+            본인(고객)은 본 차량 출고 관련 기념 사진 및 홍보 문구를 본인 계정의 SNS 또는 모바일 애플리케이션에 자발적 게시하는 것에 대한 내용을 인지 하였으며, 이에 동의 합니다</p>
+        <p>
+            &nbsp;
+        </p>
+        <p>
+            &nbsp;
+        </p>
+        <p style="text-align: right;">
+            <apex:outputText value="{0, date, yyyy}">
+                <apex:param value="{!TODAY()}"/>
+            </apex:outputText>&nbsp;년
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <apex:outputText value="{0, date, M}">
+                <apex:param value="{!TODAY()}"/>
+            </apex:outputText>&nbsp;월
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <apex:outputText value="{0, date, d}">
+                <apex:param value="{!TODAY()}"/>
+            </apex:outputText>&nbsp;일
+        </p>
+        <p align="center">
+            &nbsp;
+        </p>
+        <p style="margin-left: 20.15pt; text-align: right;">
+            고객 성명 :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(인)
+        </p>
+        <p>
+            &nbsp;
+        </p>
+    </body>
+</apex:page>
