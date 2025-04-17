@@ -10,6 +10,7 @@ node_modules/
 /out/
 **lwc_types.xml
 **All_Tests.xml
+*.iml
 **config.json
 **/tsconfig*.json
 **/*.tsbuildinfo
