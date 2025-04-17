@@ -1,8 +1,8 @@
 ### INIT 이후 설정사항
-git update-index --skip-worktree sfdx-project.json
-git update-index --skip-worktree MBTK_TRIAL_QA.iml
-git update-index --skip-worktree .forceignore
-git update-index --skip-worktree .gitignore
+1. git update-index --skip-worktree sfdx-project.json
+2. git update-index --skip-worktree MBTK_TRIAL_QA.iml
+3. git update-index --skip-worktree .forceignore
+4. git update-index --skip-worktree .gitignore
 
 ### Rollback Scenario
 
