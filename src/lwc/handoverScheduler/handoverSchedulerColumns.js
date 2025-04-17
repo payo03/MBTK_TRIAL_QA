@@ -314,7 +314,7 @@ const stockColumns = [
 
 const fieldApiMapping = {
 	paymentStatus: "fm_PaymentStatus__c",
-	vehicleStatus: "VehicleStock__r.VehicleStatus__c",
+	vehicleStatus: "Opportunity__r.VehicleStock__r.VehicleStatus__c",
 	startDate: "Opportunity__r.HandoverDate__c >",
 	endDate: "Opportunity__r.HandoverDate__c <"
 };
