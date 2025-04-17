@@ -32,7 +32,7 @@ export default class FileUploader extends NavigationMixin(LightningElement) {
 	isVAT;
 	fileSize = 0;
 	fileIndex = 1; // 부가세 후취 파일 인덱스 번호
-	acceptedFormats = [".jpg", ".png", ".pdf", ".heic"];
+	acceptedFormats = [".jpg",".jpeg",".png", ".pdf", ".heic"];
 	@track storeFileList = [];
 
 	originalCheckValues = {};

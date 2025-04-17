@@ -76,7 +76,7 @@ export default class PdiStep3View extends LightningElement {
 		this.isLoading = true;
 		step3Init({ vinId: this._selectedVIN.Id}).then(res => {
 			console.log('테스트 productId :: ', res);
-			let filterMap = {"Opportunity__r.VehicleStock__r.Product__c" : res};
+			const filterMap = {"Opportunity__r.VehicleStock__r.Product__c" : res};
 			// filterMap.Opportunity__r.IsClosed = false;
 			getFilteredHandoverList({ filterMap: filterMap }).then(res => {
 				this.opportunityList = res;

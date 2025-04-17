@@ -7,207 +7,158 @@
  * Ver          Date            Author          Modification
  * 1.0          2025-02-13      San.Kang          Initial Version
 -->
-<apex:page showHeader="false" sidebar="false" applyBodyTag="false" applyHtmlTag="false" renderAs="pdf" standardController="Opportunity" >
-<!--<apex:page showHeader="false" sidebar="false" applyBodyTag="false" applyHtmlTag="false" renderAs="pdf" standardController="Opportunity" extensions="SalesResultReportController">-->
-<!--    <head>-->
-<!--        <style>-->
-<!--            @page{-->
-<!--            margin-top: 0.05cm;-->
-<!--            margin-bottom: 0.05cm;-->
-<!--            margin-left: 0.5cm;-->
-<!--            margin-right: 0.5cm;-->
-<!--            }-->
-<!--            td{-->
-<!--            white-space:nowrap;-->
-<!--            overflow:hidden;-->
-<!--            bordercolor:#FFFFFF;-->
-<!--            border:0.7px solid;-->
-<!--            }-->
-<!--            .slash {-->
-<!--            background: url("{!URLFOR($Resource.slash,'slash.png')}");-->
-<!--            background-position: center;-->
-<!--            background-repeat: no-repeat;-->
-<!--            background-size: 100% 100%;-->
-<!--            text-align: left;-->
-<!--            }-->
-<!--            .backslash {-->
-<!--            background: url("{!URLFOR($Resource.slash,'backslash.png')}");-->
-<!--            background-size: 100%;-->
-<!--            text-align: left;-->
-<!--            }-->
-<!--            .slash div, .backslash div { text-align: right; }-->
-<!--            <head>-->
-<!--        </head>-->
-<!--        </style>-->
-<!--    </head>-->
-<!--    <div style="height:100%;" >-->
-<!--        <table align="center" border="1" bordercolor="black" cellpadding="0" cellspacing="0" style="width:700px;border-top:none;border-left:none;border-right:none;border-bottom:none;" >-->
-<!--            <tbody>-->
-<!--            <tr align="right">-->
-<!--                <td colspan="8" style="border:none; align:right;">-->
-<!--                    <apex:outputText value="{0,date,yyyy'. 'M'. 'd}" style="font-family: Arial Unicode MS; font-size: 7pt">-->
-<!--                        <apex:param value="{!TODAY()}" />-->
-<!--                    </apex:outputText>-->
-<!--                </td>-->
-<!--            </tr>-->
-<!--            <tr>-->
-<!--                <td style="border:1.5px solid; border-bottom:none;border-right:none;" colspan="4" align="center" valign="top">-->
-<!--                    <apex:outputLabel value="{!expect} REPORT" style="font-family: Arial Unicode MS; font-size: 12pt" rendered="{!mode=='r'}"/>-->
-<!--                </td>-->
-<!--                <td style="border:1.5px solid; width:30%;border-right:none;border-bottom:none;border-left:none;" colspan="2">-->
-<!--                    <apex:outputText value="고객명 : {!opportunity.Account.Name}" style="font-family: Arial Unicode MS; font-size: 8pt;"/>-->
-<!--                </td>-->
-<!--                <td style="border:1.5px solid; width:30%;border-bottom:none;border-left:none;" colspan="2">-->
-<!--                    <apex:outputText value="{!opportunity.Account.RecordType.Name}" style="font-family: Arial Unicode MS; font-size: 8pt;"/>-->
-<!--                    &nbsp;&nbsp;&nbsp;-->
-<!--&lt;!&ndash;                    <apex:outputText value="신용 : {!opportunity.Account.CreditLayer__c}" style="font-family: Arial Unicode MS; font-size: 8pt;"/>&ndash;&gt;-->
-<!--                </td>-->
-<!--            </tr>-->
-<!--            <tr>-->
-<!--                <td style="border:1.5px solid; border-right:none;border-top:none;border-bottom:none;" rowspan="4" colspan="4" align="center" valign="middle">-->
-<!--                    <apex:image url="/servlet/servlet.FileDownload?file={!docImage1}" width="125" height="40"/>-->
-<!--                </td>-->
+<!--<apex:page showHeader="false" sidebar="false" applyBodyTag="false" applyHtmlTag="false" renderAs="pdf" standardController="Opportunity" >-->
+<apex:page showHeader="false" sidebar="false" applyBodyTag="false" applyHtmlTag="false" renderAs="pdf" standardController="Opportunity" extensions="SalesResultReportController">
+    <head>
+        <style>
+            @page{
+            margin-top: 0.05cm;
+            margin-bottom: 0.05cm;
+            margin-left: 0.5cm;
+            margin-right: 0.5cm;
+            }
+            td{
+            white-space:nowrap;
+            overflow:hidden;
+            bordercolor:#FFFFFF;
+            border:0.7px solid;
+            }
+            .slash {
+            background: url("{!URLFOR($Resource.slash,'slash.png')}");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            text-align: left;
+            }
+            .backslash {
+            background: url("{!URLFOR($Resource.slash,'backslash.png')}");
+            background-size: 100%;
+            text-align: left;
+            }
+            .slash div, .backslash div { text-align: right; }
+            <head>
+        </head>
+        </style>
+    </head>
+    <div style="height:100%;  border: 1px solid black;" >
+        <div style="height:100%; ">
+            <table align="center" cellpadding="0" cellspacing="0"
+                   style="width:100%; border-collapse:collapse; margin: 0 auto;">
+                <tbody>
+                <!-- 날짜 -->
 
-<!--                <td style="border:none;" colspan="2">-->
-<!--                    <apex:outputText value="주민번호 : {!opportunity.Account.IDNumber__pc + '-XXXXXXX'}" style="font-family: Arial Unicode MS; font-size: 8pt;"/>-->
-<!--                </td>-->
-<!--                <td style="border:1.5px solid; border-left:none;border-top:none;border-bottom:none;" colspan="2">-->
-<!--                    <apex:outputLabel value="세금계산서명의 : {!opportunity.Account.Name}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
-<!--                </td>-->
-<!--            </tr>-->
-<!--            <tr>-->
-<!--                <td style="border:none;" colspan="2">-->
-<!--                    <apex:outputLabel value="사업자번호 : {!opportunity.Account.BusinessNumber__c}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
-<!--                </td>-->
-<!--                <td style="border:1.5px solid; border-left:none;border-top:none;border-bottom:none;" colspan="2">-->
-<!--                    <apex:outputLabel value="연락처 : {!opportunity.Account.PersonMobilePhone}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
-<!--                </td>-->
-<!--            </tr>-->
-<!--            <tr>-->
-<!--                <td style="border:none;" colspan="2">-->
-<!--                    <apex:outputLabel value="실차주 : {!opportunity.Account.RealDriver__pc}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
-<!--                </td>-->
-<!--                <td style="border:1.5px solid; border-left:none;border-top:none;border-bottom:none;" colspan="2">-->
-<!--                    <apex:outputLabel value="등본(인감)주소:{!opportunity.Account.RoadAddress__c + account.DetailAddress__c}" style="font-family: Arial Unicode MS; font-size: 6pt"/>-->
-<!--                </td>-->
-<!--            </tr>-->
-<!--            <tr>-->
-<!--                <td style="border:none;" colspan="2">-->
-<!--                    <apex:outputText value="출고일 : {0,date,yyyy'년 'M'월 'd'일'}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
-<!--                        <apex:param value="{!IF(opportunity.VehicleStock__r.WantedOutDT__c!=null,opportunity.VehicleStock__r.WantedOutDT__c,opportunity.HandoverDate__c)}" />-->
-<!--                    </apex:outputText>-->
-<!--                </td>-->
-<!--&lt;!&ndash;                여기도 알아보자&ndash;&gt;-->
-<!--                <td style="border:1.5px solid; border-left:none;border-top:none;border-bottom:none;" colspan="2">-->
-<!--&lt;!&ndash;                    <apex:outputLabel value="사업장주소:{!opportunity.bAddr__r.Name} {!IF(opportunity.bAddrDetail__c!=null,opportunity.bAddrDetail__c,'')}" style="font-family: Arial Unicode MS; font-size: 6pt"/>&ndash;&gt;-->
-<!--                </td>-->
-<!--            </tr>-->
-<!--            <tr>-->
-<!--                <td style="border:1.5px solid; border-right:none;border-top:none;border-bottom:none;" colspan="4" align="center">-->
-<!--                    <apex:outputLabel value="지점명 : {!opportunity.Account.Owner.Agency__c}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
-<!--                </td>-->
-<!--&lt;!&ndash;                여기도 알아보자&ndash;&gt;-->
-<!--                <td style="border:none;" colspan="2">-->
-<!--&lt;!&ndash;                    <apex:outputLabel value="작업장 : {!opportunity.Account.Owner.}" style="font-family: Arial Unicode MS; font-size: 8pt"/>&ndash;&gt;-->
-<!--                </td>-->
-<!--                <td style="border:1.5px solid; border-left:none;border-top:none;border-bottom:none;" colspan="2">-->
-<!--                    &lt;!&ndash;<apex:outputLabel value="출하번호 : {!opportunity.DnNo__c}" style="font-family: Arial Unicode MS; font-size: 8pt"/>&ndash;&gt;-->
+                <!-- 상단 요약 -->
+                <tr>
+                    <td colspan="6" style="border: none; text-align: center; font-family: Arial Unicode MS; font-size: 12pt;">
+<!--                        <apex:outputLabel value="{!expect} REPORT" rendered="{!mode=='r'}"/>-->
+                        <apex:outputLabel value="{!expect} REPORT"/>
+                    </td>
+                    <td colspan="2" style="border: none; font-family: Arial Unicode MS; font-size: 8pt;">
+                        고객명 : {!name}
+                    </td>
+                    <td colspan="2" style="border: none; font-family: Arial Unicode MS; font-size: 8pt;">
+                        계약서 번호 : {!contractNumber}
+                    </td>
+                </tr>
 
-<!--                    <apex:outputLabel value="영업기회ID : {!$CurrentPage.parameters.Id}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
-<!--                </td>-->
-<!--            </tr>-->
-<!--            <tr>-->
+                <!-- 로고 & 고객 정보 -->
+                <tr>
+                    <td rowspan="4" colspan="6" style="border: none; text-align: center;" valign="middle">
+                        <apex:image url="/servlet/servlet.FileDownload?file={!docImage1}" width="125" height="40"/>
+                    </td>
+                    <td colspan="2" style="border: none; font-family: Arial Unicode MS; font-size: 8pt;">
+                        주민(법인)번호 : {!compRegNum}
+                    </td>
+                    <td colspan="2" style="border: none; font-family: Arial Unicode MS; font-size: 8pt;">
+                        세금계산서 발행일 : {!taxInvoiceDate}
+                    </td>
+                </tr>
 
-<!--                <td style="border:1.5px solid; border-right:none;border-top:none;" colspan="4" align="center">-->
-<!--                    <apex:outputLabel value="판매자 : {!opportunity.Account.Owner.Name}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
-<!--                </td>-->
-<!--                <td style="border:1.5px solid; border-right:none;border-top:none;border-left:none;" colspan="2">-->
-<!--                    <apex:outputLabel value="용 도 : {!opportunity.VehicleStock__r.Product__r.Segment2__c}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
-<!--                </td>-->
-<!--                <td style="border:1.5px solid; border-left:none;border-top:none;" colspan="2">-->
-<!--                    <apex:outputLabel value="차대번호 : {!opportunity.VehicleStock__r.Name}" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
-<!--                </td>-->
-<!--            </tr>-->
-<!--            <tr style="height:5.65pt">-->
-<!--            </tr>-->
-<!--            <tr>-->
-<!--                <td colspan="8" align="center" style="height:16px;border:1.5px solid;">-->
-<!--                    <table align="center" border="0" bordercolor="black" cellpadding="0" cellspacing="0" style="width:100%">-->
-<!--                        <tr>-->
-<!--                            <td style="width:10%;" align="center">-->
-<!--                                <apex:outputLabel value="차 종" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
-<!--                            </td>-->
-<!--                            <td align="center">-->
-<!--                                <apex:outputLabel value="{!opportunity.VehicleStock__r.Product__r.Name}" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
-<!--                                <apex:outputLabel value=" / {!opportunity.VehicleStock__r.CarColor__c}" style="font-family: Arial Unicode MS; font-size: 7pt" rendered="{!opportunity.VehicleStock__r.CarColor__c!=null}" />-->
-<!--                            </td>-->
-<!--                        </tr>-->
-<!--                    </table>-->
-<!--                </td>-->
-<!--            </tr>-->
-<!--            </tbody>-->
-<!--        </table>-->
-<!--        <table align="center" border="1" bordercolor="black" cellpadding="0" cellspacing="0" style="width:700px;border-top:none;border-left:none;border-right:none;border-bottom:none;">-->
-<!--            <tbody>-->
-<!--            <tr align="center" >-->
-<!--                <td rowspan="9" style="height:12px;border-right:none;border-top:none;">-->
-<!--                    <apex:outputLabel value="차" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
-<!--                    <apex:outputLabel value="량" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
-<!--                    <apex:outputLabel value="가" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
-<!--                    <apex:outputLabel value="격" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
-<!--                </td>-->
-<!--                <td colspan="3" style="width:500px;height:12px;border-right:none;border-top:none;">-->
-<!--                    <apex:outputLabel value="차" style="font-family: Arial Unicode MS; font-size: 8pt"/>&nbsp;&nbsp;-->
-<!--                    <apex:outputLabel value="량" style="font-family: Arial Unicode MS; font-size: 8pt"/>&nbsp;&nbsp;-->
-<!--                    <apex:outputLabel value="가" style="font-family: Arial Unicode MS; font-size: 8pt"/>&nbsp;&nbsp;-->
-<!--                    <apex:outputLabel value="격" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
-<!--                </td>-->
-<!--                <td colspan="1" style="height:12px;border-top:none;">-->
-<!--                    <apex:outputText value="{0, number, ####,###,##0 원}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
-<!--                        <apex:param value="{!opportunity.CarAmt__c}" />-->
-<!--                    </apex:outputText>-->
+                <tr>
+                    <td colspan="2" style="border: none; font-family: Arial Unicode MS; font-size: 8pt;">
+                        사업자번호 : {!businessNumber}
+                    </td>
+                    <td colspan="2" style="border: none; font-family: Arial Unicode MS; font-size: 8pt;">
+                        연락처 : {!phoneNumber}
+                    </td>
+                </tr>
 
-<!--                </td>-->
-<!--                <td rowspan="8" style="width:10px;height:16px;border-left:none;border-right:none;border-top:none;">-->
-<!--                    <apex:outputLabel value="금" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
-<!--                    <apex:outputLabel value="융" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
-<!--                    <apex:outputLabel value="시" style="font-family: Arial Unicode MS; font-size: 8pt"/><br />-->
-<!--                    <apex:outputLabel value="책" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
-<!--                </td>-->
+                <tr>
+                    <td colspan="4" style="border: none; font-family: Arial Unicode MS; font-size: 8pt;">
+                        실차주 : {!realDriver}
+                    </td>
+                </tr>
+                <!-- 차량 정보 박스 -->
+                </tbody>
+                <tr>
+                    <td colspan="10" style="border: none; text-align: center; font-family: Arial Unicode MS; font-size: 8pt;">
+                        <table border="0" cellpadding="0" cellspacing="0" style="width:100%; font-family: Arial Unicode MS; font-size: 8pt;">
+                            <tr>
+                                <td style="width:5%; text-align:center;">
+                                    차 종
+                                </td>
+                                <td style="width:60%; text-align:center;">>
+                                    {!vehicleName}
+                                </td>
+                                <td style="width:5%; text-align:center;">
+                                    색 상
+                                </td>
+                                <td style="width:30%; text-align:center;">
+                                    {!carColor}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="10" style="border: none; text-align: center; font-family: Arial Unicode MS; font-size: 8pt;">
+                        <table border="0" cellpadding="0" cellspacing="0" style="width:100%; font-family: Arial Unicode MS; font-size: 8pt;">
+                            <tr>
+                                <td style="width:60%; text-align:center;">
+                                    차량 가격
+                                </td>
+                                <td style="width:40%; text-align:center;">
+<!--                                    !@#차량가격 -->
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="10" style="border: none; text-align: center; font-family: Arial Unicode MS; font-size: 6pt;">
+                        <table border="0" cellpadding="0" cellspacing="0" style="width:100%; font-family: Arial Unicode MS; font-size: 8pt;">
+                            <apex:outputPanel >
+                                <!-- 값이 있는 경우 반복 -->
+                                <apex:repeat value="{!otherWrappers}" var="item" first="1" rows="7" rendered="{!otherWrappers.size > 0}">
+                                    <tr>
+                                        <td style="width:10%; text-align:center;">
+                                            <apex:outputLabel value="옵션{!item.index}"/>
+                                        </td>
+                                        <td style="width:50%; text-align:center;">
+                                            <apex:outputLabel value="{!item.productOption.Name}"/>
+                                        </td>
+                                        <td style="width:40%; text-align:center;">
+<!--                                            <apex:outputLabel value="{!item.productOption.VehicleOptionMaster__r.Price__c}" />-->
+                                        </td>
+                                    </tr>
+                                </apex:repeat>
 
-<!--                <td rowspan="5" colspan="4" align="left" valign="top" style="width:34%;border-top:none;">-->
-<!--                    <table align="center" border="1" bordercolor="black" cellpadding="0" cellspacing="0" style="width:100%;border-top:none;border-left:none;border-right:none;border-bottom:none;">-->
-<!--                        <tr>-->
-<!--                            <td colspan="3" align="center" style="border-left:none;border-right:none;border-top:none;">-->
-<!--                                <apex:outputLabel value="금융시책명" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
-<!--                            </td>-->
-<!--                            <td colspan="4" align="center" style="border-right:none;border-top:none;">-->
-<!--                                <apex:outputLabel value="금 액" style="font-family: Arial Unicode MS; font-size: 8pt"/>-->
-<!--                            </td>-->
-<!--                        </tr>-->
-<!--                        <tr>-->
-<!--                            <td colspan="3" align="center" style="border-left:none;border-top:none;border-right:none;">-->
-<!--                                <apex:outputLabel value="부가세 유예" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
-<!--                            </td>-->
-<!--                            <td colspan="4" align="center" style="border-top:none;border-left:none;border-right:none;">-->
-<!--                                <apex:outputText value="{0, number, ####,###,##0 원}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
-<!--                                    <apex:param value="{!opportunity.TaxDeferredAmount__c}" />-->
-<!--                                </apex:outputText>-->
-<!--                            </td>-->
-<!--                        </tr>-->
-<!--                        <tr>-->
-<!--                            <td colspan="3" align="center" style="border-left:none;border-top:none;border-right:none;">-->
-<!--                                <apex:outputLabel value="캐피탈이자비용" style="font-family: Arial Unicode MS; font-size: 7pt"/>-->
-<!--                            </td>-->
-<!--                            <td colspan="4" align="center" style="border-top:none;border-left:none;border-right:none;">-->
-<!--                                <apex:outputText value="{0, number, ####,###,##0 원}" style="font-family: Arial Unicode MS; font-size: 8pt">-->
-<!--                                    <apex:param value="{!TotIntAmt}" />-->
-<!--                                </apex:outputText>-->
-<!--                            </td>-->
-<!--                        </tr>-->
-<!--                    </table>-->
-<!--                </td>-->
-<!--            </tr>-->
+                                <!-- 값이 없는 경우 대체 출력 -->
+                                <apex:outputPanel rendered="{!ISNULL(otherWrappers) || otherWrappers.size = 0}">
+                                    <tr>
+                                        <td colspan="3" style="text-align:center;">
+                                            옵션이 없습니다.
+                                        </td>
+                                    </tr>
+                                </apex:outputPanel>
+                            </apex:outputPanel>
+
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
 
 <!--            <apex:repeat value="{!defaultWrappers}" var="item" first="0" rows="4">-->
 <!--                <tr align="center">-->
@@ -844,5 +795,5 @@
 <!--                </tr>-->
 <!--            </tbody>-->
 <!--        </table>-->
-<!--    </div>-->
+    </div>
 </apex:page>

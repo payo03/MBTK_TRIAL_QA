@@ -287,27 +287,6 @@
                         </tr>
                     </apex:repeat>
                 </apex:outputPanel>
-                <!-- <apex:repeat value="{!optionList}" var="option">
-                    <tr style="background-color: #F2F2F2;">
-                        <td style="height: 30px;">+ Option</td>
-                        <td style="height: 30px;">{!option.VehicleOptionMaster__r.FamliyName__c}</td>
-                        <td style="height: 30px;">{!option.Name}</td>
-                    </tr>
-                </apex:repeat> -->
-                <!-- <apex:repeat value="{!accyList}" var="accy">
-                    <tr style="background-color: #E8E8E8;">
-                        <td style="height: 30px;">Accessory</td>
-                        <td style="height: 30px;">{!accy.VehicleOptionMaster__r.FamliyName__c}</td>
-                        <td style="height: 30px;">{!accy.Name}</td>
-                    </tr>
-                </apex:repeat>
-                <apex:repeat value="{!warrantyList}" var="warranty">
-                    <tr style="background-color: #DCDCDC;">
-                        <td style="height: 30px;">Warranty</td>
-                        <td style="height: 30px;">{!warranty.VehicleOptionMaster__r.ServiceItemsMaster__r.Name}</td>
-                        <td style="height: 30px;">{!warranty.Name}</td>
-                    </tr>
-                </apex:repeat> -->
             </table>
             <table style="margin-top: 20px; page-break-before: auto;">
                 <colgroup>
@@ -370,7 +349,7 @@
                     </tr>
                 </apex:outputPanel>
                 <!-- 1. 서비스 품목을 선택하지 않아서 기본으로 들어간 No carefree 밖에 없음 (warrantyDetailList.size == 0) -->
-                <apex:outputPanel rendered="{!ISNULL(warrantyDetail)}">
+                <!-- <apex:outputPanel rendered="{!ISNULL(warrantyDetail)}">
                     <tr>
                         <td colspan="2" style="text-align: left;">{!warrantyList[0].Name}
                             <br/>
@@ -380,38 +359,38 @@
                             No Carefree를 선택하셨습니다.
                         </td>
                     </tr>
-                </apex:outputPanel>
-                <!-- <apex:outputPanel layout="none" rendered="{!NOT(ISNULL(warrantyDetail))}">
                 </apex:outputPanel> -->
-                <apex:repeat value="{!warrantyList}" var="warranty">
-                    <apex:outputPanel layout="none" rendered="{!NOT(warranty.VehicleOptionMaster__r.IsRequired__c)}">
-                        <tr>
-                            <td colspan="2" style="text-align: left;">{!warranty.VehicleOptionMaster__r.ServiceItemsMaster__r.Name}: 
-                                {!warranty.VehicleOptionMaster__r.ServiceItemsMaster__r.Description__c}
-                                <br/>
-                                <br/>
-                                유지보수 세부내용
-                                <br/>
-                                {!warranty.VehicleOptionMaster__r.ServiceItemsMaster__r.Name}
-                                <br/>
-                                <br/>
-                            </td>
-                        </tr>
-                        <apex:repeat value="{!warrantyDetail}" var="entry">
-                            <apex:outputPanel layout="none" rendered="{!ISNULL(warrantyDetail[entry])}">
-                                <tr>
-                                    <td colspan="2">Data not Found</td>
-                                </tr>
-                            </apex:outputPanel>
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISNULL(warrantyDetail[entry]))}">
-                                <tr>
-                                    <td style="text-align: left; ">{!entry}</td>
-                                    <td style="text-align: right;">{!warrantyDetail[entry]}</td>
-                                </tr>
-                            </apex:outputPanel>
-                        </apex:repeat>
-                    </apex:outputPanel>
-                </apex:repeat>
+                <apex:outputPanel rendered="{!NOT(ISNULL(warrantyList))}">
+                    <apex:repeat value="{!warrantyList}" var="warranty">
+                        <apex:outputPanel layout="none" rendered="{!NOT(warranty.VehicleOptionMaster__r.IsRequired__c)}">
+                            <tr>
+                                <td colspan="2" style="text-align: left;">{!warranty.VehicleOptionMaster__r.ServiceItemsMaster__r.Name}: 
+                                    {!warranty.VehicleOptionMaster__r.ServiceItemsMaster__r.Description__c}
+                                    <br/>
+                                    <br/>
+                                    유지보수 세부내용
+                                    <br/>
+                                    {!warranty.VehicleOptionMaster__r.ServiceItemsMaster__r.Name}
+                                    <br/>
+                                    <br/>
+                                </td>
+                            </tr>
+                            <apex:repeat value="{!warrantyDetail}" var="entry">
+                                <apex:outputPanel layout="none" rendered="{!ISNULL(warrantyDetail[entry])}">
+                                    <tr>
+                                        <td colspan="2">Data not Found</td>
+                                    </tr>
+                                </apex:outputPanel>
+                                <apex:outputPanel layout="none" rendered="{!NOT(ISNULL(warrantyDetail[entry]))}">
+                                    <tr>
+                                        <td style="text-align: left; ">{!entry}</td>
+                                        <td style="text-align: right;">{!warrantyDetail[entry]}</td>
+                                    </tr>
+                                </apex:outputPanel>
+                            </apex:repeat>
+                        </apex:outputPanel>
+                    </apex:repeat>
+                </apex:outputPanel>
                 <hr/>
             </table>
             <table style="margin-top: 3.5em; page-break-before: always;">

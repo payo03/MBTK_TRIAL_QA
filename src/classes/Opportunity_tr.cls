@@ -14,6 +14,8 @@
   1.6      2025-03-13      payo03@solomontech.net           재고이동요청 CALL After Update로 분리
   1.7      2025-03-21      San.Kang                         개인정보 미동의 시 필드 락 로직 추가
   1.8      2025-03-31      chaebeom.do                      인도금 유예 신규추가시 금액 재조정 insert
+  1.9      2025-04-16      th.kim                           updateIncentiveHistory() 추가
+  1.10     2025-04-16      th.kim                           부가세 유예일 수 기회에 업데이트 추가
 */
 global without sharing class Opportunity_tr extends TriggerHandler {
 
@@ -28,7 +30,7 @@ global without sharing class Opportunity_tr extends TriggerHandler {
     private final List<Map<String, Object>> requestStockMapList { get; set; }
 
     private final static List<String> updateStatusList = new List<String>{
-        '승인됨', '반려됨'
+            '승인됨', '반려됨'
     };
 
     public Opportunity_tr() {
@@ -83,15 +85,16 @@ global without sharing class Opportunity_tr extends TriggerHandler {
 
         Map<Id, Opportunity> opportunityMap = new Map<Id, Opportunity>();
         for (Opportunity obj : [
-            SELECT Id, VATDeferredApprover__c, PaymentDeferredApprover1__c, PaymentDeferredApprover2__c, PaymentDeferredApprover3__c, (
-                SELECT Id, Comments, StepStatus, ActorId
-                FROM ProcessSteps
-                WHERE StepStatus IN ('Approved', 'Rejected')
-                ORDER BY CreatedDate DESC
-                LIMIT 1
-            )
-            FROM Opportunity
-            WHERE Id IN :VATdeferredActionList
+                SELECT Id, VATDeferredApprover__c, PaymentDeferredApprover1__c, PaymentDeferredApprover2__c,
+                        PaymentDeferredApprover3__c, VATDeferredDays__c, (
+                        SELECT Id, Comments, StepStatus, ActorId
+                        FROM ProcessSteps
+                        WHERE StepStatus IN ('Approved', 'Rejected')
+                        ORDER BY CreatedDate DESC
+                        LIMIT 1
+                )
+                FROM Opportunity
+                WHERE Id IN :VATdeferredActionList
         ]) {
             /* 2025.01.14 Sprint2 리뷰. Validation 해제
             // 승인, 반려자가 명확한지 Validation
@@ -106,25 +109,26 @@ global without sharing class Opportunity_tr extends TriggerHandler {
 
         // TODO. 유예요청을 각 단계별로 관리해야한다면.... 재설계 필요함(현재설계기준. Comment는 최종 승인-반려에 대한 Comment만 기록)
         List<DefermentRequest__c> requestList = [
-            SELECT Id, Opportunity__c, DeferredAmount__c, Comment__c, Status__c, Type__c
-            FROM DefermentRequest__c
-            WHERE Opportunity__c = :opportunityMap.keySet()
-            AND Status__c = 'IN_PROGRESS'
-            AND Type__c = :approvalType
+                SELECT Id, Opportunity__c, DeferredAmount__c, Comment__c, Status__c, Type__c, RequestDays__c
+                FROM DefermentRequest__c
+                WHERE Opportunity__c = :opportunityMap.keySet()
+                AND Status__c = 'IN_PROGRESS'
+                AND Type__c = :approvalType
         ];
 
         // ver1.8 도채범 인도금 유예 신규추가시 금액 재조정 insert
         Map<String, PaymentType__c> opptyTypeMap = new Map<String, PaymentType__c>();     // KEY : Opportunity, VALUE : PaymentType
         for (PaymentType__c type : [
-            SELECT Id, Type__c, RequestAmount__c, PaymentTracker__c, PaymentTracker__r.Opportunity__c
-            FROM PaymentType__c
-            WHERE PaymentTracker__r.Opportunity__c IN :opportunityMap.keySet()
-            AND Type__c = '2_DOWN_PAYMENT'
+                SELECT Id, Type__c, RequestAmount__c, PaymentTracker__c, PaymentTracker__r.Opportunity__c
+                FROM PaymentType__c
+                WHERE PaymentTracker__r.Opportunity__c IN :opportunityMap.keySet()
+                AND Type__c = '2_DOWN_PAYMENT'
         ]) {
             opptyTypeMap.put(type.PaymentTracker__r.Opportunity__c, type);
         }
 
         List<PaymentType__c> upsertTypeList = new List<PaymentType__c>();
+        List<Opportunity> updateOpportunityList = new List<Opportunity>();
         for (DefermentRequest__c request : requestList) {
             Opportunity obj = opportunityMap.get(request.Opportunity__c);
             ProcessInstanceHistory process = obj.ProcessSteps.get(0);
@@ -147,6 +151,13 @@ global without sharing class Opportunity_tr extends TriggerHandler {
                         newType.PaymentTracker__c = opptyTypeMap.get(obj.Id).PaymentTracker__c;
                         newType.RequestAmount__c = request.DeferredAmount__c;
                         upsertTypeList.add(newType);
+
+                    }
+
+                    // 부가세 유예일 수 기회에 업데이트 추가 (25-04-16)
+                    if (approvalType == 'VATDeferred') {
+                        obj.VATDeferredDays__c = request.RequestDays__c;
+                        updateOpportunityList.add(obj);
                     }
                 }
                 when 'Rejected' {
@@ -157,6 +168,7 @@ global without sharing class Opportunity_tr extends TriggerHandler {
             request.Comment__c = process.Comments;
         }
         update requestList;
+        update updateOpportunityList; // 부가세 유예일 수 기회에 업데이트 추가 (25-04-16)
         upsert upsertTypeList;  // ver1.8 도채범 인도금 유예 신규추가시 금액 재조정 insert
     }
 
@@ -198,9 +210,9 @@ global without sharing class Opportunity_tr extends TriggerHandler {
         Map<String, String> opptyProductIdMap = new Map<String, String>();
         Map<String, Map<String, VehicleStock__c>> productStockMap = new Map<String, Map<String, VehicleStock__c>>();
         for (VehicleStock__c stock : [
-            SELECT Id, Name, Product__c, LongTermStock__c, IsSpecial__c, IsOptionDiscount__c
-            FROM VehicleStock__c
-            WHERE Id IN :opptyStockIdMap.values()
+                SELECT Id, Name, Product__c, LongTermStock__c, IsSpecial__c, IsOptionDiscount__c
+                FROM VehicleStock__c
+                WHERE Id IN :opptyStockIdMap.values()
         ]) {
             stockProductIdMap.put(stock.Id, stock.Product__c);
             stockIdMap.put(stock.Id, stock);
@@ -209,24 +221,24 @@ global without sharing class Opportunity_tr extends TriggerHandler {
         // 기존재 Opportunity-VehicleStock 확인
         Set<String> assignedStockSet = new Set<String>();
         List<Opportunity> existOpportunities = [
-            SELECT Id, Name, VehicleStock__c
-            FROM Opportunity
-            WHERE VehicleStock__r.Product__c IN :stockProductIdMap.values()   // Product별로 전부 조회필요
+                SELECT Id, Name, VehicleStock__c
+                FROM Opportunity
+                WHERE VehicleStock__r.Product__c IN :stockProductIdMap.values()   // Product별로 전부 조회필요
         ];
         for (Opportunity obj : existOpportunities) {
             assignedStockSet.add(obj.VehicleStock__c);
         }
 
         Map<Id, Product2> productMap = new Map<Id, Product2>([
-            SELECT Id, (
-                SELECT Id, Name, LongTermStock__c, IsSpecial__c, IsOptionDiscount__c
-                FROM VehicleStock__r
-                WHERE Status__c = '재고 노출'
-                AND VehicleStatus__c != '출고불가'  // ver1.4 VehicleStock 자동배정 조건필드 추가(VehicleStatus)
-                ORDER BY EopDate__c ASC
-            )
-            FROM Product2
-            WHERE Id IN :stockProductIdMap.values()
+                SELECT Id, (
+                        SELECT Id, Name, LongTermStock__c, IsSpecial__c, IsOptionDiscount__c
+                        FROM VehicleStock__r
+                        WHERE Status__c = '재고 노출'
+                        AND VehicleStatus__c != '출고불가'  // ver1.4 VehicleStock 자동배정 조건필드 추가(VehicleStatus)
+                        ORDER BY EopDate__c ASC
+                )
+                FROM Product2
+                WHERE Id IN :stockProductIdMap.values()
         ]);
         for (String opportunityId : opptyStockIdMap.keySet()) {
             String stockId = opptyStockIdMap.get(opportunityId);
@@ -237,8 +249,8 @@ global without sharing class Opportunity_tr extends TriggerHandler {
                 if (assignedStockSet.contains(stock.Id)) continue;    // Opportunity에 기 할당된 차량인경우 PASS
 
                 Map<String, VehicleStock__c> stockMap = productStockMap.containsKey(productId)
-                    ? productStockMap.get(productId)
-                    : new Map<String, VehicleStock__c>();
+                        ? productStockMap.get(productId)
+                        : new Map<String, VehicleStock__c>();
 
                 stockMap.put(stock.Id, stock);
                 productStockMap.put(productId, stockMap);
@@ -267,8 +279,8 @@ global without sharing class Opportunity_tr extends TriggerHandler {
 
             // 1. Product별 List<VehicleStock>데이터 조회(ORDER BY 적용)
             Map<String, VehicleStock__c> stockMap = productStockMap.containsKey(productId)
-                ? productStockMap.get(productId)
-                : new Map<String, VehicleStock__c>();
+                    ? productStockMap.get(productId)
+                    : new Map<String, VehicleStock__c>();
             if (stockMap.isEmpty()) continue;    // Validation. 사용완료시 PASS
 
             // 2. Quote의 VehicleStock. 특수여부, 재고 노출여부 확인
@@ -279,9 +291,9 @@ global without sharing class Opportunity_tr extends TriggerHandler {
             List<VehicleStock__c> sameConditionList = new List<VehicleStock__c>();
             for (VehicleStock__c stock : stockMap.values()) {
                 if (
-                    (stock.LongTermStock__c == requestStock.LongTermStock__c) &&
-                    (stock.IsSpecial__c == requestStock.IsSpecial__c) &&
-                    (stock.IsOptionDiscount__c == requestStock.IsOptionDiscount__c)
+                        (stock.LongTermStock__c == requestStock.LongTermStock__c) &&
+                                (stock.IsSpecial__c == requestStock.IsSpecial__c) &&
+                                (stock.IsOptionDiscount__c == requestStock.IsOptionDiscount__c)
                 ) {
                     sameConditionList.add(stock);
                 }
@@ -301,12 +313,12 @@ global without sharing class Opportunity_tr extends TriggerHandler {
                         - 오래된 차량기준 PUT (EOP Date)
             */
             VehicleStock__c assignStock = stockMap.containsKey(requestStock.Id)
-                ? requestStock
-                : isSpecial
-                    ? !sameConditionList.isEmpty()
-                        ? sameConditionList.get(0)
-                        : null
-                    : stockMap.values().get(0);
+                    ? requestStock
+                    : isSpecial
+                            ? !sameConditionList.isEmpty()
+                                    ? sameConditionList.get(0)
+                                    : null
+                            : stockMap.values().get(0);
 
             if (assignStock != null) {
                 // 차량 배정 가능할 때
@@ -358,8 +370,8 @@ global without sharing class Opportunity_tr extends TriggerHandler {
                 if (!updateStatusList.contains(status)) continue;
 
                 List<Id> deferredList = deferredListMap.containsKey(status)
-                    ? deferredListMap.get(status)
-                    : new List<Id>();
+                        ? deferredListMap.get(status)
+                        : new List<Id>();
 
                 deferredList.add(newObj.Id);
                 deferredListMap.put(status, deferredList);
@@ -377,8 +389,8 @@ global without sharing class Opportunity_tr extends TriggerHandler {
             // VehicleStock Update Case
             Opportunity oldObj = oldMap.get(newObj.Id);
             if (
-                newObj.VehicleStock__c != null &&
-                oldObj.VehicleStock__c != newObj.VehicleStock__c
+                    newObj.VehicleStock__c != null &&
+                            oldObj.VehicleStock__c != newObj.VehicleStock__c
             ) {
                 // 1. 신규 VehicleStock이 존재할 경우
                 // 2. 기존 VehicleStock과 신규 VehicleStock과 다를경우
@@ -421,16 +433,16 @@ global without sharing class Opportunity_tr extends TriggerHandler {
             if (newStockId != null && newStockId != oldStockId) {
                 // 신규 할당 or 재고 변경 => Attach
                 requestStockMapList.add(new Map<String, Object>{
-                    'stockId' => newStockId,
-                    'isAttach' => true
+                        'stockId' => newStockId,
+                        'isAttach' => true
                 });
             }
 
             if (oldStockId != null && oldStockId != newStockId) {
                 // 기존 재고 취소 => Detach
                 requestStockMapList.add(new Map<String, Object>{
-                    'stockId' => oldStockId,
-                    'isAttach' => false
+                        'stockId' => oldStockId,
+                        'isAttach' => false
                 });
             }
         }
@@ -441,7 +453,7 @@ global without sharing class Opportunity_tr extends TriggerHandler {
     // 개인정보 고객 미동의 필드 락 로직
     private void consentFieldLock() {
         List<String> byPassfieldList = new List<String>{
-            'islockconsent__c', 'lastmodifieddate', 'systemmodstamp'
+                'islockconsent__c', 'lastmodifieddate', 'systemmodstamp'
         };
         for (Id opportunityId : newMap.keySet()) {
             if (newMap.get(opportunityId).IsLockConsent__c && newMap.get(opportunityId).StageName == 'Negotiation') {
@@ -476,7 +488,7 @@ global without sharing class Opportunity_tr extends TriggerHandler {
             // Account 정보 조회
             if (!duplicateLeadIdSet.isEmpty()) {
                 Map<Id, Account> accountMap = new Map<Id, Account>(
-                    [SELECT Id, PersonMobilePhone, Name FROM Account WHERE Id IN :duplicateLeadIdSet]
+                        [SELECT Id, PersonMobilePhone, Name FROM Account WHERE Id IN :duplicateLeadIdSet]
                 );
                 // Lead 매칭 조건 생성
                 List<String> conditions = new List<String>();
@@ -546,11 +558,11 @@ global without sharing class Opportunity_tr extends TriggerHandler {
         }
         if (sendOpportunityId != null) {
             List<CustomerConsent__c> customerConsents = [
-                SELECT Id, Opportunity__c
-                FROM CustomerConsent__c
-                WHERE Opportunity__c = :sendOpportunityId
-                ORDER BY CreatedDate DESC
-                LIMIT 1
+                    SELECT Id, Opportunity__c
+                    FROM CustomerConsent__c
+                    WHERE Opportunity__c = :sendOpportunityId
+                    ORDER BY CreatedDate DESC
+                    LIMIT 1
             ];
             if (!customerConsents.isEmpty()) {
                 String jobName = 'SendLightConsent_ba(' + customerConsents[0].Id + ')';
@@ -582,17 +594,17 @@ global without sharing class Opportunity_tr extends TriggerHandler {
 
         // 모든입금완료로 업데이트된 기회의 인센티브 내역 리스트
         List<IncentiveHistory__c> incentiveHistoryList = [
-            SELECT Id, IsAllPaymentCompleted__c
-            FROM IncentiveHistory__c
-            WHERE Id IN :incentiveIdSet
+                SELECT Id, IsAllPaymentCompleted__c
+                FROM IncentiveHistory__c
+                WHERE Id IN :incentiveIdSet
         ];
 
         // 업데이트할 인센티브 내역의 Opportunity 리스트
         List<Opportunity> incentiveOpportunityList = [
-            SELECT Id, IncentiveHistoryQuarterly__c, IncentiveHistoryAnnual__c, PaymentStatus__c
-            FROM Opportunity
-            WHERE IncentiveHistoryQuarterly__c IN :incentiveIdSet
-            OR IncentiveHistoryAnnual__c IN :incentiveIdSet
+                SELECT Id, IncentiveHistoryQuarterly__c, IncentiveHistoryAnnual__c, PaymentStatus__c
+                FROM Opportunity
+                WHERE IncentiveHistoryQuarterly__c IN :incentiveIdSet
+                OR IncentiveHistoryAnnual__c IN :incentiveIdSet
         ];
 
         Map<Id, List<Opportunity>> opportunityByIncentiveIdMap = new Map<Id, List<Opportunity>>();
