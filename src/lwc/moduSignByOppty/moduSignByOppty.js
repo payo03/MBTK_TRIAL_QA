@@ -166,7 +166,7 @@ export default class ModuSignByOppty extends NavigationMixin(LightningElement) {
       documentTitle: this.templateMap[this.selectedOption],           // 문서 Title명
       infoMapList: infoMapList,            // [v] 사용자 정보 Input
       externalId: this.recordId,           // 외부연결 Id  // externalId는 oppty로
-      apexClass: 'ModuSignIdProcess'       // 주민등록증 서명 후처리 Process 추가
+      apexClass: 'ModuSignIdProcess'       // ver1.1 주민등록증 서명 후처리 Process 추가
     };
 
     let isSuccess = false;
