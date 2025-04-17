@@ -137,3 +137,16 @@
 .slds-table th {
     border-bottom: 2px solid #d8dde6; /* 헤더 밑 경계선 */
 }
+
+/* Custom Toast */
+.toast-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding-top: 0.5rem;
+    z-index: 9100;
+    pointer-events: none;
+}
