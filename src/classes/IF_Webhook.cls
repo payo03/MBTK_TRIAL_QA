@@ -196,7 +196,7 @@ global without sharing class IF_Webhook {
     @Future(Callout = true)
     private static void asyncAfterProcess(String eventType, String docId) {
         CommonUtilController.delayTime(Datetime.now(), 5);  // 5초 Delay
-        APIDocument__c doc = [SELECT Id, Contract__c, FileName__c, Status__c, AfterProcessClass__c FROM APIDocument__c WHERE Name =: docId];
+        APIDocument__c doc = [SELECT Id, Contract__c, FileName__c, Status__c, AfterProcessClass__c, ExternalId__c FROM APIDocument__c WHERE Name =: docId];
         String docStatus;
         switch on eventType {
             when 'document_started' { docStatus = 'ON_GOING'; }
@@ -219,6 +219,7 @@ global without sharing class IF_Webhook {
             Type type = Type.forName(doc.AfterProcessClass__c);
             // 계약 및 입금완료 확인
             if('COMPLETED(CUSTOMER)'.equals(docStatus)) ((CommonAfterProcess) type.newInstance()).doAfterProcess(doc.Contract__c);
+            if('COMPLETED'.equals(docStatus) && '세금계산서 주민번호 발행 확인서'.equals(doc.FileName__c)) ((CommonAfterProcess) type.newInstance()).doAfterProcess(doc.ExternalId__c);
         }
     }
 

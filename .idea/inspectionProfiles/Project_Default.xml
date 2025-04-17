@@ -106,6 +106,7 @@
           <option value="$PROJECT_DIR$/src/lwc/commonStyleUtil/commonStyleUtil.js-meta.xml" />
           <option value="$PROJECT_DIR$/src/lwc/commonUtil/commonUtil.js-meta.xml" />
           <option value="$PROJECT_DIR$/src/lwc/customDataTable/customDataTable.js-meta.xml" />
+          <option value="$PROJECT_DIR$/src/lwc/moduSignByOppty/moduSignByOppty.js-meta.xml" />
           <option value="$PROJECT_DIR$/src/lwc/navigateToComponent/navigateToComponent.js-meta.xml" />
           <option value="$PROJECT_DIR$/src/lwc/quoteCalculatorTable/quoteCalculatorTable.js-meta.xml" />
           <option value="$PROJECT_DIR$/src/lwc/sampleLWC/sampleLWC.js-meta.xml" />
