@@ -8,6 +8,7 @@
   1.0      2024-12-26      payo03@solomontech.net           Created
   1.1      2025-01-08      payo03@solomontech.net           Casting 변환 오류해결
   1.2      2025-01-13      payo03@solomontech.net           Custom Where의 Field조건 추가
+  1.3      2025-04-17      payo03@solomontech.net           카카오톡 후처리 Process 상속Class 구현
 */
 public with sharing class InterfaceKakao {
 
@@ -38,6 +39,7 @@ public with sharing class InterfaceKakao {
      *                                   6-2-1. key : #{변수} Key 값
      *                                   6-2-2. value : #{변수} Value 값
      *                      7. whereField : Custom Where의 Field조건 추가. ver1.2
+     *                      8. apexClass : 카카오톡 후처리 Process 상속Class 구현 ver1.3
      * @return              Map<String, Object> value
      * @description         Salesforce -> Heroku -> Infobip API 호출
      *                      Heroku API Token값 : Heroku Settings(Config) 확인
@@ -62,6 +64,7 @@ public with sharing class InterfaceKakao {
                 ? (Map<Object, Object>) paramMap.get('buttonMap')
                 : new Map<Object, Object>();
         String externalId = String.valueOf(paramMap.get('externalId'));
+        String apexClass = String.valueOf(paramMap.get('apexClass'));
 
         // 버튼 Map
         Map<String, Object> buttonMap = new Map<String, Object>();
@@ -177,6 +180,8 @@ public with sharing class InterfaceKakao {
                     APIDocument__c doc = createDocument(responseBody);
                     doc.Template__c = template.Id;
                     if (externalId != null) doc.ExternalId__c = externalId;
+                    // ver1.3 카카오톡 후처리 Process 상속Class 구현
+                    doc.AfterProcessClass__c = apexClass;
 
                     insert doc;
                     if(TASK_LIST.contains(objectType)) insert CommonUtilCustomController.createTask(recordId, 'Kakao', template.fm_TemplateTitle__c);

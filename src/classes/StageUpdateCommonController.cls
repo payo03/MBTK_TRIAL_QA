@@ -8,8 +8,9 @@
   1.0      2025-02-14      payo03@solomontech.net           Created
   1.1      2025-02-22      payo03@solomontech.net           Bulk Update. Payment금액은 Fetch해서 가져와야함
   1.2      2025-03-27      payo03@solomontech.net           배정 실패시 알림추가
+  1.3      2025-04-17      payo03@solomontech.net           모두싸인 후처리 Process 상속Class 구현
 */
-global without sharing class StageUpdateCommonController {
+global without sharing class StageUpdateCommonController extends CommonAfterProcess {
 
     // 체크대상. Document의 상태, 계약금 입금여부 확인
     // Object관계도 간략 기입
@@ -19,6 +20,17 @@ global without sharing class StageUpdateCommonController {
         Opportunity : PaymentTracker(IsValid) = 1 : 1
         Opportunity : Contract = N : 1, Opportunity => Contract는 1
     */
+
+    // ver1.3 모두싸인 후처리 Process 상속Class 구현
+    public override Object doAfterProcess(Object obj) {
+        System.debug('doAfterProcess : ' + obj);
+
+        String contractId = String.valueOf(obj);
+        doUpdateOpportunity(contractId);
+
+        return null;
+    }
+
     public static void doUpdateOpportunity(String contractId) {
         Contract contract = [SELECT Id, OwnerId, Opportunity__c, Opportunity__r.Name, Quote__r.VehicleStock__c, Quote__r.VehicleStock__r.Product__r.Name FROM Contract WHERE Id = :contractId];
         String opportunityId = contract.Opportunity__c;

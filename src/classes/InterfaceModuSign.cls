@@ -18,6 +18,7 @@
   1.4      2025-01-13      payo03@solomontech.net           Custom Where의 Field조건 추가, ExpiredDate 필드 추가
   1.5      2025-02-07      payo03@solomontech.net           문서취소 API 함수
   1.6      2025-03-17      jh.jung                          영업기회 모두싸인 호출 대응
+  1.7      2025-04-17      payo03@solomontech.net           모두싸인 후처리 Process 상속Class 구현
 */
 global without sharing class InterfaceModuSign {
 
@@ -125,6 +126,7 @@ global without sharing class InterfaceModuSign {
      *                              7-5. sendType : 문서 수신타입 (ex, 'email', 'kakao'). Default kakao
      *                              7-6. locale :문서 Locale. Default 'ko'
      *                          8. whereField : Custom Where의 Field조건 추가. ver1.4
+     *                          9. apexClass : 모두싸인 후처리 Process 상속Class 구현 ver1.7
      * @return                  Map<String, Object> Value
      * @description             Return Value Description
      *                          1. key : code, value : Boolean
@@ -158,6 +160,7 @@ global without sharing class InterfaceModuSign {
         String title = String.valueOf(paramMap.get('documentTitle'));
         String documentPW = String.valueOf(paramMap.get('documentPW'));
         String externalId = String.valueOf(paramMap.get('externalId'));
+        String apexClass = String.valueOf(paramMap.get('apexClass'));
 
         // 서명요청 List
         List<Map<String, Object>> infoMapList = new List<Map<String, Object>>();
@@ -230,7 +233,9 @@ global without sharing class InterfaceModuSign {
                 doc.Template__c = template.Id;
                 doc.Destination__c = String.join(destinations, ',');
                 doc.ExpiredDate__c = Date.today().addDays(expiredDuration / (24 * 60));
-
+                // ver1.7 모두싸인 후처리 Process 상속Class 구현
+                doc.AfterProcessClass__c = apexClass;
+                
                 if(externalId != null) {
                     String externalObjectType = ((Id) externalId).getSobjectType().getDescribe().getName();
 
@@ -270,6 +275,10 @@ global without sharing class InterfaceModuSign {
         return resultMap;
     }
 
+    @AuraEnabled
+    public static Map<String, Object> doCallOutSignRequestByPDF(IF_DTO.SigningRequestByPDF requestDTO, String externalId) {
+        return doCallOutSignRequestByPDF(requestDTO, externalId, null);
+    }
 
     /**
      * @param requestDTO        PDF 요청을 위한  Wrapper
@@ -283,8 +292,7 @@ global without sharing class InterfaceModuSign {
      *                          5. (필수값 x) key : documentId, value : String
      */
     // 신규 ObjectType(recordId)추가시 TaskFieldSet 만드시오. CommonUtilCustomController.createTask 참조
-    @AuraEnabled
-    public static Map<String, Object> doCallOutSignRequestByPDF(IF_DTO.SigningRequestByPDF requestDTO, String externalId) {
+    public static Map<String, Object> doCallOutSignRequestByPDF(IF_DTO.SigningRequestByPDF requestDTO, String externalId, String apexClass) {
         /*
             1. VF Page. PDF파일 생성
             2. DTO 객체 생성 및 PDF파일 RequestBody set
@@ -322,6 +330,8 @@ global without sharing class InterfaceModuSign {
                 if(externalId != null) doc.ExternalId__c = doc.Contract__c = externalId;
                 if(externalId != null && 'Contract'.equals(objectType)) doc.Contract__c = externalId;
                 if(externalId != null && 'Opportunity'.equals(objectType)) doc.Opportunity__c = externalId;
+                // ver1.7 모두싸인 후처리 Process 상속Class 구현
+                doc.AfterProcessClass__c = apexClass;
 
                 doc.Destination__c = String.join(destinations, ',');
                 doc.ExpiredDate__c = Date.today().addDays(expiredDuration / (24 * 60));
