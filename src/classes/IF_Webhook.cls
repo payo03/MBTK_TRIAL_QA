@@ -9,7 +9,7 @@
   1.1      2024-12-26      payo03@solomontech.net           Webhook 분기처리
   1.2      2025-02-05      payo03@solomontech.net           모두싸인. 모든고객 서명완료시 상태값 분기 추가
   1.3      2025-02-26      payo03@solomontech.net           모두싸인. 후처리 Process 비동기로 실행
-  1.4      2025-04-17      payo03@solomontech.net           모두싸인 후처리 Process 상속Class 구현
+  1.4      2025-04-17      payo03@solomontech.net           모두싸인, 카카오톡 후처리 Process 상속Class 구현
 */
 @RestResource(UrlMapping='/api/webhook/*')
 global without sharing class IF_Webhook {
@@ -135,10 +135,15 @@ global without sharing class IF_Webhook {
                 String bulkId = String.valueOf(resultMap.get('bulkId'));
                 String docStatus = String.valueOf(statusMap.get('groupName'));
 
-                APIDocument__c doc = [SELECT Id, FileName__c, Status__c FROM APIDocument__c WHERE Name =: bulkId];
+                APIDocument__c doc = [SELECT Id, FileName__c, Status__c, AfterProcessClass__c FROM APIDocument__c WHERE Name =: bulkId];
                 doc.Status__c = docStatus;
-
                 update doc;
+
+                // ver1.4 모두싸인, 카카오톡 후처리 Process 상속Class 구현
+                if(doc.AfterProcessClass__c != null) {
+                    Type type = Type.forName(doc.AfterProcessClass__c);
+                    Object obj = ((CommonAfterProcess) type.newInstance()).doAfterProcess(doc.Contract__c);
+                }
             }
         } catch(Exception e) {
             status = 'ERROR';
@@ -209,6 +214,7 @@ global without sharing class IF_Webhook {
         doc.Status__c = docStatus;
         update doc;
 
+        // ver1.4 모두싸인, 카카오톡 후처리 Process 상속Class 구현
         if(doc.AfterProcessClass__c != null) {
             Type type = Type.forName(doc.AfterProcessClass__c);
             // 계약 및 입금완료 확인
