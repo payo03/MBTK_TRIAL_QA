@@ -6,6 +6,7 @@
  Ver      Date            Author           Modification
  ===================================================================================
  1.0      2025-03-13      jh.jung           Created
+ 1.1      2025-04-17      jh.jung           주민등록증 서명 후처리 Process 추가
  */
 import {LightningElement, api, track, wire} from 'lwc';
 import {CurrentPageReference, NavigationMixin} from "lightning/navigation";
@@ -164,7 +165,8 @@ export default class ModuSignByOppty extends NavigationMixin(LightningElement) {
       recordId: this.publishQuoteId,             // [v] this.recordId  // 여기선 Quote로 던짐
       documentTitle: this.templateMap[this.selectedOption],           // 문서 Title명
       infoMapList: infoMapList,            // [v] 사용자 정보 Input
-      externalId: this.recordId           // 외부연결 Id  // externalId는 oppty로
+      externalId: this.recordId,           // 외부연결 Id  // externalId는 oppty로
+      apexClass: 'ModuSignIdProcess'       // 주민등록증 서명 후처리 Process 추가
     };
 
     let isSuccess = false;
