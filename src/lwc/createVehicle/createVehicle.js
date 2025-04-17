@@ -174,7 +174,7 @@ export default class createVehicle extends LightningElement  {
 
         handleIFAction({ paramMap : infoMap }).then(() => {
             setTimeout(() => {
-//                this.closeModal();
+                this.closeModal();
                 showToast('Success', 'Success Interface Call', 'success', 'dismissable');
             }, 1000);
         }).catch(error => {
