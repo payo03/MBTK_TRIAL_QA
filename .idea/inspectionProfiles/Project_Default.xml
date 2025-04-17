@@ -25,6 +25,7 @@
           <option value="$PROJECT_DIR$/src/classes/Account_tr_test.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/adjustUser_ba.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/AssignRequest_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/AsyncCustomerInfo.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/AsyncCustomsInfo.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/AsyncOrderConfirm.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/AsyncPurchaseInvoice.cls-meta.xml" />
