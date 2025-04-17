@@ -100,7 +100,6 @@ public with sharing class CreateVehicleController {
                         'PURCHASE_INVOICE', 'PURCHASE_INVOICE_CANCEL',
                         'CUSTOMS_INFO', 'CUSTOMS_INFO_CANCEL'
                 )
-                AND IsResponse__c = 'Y' // 임시
                 ORDER BY CreatedDate, fm_LogType__c
         ];
     }

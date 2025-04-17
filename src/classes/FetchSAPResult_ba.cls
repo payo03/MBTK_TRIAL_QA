@@ -150,6 +150,10 @@ public without sharing class FetchSAPResult_ba implements Database.Batchable<SOb
         Map<Id, AvisOrderInfo__c> updateInfoMap = new Map<Id, AvisOrderInfo__c>();
         Map<Id, VehicleStock__c> updateStockMap = new Map<Id, VehicleStock__c>();
         Map<Id, Opportunity> updateOpptyMap = new Map<Id, Opportunity>();
+        Map<String, String> statusFieldMap = new Map<String, String>{
+                '항구도착전' => '항구도착',
+                '항구도착' => '항구도착전'
+        };
         for(String ifId : paramIfIdLogListMap.keySet()) {
             // InterfaceId별 묶음 IFAuditLog(여러 LogId가 존재)
             // InterfaceId - LogId = 1 : N
@@ -220,6 +224,8 @@ public without sharing class FetchSAPResult_ba implements Database.Batchable<SOb
                                 if(updateStockMap.get(stock.Id) != null) stock = (VehicleStock__c) updateStockMap.get(stock.Id);
 
                                 stock.put('VehicleStatus__c', '항구도착');
+
+                                // ver1.1 취소IF Case 추가
                                 if (resultCode == 'Y' && stock.VehicleStatus__c == '항구도착전') updateStockMap.put(stock.Id, stock);
                             } else if (isTax) {
                                 // TaxInvoice. 매출번호/세금계산서 번호 Update
