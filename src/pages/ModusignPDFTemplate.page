@@ -1725,6 +1725,8 @@
   <apex:outputPanel rendered="{!selectedOption == 'riomds'}">
     <div>
       <apex:image url="{!$Resource.RIO_Image}" styleClass="full-page-image"></apex:image>
+    </div>
+    <div>
       <apex:image url="{!$Resource.MDS_Image}" styleClass="full-page-image"></apex:image>
     </div>
   </apex:outputPanel>
