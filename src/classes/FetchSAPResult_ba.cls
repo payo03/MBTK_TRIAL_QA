@@ -223,10 +223,12 @@ public without sharing class FetchSAPResult_ba implements Database.Batchable<SOb
                                 VehicleStock__c stock = infoStockMap.get(infoId);
                                 if(updateStockMap.get(stock.Id) != null) stock = (VehicleStock__c) updateStockMap.get(stock.Id);
 
-                                stock.put('VehicleStatus__c', '항구도착');
+                                String curStatus = stock.VehicleStatus__c;
+                                String changeStatus = statusFieldMap.get(curStatus);
+                                if(changeStatus != null) stock.put('VehicleStatus__c', changeStatus);
 
                                 // ver1.1 취소IF Case 추가
-                                if (resultCode == 'Y' && stock.VehicleStatus__c == '항구도착전') updateStockMap.put(stock.Id, stock);
+                                if (resultCode == 'Y' && changeStatus != null) updateStockMap.put(stock.Id, stock);
                             } else if (isTax) {
                                 // TaxInvoice. 매출번호/세금계산서 번호 Update
 
