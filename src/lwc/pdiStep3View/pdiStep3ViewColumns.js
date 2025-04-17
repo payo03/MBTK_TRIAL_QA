@@ -31,16 +31,6 @@ const columns = [
 			style: { fieldName: "oppUrlStyle" }
 		}
 	},
-	// {
-	// 	label: "옵션 목록",
-	// 	fieldName: "helpText",
-	// 	type: "helpTextType",
-	// 	hideDefaultActions: true,
-	// 	typeAttributes: {
-	// 		optionQty: { fieldName: "optionQty" },
-	// 		defaultOptionQty: { fieldName: "defaultOptionQty" }
-	// 	}
-	// },
 	{
 		label: "VIN",
 		fieldName: "VIN",
@@ -106,11 +96,13 @@ const stockColumns = [
 		label: "VIN",
 		fieldName: "Name",
 		type: "text",
+		initialWidth: 200,
 		hideDefaultActions: true
 	},
 	{
 		label: "입항일",
 		fieldName: "realArrivalDate",
+		initialWidth: 100,
 		type: "text",
 		hideDefaultActions: true
 	},
@@ -126,24 +118,24 @@ const stockColumns = [
 		type: "text",
 		hideDefaultActions: true
 	},
-	{
-		label: "Intarder",
-		fieldName: "IsIntarder__c",
-		type: "boolean",
-		hideDefaultActions: true
-	},
-	{
-		label: "IsPTO",
-		fieldName: "IsPTO__c",
-		type: "boolean",
-		hideDefaultActions: true
-	},
-	{
-		label: "IsHypoid",
-		fieldName: "IsHypoid__c",
-		type: "boolean",
-		hideDefaultActions: true
-	},
+	// {
+	// 	label: "Intarder",
+	// 	fieldName: "IsIntarder__c",
+	// 	type: "boolean",
+	// 	hideDefaultActions: true
+	// },
+	// {
+	// 	label: "IsPTO",
+	// 	fieldName: "IsPTO__c",
+	// 	type: "boolean",
+	// 	hideDefaultActions: true
+	// },
+	// {
+	// 	label: "IsHypoid",
+	// 	fieldName: "IsHypoid__c",
+	// 	type: "boolean",
+	// 	hideDefaultActions: true
+	// },
 	{
 		label: "CAB",
 		fieldName: "Cab_Color__c",

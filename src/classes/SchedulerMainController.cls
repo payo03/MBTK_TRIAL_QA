@@ -123,6 +123,7 @@ public with sharing class SchedulerMainController {
             ' fm_PaymentStatus__c, fm_IsDeposit__c, fm_IsVat__c, Opportunity__r.TaxInvoiceDate__c';
         whereCondition = String.isNotBlank(whereCondition) ? whereCondition + ' AND IsActive__c = TRUE' : 'IsActive__c = TRUE';
         String query = CommonUtilController.buildQuery(selectFields, 'Handover__c', whereCondition, 'Opportunity__r.HandoverDate__c ASC NULLS LAST');
+        System.debug('check query :: ' + whereCondition);
         List<Handover__c> handoverList = Database.query(query);
 
         Set<Id> opportunityId = new Set<Id>();

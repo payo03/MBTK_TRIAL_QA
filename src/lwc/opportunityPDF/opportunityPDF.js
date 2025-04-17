@@ -70,7 +70,7 @@ export default class OpportunityPDF extends NavigationMixin(LightningElement) {
             // PDF Validation
             Object.assign(this.exceptionMap, {
                 ['최종 견적서']: this.quoteId == null,
-                ['출고예정서']: checkVehicleStock || res.opportunity[0].TaxInvoiceDate__c == null,
+                ['출고예정서']: checkVehicleStock || res.opportunity[0].HandoverDate__c == null,
                 ['제작증']: checkVehicleStock || this.quoteId == null,
                 ['양도증명서 및 제작증']: checkVehicleStock || checkAccount,
                 ['판매정산결과 REPORT']: checkVehicleStock || checkAccount || checkProduct || checkPaymentTracker || checkPaymentType || this.quoteId == null
