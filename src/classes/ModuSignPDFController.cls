@@ -3,11 +3,12 @@
 * @Description 		 :
 * @Target            :
 * @Modification Log
-  Ver      Date            Author           Modification
+  Ver      Date            Author                   Modification
   ===================================================================================
-  1.0      2024-12-31      jh.jung           Created
-  1.1      2025-02-13      tw.Choi           Modified
-  2.0      2025-04-02      tw.Choi           Refactoring(Wrapper클래스 사용)
+  1.0      2024-12-31      jh.jung                  Created
+  1.1      2025-02-13      tw.Choi                  Modified
+  2.0      2025-04-02      tw.Choi                  Refactoring(Wrapper클래스 사용)
+  2.1      2025-04-17      payo03@solomontech.net   모두싸인 후처리 Process 상속Class 구현
 */
 public without sharing class ModuSignPDFController {
 
@@ -559,7 +560,10 @@ public without sharing class ModuSignPDFController {
             IF_DTO.SigningRequestByPDF signingRequest = createRequest(file, selectedOption, recordId, signInfo, lastPageNum);
 
             // 모두사인 요청
-            Map<String, Object> responseMap = InterfaceModuSign.doCallOutSignRequestByPDF(signingRequest, recordId);
+//            Map<String, Object> responseMap = InterfaceModuSign.doCallOutSignRequestByPDF(signingRequest, recordId);
+            // ver2.1 모두싸인 후처리 Process 상속Class 구현
+            String apexClass = 'StageUpdateCommonController';
+            Map<String, Object> responseMap = InterfaceModuSign.doCallOutSignRequestByPDF(signingRequest, recordId, apexClass);
 
             System.debug('code ::: ' + responseMap.get('code'));
 
