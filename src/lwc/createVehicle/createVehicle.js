@@ -43,6 +43,9 @@ export default class createVehicle extends LightningElement  {
     */
 
     @track modalClass = 'slds-modal slds-fade-in-open';
+    @track status = 'info';
+    @track isMsgOpen = false;
+    @track msgText = '';
 
     @api paramFilterId;
 
@@ -100,16 +103,27 @@ export default class createVehicle extends LightningElement  {
         });
     }
 
-    closeModal() {
-        // 팝업 닫기
-        if(!this.inputVisible) this.changePopup();
+    closeModalDefault() {
+        this.closeModal('inverse', 'Popup Close');
+    }
 
-        this.modalClass = 'slds-modal slds-fade-in-hide'; // 모달 닫힘 클래스 설정
-        window.postMessage({
-            type: 'POPUP_CLOSE_LWC',
-            targetURL: '/lightning/o/AvisOrderInfo__c/home',
-            debug: 'AvisOrderInfo Popup Close'
-        }, '*');
+    closeModal(status, message) {
+        // 팝업 닫기
+        this.status = status;
+        this.msgText = message;
+        this.isMsgOpen = true;
+
+        setTimeout(() => {
+            this.isMsgOpen = false;
+            if (!this.inputVisible) this.changePopup();
+            this.modalClass = 'slds-modal slds-fade-in-hide';
+
+            window.postMessage({
+                type: 'POPUP_CLOSE_LWC',
+                targetURL: '/lightning/o/AvisOrderInfo__c/home',
+                debug: 'AvisOrderInfo Popup Close'
+            }, '*');
+        }, 2000);
     }
 
     // 입력값 Setting 공통
@@ -173,12 +187,11 @@ export default class createVehicle extends LightningElement  {
         };
 
         handleIFAction({ paramMap : infoMap }).then(() => {
-            setTimeout(() => {
-                this.closeModal();
-                showToast('Success', 'Success Interface Call', 'success', 'dismissable');
-            }, 1000);
+
+            this.closeModal('success', 'Success Interface Call');
         }).catch(error => {
-            showToast('Error', 'Error Interface Call', 'error', 'dismissable');
+
+            this.closeModal('fail', 'Error Interface Call');
             console.log(error);
         });
     }
@@ -198,12 +211,11 @@ export default class createVehicle extends LightningElement  {
 
     handleSave() {
         createVehicleStock({ orderList: this.data }).then(() => {
-            setTimeout(() => {
-                this.closeModal();
-                showToast('Success', 'Success Vehicle Stock Call Batch', 'success', 'dismissable');
-            }, 1000);
+
+            this.closeModal('success', 'Success Vehicle Stock Call Batch');
         }).catch(error => {
-            showToast('Error', 'Error Vehicle Stock Call Batch', 'error', 'dismissable');
+
+            this.closeModal('fail', 'Error Vehicle Stock Call Batch');
             console.log(error);
         });
     }
@@ -329,5 +341,20 @@ export default class createVehicle extends LightningElement  {
     changePopup() {
         this.inputVisible = !this.inputVisible;
         this.modalClass = this.inputVisible ? 'slds-modal slds-fade-in-open' : 'slds-modal slds-fade-in-open slds-modal_large';
+    }
+
+    get toastThemeClass() {
+        switch (this.status) {
+            case 'success': return 'slds-notify slds-notify_toast slds-theme_alert-texture slds-theme_success';
+            case 'fail':    return 'slds-notify slds-notify_toast slds-theme_alert-texture slds-theme_error';
+            default:        return 'slds-notify slds-notify_toast slds-theme_alert-texture slds-theme_info';
+        }
+    }
+    get toastIconName() {
+        switch(this.status) {
+            case 'success': return 'utility:check';
+            case 'fail':    return 'utility:close';
+            default:        return 'utility:info';
+        }
     }
 }

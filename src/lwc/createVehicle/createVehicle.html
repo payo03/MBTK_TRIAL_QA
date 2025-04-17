@@ -16,7 +16,8 @@
             <header class="slds-modal__header">
                 <h2 class="slds-text-heading_medium">일괄 정보입력</h2>
                 <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse custom-close-btn"
-                        title="Close" onclick={closeModal}>
+                        title="Close"
+                        onclick={closeModalDefault}>
                     <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
                 </button>
             </header>
@@ -431,4 +432,21 @@
         </div>
     </section>
     <div class="slds-backdrop slds-backdrop_open"></div>
+
+    <template if:true={isMsgOpen}>
+        <div class="toast-container">
+            <div class={toastThemeClass} role="status">
+                <lightning-icon
+                        icon-name={toastIconName}
+                        alternative-text="Info"
+                        variant="inverse"
+                        size="small"
+                        class="slds-m-right_x-small">
+                </lightning-icon>
+                <div class="slds-toast__content">
+                    <h2 class="slds-text-heading_small">{msgText}</h2>
+                </div>
+            </div>
+        </div>
+    </template>
 </template>
