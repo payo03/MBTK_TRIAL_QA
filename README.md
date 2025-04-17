@@ -1,4 +1,10 @@
-Rollback Scenario
+### INIT 이후 설정사항
+1. git update-index --skip-worktree sfdx-project.json
+2. git update-index --skip-worktree MBTK_TRIAL_QA.iml
+3. git update-index --skip-worktree .forceignore
+4. git update-index --skip-worktree .gitignore
+
+### Rollback Scenario
 
 1. 롤백 브랜치 생성 및 checkout (Base from Master) 
 2. PR Hash확인 후 해당시점으로 reset [ git reset --hard "PR Hash" ]
