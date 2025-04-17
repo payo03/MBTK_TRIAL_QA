@@ -42,11 +42,10 @@
                         </select>
                     </template>
 
-                    <!--
                     <div class="slds-m-bottom_x-small slds-text-align_right">
-                        <lightning-button label="세관정보 전송" onclick={handleCustomButton}></lightning-button>
+                        <!-- Interface Button -->
+                        <lightning-button label="Interface" onclick={nextButtonLog}></lightning-button>
                     </div>
-                    -->
 
                     <!-- 구분선 -->
                     <div class="slds-m-vertical_x-small">
@@ -342,16 +341,9 @@
             <footer class="slds-modal__footer">
                 <template if:true={inputVisible}>
                     <div class="slds-button-group">
-                        <!-- Interface Button -->
-                        <lightning-button
-                                variant="neutral"
-                                label="Interface"
-                                onclick={nextButtonLog}>
-                        </lightning-button>
-                        &nbsp;
                         <!-- AvisOrderInfo Button -->
                         <lightning-button
-                                variant="neutral"
+                                variant="brand"
                                 label="Next"
                                 onclick={nextButtonOrder}>
                         </lightning-button>
