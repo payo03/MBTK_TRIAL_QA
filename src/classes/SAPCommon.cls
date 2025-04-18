@@ -9,6 +9,7 @@
   1.1      2025-03-07      payo03@solomontech.net           IFAudigLogDetail. VehicleStock을 연결하기위해 데이터 GET
   1.2      2025-03-10      payo03@solomontech.net           IFAudigLogDetail. Async-Sync 공통 Update함수 추가
   1.3      2025-03-11      payo03@solomontech.net           차량재고조회 함수 추가
+  1.4      2025-04-18      payo03@solomontech.net           IFAuditLogDetail. 공통조회함수 추가
 */
 public with sharing class SAPCommon {
 
@@ -196,6 +197,31 @@ public with sharing class SAPCommon {
         }
 
         return vehicleStock;
+    }
+
+    // ver1.4 IFAuditLogDetail. 공통조회함수 추가
+    public static Map<String, String> fetchLogIdMap(Object collection, String logType) {
+        Map<String, String> logIdMap = new Map<String, String>();   // KEY : ExternalId, Value : Log Id
+
+        List<String> idList = new List<String>();
+        if (collection instanceof Iterable<Object>) {
+            for (Object strings : (Iterable<Object>) collection) {
+                idList.add(String.valueOf(strings));
+            }
+        }
+
+        for(IFAuditLogDetail__c existIFLog : [
+                SELECT Id, ExternalId__c, fm_LogId__c
+                FROM IFAuditLogDetail__c
+                WHERE ExternalId__c IN :idList
+                AND fm_LogType__c = :logType
+                AND IsResponse__c = 'Y'         // 전송완료한건에 대해서 GET
+                ORDER BY CreatedDate
+        ]) {
+            logIdMap.put(existIFLog.ExternalId__c, existIFLog.fm_LogId__c);
+        }
+
+        return logIdMap;
     }
 
     public static String testDTOBody() {

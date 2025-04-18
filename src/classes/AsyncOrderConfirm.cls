@@ -33,18 +33,7 @@ public without sharing class AsyncOrderConfirm implements Queueable, Database.Al
 
         // ver1.2 취소 IF 추가
         // 취소데이터인경우, logId를 기존것으로 재활용
-        Map<String, String> logIdMap = new Map<String, String>();   // KEY : AvisOrderInfoId, Value : Log Id
-        for(IFAuditLogDetail__c existIFLog : [
-                SELECT Id, ExternalId__c, fm_LogId__c
-                FROM IFAuditLogDetail__c
-                WHERE ExternalId__c IN :idList
-                AND fm_LogType__c = :LOG_TYPE_S
-                AND IsResponse__c = 'Y'         // 전송완료한건에 대해서 GET
-                ORDER BY CreatedDate
-        ]) {
-            logIdMap.put(existIFLog.ExternalId__c, existIFLog.fm_LogId__c);
-        }
-
+        Map<String, String> logIdMap = SAPCommon.fetchLogIdMap(idList, LOG_TYPE_S); // KEY : AvisOrderInfoId, Value : Log Id
         List<AvisOrderInfo__c> infoList = SAPCommon.fetchOrderInfoList(idList);
         Map<String, SpoilerPart__c> spoilerMap = SAPCommon.fetchSpoilerMap(infoList);
 

@@ -29,6 +29,8 @@ public without sharing class AsyncCustomerInfo implements Queueable, Database.Al
 
         Map<String, IFAuditLog__c> logMap = new Map<String, IFAuditLog__c>();
         Map<String, IFAuditLogDetail__c> logDetailMap = new Map<String, IFAuditLogDetail__c>();
+        Map<String, String> logIdMap = SAPCommon.fetchLogIdMap(idList, LOG_TYPE);
+
         try {
             // BP코드 전송
             List<Account> accList = [
@@ -40,9 +42,10 @@ public without sharing class AsyncCustomerInfo implements Queueable, Database.Al
 
             List<IF_DTO.CustomerInfo> infoList = new List<IF_DTO.CustomerInfo>();
             for(Account acc : accList) {
+                Boolean isCreate = !logIdMap.containsKey(acc.Id);
                 String logId = CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.PREFIX_BP);
 
-                IF_DTO.CustomerInfo info = new IF_DTO.CustomerInfo(acc, true);
+                IF_DTO.CustomerInfo info = new IF_DTO.CustomerInfo(acc, isCreate);
                 info.IFID = logId;
                 infoList.add(info);
 
