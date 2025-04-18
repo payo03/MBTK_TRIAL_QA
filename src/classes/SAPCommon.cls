@@ -11,7 +11,7 @@
   1.3      2025-03-11      payo03@solomontech.net           차량재고조회 함수 추가
   1.4      2025-04-18      payo03@solomontech.net           IFAuditLogDetail. 공통조회함수 추가
 */
-public with sharing class SAPCommon {
+global without sharing class SAPCommon {
 
     // SAP Interface를 위한 필드Set
     public static List<AvisOrderInfo__c> fetchOrderInfoList(List<String> idList) {
@@ -66,11 +66,7 @@ public with sharing class SAPCommon {
         if(infoMap.isEmpty() || !Boolean.valueOf(infoMap.get('code'))) return;
 
         // Heroku 통신 완료시. Async
-        List<IFAuditLogDetail__c> logDetailList = [
-                SELECT Id, IsRequest__c, Description__c
-                FROM IFAuditLogDetail__c
-                WHERE fm_LogId__c = :logId
-        ];
+        List<IFAuditLogDetail__c> logDetailList = logDetailList(new List<String>{logId});
         for(IFAuditLogDetail__c logDetail : logDetailList) {
             logDetail.IsRequest__c = true;
             logDetail.Description__c = String.valueOf(infoMap.get('message'));
@@ -92,11 +88,7 @@ public with sharing class SAPCommon {
         if(Test.isRunningTest()) message = JSON.serialize(infoMap.get('message'));
         // Heroku 통신 완료시. Sync
         // 1. IsRequest Update
-        List<IFAuditLogDetail__c> logDetailList = [
-                SELECT Id, IsRequest__c, IsResponse__c, Description__c
-                FROM IFAuditLogDetail__c
-                WHERE fm_LogId__c = :logId
-        ];
+        List<IFAuditLogDetail__c> logDetailList = logDetailList(new List<String>{logId});
         for(IFAuditLogDetail__c logDetail : logDetailList) {
             logDetail.IsRequest__c = true;
             logDetail.Description__c = message;
@@ -114,6 +106,36 @@ public with sharing class SAPCommon {
             if(isAll) logDetail.ResultDatetime__c = Datetime.now();
         }
         update logDetailList;
+    }
+
+    // ver1.4 IFAuditLogDetail. 공통조회함수 추가
+    global static List<IFAuditLogDetail__c> logDetailList(Object collection) {
+        List<String> idList = CommonUtilController.returnList(collection);
+
+        return [
+                SELECT Id, IsRequest__c, IsResponse__c, Description__c
+                FROM IFAuditLogDetail__c
+                WHERE fm_LogId__c = :idList
+        ];
+    }
+
+    // ver1.4 IFAuditLogDetail. 공통조회함수 추가
+    public static Map<String, String> fetchLogIdMap(Object collection, String logType) {
+        Map<String, String> logIdMap = new Map<String, String>();   // KEY : ExternalId, Value : Log Id
+
+        List<String> idList = CommonUtilController.returnList(collection);
+        for(IFAuditLogDetail__c existIFLog : [
+                SELECT Id, ExternalId__c, fm_LogId__c
+                FROM IFAuditLogDetail__c
+                WHERE ExternalId__c IN :idList
+                AND fm_LogType__c = :logType
+                AND IsResponse__c = 'Y'         // 전송완료한건에 대해서 GET
+                ORDER BY CreatedDate
+        ]) {
+            logIdMap.put(existIFLog.ExternalId__c, existIFLog.fm_LogId__c);
+        }
+
+        return logIdMap;
     }
 
 
@@ -197,31 +219,6 @@ public with sharing class SAPCommon {
         }
 
         return vehicleStock;
-    }
-
-    // ver1.4 IFAuditLogDetail. 공통조회함수 추가
-    public static Map<String, String> fetchLogIdMap(Object collection, String logType) {
-        Map<String, String> logIdMap = new Map<String, String>();   // KEY : ExternalId, Value : Log Id
-
-        List<String> idList = new List<String>();
-        if (collection instanceof Iterable<Object>) {
-            for (Object strings : (Iterable<Object>) collection) {
-                idList.add(String.valueOf(strings));
-            }
-        }
-
-        for(IFAuditLogDetail__c existIFLog : [
-                SELECT Id, ExternalId__c, fm_LogId__c
-                FROM IFAuditLogDetail__c
-                WHERE ExternalId__c IN :idList
-                AND fm_LogType__c = :logType
-                AND IsResponse__c = 'Y'         // 전송완료한건에 대해서 GET
-                ORDER BY CreatedDate
-        ]) {
-            logIdMap.put(existIFLog.ExternalId__c, existIFLog.fm_LogId__c);
-        }
-
-        return logIdMap;
     }
 
     public static String testDTOBody() {
