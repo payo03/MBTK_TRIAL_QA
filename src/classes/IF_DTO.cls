@@ -254,7 +254,7 @@ global without sharing class IF_DTO {
             // 필수값 데이터
             this.CARDCD = acc.BPCode__c;
             this.CARDNM = acc.BusinessName__c;                  // 수정필요
-            this.VATRENO = acc.BusinessNumber__c;
+            this.VATRENO = acc.IsTaxIDNumber__c ? acc.IDNumber__pc : acc.BusinessNumber__c;
             this.RRNYN = acc.IDNumber__pc != null ? 'Y' : 'N';  // 수정필요
 
             // AS_IS. [개인 : P, 개인사업자 : G, 그외 : B] / TO_BE [개인 - 법인]
