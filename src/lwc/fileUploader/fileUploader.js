@@ -238,6 +238,8 @@ export default class FileUploader extends NavigationMixin(LightningElement) {
 			console.log("err ::: ", err);
 		});
 
+		showToast("Success", "파일이 업로드됐습니다.", "success");
+		
 		this.dispatchEvent(new CloseActionScreenEvent());
 
 		this.mobileReturnPage();
