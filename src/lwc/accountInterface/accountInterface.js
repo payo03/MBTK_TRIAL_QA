@@ -9,6 +9,7 @@
 */
 import { LightningElement, api, track, wire } from 'lwc';
 import { CurrentPageReference } from "lightning/navigation";
+import { CloseActionScreenEvent } from "lightning/actions";
 import { showToast } from "c/commonUtil";
 
 import fetchRecord from "@salesforce/apex/AccountInterface.fetchRecord";
@@ -66,6 +67,7 @@ export default class accountInterface extends LightningElement {
         updateRecord({ account: this.account }).then(res => {
 
             showToast('Success', 'Update Record', 'success', 'dismissable');
+            this.dispatchEvent(new CloseActionScreenEvent());
         }).catch(error => {
             showToast('Error', 'Error Update Record', 'error', 'dismissable');
             console.log(error);
@@ -76,6 +78,7 @@ export default class accountInterface extends LightningElement {
         sendCustomerInfo({ recordId: this.recordId }).then(res => {
 
             showToast('Success', 'Send Customer Info', 'success', 'dismissable');
+            this.dispatchEvent(new CloseActionScreenEvent());
         }).catch(error => {
             showToast('Error', 'Error Send Customer Info', 'error', 'dismissable');
             console.log(error);
