@@ -79,6 +79,7 @@
           <option value="$PROJECT_DIR$/src/classes/Lead_tr.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/LeadAcquisitionController.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/ModuSignPDFController.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/ModuSignPDFController_test.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/Opportunity_tr.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/PaymentTracker_tr.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/PaymentType_tr.cls-meta.xml" />
