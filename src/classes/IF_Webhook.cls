@@ -135,14 +135,14 @@ global without sharing class IF_Webhook {
                 String bulkId = String.valueOf(resultMap.get('bulkId'));
                 String docStatus = String.valueOf(statusMap.get('groupName'));
 
-                APIDocument__c doc = [SELECT Id, FileName__c, Status__c, AfterProcessClass__c FROM APIDocument__c WHERE Name =: bulkId];
+                APIDocument__c doc = [SELECT Id, FileName__c, Status__c, AfterProcessClass__c, ExternalId__c FROM APIDocument__c WHERE Name =: bulkId];
                 doc.Status__c = docStatus;
                 update doc;
 
                 // ver1.4 모두싸인, 카카오톡 후처리 Process 상속Class 구현
                 if(doc.AfterProcessClass__c != null) {
                     Type type = Type.forName(doc.AfterProcessClass__c);
-                    Object obj = ((CommonAfterProcess) type.newInstance()).doAfterProcess(doc.Contract__c);
+                    Object obj = ((CommonAfterProcess) type.newInstance()).doAfterProcess(doc.ExternalId__c);
                 }
             }
         } catch(Exception e) {
@@ -217,9 +217,7 @@ global without sharing class IF_Webhook {
         // ver1.4 모두싸인, 카카오톡 후처리 Process 상속Class 구현
         if(doc.AfterProcessClass__c != null) {
             Type type = Type.forName(doc.AfterProcessClass__c);
-            // 계약 및 입금완료 확인
-            if('COMPLETED(CUSTOMER)'.equals(docStatus)) ((CommonAfterProcess) type.newInstance()).doAfterProcess(doc.Contract__c);
-            if('COMPLETED'.equals(docStatus) && '세금계산서 주민번호 발행 확인서'.equals(doc.FileName__c)) ((CommonAfterProcess) type.newInstance()).doAfterProcess(doc.ExternalId__c);
+            Object obj = ((CommonAfterProcess) type.newInstance()).doAfterProcess(doc.ExternalId__c);
         }
     }
 
