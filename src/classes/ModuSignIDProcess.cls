@@ -11,13 +11,22 @@ public with sharing class ModuSignIDProcess extends CommonAfterProcess {
 
     public override Object doAfterProcess(Object obj) {
         String opptyId = String.valueOf(obj);
-        Account acc = [
-                SELECT Id, IsTaxIDNumber__c
-                FROM Account
-                WHERE Id IN (SELECT AccountId FROM Opportunity WHERE Id = :opptyId)
-        ];
-        acc.IsTaxIDNumber__c = true;
-        update acc;
+
+        try {
+            APIDocument__c doc = [SELECT Id, Status__c, FileName__c FROM APIDocument__c WHERE ExternalId__c = :opptyId];
+            if (!'COMPLETED'.equals(doc.Status__c)) throw new CustomException('서명이 완료되지 않았습니다');
+
+            Account acc = [
+                    SELECT Id, IsTaxIDNumber__c
+                    FROM Account
+                    WHERE Id IN (SELECT AccountId FROM Opportunity WHERE Id = :opptyId)
+            ];
+            acc.IsTaxIDNumber__c = true;
+            update acc;
+        } catch(Exception e) {
+
+            System.debug(e.getMessage());
+        }
 
         return null;
     }
