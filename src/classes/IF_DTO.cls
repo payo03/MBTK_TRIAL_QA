@@ -538,32 +538,32 @@ global without sharing class IF_DTO {
         public String CRDT = String.valueOf(Datetime.now());
         public String CRTP = 'C';
 
-        public String BPLID = 'G100';       // 세금신고사업장
-        public String ISSUETYPE = 'A';
-        public String PAYTP = 'CH';
-        public String SALEPRICE = '0';
-        public String SALEVAT = '0';
-        public String VATGRP = 'A';
-        public String REVNO = '';
-        public String MVTP = '';
-        public String MANO = '';
-        public String TPAPNO = '';
-        public String TPAPYM = '';
-        public String CARNO = '';
+        public String BPLID = 'G100';           // Tax Report Biz. Area (세금신고사업장) |	G100 : 금산사업장
+        public String ISSUETYPE = 'A';          // Vehicle Issue Type |	A : Vehicle, B : PDI Warranty
+        public String PAYTP = 'CH';             // Payment Type(결제방법) | CH : 현금
+        public String SALEPRICE = '0';          // Sales Unit Price(세전단가)
+        public String SALEVAT = '0';            // Sales Unit Vat(부가세액)
+        public String REVNO = '';               // 제작양도증번호
+        public String MVTP = '';                // 원동기형식
+        public String MANO = '';                // 제원관리번호
+        public String TPAPNO = '';              // 형식승인번호
+        public String TPAPYM = '';              // 형식승인년월일
+        public String CARNO = '';               // 원동기번호
         public String gear = '';
         public String rmc_type = '';
 
-        public String ISREQNO{get; set;}
-        public String DISNUM{get; set;}
-        public String CARDCD{get; set;}
-        public String BCARDCD{get; set;}
-        public String BRANCH{get; set;}
-        public String SLPCD{get; set;}
-        public String DREQDT{get; set;}
-        public String ISSUDT{get; set;}
-        public String SALEAMT{get; set;}
-        public String IFID{get; set;}
-        public String VATGRPD{get; set;}
+        public String ISREQNO{get; set;}        // Vehicle Issue Request No.(차량출고요청번호) | 차량1대 단위로 I/F
+        public String DISNUM{get; set;}         // VIN (차대번호)
+        public String CARDCD{get; set;}         // Sold to Party Code (주문처) | 고객
+        public String BCARDCD{get; set;}        // Bill to Party Code (세금계산서발행처) | 고객
+        public String BRANCH{get; set;}         // 딜러 지점 | 딜러지점
+        public String SLPCD{get; set;}          // Sales Group Code (영업그룹_담당자) | 영업지점 (ERP영업그룹)
+        public String DREQDT{get; set;}         // Delivery Date (납기일) | 희망출고예정일
+        public String ISSUDT{get; set;}         // Issue Date (실제출고일) | 세금계산서발행일자
+        public String SALEAMT{get; set;}        // Sales Amount
+        public String IFID{get; set;}           // Interface File ID
+        public String VATGRP{get; set;}         // VAT Type(세금그룹) | A : 일반과세(10%), B : 영세, C: 면세
+        public String VATGRPD{get; set;}        // VAT Type
 
         public String emission {get; set;}
         public String model_type {get; set;}
@@ -587,20 +587,20 @@ global without sharing class IF_DTO {
     
     // 매출확정정보 Detail(SMS013)
     public class SalesDetailInfo {
-        public String WHSCD = 'P21';
-        public String QTY = '1';
-        public String AMT = '0';
-        public String VAT = '0';
+        public String WHSCD = 'P21';            // 출고창고 | P21 : Fixed
+        public String QTY = '1';                // Quantity (수량)
+        public String AMT = '0';                // 금액
+        public String VAT = '0';                // 부가세액
         public String LINETOTAL = '0';
-        public String FPRICE = '';
-        public String DISCAMT = '';
-        public String RMK = '';
+        public String FPRICE = '';              // 외화단가
+        public String DISCAMT = '';             // Vehicle 할인금액
+        public String RMK = '';                 // 비고
 
-        public String ISREQNO {get; set;}
-        public String ROWNO {get; set;}
-        public String ITEMTP {get; set;}
-        public String PRICE {get; set;}
-        public String ITEMCD {get; set;}
+        public String ISREQNO {get; set;}       // Vehicle Issue Request No.(차량출고요청번호) | 차량1대 단위로 I/F
+        public String ROWNO {get; set;}         // 순번
+        public String ITEMTP {get; set;}        // Item Type (품목유형) | (V.차량 / P.PDI장착품/ M.작업자실수/ O.출고기념품/ E.EW/R.RMC/ C.주유상품권/ J.인도후장착품)
+        public String PRICE {get; set;}         // 단가
+        public String ITEMCD {get; set;}        // Item Code (품목코드)
     }
 
     // BP코드 - 가상계좌번호 전송(SMS018)
