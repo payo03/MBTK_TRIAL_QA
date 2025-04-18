@@ -19,6 +19,7 @@
       <option name="myCustomValuesEnabled" value="true" />
     </inspection_tool>
     <inspection_tool class="InconsistentSalesforceApiVersion" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="verifyMetadataXml" value="false" />
       <option name="ignoredFilePaths">
         <list>
           <option value="$PROJECT_DIR$/src/classes/Account_tr.cls-meta.xml" />
@@ -103,6 +104,9 @@
           <option value="$PROJECT_DIR$/src/classes/TriggerHandler.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/TriggerHandler_test.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/User_tr.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/VehiceManufactCertController.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/VehiclePackageCoverController.cls-meta.xml" />
+          <option value="$PROJECT_DIR$/src/classes/VehiclePackageCoverController.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/VehicleStock_tr.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/classes/VehicleStockTableController.cls-meta.xml" />
           <option value="$PROJECT_DIR$/src/lwc/commonStyleUtil/commonStyleUtil.js-meta.xml" />

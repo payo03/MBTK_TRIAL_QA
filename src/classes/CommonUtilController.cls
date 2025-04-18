@@ -250,14 +250,21 @@ public without sharing class CommonUtilController {
      * @return              String value
      */
     public static String joinedString(Object collection) {
-        List<String> returnList = new List<String>();
+        List<String> returnList = returnList(collection);
+
+        return '(\'' + String.join(returnList, '\',\'') + '\')';
+    }
+
+    public static List<String> returnList(Object collection) {
+        List<String> resultList = new List<String>();
 
         if (collection instanceof Iterable<Object>) {
             for (Object strings : (Iterable<Object>) collection) {
-                returnList.add(String.valueOf(strings));
+                resultList.add(String.valueOf(strings));
             }
         }
-        return '(\'' + String.join(returnList, '\',\'') + '\')';
+
+        return resultList;
     }
 
     /**
