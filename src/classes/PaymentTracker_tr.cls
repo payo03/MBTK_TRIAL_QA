@@ -152,14 +152,14 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
         }
 
         List<PaymentLog__c> updatePaymentLogList = new List<PaymentLog__c>();
-        Map<String, String> sumPaymentLogMap = new Map<String, String>(); // ver 1.3 이전 입금 로그의 합
+        Map<String, Decimal> sumPaymentLogMap = new Map<String, Decimal>(); // ver 1.3 이전 입금 로그의 합
 
         // 새 PaymentTracker__c에 기존 PaymentLog 연결
         for (PaymentTracker__c newPT : newList) {
             if (expiredPaymentTrackerMap.size() > 0) {
                 PaymentTracker__c expiredPT = expiredPaymentTrackerMap.get(newPT.Opportunity__c)[0];
                 if (expiredPT != null && expiredPaymentLogMap.containsKey(expiredPT.Id)) {
-                    let sumPaymentLog = 0;
+                    Decimal sumPaymentLog = 0;
                     for (PaymentLog__c oldLog : expiredPaymentLogMap.get(expiredPT.Id)) {
                         oldLog.PaymentTracker__c = newPT.Id;
                         updatePaymentLogList.add(oldLog);
