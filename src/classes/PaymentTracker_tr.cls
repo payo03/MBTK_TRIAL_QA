@@ -121,94 +121,78 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
             curOpptyMap.put(newPT.Id, newPT.Opportunity__c);
         }
 
-        List<PaymentTracker__c> expiredPaymentTrackerList = new List<PaymentTracker__c>([
-            SELECT Id, Name, Opportunity__c, Status__c
-            FROM PaymentTracker__c
-            WHERE Opportunity__c IN :curOpptyMap.values()
-            AND IsValid__c = false
-            ORDER BY CreatedDate DESC
-        ]);
-
-        Map<Id, List<PaymentTracker__c>> expiredPaymentTrackerMap = new Map<Id, List<PaymentTracker__c>>();
-        for (PaymentTracker__c tracker : expiredPaymentTrackerList) {
-            if (!expiredPaymentTrackerMap.containsKey(tracker.Opportunity__c)) {
-                expiredPaymentTrackerMap.put(tracker.Opportunity__c, new List<PaymentTracker__c>());
-            }
-            expiredPaymentTrackerMap.get(tracker.Opportunity__c).add(tracker);
+        // 만료 TrackerMap
+        Map<String, PaymentTracker__c> expiredPaymentTrackerMap = new Map<String, PaymentTracker__c>();
+        for (PaymentTracker__c tracker : [
+                SELECT Id, Name, Opportunity__c, Status__c, (
+                        SELECT Id, Amount__c, PaymentTracker__c
+                        FROM PaymentLogs__r
+                )
+                FROM PaymentTracker__c
+                WHERE Opportunity__c IN :curOpptyMap.values()
+                AND IsValid__c = FALSE
+                ORDER BY CreatedDate
+        ]) {
+            expiredPaymentTrackerMap.put(tracker.Opportunity__c, tracker);
         }
 
-        List<PaymentLog__c> expiredPaymentLogList = [
-            SELECT Id, Amount__c, PaymentTracker__c
-            FROM PaymentLog__c
-            WHERE PaymentTracker__r.Opportunity__c IN :expiredPaymentTrackerMap.keySet()
-        ];
-
-        Map<Id, List<PaymentLog__c>> expiredPaymentLogMap = new Map<Id, List<PaymentLog__c>>();
-        for (PaymentLog__c log : expiredPaymentLogList) {
-            if (!expiredPaymentLogMap.containsKey(log.PaymentTracker__c)) {
-                expiredPaymentLogMap.put(log.PaymentTracker__c, new List<PaymentLog__c>());
-            }
-            expiredPaymentLogMap.get(log.PaymentTracker__c).add(log);
-        }
-
-        List<PaymentLog__c> updatePaymentLogList = new List<PaymentLog__c>();
-        Map<String, String> sumPaymentLogMap = new Map<String, String>(); // ver 1.3 이전 입금 로그의 합
-
-        // 새 PaymentTracker__c에 기존 PaymentLog 연결
-        for (PaymentTracker__c newPT : newList) {
-            if (expiredPaymentTrackerMap.size() > 0) {
-                PaymentTracker__c expiredPT = expiredPaymentTrackerMap.get(newPT.Opportunity__c)[0];
-                if (expiredPT != null && expiredPaymentLogMap.containsKey(expiredPT.Id)) {
-                    let sumPaymentLog = 0;
-                    for (PaymentLog__c oldLog : expiredPaymentLogMap.get(expiredPT.Id)) {
-                        oldLog.PaymentTracker__c = newPT.Id;
-                        updatePaymentLogList.add(oldLog);
-                        sumPaymentLog += oldLog.Amount__c;
-                    }
-                    sumPaymentLogMap.put(newPT.Id, sumPaymentLog);
-                }
-            }
-        }
-
-        if (!updatePaymentLogList.isEmpty()) update updatePaymentLogList;
-
-        // ver 1.3 이전 입금 로그 연결 후 로그 금액에 따라 입금현황 종류 금액, 입금현황관리 상태 업데이트
-
-        List<SObject> updateList = new List<SObject>();
-
-        // 새로 생성된 계약의 입금현황 종류 가져오기
-        Map<Id, List<PaymentType__c>> curTypeMap = new Map<Id, List<PaymentType__c>>();
-        for (PaymentType__c type : [SELECT Id, Type__c, RequestAmount__c, DepositAmount__c
-            FROM PaymentType__c
-            WHERE PaymentTracker__c IN :curOpptyMap.keySet()
+        // 신규 TrackerMap
+        Map<String, List<PaymentType__c>> curTypeMap = new Map<String, List<PaymentType__c>>();
+        for (PaymentType__c type : [
+                SELECT Id, Type__c, RequestAmount__c, DepositAmount__c
+                FROM PaymentType__c
+                WHERE PaymentTracker__c IN :curOpptyMap.keySet()
         ]) {
             if (!curTypeMap.containsKey(type.PaymentTracker__c)) {
                 curTypeMap.put(type.PaymentTracker__c, new List<PaymentType__c>());
             }
             curTypeMap.get(type.PaymentTracker__c).add(type);
         }
+
+        List<PaymentLog__c> updatePaymentLogList = new List<PaymentLog__c>();
+        Map<String, Decimal> sumPaymentLogMap = new Map<String, Decimal>(); // ver 1.3 이전 입금 로그의 합
+
+        // 새 PaymentTracker__c에 기존 PaymentLog 연결
         for (PaymentTracker__c newPT : newList) {
-            updateList.add(new PaymentTracker__c(
-                Id = newPT.Id,
-                Status__c = expiredPaymentTrackerMap.get(newPT.Opportunity__c)[0].Status__c
-            ));
+            PaymentTracker__c expiredPT = expiredPaymentTrackerMap.get(newPT.Opportunity__c);
+
+            if (expiredPT != null) {
+                Decimal sumPaymentLog = 0;
+                for (PaymentLog__c oldLog : expiredPT.PaymentLogs__r) {
+                    oldLog.PaymentTracker__c = newPT.Id;
+                    updatePaymentLogList.add(oldLog);
+                    sumPaymentLog += oldLog.Amount__c;
+                }
+                sumPaymentLogMap.put(newPT.Id, sumPaymentLog);
+            }
+        }
+        if (!updatePaymentLogList.isEmpty()) update updatePaymentLogList;
+
+        // ver 1.3 이전 입금 로그 연결 후 로그 금액에 따라 입금현황 종류 금액, 입금현황관리 상태 업데이트
+        List<PaymentTracker__c> updateTrackerList = new List<PaymentTracker__c>();
+        List<PaymentLog__c> updateLogList = new List<PaymentLog__c>();
+
+        // 기존금액 분배 Start
+        for (PaymentTracker__c newPT : newList) {
+            PaymentTracker__c oldTracker = expiredPaymentTrackerMap.get(newPT.Opportunity__c);
+
+            newPT.Status__c = oldTracker.Status__c;
+            updateTrackerList.add(newPT);
+
             Decimal remainingAmount = sumPaymentLogMap.get(newPT.Id);
             for (PaymentType__c type : curTypeMap.get(newPT.Id)) {
-                Decimal requestAmt = type.RequestAmount__c != null ? type.RequestAmount__c : 0;
+                if (remainingAmount <= 0) break;
 
-                if (remainingAmount > 0) {
-                    if (remainingAmount >= requestAmt) {
-                        remainingAmount -= requestAmt;
-                        type.DepositAmount__c = requestAmt;
-                    } else {
-                        type.DepositAmount__c = remainingAmount;
-                        remainingAmount = 0;
-                    }
-                    updateList.add(type);
-                }
+                Decimal requestAmt = type.RequestAmount__c != null ? type.RequestAmount__c : 0;
+                Decimal assignAmount = Math.min(remainingAmount, requestAmt);
+                type.DepositAmount__c = assignAmount;
+                remainingAmount -= assignAmount;
+
+                updateLogList.add(type);
             }
         }
 
-        if (!updateList.isEmpty()) update updateList;
+        if (!updateTrackerList.isEmpty()) update updateTrackerList;
+        if (!updateLogList.isEmpty()) update updateLogList;
     }
 }
