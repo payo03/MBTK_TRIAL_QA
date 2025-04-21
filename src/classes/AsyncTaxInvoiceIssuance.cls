@@ -30,7 +30,7 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
         String logType = isCreate ? LOG_TYPE_S : LOG_TYPE_C;
 
         // 취소데이터인경우, logId를 기존것으로 재활용
-        Map<String, String> logIdMap = SAPCommon.fetchLogIdMap(opptyIdList, LOG_TYPE_S);   // KEY : OpportunityId, Value : Log Id
+        Map<String, String> logIdMap = SAPCommon.fetchLogExternalIdMap(opptyIdList, LOG_TYPE_S);   // KEY : OpportunityId, Value : Log Id
 
         // Opportunity별 견적 가져오기
         Map<String, Quote> opptyQuoteMap = new Map<String, Quote>();
@@ -41,6 +41,7 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                         Opportunity.HandoverDate__c,
                         Opportunity.DiscountAmt__c,
                         Opportunity.VATType__c,
+                        Opportunity.fm_TaxBPCode__c,
                         // 2 Level
                         Opportunity.Owner.Name,
                         Opportunity.Owner.Agency__c,
@@ -52,6 +53,7 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                         Opportunity.VehicleStock__r.EmissionLevelEu__c,
                         Opportunity.VehicleStock__r.PDIChubuOutDate__c,
                         // 3 Level
+                        Opportunity.VehicleStock__r.SpoilerPart__r.SpoilerCode__c,
                         Opportunity.VehicleStock__r.Product__r.CarAmt__c,
                         Opportunity.VehicleStock__r.Product__r.PurePrice__c,
                         Opportunity.VehicleStock__r.Product__r.PurePriceWsc__c,
@@ -260,6 +262,18 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                     optionPrice += quoteDetail.fm_Price__c;
                 }
             }
+
+            // SpoilerPart
+            SpoilerPart__c spoilerPart = oppty.VehicleStock__r.SpoilerPart__r;
+            if(spoilerPart != null) {
+                IF_DTO.SalesDetailInfo spoilerInfo = new IF_DTO.SalesDetailInfo();
+                spoilerInfo.ISREQNO = logId;
+                spoilerInfo.ROWNO = String.valueOf(seq++);
+                spoilerInfo.ITEMTP = 'P';
+                spoilerInfo.ITEMCD = spoilerPart.SpoilerCode__c;
+                spoilerInfo.PRICE = '0';
+                detailInfoList.add(spoilerInfo);
+            }
             /* ------------------------------------------------------------------- */
             /* -------------------------- 옵션 List End -------------------------- */
             /* ------------------------------------------------------------------- */
@@ -306,14 +320,13 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
 
             // 차량 ADD
             IF_DTO.SalesInfo salesInfo = new IF_DTO.SalesInfo(isCreate, detailInfoList);
-            String taxBPCode = oppty.IsTaxAcountChange__c ? oppty.Account.Account__r.BPCode__c : oppty.Account.BPCode__c;
 
             salesInfo.ISREQNO = logId;
             salesInfo.IFID = logId;
             salesInfo.DISNUM = stock.Name;
             salesInfo.CARDCD = oppty.Account.BPCode__c;
-            salesInfo.BCARDCD = taxBPCode;                              // 세금계산서 명의 Account
-            salesInfo.BRANCH = oppty.Owner.Agency__c;                   // 03-14. 강희주임 설명. 한글데이터 필요
+            salesInfo.BCARDCD = oppty.fm_TaxBPCode__c;                              // 세금계산서 명의 Account
+            salesInfo.BRANCH = oppty.Owner.Agency__c;                               // 03-14. 강희주임 설명. 한글데이터 필요
             salesInfo.SLPCD = oppty.Owner.Name.left(8);
             salesInfo.DREQDT = String.valueOf(releaseDate);
             salesInfo.VATGRPD = vatType;
@@ -326,14 +339,14 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
 
             salesInfo.emission = stock.EmissionLevelEu__c;
             salesInfo.model_type = modelType;
-//            salesInfo.model_detail1 = stock.CarTypeIdName__c;           // TODO. 데이터 원천 확인. 사용목적 확인
+//            salesInfo.model_detail1 = stock.CarTypeIdName__c;                     // TODO. 데이터 원천 확인. 사용목적 확인
             salesInfo.model_detail1 = stock.AvisOrderInfo__r.fm_Segment1__c;
             salesInfo.model_detail2 = stock.AvisOrderInfo__r.FinalSpec__c;
             salesInfo.model_detail3 = modelType + stock.AvisOrderInfo__r.fm_Segment1__c + '(' + weightCapacity + '.' + horsePower.left(1) + ')';    // TODO. segment1 한글로 변경필요??
             salesInfo.engine_type = stock.EngineType__c;
             salesInfo.hp = horsePower;
             salesInfo.cap = stock.Product__r.CabMark__c;
-            salesInfo.sales_agency = oppty.Owner.Agency__c;             // 03-14. 강희주임 설명. 한글데이터 필요
+            salesInfo.sales_agency = oppty.Owner.Agency__c;                         // 03-14. 강희주임 설명. 한글데이터 필요
             salesInfo.sales_people = oppty.Owner.Name;
             salesInfo.rmc_type = optionERPName;
             salesInfo.hand_over_date = String.valueOf(stock.PDIChubuOutDate__c);    // TODO. 데이터 원천 확인
@@ -459,6 +472,7 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
                 objLogWrapper.logType = IF_DTO.LOG_TYPE.HEROKU_SAP_OUT;
 
                 CommonUtilCustomController.setLog(objLogWrapper);
+                SAPCommon.updateLogByExternalId(opptyIdList, LOG_TYPE_S);
             }
         }
     }

@@ -16,6 +16,7 @@
   1.8      2025-03-31      chaebeom.do                      인도금 유예 신규추가시 금액 재조정 insert
   1.9      2025-04-16      th.kim                           updateIncentiveHistory() 추가
   1.10     2025-04-16      th.kim                           부가세 유예일 수 기회에 업데이트 추가
+  1.11     2025-04-18      payo03@solomontech.net           주민등록증 세금계산서 발행여부 완료시 고객정보전송
 */
 global without sharing class Opportunity_tr extends TriggerHandler {
 
@@ -28,6 +29,8 @@ global without sharing class Opportunity_tr extends TriggerHandler {
     private final Map<String, List<Id>> VATDeferredListMap { get; set; }
     private final Map<String, List<Id>> PaymentDeferredListMap { get; set; }
     private final List<Map<String, Object>> requestStockMapList { get; set; }
+    private final List<String> IDNumberUpdateList { get; set; }
+
 
     private final static List<String> updateStatusList = new List<String>{
             '승인됨', '반려됨'
@@ -39,14 +42,15 @@ global without sharing class Opportunity_tr extends TriggerHandler {
         newMap = (Map<Id, Opportunity>) Trigger.newMap;
         oldMap = (Map<Id, Opportunity>) Trigger.oldMap;
 
+        if (Trigger.isUpdate && Trigger.isBefore) {
+            opptyStockIdMap = getUpdateStockMap();
+        }
+
         if (Trigger.isUpdate && Trigger.isAfter) {
             VATDeferredListMap = getDeferredListMap('VATDefermentStatus__c');
             PaymentDeferredListMap = getDeferredListMap('PaymentDefermentStatus__c');
             requestStockMapList = getRequestStockMapList();     // ver1.6 재고이동요청 CALL After Update로 분리
-        }
-
-        if (Trigger.isUpdate && Trigger.isBefore) {
-            opptyStockIdMap = getUpdateStockMap();
+            IDNumberUpdateList = getIDNumberUpdateList();       // ver1.11 주민등록증 세금계산서 발행여부 완료시 고객정보전송
         }
     }
 
@@ -72,7 +76,8 @@ global without sharing class Opportunity_tr extends TriggerHandler {
         // 승인 완료 Process
         if (!VATDeferredListMap.isEmpty()) approvalAfterProcess(VATDeferredListMap, 'VATDeferred');
         if (!PaymentDeferredListMap.isEmpty()) approvalAfterProcess(PaymentDeferredListMap, 'PaymentDeferred');
-        if (!requestStockMapList.isEmpty()) System.enqueueJob(new AsyncStockRequest(requestStockMapList)); // ver1.6 재고이동요청 CALL After Update로 분리
+        if (!requestStockMapList.isEmpty()) System.enqueueJob(new AsyncStockRequest(requestStockMapList));                              // ver1.6 재고이동요청 CALL After Update로 분리
+        if (!IDNumberUpdateList.isEmpty()) System.enqueueJob(new AsyncCustomerInfo(IDNumberUpdateList, AsyncVAInfo.SEND_TYPE.O));       // ver1.11 주민등록증 세금계산서 발행여부 완료시 고객정보전송
     }
 
     // 2025.01.10 프로세스 추가될 예정
@@ -448,6 +453,19 @@ global without sharing class Opportunity_tr extends TriggerHandler {
         }
 
         return requestStockMapList;
+    }
+
+    // ver1.11 주민등록증 세금계산서 발행여부 완료시 고객정보전송
+    private List<String> getIDNumberUpdateList() {
+        List<String> accountIdList = new List<String>();
+
+        for(Opportunity newOppty : newList) {
+            Opportunity oldOppty = oldMap.get(newOppty.Id);
+
+            if(newOppty.IsTaxIDNumber__c != oldOppty.IsTaxIDNumber__c) accountIdList.add(newOppty.fm_TaxAccountId__c);
+        }
+
+        return accountIdList;
     }
 
     // 개인정보 고객 미동의 필드 락 로직

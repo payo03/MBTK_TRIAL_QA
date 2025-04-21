@@ -29,13 +29,19 @@ public without sharing class AsyncCustomerInfo implements Queueable, Database.Al
 
         Map<String, IFAuditLog__c> logMap = new Map<String, IFAuditLog__c>();
         Map<String, IFAuditLogDetail__c> logDetailMap = new Map<String, IFAuditLogDetail__c>();
-        Map<String, String> logIdMap = SAPCommon.fetchLogIdMap(idList, LOG_TYPE);
+        Map<String, String> logIdMap = SAPCommon.fetchLogExternalIdMap(idList, LOG_TYPE);
 
         try {
             // BP코드 전송
             List<Account> accList = [
-                    SELECT Id, RecordTypeId, Name, IDNumber__pc, BPCode__c, PersonEmail, IsTaxIDNumber__c,
-                            BusinessNumber__c, BusinessName__c, Phone, RoadAddress__c, DetailAddress__c, PostalCode__c
+                    SELECT Id, RecordTypeId, Name, IDNumber__pc, BPCode__c, PersonEmail,
+                            BusinessNumber__c, BusinessName__c, Phone, RoadAddress__c, DetailAddress__c, PostalCode__c,
+                            (
+                                SELECT Id, IsTaxIDNumber__c
+                                FROM Opportunities
+                                ORDER BY CreatedDate DESC
+                                LIMIT 1
+                            )
                     FROM Account
                     WHERE Id = :idList
             ];
@@ -134,6 +140,7 @@ public without sharing class AsyncCustomerInfo implements Queueable, Database.Al
             objLogWrapper.logType = IF_DTO.LOG_TYPE.HEROKU_SAP_OUT;
 
             CommonUtilCustomController.setLog(objLogWrapper);
+            SAPCommon.updateLogByExternalId(idList, LOG_TYPE);
         }
     }
 }
