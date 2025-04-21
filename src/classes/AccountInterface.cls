@@ -20,12 +20,16 @@ public with sharing class AccountInterface {
 
     @AuraEnabled
     public static void updateRecord(Account account) {
-        update account;// Test
+        update account;
     }
 
     @AuraEnabled
     public static void sendCustomerInfo(String recordId) {
+        Map<String, Object> infoMap = new Map<String, Object>{
+                'sendType' => AsyncVAInfo.SEND_TYPE.S,
+                'isChain' => true
+        };
 
-        System.enqueueJob(new AsyncCustomerInfo(new List<String>{recordId}, AsyncVAInfo.SEND_TYPE.S));
+        System.enqueueJob(new AsyncCustomerInfo(new List<String>{recordId}, infoMap));
     }
 }
