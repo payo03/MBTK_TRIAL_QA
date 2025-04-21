@@ -161,7 +161,12 @@ public without sharing class AssignRequest_tr extends TriggerHandler {
             if(!usedVAMList.isEmpty()) update usedVAMList;
         }
         if(!requestContractList.isEmpty()) update requestContractList;
-        System.enqueueJob(new AsyncCustomerInfo(accountIdList, AsyncVAInfo.SEND_TYPE.O)); 
+
+        Map<String, Object> infoMap = new Map<String, Object>{
+                'sendType' => AsyncVAInfo.SEND_TYPE.O,
+                'isChain' => true
+        };
+        System.enqueueJob(new AsyncCustomerInfo(accountIdList, infoMap));
     }
 
     @Future(Callout=true)

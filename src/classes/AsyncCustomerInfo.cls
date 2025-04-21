@@ -13,13 +13,18 @@ public without sharing class AsyncCustomerInfo implements Queueable, Database.Al
     private static final String IF_ID = InterfaceSAP.IF_SMS007;
 
     public List<String> idList;
-    public AsyncVAInfo.SEND_TYPE sendType;
-    public AsyncCustomerInfo(List<String> idList, AsyncVAInfo.SEND_TYPE sendType) {
+    public Map<String, Object> infoMap;
+    public AsyncCustomerInfo(List<String> idList, Map<String, Object> infoMap) {
         this.idList = idList;
-        this.sendType = sendType;
+        this.infoMap = infoMap;
     }
 
     public void execute(QueueableContext context) {
+        AsyncVAInfo.SEND_TYPE sendType = infoMap.containsKey('sendType')
+                ? (AsyncVAInfo.SEND_TYPE) infoMap.get('sendType')
+                : AsyncVAInfo.SEND_TYPE.O;
+        Boolean isChain = infoMap.containsKey('isChain') ? (Boolean) infoMap.get('isChain') : true;
+
         String status = 'SUCCESS';
         String requestBody = JSON.serializePretty(idList);
         String responseBody;
@@ -127,7 +132,7 @@ public without sharing class AsyncCustomerInfo implements Queueable, Database.Al
                 insert details;
 
                 // 고객정보전송(SMS007) 완료시 가상계좌-BP정보(SMS018) 전송
-                if(!logIdList.isEmpty()) System.enqueueJob(new AsyncVAInfo(logIdList, this.sendType)); 
+                if(isChain && !logIdList.isEmpty()) System.enqueueJob(new AsyncVAInfo(logIdList, sendType));
             }
 
             IF_DTO.LogWrapper objLogWrapper = new IF_DTO.LogWrapper();

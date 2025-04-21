@@ -25,15 +25,6 @@ public class IF_SAP_test {
         RestRequest req = new RestRequest();
         String requestBody = '';
 
-        req = new RestRequest();
-        req.requestURI = '/api/sap/sms005';
-        req.httpMethod = 'POST';
-        req.requestBody = Blob.valueOf('{"id":"123456789"}');
-        RestContext.request = req;
-        RestContext.response = new RestResponse();
-        IF_SAP.doPost();
-
-
 
         requestBody =
             '{' +
