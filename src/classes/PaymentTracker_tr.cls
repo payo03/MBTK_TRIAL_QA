@@ -7,7 +7,8 @@
  * Ver          Date            Author                  Modification
  * 1.0          2025-02-10      th.kim                  Created
  * 1.1          2025-04-01      payo03@solomontech.net  Opportunity PaymentStatus Update
- * 1.2          2025-04-08      chaebeom.do             이전 입금내역 연결시 현재 paymentType 업데이트 로직 추가
+ * 1.2          2025-04-08      chaebeom.do             이전 입금내역 연결 기능 linkPaymentLog() 추가
+ * 1.3          2025-04-21      chaebeom.do             linkPaymentLog() 실행시 PaymentType 업데이트 로직 추가
 **************************************************************/
 public without sharing class PaymentTracker_tr extends TriggerHandler {
 
@@ -121,7 +122,7 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
         }
 
         List<PaymentTracker__c> expiredPaymentTrackerList = new List<PaymentTracker__c>([
-            SELECT Id, Name, Opportunity__c
+            SELECT Id, Name, Opportunity__c, Status__c
             FROM PaymentTracker__c
             WHERE Opportunity__c IN :curOpptyMap.values()
             AND IsValid__c = false
@@ -150,8 +151,34 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
             expiredPaymentLogMap.get(log.PaymentTracker__c).add(log);
         }
 
+        List<PaymentLog__c> updatePaymentLogList = new List<PaymentLog__c>();
+        Map<String, String> sumPaymentLogMap = new Map<String, String>(); // ver 1.3 이전 입금 로그의 합
+
+        // 새 PaymentTracker__c에 기존 PaymentLog 연결
+        for (PaymentTracker__c newPT : newList) {
+            if (expiredPaymentTrackerMap.size() > 0) {
+                PaymentTracker__c expiredPT = expiredPaymentTrackerMap.get(newPT.Opportunity__c)[0];
+                if (expiredPT != null && expiredPaymentLogMap.containsKey(expiredPT.Id)) {
+                    let sumPaymentLog = 0;
+                    for (PaymentLog__c oldLog : expiredPaymentLogMap.get(expiredPT.Id)) {
+                        oldLog.PaymentTracker__c = newPT.Id;
+                        updatePaymentLogList.add(oldLog);
+                        sumPaymentLog += oldLog.Amount__c;
+                    }
+                    sumPaymentLogMap.put(newPT.Id, sumPaymentLog);
+                }
+            }
+        }
+
+        if (!updatePaymentLogList.isEmpty()) update updatePaymentLogList;
+
+        // ver 1.3 이전 입금 로그 연결 후 로그 금액에 따라 입금현황 종류 금액, 입금현황관리 상태 업데이트
+
+        List<SObject> updateList = new List<SObject>();
+
+        // 새로 생성된 계약의 입금현황 종류 가져오기
         Map<Id, List<PaymentType__c>> curTypeMap = new Map<Id, List<PaymentType__c>>();
-        for (PaymentType__c type : [SELECT Id, PaymentTracker__c, Type__c, RequestAmount__c, DepositAmount__c
+        for (PaymentType__c type : [SELECT Id, Type__c, RequestAmount__c, DepositAmount__c
             FROM PaymentType__c
             WHERE PaymentTracker__c IN :curOpptyMap.keySet()
         ]) {
@@ -160,31 +187,28 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
             }
             curTypeMap.get(type.PaymentTracker__c).add(type);
         }
-
-        System.debug('확인용 : ' + expiredPaymentTrackerMap);
-        System.debug('확인용 : ' + expiredPaymentLogMap);
-        System.debug('확인용 : ' + curTypeMap);
-
-        List<PaymentLog__c> updatePaymentLogList = new List<PaymentLog__c>();
-
-        // 새 PaymentTracker__c에 기존 PaymentLog 연결
         for (PaymentTracker__c newPT : newList) {
-            if (expiredPaymentTrackerMap.size() > 0) {
-                PaymentTracker__c expiredPT = expiredPaymentTrackerMap.get(newPT.Opportunity__c)[0];
-                if (expiredPT != null && expiredPaymentLogMap.containsKey(expiredPT.Id)) {
-                    for (PaymentLog__c oldLog : expiredPaymentLogMap.get(expiredPT.Id)) {
-                        if (oldLog.Amount__c == 1000000) {
-                            oldLog.PaymentTracker__c = newPT.Id;
-                            updatePaymentLogList.add(oldLog);
-                        }
+            updateList.add(new PaymentTracker__c(
+                Id = newPT.Id,
+                Status__c = expiredPaymentTrackerMap.get(newPT.Opportunity__c)[0].Status__c
+            ));
+            Decimal remainingAmount = sumPaymentLogMap.get(newPT.Id);
+            for (PaymentType__c type : curTypeMap.get(newPT.Id)) {
+                Decimal requestAmt = type.RequestAmount__c != null ? type.RequestAmount__c : 0;
+
+                if (remainingAmount > 0) {
+                    if (remainingAmount >= requestAmt) {
+                        remainingAmount -= requestAmt;
+                        type.DepositAmount__c = requestAmt;
+                    } else {
+                        type.DepositAmount__c = remainingAmount;
+                        remainingAmount = 0;
                     }
+                    updateList.add(type);
                 }
             }
         }
-        System.debug('확인용 : ' + updatePaymentLogList);
 
-        if (!updatePaymentLogList.isEmpty()) {
-            update updatePaymentLogList;
-        }
+        if (!updateList.isEmpty()) update updateList;
     }
 }
