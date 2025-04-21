@@ -9,6 +9,47 @@
                     현재 기회가 Closed Lost로 변경됩니다.
                 </div>
                 <div class="slds-m-bottom_small slds-align_absolute-center">
+                    <span style="color: red;">고객의 취소 사유를 반드시 하나 이상 선택해주세요.</span>
+                </div>
+                <div class="slds-grid slds-wrap">
+                    <div class="slds-size_1-of-2 slds-m-bottom_small">
+                        <lightning-dual-listbox label="경쟁업체 선택"
+                                name="CompetitorSelection__c"
+                                source-label="사용 가능"
+                                selected-label="선택됨"
+                                options={lostReasons.CompetitorSelection__c}
+                                onchange={handleChange}>
+                        </lightning-dual-listbox>
+                    </div>
+                    <div class="slds-size_1-of-2 slds-m-bottom_small">
+                        <lightning-dual-listbox label="경제적 이유"
+                                name="EconomicReasons__c"
+                                source-label="사용 가능"
+                                selected-label="선택됨"
+                                options={lostReasons.EconomicReasons__c}
+                                onchange={handleChange}>
+                        </lightning-dual-listbox>
+                    </div>
+                    <div class="slds-size_1-of-2">
+                        <lightning-dual-listbox label="개인적인 사유"
+                                name="PersonalReasons__c"
+                                source-label="사용 가능"
+                                selected-label="선택됨"
+                                options={lostReasons.PersonalReasons__c}
+                                onchange={handleChange}>
+                        </lightning-dual-listbox>
+                    </div>
+                    <div class="slds-size_1-of-2">
+                        <lightning-dual-listbox label="기술적 이유"
+                                name="TechnicalReasons__c"
+                                source-label="사용 가능"
+                                selected-label="선택됨"
+                                options={lostReasons.TechnicalReasons__c}
+                                onchange={handleChange}>
+                        </lightning-dual-listbox>
+                    </div>
+                </div>
+                <div class="slds-m-vertical_small slds-align_absolute-center">
                     <span style="color: red;">계약을 취소하시겠습니까?</span>
                 </div>
             </div>
