@@ -124,9 +124,10 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
         // 만료 TrackerMap
         Map<String, PaymentTracker__c> expiredPaymentTrackerMap = new Map<String, PaymentTracker__c>();
         for (PaymentTracker__c tracker : [
-                SELECT Id, Name, Opportunity__c, Status__c, (
-                        SELECT Id, Amount__c, PaymentTracker__c
-                        FROM PaymentLogs__r
+                SELECT Id, Name, Opportunity__c, Status__c, 
+                (
+                    SELECT Id, Amount__c, PaymentTracker__c
+                    FROM PaymentLogs__r
                 )
                 FROM PaymentTracker__c
                 WHERE Opportunity__c IN :curOpptyMap.values()
@@ -170,7 +171,7 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
 
         // ver 1.3 이전 입금 로그 연결 후 로그 금액에 따라 입금현황 종류 금액, 입금현황관리 상태 업데이트
         List<PaymentTracker__c> updateTrackerList = new List<PaymentTracker__c>();
-        List<PaymentLog__c> updateLogList = new List<PaymentLog__c>();
+        List<PaymentType__c> updateTypeList = new List<PaymentType__c>();
 
         // 기존금액 분배 Start
         for (PaymentTracker__c newPT : newList) {
@@ -188,11 +189,11 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
                 type.DepositAmount__c = assignAmount;
                 remainingAmount -= assignAmount;
 
-                updateLogList.add(type);
+                updateTypeList.add(type);
             }
         }
 
         if (!updateTrackerList.isEmpty()) update updateTrackerList;
-        if (!updateLogList.isEmpty()) update updateLogList;
+        if (!updateTypeList.isEmpty()) update updateTypeList;
     }
 }
