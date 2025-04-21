@@ -64,7 +64,7 @@ export default class DepositInvoice extends LightningElement {
     // ver 1.1 요청시 account의 고객코드/사업자명/사업자 번호 필드가 없으면 에러 토스트 발생 및 어떤 필드 값이 비었는지 표시
   sendDeposit() {
     this.isLoading = true;
-    if (!this.accBpCode || !this.accBusinessName || (!this.accBusinessNo && !this.accIdNo)) {
+    if (!this.accBpCode || !this.accBusinessName || (!this.accBusinessNo && !this.accIdNo)) { //ver 1.2
       let required = ["", "", ""];
       if(!this.accBpCode) required[0] = "고객코드";
       if(!this.accBusinessName) required[1] = "사업자명";
