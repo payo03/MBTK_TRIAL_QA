@@ -76,8 +76,12 @@ global without sharing class Opportunity_tr extends TriggerHandler {
         // 승인 완료 Process
         if (!VATDeferredListMap.isEmpty()) approvalAfterProcess(VATDeferredListMap, 'VATDeferred');
         if (!PaymentDeferredListMap.isEmpty()) approvalAfterProcess(PaymentDeferredListMap, 'PaymentDeferred');
-        if (!requestStockMapList.isEmpty()) System.enqueueJob(new AsyncStockRequest(requestStockMapList));                              // ver1.6 재고이동요청 CALL After Update로 분리
-        if (!IDNumberUpdateList.isEmpty()) System.enqueueJob(new AsyncCustomerInfo(IDNumberUpdateList, AsyncVAInfo.SEND_TYPE.O));       // ver1.11 주민등록증 세금계산서 발행여부 완료시 고객정보전송
+        if (!requestStockMapList.isEmpty()) System.enqueueJob(new AsyncStockRequest(requestStockMapList));          // ver1.6 재고이동요청 CALL After Update로 분리
+
+        Map<String, Object> infoMap = new Map<String, Object>{
+                'isChain' => false
+        };
+        if (!IDNumberUpdateList.isEmpty()) System.enqueueJob(new AsyncCustomerInfo(IDNumberUpdateList, infoMap));   // ver1.11 주민등록증 세금계산서 발행여부 완료시 고객정보전송
     }
 
     // 2025.01.10 프로세스 추가될 예정
