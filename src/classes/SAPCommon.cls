@@ -66,7 +66,7 @@ global without sharing class SAPCommon {
         if(infoMap.isEmpty() || !Boolean.valueOf(infoMap.get('code'))) return;
 
         // Heroku 통신 완료시. Async
-        List<IFAuditLogDetail__c> logDetailList = logDetailList(new List<String>{logId});
+        List<IFAuditLogDetail__c> logDetailList = fetchLogIdList(new List<String>{logId});
         for(IFAuditLogDetail__c logDetail : logDetailList) {
             logDetail.IsRequest__c = true;
             logDetail.Description__c = String.valueOf(infoMap.get('message'));
@@ -88,7 +88,7 @@ global without sharing class SAPCommon {
         if(Test.isRunningTest()) message = JSON.serialize(infoMap.get('message'));
         // Heroku 통신 완료시. Sync
         // 1. IsRequest Update
-        List<IFAuditLogDetail__c> logDetailList = logDetailList(new List<String>{logId});
+        List<IFAuditLogDetail__c> logDetailList = fetchLogIdList(new List<String>{logId});
         for(IFAuditLogDetail__c logDetail : logDetailList) {
             logDetail.IsRequest__c = true;
             logDetail.Description__c = message;
@@ -109,7 +109,7 @@ global without sharing class SAPCommon {
     }
 
     // ver1.4 IFAuditLogDetail. 공통조회함수 추가
-    global static List<IFAuditLogDetail__c> logDetailList(Object collection) {
+    global static List<IFAuditLogDetail__c> fetchLogIdList(Object collection) {
         List<String> idList = CommonUtilController.returnList(collection);
 
         return [
@@ -120,7 +120,7 @@ global without sharing class SAPCommon {
     }
 
     // ver1.4 IFAuditLogDetail. 공통조회함수 추가
-    public static Map<String, String> fetchLogIdMap(Object collection, String logType) {
+    public static Map<String, String> fetchLogExternalIdMap(Object collection, String logType) {
         Map<String, String> logIdMap = new Map<String, String>();   // KEY : ExternalId, Value : Log Id
 
         List<String> idList = CommonUtilController.returnList(collection);
@@ -130,12 +130,34 @@ global without sharing class SAPCommon {
                 WHERE ExternalId__c IN :idList
                 AND fm_LogType__c = :logType
                 AND IsResponse__c = 'Y'         // 전송완료한건에 대해서 GET
+                AND IsUse__c = FALSE            // 미사용건 SELECT
                 ORDER BY CreatedDate
         ]) {
             logIdMap.put(existIFLog.ExternalId__c, existIFLog.fm_LogId__c);
         }
 
         return logIdMap;
+    }
+
+    // ver1.4 IFAuditLogDetail. Update함수
+    public static void updateLogByExternalId(Object collection, String logType) {
+        List<IFAuditLogDetail__c> updateList = new List<IFAuditLogDetail__c>();
+
+        List<String> idList = CommonUtilController.returnList(collection);
+        for(IFAuditLogDetail__c existIFLog : [
+                SELECT Id, IsUse__c
+                FROM IFAuditLogDetail__c
+                WHERE ExternalId__c IN :idList
+                AND fm_LogType__c = :logType
+                AND IsResponse__c = 'Y'         // 전송완료한건에 대해서 GET
+                AND IsUse__c = FALSE            // 미사용건 SELECT
+                ORDER BY CreatedDate
+        ]) {
+            existIFLog.IsUse__c = true;
+            updateList.add(existIFLog);
+        }
+
+        update updateList;
     }
 
 

@@ -31,6 +31,7 @@ public without sharing class FetchSAPResult_ba implements Database.Batchable<SOb
                     '   FROM IFAuditLogDetail__c ' +
                     '   WHERE IsResult__c IN (\'C\', \'N\') ' +
                     '   AND IsResponse__c = \'Y\' '+
+                    '   AND IsUse__c = FALSE '+
                     ') ';
     private final static Integer BATCH_SIZE = 10;  // Schedule 배치 200 Size고정
 
@@ -262,10 +263,10 @@ public without sharing class FetchSAPResult_ba implements Database.Batchable<SOb
             }
         }
 
-        if(!updateLogMap.isEmpty()) update updateLogMap.values();     // DML
+        if(!updateLogMap.isEmpty()) update updateLogMap.values();       // DML
         if(!updateInfoMap.isEmpty()) update updateInfoMap.values();     // DML
-        if(!updateStockMap.isEmpty()) update updateStockMap.values();     // DML
-        if(!updateOpptyMap.isEmpty()) update updateOpptyMap.values();     // DML
+        if(!updateStockMap.isEmpty()) update updateStockMap.values();   // DML
+        if(!updateOpptyMap.isEmpty()) update updateOpptyMap.values();   // DML
         if(!invoiceInfoIdList.isEmpty()) System.enqueueJob(new AsyncPurchaseInvoice(invoiceInfoIdList, null));
     }
 
@@ -282,6 +283,7 @@ public without sharing class FetchSAPResult_ba implements Database.Batchable<SOb
                 '   FROM IFAuditLogDetails__r ' +
                 '   WHERE IsResult__c IN (\'C\', \'N\') ' +
                 '   AND IsResponse__c = \'Y\' '+
+                '   AND IsUse__c = FALSE '+
                 ') ';
     }
 }

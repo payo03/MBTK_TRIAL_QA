@@ -33,7 +33,7 @@ public without sharing class AsyncOrderConfirm implements Queueable, Database.Al
 
         // ver1.2 취소 IF 추가
         // 취소데이터인경우, logId를 기존것으로 재활용
-        Map<String, String> logIdMap = SAPCommon.fetchLogIdMap(idList, LOG_TYPE_S); // KEY : AvisOrderInfoId, Value : Log Id
+        Map<String, String> logIdMap = SAPCommon.fetchLogExternalIdMap(idList, LOG_TYPE_S); // KEY : AvisOrderInfoId, Value : Log Id
         List<AvisOrderInfo__c> infoList = SAPCommon.fetchOrderInfoList(idList);
         Map<String, SpoilerPart__c> spoilerMap = SAPCommon.fetchSpoilerMap(infoList);
 
@@ -97,6 +97,7 @@ public without sharing class AsyncOrderConfirm implements Queueable, Database.Al
 
                 Map<String, Object> resultMap = InterfaceSAP.doCallOutSAPLog(infoMap);
                 SAPCommon.asyncLogDetailUpdate(internalLogId, resultMap);   // Heroku 통신 완료시. Async
+                SAPCommon.updateLogByExternalId(idList, LOG_TYPE_S);
             }
         }
     }

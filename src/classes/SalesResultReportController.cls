@@ -9,107 +9,204 @@
 **************************************************************/
 public with sharing class SalesResultReportController {
 
+    //기본제공품목
     public class DefaultWrapper {
-        public ProductOption__c productOption { get; set; }
+        public String productOptionName { get; set; }
+        public String amount { get; set; }
+        public String price { get; set; }
         public Integer index { get; set; }
-        public DefaultWrapper(ProductOption__c defaultOption, Integer i) {
-            this.productOption = defaultOption;
+        public DefaultWrapper(String productOptionName, String amount, String price, Integer i) {
+            this.productOptionName = productOptionName;
+            this.amount = amount;
+            this.price = price;
             this.index = i;
         }
     }
+
+    //시책 품목
     public class OtherWrapper {
         public ProductOption__c productOption { get; set; }
+        public String price { get; set; }
         public Integer index { get; set; }
-        public OtherWrapper(ProductOption__c otherOption, Integer i) {
+        public OtherWrapper(ProductOption__c otherOption, Integer i, String price) {
             this.productOption = otherOption;
+            this.price = price;
             this.index = i;
         }
     }
 
-    public class needDocWrapper {//2페이지 Wrapper Class
-        public String gubun { get; set; }
-        public String title { get; set; }
-        public String quantity { get; set; }
-        public String pub { get; set; }
+    public String fontSize { get; set; } // 기본제공품목, 시책품목에 따른 폰트사이즈 조절
+    public Opportunity opportunity { get; private set;} // 기회
+    public List<DefaultWrapper> defaultWrappers { get; set; } //기본제공품목
+    public List<OtherWrapper> otherWrappers { get; set; } //시책 품목
 
-        public needDocWrapper(String title) {
-            this.title = title;
-        }
-        public needDocWrapper(String paramGubun, String paramTitle, String paramQuantity, String paramPub) {
-            this.gubun = paramGubun;
-            this.title = paramTitle;
-            this.quantity = paramQuantity;
-            this.pub = paramPub;
-        }
-    }
-    public Integer docLen { get; private set; }
-    public Opportunity opportunity { get; private set;}
-    public Product2 product2 { get; private set; }
-    public VehicleStock__c vehicleStock { get; private set; }
-    public List<DefaultWrapper> defaultWrappers { get; set; }
-    public List<OtherWrapper> otherWrappers { get; set; }
-    public List<needDocWrapper> needDocWrappers { get; set; }
-
-    public PaymentTracker__c paymentTracker { get; set; }
-    public PaymentType__c paymentType { get; set; }
-    public Quote quote { get; set; }
-    public String mode { get; set; }
-    public Decimal totIntAmt { get; set; }
-    public Decimal optionAmt { get; set; }
-    public Decimal defaultProductAmt { get; set; }
-    public Decimal otherProductAmt { get; set; }
-    public Decimal firstRate { get; set; }
-    public Decimal promotionRate { get; set; }
-    public Decimal collectRate { get; set; }
-    public Decimal differencies { get; set; }
-    public Decimal minusCommissionNew { get; set; }
-    public String phone { get; set; }
-    public String expect { get; set; }
-    public String paymentStatus { get; set; }
-    public String docImage1{get;set;}
-    public String name{get;set;}
-    public String compRegNum{get;set;}
-    public String businessNumber{get;set;}
-    public String phoneNumber{get;set;}
-    public String realDriver{get;set;}
-    public String address{get;set;}
-    public String contractNumber{get;set;}
-    public String vehicleName{get;set;}
-    public String carColor{get;set;}
+    public String expect { get; set; } // 판매정산 Report 문구
+    public String docImage1{get;set;}  // 만트럭 로고
+    public String name{get;set;} // 고객명
+    public String compRegNum{get;set;} // 주민등록(법인)번호
+    public String businessNumber{get;set;} // 사업자등록번호
+    public String phoneNumber{get;set;} //핸드폰 번호
+    public String realDriver{get;set;} // 실차주명
+    public String address{get;set;} // 주소
+    public String contractNumber{get;set;} // 계약서 번호
+    public String vehicleName{get;set;} // 차 종
+    public String carColor{get;set;} // 색 상
+    public String carAmt{get;set;} // 차량 가격
+    public String totalPrice{get;set;} // 옵션 포함 차량가격
+    public String paymentDeferredAmount{get;set;} // 인도금 할인
+    public String realSalesPrice{get;set;} // 실판매가격 (부가세 포함)
+    public String totaldefaultPrice{get;set;} // 시책 합계
+    public String depositDate{get;set;} // 계약금 입금일
+    public String depositPrice{get;set;} //계약금
+    public String downPaymentDate{get;set;} // 인도금 입금일
+    public String downPaymentPrice{get;set;} // 인도금
+    public String loanDate{get;set;} // 대출 입금일
+    public String loanPrice{get;set;} // 대출금
+    public String totalPayment{get;set;} // 입금액 합계
+    public String deferredPrice{get;set;} // 인도유예금
+    public String vatPrice{get;set;} // 부가세유예금
+    public String totaldeferred{get;set;} // 인도금 합계
+    public String fScompany{get;set;} // 할부금융사
+    public String realLoanAmt{get;set;} // 할부원금
+    public String capitalDefermentAmt{get;set;} // 캐피탈유예금
+    public String defaultInterestRate{get;set;} // 할부이율
+    public String monthDivideInputMonth{get;set;} // 분납개월수
+    public String monthlyPayment{get;set;} // 1회 납입금액
+    public String monthlyPaymentDate{get;set;} // 할부초회납입일자
+    public String totalCommissionSum{get;set;} // 판매수수료
+    public String notarizedFee{get;set;} //공증료
+    public String consignmentPrice{get;set;} //탁송료
+    public String registrationTax{get;set;} //취등록세
+    public String totalExtraExpenses{get;set;} //부대비용 합계
+    public String agency{get;set;} // 판매지점
+    public String salesName{get;set;} // 판매직원
+    public String taxAccount{get;set;} // 세금계산서명의
+    public String emailTaxInvoice{get;set;} // 세금계산서이메일
+    public String transferAccount{get;set;} // 양도증 명의
 //    public String vehicleName{get;set;}
 
     public String taxInvoiceDate{get;set;}
 
 
-    public SalesResultReportController() {
+    public SalesResultReportController(ApexPages.StandardController controller) {
+        opportunity = PDFCommonController.getOpportunity(controller.getId()).isEmpty() ? null
+                : PDFCommonController.getOpportunity(controller.getId()).get(0);
     }
 
-    public SalesResultReportController(ApexPages.StandardController controller) {
-        opportunity = PDFCommonController.getOpportunity(controller.getId()).get(0);
+    public void init() {
+
         docImage1 = PDFCommonController.getDocumentId('MAN_Truck_Bus_Korea_LOGO');
-        paymentTracker = PDFCommonController.getPaymentTracker(opportunity.Id).get(0);
-        paymentType = paymentTracker?.PaymentTypes__r[0];
+
+        PaymentTracker__c paymentTracker = (opportunity != null) ? PDFCommonController.getPaymentTracker(opportunity.Id).get(0) : new PaymentTracker__c();
+
+        List<ProductOption__c> defaultProductOptions = (opportunity?.VehicleStock__r != null) ?
+                PDFCommonController.getProductOption(opportunity.VehicleStock__r.Product__c, true) : new List<ProductOption__c>();
+
+        List<ProductOption__c> otherProductOptions = (opportunity?.VehicleStock__r != null) ?
+                PDFCommonController.getProductOption(opportunity.VehicleStock__r.Product__c, false) : new List<ProductOption__c>();
+
+        Quote quote = (opportunity != null) ? PDFCommonController.getQuote(opportunity.Id) : new Quote();
+
+        List<QuoteDetail__c> quoteDetails = (quote != null) ? PDFCommonController.getQuoteDetail(quote.Id) : new List<QuoteDetail__c>();
+
+        QuoteDetail__c quoteDetail = (!quoteDetails.isEmpty()) ? quoteDetails[0] : null;
         expect = paymentTracker.Status__c == 'COMPLETE' ?  '판매정산결과' : '판매정산 (가)';
-        System.debug('123123'+paymentTracker.Status__c);
 
-        Integer index = 1;
         defaultWrappers = new List<DefaultWrapper>();
-        List<ProductOption__c> defaultProductOptions = PDFCommonController.getProductOption(opportunity.VehicleStock__r.Product__c, true);
-        List<ProductOption__c> otherProductOptions= PDFCommonController.getProductOption(opportunity.VehicleStock__r.Product__c, false);
-        quote = PDFCommonController.getQuote(opportunity.ContractId);
+        otherWrappers = new List<OtherWrapper>();
+        Decimal otherProductAmt = 0;
+        Integer index = 0;
 
+        // 옵션
+        if (!otherProductOptions.isEmpty()) {
+            for (ProductOption__c productOption : otherProductOptions) {
+                Decimal price = 0;
+                if (productOption.VehicleOptionMaster__r != null && productOption.VehicleOptionMaster__r.Price__c != null) {
+                    price = productOption.VehicleOptionMaster__r.Price__c;
+                }
 
+                productOption.VehicleOptionMaster__r = (productOption.VehicleOptionMaster__r == null) ? new VehicleOptionMaster__c(Price__c = 0)
+                        : productOption.VehicleOptionMaster__r;
+                otherWrappers.add(new OtherWrapper(productOption, index++, setScale(price)));
+                otherProductAmt += price;
+            }
+        }
+        for(; index <= 8; index++) otherWrappers.add(new OtherWrapper(new ProductOption__c(), index, '0원'));
+
+        index = 0;
+        Decimal defaultProductAmt = 0;
+        // 기본제공품목
+        if (!defaultProductOptions.isEmpty()) {
+            for (ProductOption__c productOption : defaultProductOptions) {
+                Decimal price = 0;
+                if (productOption.VehicleOptionMaster__r != null && productOption.VehicleOptionMaster__r.Price__c != null) {
+                    price = productOption.VehicleOptionMaster__r.Price__c;
+                }
+                if (productOption.VehicleOptionMaster__r == null) productOption.VehicleOptionMaster__r = new VehicleOptionMaster__c(Price__c = 0);
+
+                defaultWrappers.add(new DefaultWrapper(productOption.Name, '1개', setScale(price), index++));
+                otherProductAmt += price;
+                if (productOption.VehicleOptionMaster__r.Price__c == null) productOption.VehicleOptionMaster__r.Price__c = 0;
+
+                defaultProductAmt += productOption.VehicleOptionMaster__r.Price__c;
+            }
+            if(quoteDetail != null){
+                defaultWrappers.add(new DefaultWrapper(
+                        quoteDetail.Name,
+                        String.valueOf(quoteDetail.OilCouponCount__c) + '개',
+                        setScale(quoteDetail.fm_Price__c), index++));
+                defaultProductAmt += (quoteDetail.fm_Price__c != null) ? quoteDetail.fm_Price__c : 0;
+            }
+            totaldefaultPrice = setScale(defaultProductAmt);
+            for (; index <= 5; index++) {
+                defaultWrappers.add(new DefaultWrapper('', '0개', '0원', index));
+            }
+        }
+
+        fontSize = defaultWrappers.size() + otherProductOptions.size() > 16 ? '8pt' : '9.5pt';
+        // 기회 데이터
         if (opportunity != null) {
-            taxInvoiceDate = opportunity.TaxInvoiceDate__c != null ? DateTime.newInstance(opportunity.TaxInvoiceDate__c, Time.newInstance(0, 0, 0, 0)).format('yyyy년 MM월 dd일') : '' ;
+            taxInvoiceDate = opportunity.TaxInvoiceDate__c != null ? setDateType(opportunity.TaxInvoiceDate__c) : '' ;
+            paymentDeferredAmount = setScale(opportunity.PaymentDeferredAmount__c);
+            realLoanAmt = setScale(opportunity.fm_TotalLoan__c);
+            monthlyPaymentDate = opportunity.HandoverDate__c != null ? setDateType(opportunity.HandoverDate__c.addMonths(1)) : '';
+            // 견적 데이터
+            if(quote != null){
+                capitalDefermentAmt = setScale(quote.CapitalDefermentAmount__c);
+                defaultInterestRate = String.valueOf(quote.DefaultInterestRate__c) + '%';
+                monthDivideInputMonth = String.valueOf(quote.MonthDivideInputMonth__c) + '개월';
+                monthlyPayment = setScale(quote.MonthlyPayment__c);
+                notarizedFee = setScale(quote.fm_NotarizedFee__c);
+                consignmentPrice = setScale(quote.ConsignmentPrice__c);
+                registrationTax = setScale(quote.fm_RegistrationTax__c);
+                totalExtraExpenses = setScale(quote.fm_TotalExtraExpenses__c);
+                if(quote.Finance__c != null){
+                    Finance__c finance = quote.Finance__r;
+                    fScompany = finance.FScompany__c;
+                }
+            }
+            // 차량재고 데이터
             if(opportunity.VehicleStock__c != null){
                 VehicleStock__c vehicleStcok = opportunity.VehicleStock__r;
                 vehicleName = vehicleStcok.Name;
                 carColor = opportunity.VehicleStock__r.CarColor__c;
+                if(vehicleStcok.Product__c != null){
+                    Product2 product2 = vehicleStcok.Product__r;
+                    carAmt = setScale(product2.CarAmt__c);
+                    totalPrice = setScale(otherProductAmt + product2.CarAmt__c);
+                }
             }
+
+            // 계약 데이터
             if(opportunity.ContractId != null){
                 Contract contract = opportunity.Contract;
                 contractNumber = contract.ContractNumber;
+                realSalesPrice = setScale(contract.fm_RealSalesPrice__c);
             }
+
+
+
+            // 계정 데이터
             if(opportunity.AccountId != null){
                 Account account = opportunity.Account;
                 name = account.Name;
@@ -119,169 +216,75 @@ public with sharing class SalesResultReportController {
                 realDriver = account.RealDriver__pc;
                 address = account.RoadAddress__c + account.DetailAddress__c;
                 businessNumber = account.BusinessNumber__c;
-            }
-        }
-//        collectRate = safeDivide(paymentTracker.ru_DepositAmount__c,paymentTracker.TotalAmount__c);
-//        promotionRate = opportunity.VehicleStock__r.LongtermDiscountRate__c + opportunity.VehicleStock__r.OptionDiscountRate__c + opportunity.VehicleStock__r.SpecialDiscountRate__c
-//                            + opportunity.fm_DiscountRate__c;
-//        differencies = opportunity.fm_DiscountRate__c - promotionRate;
-//        minusCommissionNew = opportunity.CarAmt__c /1.1 * ((differencies / 100).setScale(4,System.RoundingMode.HALF_UP)*-1).setScale(-3, System.RoundingMode.HALF_UP);
-//        defaultProductAmt = 0;
-//        if(!defaultProductOptions.isEmpty()){
-//            for(ProductOption__c productOption : defaultProductOptions) {
-//                defaultWrappers.add(new DefaultWrapper(productOption,index++));
-//                if(productOption.VehicleOptionMaster__r.Price__c == null) productOption.VehicleOptionMaster__r.Price__c = 0;
-//                System.debug('default:: '+productOption.VehicleOptionMaster__r.Price__c);
-//                defaultProductAmt = defaultProductAmt + productOption.VehicleOptionMaster__r.Price__c;
-//            }
-//
-//            for(; index <=5; index++) defaultWrappers.add(new DefaultWrapper(new ProductOption__c(),index));
-//        }
-//
+                transferAccount = opportunity.TransferAccount__c != null ? opportunity.TransferAccount__r.Name : account.Name;
+                taxAccount = opportunity.TaxAccount__c != null ? opportunity.TaxAccount__r.Name : account.Name;
+                emailTaxInvoice = opportunity.TaxAccount__c != null ? opportunity.TaxAccount__r.EmailTaxInvoice__c : account.EmailTaxInvoice__c;
 
-        index = 1;
-        otherWrappers = new List<OtherWrapper>();
-        otherProductAmt = 0;
-        if (!otherProductOptions.isEmpty()) {
-            for (ProductOption__c productOption : otherProductOptions) {
-                otherWrappers.add(new OtherWrapper(productOption, index++));
-
-                Decimal price = 0;
-                if (productOption.VehicleOptionMaster__r != null && productOption.VehicleOptionMaster__r.Price__c != null) {
-                    price = productOption.VehicleOptionMaster__r.Price__c;
+                if(account.OwnerId != null){
+                    User user = account.Owner;
+                    agency = user.Agency__c;
+                    salesName = user.Name;
+                    List<CommissionManagement__c> commissionManagements = [SELECT Id,ru_TotalCommissionSum__c FROM CommissionManagement__c WHERE OwnerId =:user.Id ];
+                    if(!commissionManagements.isEmpty()){
+                        totalCommissionSum = setScale(commissionManagements[0].ru_TotalCommissionSum__c);
+                    }
                 }
+            }
 
-                productOption.VehicleOptionMaster__r = (productOption.VehicleOptionMaster__r == null)
-                        ? new VehicleOptionMaster__c(Price__c = 0)
-                        : productOption.VehicleOptionMaster__r;
+            // 입금내역 및 인도금
+            if (paymentTracker != null) {
+                System.debug('paymentTracker'+paymentTracker);
+                Decimal totalPaymentPrice = 0;
+                Decimal totaldeferredPrice = 0;
+                deferredPrice = '0원';
+                vatPrice = '0원';
+                if (!paymentTracker.PaymentTypes__r.isEmpty()) {
+                    for (PaymentType__c paymentType : paymentTracker.PaymentTypes__r) {
 
-                productOption.VehicleOptionMaster__r.Price__c = price;
-                otherProductAmt += price;
-
+                        System.debug('paymentType'+paymentType);
+                        if (paymentType.Type__c == null) continue;
+                        switch on paymentType.Type__c {
+                            when '1_DEPOSIT' {
+                                depositDate = setDateType(Date.valueOf(paymentTracker.ru_RecentDepositDate__c));
+                                depositPrice = setScale(paymentType.DepositAmount__c);
+                                totalPaymentPrice += paymentType.DepositAmount__c;
+                                totaldeferredPrice += paymentType.RequestAmount__c;
+                            }
+                            when '2_DOWN_PAYMENT' {
+                                downPaymentDate = setDateType(Date.valueOf(paymentTracker.ru_RecentDepositDate__c));
+                                downPaymentPrice = setScale(paymentType.DepositAmount__c);
+                                totalPaymentPrice += paymentType.DepositAmount__c;
+                                totaldeferredPrice += paymentType.RequestAmount__c;
+                            }
+                            when '3_DEFERRED_PAYMENT' {
+                                deferredPrice = setScale(paymentType.DepositAmount__c);
+                                totaldeferredPrice += paymentType.RequestAmount__c;
+                            }
+                            when '4_VAT' {
+                                vatPrice = setScale(paymentType.DepositAmount__c);
+                                totaldeferredPrice += paymentType.RequestAmount__c;
+                            }
+                            when '99_LOAN' {
+                                loanDate = setDateType(Date.valueOf(paymentTracker.ru_RecentDepositDate__c));
+                                loanPrice = setScale(paymentType.DepositAmount__c);
+                                totalPaymentPrice += paymentType.DepositAmount__c;
+                            }
+                        }
+                    }
+                    totalPayment = setScale(totalPaymentPrice);
+                    totaldeferred = setScale(totaldeferredPrice);
+                }
             }
         }
-//        optionAmt = defaultProductAmt + opportunity.CarAmt__c;
-        for(; index <= 8; index++) otherWrappers.add(new OtherWrapper(new ProductOption__c(), index));
-
-        /////////////////2페이지/////////////////////////////////////////////
-        needDocWrappers = new List<needDocWrapper>();
-        if (opportunity.Account.RecordType.Name == '법인사업자') {//법인
-            needDocWrappers.add(new needDocWrapper('', '', '', '시.군.구/ 읍.면.동/ 시군구 및'));
-            needDocWrappers.add(new needDocWrapper('', '사업자등록증', '', '읍면 등기소'));
-            needDocWrappers.add(new needDocWrapper('기본서류', '인감증명서(법인)', '1', '가까운 구청 및 동주민센터'));
-            needDocWrappers.add(new needDocWrapper('', '법인 등기부등본', '', '*인터넷: 민원24 등기소'));
-            needDocWrappers.add(new needDocWrapper('', '', '', '*인터넷: 인터넷 등기소 개인/법인'));
-        }
-        if (opportunity.Account.RecordType.Name == '개인') {//개인
-            needDocWrappers.add(new needDocWrapper('', '', '', '시.군.구/ 읍.면.동/ 시군구 및'));
-            needDocWrappers.add(new needDocWrapper('', '인감증명서', '', '읍면 등기소'));
-            needDocWrappers.add(new needDocWrapper('기본서류', '주민등록등본', '1', '가까운 구청 및 동주민센터'));
-            needDocWrappers.add(new needDocWrapper('', '', '', '*인터넷: 민원24 등기소'));
-            needDocWrappers.add(new needDocWrapper('', '', '', '*인터넷: 인터넷 등기소 개인/법인'));
-        }
-        if (opportunity.Account.RecordType.Name  == '개인사업자') {//개인사업자
-            needDocWrappers.add(new needDocWrapper('', '', '', ''));
-            needDocWrappers.add(new needDocWrapper('', '사업자등록증', '', '시.군.구/ 읍.면.동 등기소,'));
-            needDocWrappers.add(new needDocWrapper('기본서류', '인감증명서(개인)', '1', '가까운 구청 및 동주민센터'));
-            needDocWrappers.add(new needDocWrapper('', '주민등록등본', '', '*인터넷: 민원24 등기소'));
-            needDocWrappers.add(new needDocWrapper('', '', '', '*인터넷: 인터넷 등기소 개인/법인'));
-        }
-        if (paymentType.Type__c == '4_VAT' && paymentType.RequestAmount__c > 0) {
-            needDocWrappers.add(new needDocWrapper('', '합의서', '', ''));
-            needDocWrappers.add(new needDocWrapper('', '백지어음보증권 부여증', '', ''));
-            needDocWrappers.add(new needDocWrapper('부가세 후취', '위임장', '1', '영업지점'));
-            needDocWrappers.add(new needDocWrapper('관련서류', '약속어음\r\n국세환급금양도요구서', '', ''));
-            needDocWrappers.add(new needDocWrapper('', '보증인 인감증명서', '인원수', '*시.군.구/ 읍.면.동 주민센터'));
-        }
-        if ([SELECT COUNT() FROM Opportunity WHERE AccountId = :opportunity.AccountId AND Id != :opportunity.Id] > 0) {
-            needDocWrappers.add(new needDocWrapper('', '', '', '전국 도청, 시청, 구청, 동주민센터, 차량등록사업소'));
-            needDocWrappers.add(new needDocWrapper('재구매인경우', '차량등록증', '1', '(서울시의 경우 구청 및 동주민센터 발급)'));
-            needDocWrappers.add(new needDocWrapper('차량등록증', '차량 등록원부(갑부, 을부)', '', '*인터넷: 민원24, 자동차대국민포털사이트'));
-            needDocWrappers.add(new needDocWrapper('', '', '', '(단, 법인은 신청 불가 개인만 신청 가능하며, '));
-            needDocWrappers.add(new needDocWrapper('', '', '', '차주의 공인인증서 필요)'));
-        }
-        docLen = needDocWrappers.size();
-        paymentStatus = opportunity.PaymentStatus__c == 'COMPLETE' ? '입금완료' : '입금미완료';
-//        totIntAmt = paymentType.Type__c == '99_LOAN' ? opportunity.fm_InterestTotal__c : 0.0;
-//            if (totIntAmt > 0.0) {
-//                DepositCondition__c mDc = new DepositCondition__c();
-//                mDc.Amount__c = totIntAmt;
-//                mDc.Content__c = '캐피탈이자';
-//                mDc.Depositor__c = taxAc != null ? taxAc.Name : account.name;
-//                mDc.depositDate__c = opportunity.WantedOutDT__c != null ? opportunity.WantedOutDT__c : opportunity.PlannedOutDT__c;
-//                deposit.add(mDc);
-//                totalDepositAmount += totIntAmt;//8.24 추가
-//            }
-//            deposit.addAll([SELECT Id, Depositor__c, depositDate__c, Content__c, Amount__c FROM DepositCondition__c WHERE Opportunity__c = :opportunity.Id ORDER BY Seq__c, depositDate__c, Depositor__c]);
-
-            //Hq세명도장
-//            if (opportunity.isApprovedInSales__c) {
-//                String sign1userId = opportunity.HqApproverId1__c;
-//                if (!String.isEmpty(sign1userId)) {
-//                    List<Signature__c> sigs = [SELECT Id, Url__c FROM Signature__c WHERE User__c = :sign1userId AND signType__c = :'직원서명'];
-//                    if (!sigs.isEmpty())
-//                        Sign_Admin1 = sigs[0].Url__c;
-//                }
-//
-//                String sign2userId = opportunity.HqApproverId2__c;
-//                if (!String.isEmpty(sign2userId)) {
-//                    List<Signature__c> sigs = [SELECT Id, Url__c FROM Signature__c WHERE User__c = :sign2userId AND signType__c = :'직원서명'];
-//                    if (!sigs.isEmpty())
-//                        Sign_Admin2 = sigs[0].Url__c;
-//                }
-//            }
-//            if (opportunity.PaymentStatus__c == 'COMPLETE') {
-//                String sign3userId;
-//                sign3userId = opportunity.HqApproverId3__c;
-//
-//                if (!String.isEmpty(sign3userId)) {
-//                    List<Signature__c> sigs = [SELECT Id, Url__c FROM Signature__c WHERE User__c = :sign3userId AND signType__c = :'직원서명'];
-//                    if (!sigs.isEmpty())
-//                        Sign_Admin3 = sigs[0].Url__c;
-//                }
-//            }
-//            if (opportunity.DepositConfirmComplete__c) {
-//                String sign4userId = opportunity.DepositConfirmId1__c;
-//
-//                if (!String.isEmpty(sign4userId)) {
-//                    List<Signature__c> sigs = [SELECT Id, Url__c FROM Signature__c WHERE User__c = :sign4userId AND signType__c = :'직원서명'];
-//                    if (!sigs.isEmpty())
-//                        Sign_Admin4 = sigs[0].Url__c;
-//                }
-//
-//                String sign5userId = opportunity.DepositConfirmId2__c;
-//                if (!String.isEmpty(sign5userId)) {
-//                    List<Signature__c> sigs = [SELECT Id, Url__c FROM Signature__c WHERE User__c = :sign5userId AND signType__c = :'직원서명'];
-//                    if (!sigs.isEmpty())
-//                        Sign_Admin5 = sigs[0].Url__c;
-//                }
-//            }
-//
-//        } else if (mode == 'q') {
-//            //Sales두명도장
-//            //if(opportunity.isApprovedInSales__c){
-//            if (opportunity.SalesApproverId1__c != null && opportunity.SalesApproverId1__c != '') {
-//                List<Signature__c> sigs = [SELECT Id, Url__c FROM Signature__c WHERE User__c = :opportunity.SalesApproverId1__c AND signType__c = :'직원서명'];
-//                if (!sigs.isEmpty())
-//                    Sign_Sales1 = sigs[0].Url__c;
-//            }
-//
-//            if (opportunity.SalesApproverId2__c != null && opportunity.SalesApproverId2__c != '') {
-//                List<Signature__c> sigs = [SELECT Id, Url__c FROM Signature__c WHERE User__c = :opportunity.SalesApproverId2__c AND signType__c = :'직원서명'];
-//                if (!sigs.isEmpty())
-//                    Sign_Sales2 = sigs[0].Url__c;
-//            }
-//            //}
-
     }
 
+    public static String setScale(Decimal price) {
+        price = price != null ? price : 0;
+        return price.setScale(0).format() + '원';
+    }
 
-    public static Decimal safeDivide(Decimal numerator, Decimal denominator) {
-        Decimal divide = (numerator / denominator) * 100;
-
-        if(numerator == null || denominator == null || denominator == 0) {
-            return 0.0;
-        }
-        return divide = divide.setScale(2, RoundingMode.HALF_UP);
+    public static String setDateType(Date dateValue) {
+        if(dateValue == null) return '';
+        return Datetime.newInstance(dateValue, Time.newInstance(0, 0, 0, 0)).format('yyyy년 MM월 dd일');
     }
 }

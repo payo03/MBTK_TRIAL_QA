@@ -249,26 +249,41 @@ global without sharing class IF_DTO {
         public String FAXNO {get; set;}
 
         public CustomerInfo(Account acc, Boolean isCreate) {
+            Opportunity oppty = acc.Opportunities.get(0);
             if(isCreate) this.CRTP = 'A';
 
             // 필수값 데이터
             this.CARDCD = acc.BPCode__c;
-            this.CARDNM = acc.BusinessName__c;                  // 수정필요
-            this.VATRENO = acc.IsTaxIDNumber__c ? acc.IDNumber__pc : acc.BusinessNumber__c;
-            this.RRNYN = acc.IDNumber__pc != null ? 'Y' : 'N';  // 수정필요
+            this.CARDNM = acc.BusinessName__c;
+            /*
+                사업자번호 조건
+                1. 사업자 번호 != NULL일때
+                    1-1. 주민등록번호 발행여부 TRUE
+                        => [Field] = 주민등록번호
+                    1-2. 주민등록번호 발행여부 FALSE
+                        => [Field] = 사업자번호
+                2. 사업자 번호 NULL일때
+                    => [Field] = 주민등록번호
+            */
+            this.VATRENO = acc.BusinessNumber__c != null
+                    ? oppty.IsTaxIDNumber__c
+                            ? acc.IDNumber__pc
+                            : acc.BusinessNumber__c
+                    : acc.IDNumber__pc;
+            this.RRNYN = acc.IDNumber__pc != null ? 'Y' : 'N';
 
             // AS_IS. [개인 : P, 개인사업자 : G, 그외 : B] / TO_BE [개인 - 법인]
             Boolean isPersonal = acc.RecordTypeId.equals(RECORDTYPE_ACC_PERSON);
             // 권장 필드들
             this.RRN = acc.IDNumber__pc;
-            this.REPNM = acc.Name;                                                  // 수정필요
-            this.EMAIL = acc.PersonEmail != null ? acc.PersonEmail : '';            // 수정필요
-            this.INDUSNM = isPersonal ? '운수업' : '';                               // 수정필요
-            this.BPFLNM = isPersonal ? acc.Name : acc.Name;                         // 수정필요
+            this.REPNM = acc.Name;
+            this.EMAIL = acc.PersonEmail != null ? acc.PersonEmail : '';
+            this.INDUSNM = isPersonal ? '운수업' : '';
+            this.BPFLNM = isPersonal ? acc.Name : acc.Name;
             this.ZIPCD = acc.PostalCode__c != null ? acc.PostalCode__c : '';
-            this.ADDR1 = acc.RoadAddress__c != null ? acc.RoadAddress__c : '';      // 수정필요
-            this.ADDR2 = acc.DetailAddress__c != null ? acc.DetailAddress__c : '';  // 수정필요
-            this.BUSNM = isPersonal ? '특수화물' : '';                               // 수정필요
+            this.ADDR1 = acc.RoadAddress__c != null ? acc.RoadAddress__c : '';
+            this.ADDR2 = acc.DetailAddress__c != null ? acc.DetailAddress__c : '';
+            this.BUSNM = isPersonal ? '특수화물' : '';
 
             // 필드 필수값 x
             this.EADDRES = '';          // 수정필요
