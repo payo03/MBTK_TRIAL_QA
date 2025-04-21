@@ -277,7 +277,7 @@ global without sharing class IF_SAP {
             String message = String.valueOf(requestMap.get('Message'));
 
             // LogDetail. 호출결과 Update
-            List<IFAuditLogDetail__c> logDetailList = SAPCommon.logDetailList(new List<String>{logId});
+            List<IFAuditLogDetail__c> logDetailList = SAPCommon.fetchLogIdList(new List<String>{logId});
             for(IFAuditLogDetail__c logDetail : logDetailList) {
 
                 logDetail.IsResponse__c = status;
@@ -325,7 +325,7 @@ global without sharing class IF_SAP {
             String logId = String.valueOf(requestMap.get('LOG_ID'));
             String message = String.valueOf(requestMap.get('Message'));
 
-            List<IFAuditLogDetail__c> logDetailList = SAPCommon.logDetailList(new List<String>{logId});
+            List<IFAuditLogDetail__c> logDetailList = SAPCommon.fetchLogIdList(new List<String>{logId});
             for(IFAuditLogDetail__c logDetail : logDetailList) {
 
                 logDetail.IsResponse__c = status;
