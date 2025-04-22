@@ -176,20 +176,22 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
         // 기존금액 분배 Start
         for (PaymentTracker__c newPT : newList) {
             PaymentTracker__c oldTracker = expiredPaymentTrackerMap.get(newPT.Opportunity__c);
+            if(oldTracker != null) {
 
-            newPT.Status__c = oldTracker.Status__c;
-            updateTrackerList.add(newPT);
+                newPT.Status__c = oldTracker.Status__c;
+                updateTrackerList.add(newPT);
 
-            Decimal remainingAmount = sumPaymentLogMap.get(newPT.Id);
-            for (PaymentType__c type : curTypeMap.get(newPT.Id)) {
-                if (remainingAmount <= 0) break;
+                Decimal remainingAmount = sumPaymentLogMap.get(newPT.Id);
+                for (PaymentType__c type : curTypeMap.get(newPT.Id)) {
+                    if (remainingAmount <= 0) break;
 
-                Decimal requestAmt = type.RequestAmount__c != null ? type.RequestAmount__c : 0;
-                Decimal assignAmount = Math.min(remainingAmount, requestAmt);
-                type.DepositAmount__c = assignAmount;
-                remainingAmount -= assignAmount;
+                    Decimal requestAmt = type.RequestAmount__c != null ? type.RequestAmount__c : 0;
+                    Decimal assignAmount = Math.min(remainingAmount, requestAmt);
+                    type.DepositAmount__c = assignAmount;
+                    remainingAmount -= assignAmount;
 
-                updateTypeList.add(type);
+                    updateTypeList.add(type);
+                }
             }
         }
 

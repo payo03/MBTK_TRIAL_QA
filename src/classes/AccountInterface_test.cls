@@ -11,7 +11,8 @@
 private class AccountInterface_test {
     @TestSetup
     static void setup() {
-        TestObjectBuilder.createObjects();
+        TestObjectBuilder2.createObjects();
+        TestObjectBuilder2.createAccountBundle();
     }
 
     @IsTest

@@ -1032,5 +1032,44 @@ global without sharing class IF_DTO {
         requestByPDF.title = '100';
         requestByPDF.fileOpenPassword = '100';
         requestByPDF.requesterInputs = new List<RequesterInput>{input};
+        
+        LoanRequestInfo loanRequestInfo = new LoanRequestInfo();
+        loanRequestInfo.quote_id = str;
+        loanRequestInfo.sale_agent_nm = str;
+        loanRequestInfo.apply_rate = str;
+        loanRequestInfo.loan_term = str;
+        loanRequestInfo.vhc_price = str;
+        loanRequestInfo.vhc_dc = str;
+        loanRequestInfo.vhc_exp = str;
+        loanRequestInfo.loan_amt = str;
+        loanRequestInfo.reg_tax = str;
+        loanRequestInfo.spc_vhc_price = str;
+        loanRequestInfo.pre_amt = str;
+        loanRequestInfo.mfs_vat_amt = str;
+        loanRequestInfo.mfs_vat_request = str;
+        loanRequestInfo.opp_id = str;
+        loanRequestInfo.invoice_dt = str;
+        loanRequestInfo.virtual_acc = str;
+        loanRequestInfo.bsn_no = str;
+        loanRequestInfo.rrn = str;
+        loanRequestInfo.bsn_nm = str;
+        loanRequestInfo.bsn_tel = str;
+        loanRequestInfo.bsn_add = str;
+        loanRequestInfo.email_add = str;
+        loanRequestInfo.tel_no = str;
+        loanRequestInfo.cs_nm = str;
+        loanRequestInfo.stock_no = str;
+        loanRequestInfo.vhc_model_nm = str;
+        loanRequestInfo.spc_vhc = str;
+        loanRequestInfo.o_coupon_price = str;
+        loanRequestInfo.campaign = str;
+        loanRequestInfo.campaign_dc_amt = str;
+        loanRequestInfo.option_price = str;
+        loanRequestInfo.model_cd = str;
+        loanRequestInfo.sale_agent_id = str;
+        loanRequestInfo.sale_agent_tel = str;
+        loanRequestInfo.virtual_acc_nm = str;
+        loanRequestInfo.virtual_acc_cd = str;
+        loanRequestInfo.loan_request_dt = str;
     }
 }

@@ -1760,6 +1760,14 @@ public class TestObjectBuilder2 {
 
         if(virtualAccount == null) insert createVirtualAccount();
         if(virtualAccountAdvance == null) insert createVirtualAccountAdvance();
+
+        List<Opportunity> updateList = new List<Opportunity>();
+        opportunity.VirtualAccount__c = virtualAccount.Id;
+        opportunityAdvance.VirtualAccount__c = virtualAccountAdvance.Id;
+        updateList.add(opportunity);
+        updateList.add(opportunityAdvance);
+
+        update updateList;
     }
 
     public static void createQuoteBundle() {
