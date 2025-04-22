@@ -40,42 +40,6 @@ global without sharing class IF_SAP {
         }
     }
 
-    private static void stockResult() {
-        response.addHeader('Content-Type', 'application/json');
-        String requestBody = request.requestBody.toString();
-        System.debug(requestBody);
-
-        Map<String, Object> requestMap = (Map<String, Object>) JSON.deserializeUntyped(requestBody);
-        String responseMessage;
-        try {
-            status = 'SUCCESS';
-            responseTime = Datetime.now();
-            responseMessage = JSON.serialize(requestMap);
-
-            response.statusCode = 200;
-            response.responseBody = Blob.valueOf(responseMessage);
-        } catch(Exception e) {
-            status = 'ERROR';
-            responseTime = Datetime.now();
-            responseMessage = JSON.serialize(e.getMessage());
-
-            response.responseBody = Blob.valueOf(responseMessage);
-            response.statusCode = 500;
-        } finally {
-            IF_DTO.LogWrapper objLogWrapper = new IF_DTO.LogWrapper();
-
-            objLogWrapper.requestTime = requestTime;
-            objLogWrapper.requestBody = requestBody;
-            objLogWrapper.status = status;
-            objLogWrapper.responseTime = responseTime;
-            objLogWrapper.responseBody = responseMessage;
-            objLogWrapper.errorCode = String.valueOf(response.statusCode);
-            objLogWrapper.logType = IF_DTO.LOG_TYPE.HEROKU_SAP_IN;
-
-            CommonUtilCustomController.setLog(objLogWrapper);
-        }
-    }
-
     // 금액 Update. 수신이 아닌 송신 Response로 진행해야함
     private static void updateAmount() {
         final String DEPOSIT_KEY = '1_DEPOSIT';

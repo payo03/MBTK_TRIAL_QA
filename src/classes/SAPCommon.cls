@@ -109,11 +109,11 @@ global without sharing class SAPCommon {
     }
 
     // ver1.4 IFAuditLogDetail. 공통조회함수 추가
-    global static List<IFAuditLogDetail__c> fetchLogIdList(Object collection) {
+    public static List<IFAuditLogDetail__c> fetchLogIdList(Object collection) {
         List<String> idList = CommonUtilController.returnList(collection);
 
         return [
-                SELECT Id, IsRequest__c, IsResponse__c, Description__c
+                SELECT Id, IsRequest__c, IsResponse__c, Description__c, ExternalId__c
                 FROM IFAuditLogDetail__c
                 WHERE fm_LogId__c = :idList
         ];

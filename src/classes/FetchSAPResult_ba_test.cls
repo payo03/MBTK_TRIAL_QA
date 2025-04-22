@@ -13,8 +13,21 @@ private class FetchSAPResult_ba_test {
     static void setup() {
         TestObjectBuilder2.createIfBundle();
         TestObjectBuilder2.createOrderBundle();
+        TestObjectBuilder2.createConfigBundle();
 
-        Database.executeBatch(new CreateVehicleStock_ba(null, null), 200);
+        String fields = CreateVehicleStock_ba.getFields();
+        String fromObject = 'AvisOrderInfo__c';
+        String buildQuery = CommonUtilController.buildQuery(fields, fromObject, '');
+        List<AvisOrderInfo__c> infos = Database.query(buildQuery);
+        CreateVehicleStock_ba ba = new CreateVehicleStock_ba(null, null);
+        ba.execute(null, infos);
+        ba.finish(null);
+
+        List<String> idList = new List<String>();
+        for(AvisOrderInfo__c info : infos) {
+            idList.add(info.Id);
+        }
+        System.enqueueJob(new AsyncOrderConfirm(idList, null));
     }
 
     @IsTest

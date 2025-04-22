@@ -21,16 +21,16 @@ public class IF_SAP_test {
     static void testOne(){
         Test.startTest();
 
-        VirtualAccount__c va = [SELECT Id, fm_VirtualAccount__c, Account__r.BPCode__c FROM VirtualAccount__c LIMIT 1];
+        Opportunity oppty = [SELECT Id, Account.BPCode__c, VirtualAccount__r.fm_VirtualAccount__c FROM Opportunity WHERE VirtualAccount__c != NULL LIMIT 1];
+
         RestRequest req = new RestRequest();
         String requestBody = '';
-
 
         requestBody =
             '{' +
             '    "doc_num": "100",' +
-            '    "card_cd": "' + va.Account__r.BPCode__c + '",' +
-            '    "acc_no": "' + va.fm_VirtualAccount__c + '",' +
+            '    "card_cd": "' + oppty.Account.BPCode__c + '",' +
+            '    "acc_no": "' + oppty.VirtualAccount__r.fm_VirtualAccount__c + '",' +
             '    "crncy": "KRW",' +
             '    "doc_total": "16000000"' +
             '}';
