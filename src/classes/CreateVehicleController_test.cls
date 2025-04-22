@@ -29,5 +29,12 @@ private class CreateVehicleController_test {
 
         List<AvisOrderInfo__c> infoList = CreateVehicleController.selectInfoList(new List<String>{infos.get(0).Id});
         CreateVehicleController.createVehicleStock(infos);
+
+        CreateVehicleController.selectLogList(new List<String>());
+
+        Map<String, Object> paramMap = new Map<String, Object>();
+        paramMap.put('type', 'else');
+        paramMap.put('infoIdList', new List<String>());
+        CreateVehicleController.handleIFAction(paramMap);
     }
 }

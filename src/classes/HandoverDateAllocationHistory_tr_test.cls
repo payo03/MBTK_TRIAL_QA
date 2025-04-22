@@ -11,7 +11,8 @@
 private class HandoverDateAllocationHistory_tr_test {
     @TestSetup
     static void setup() {
-        TestObjectBuilder.createObjects();
+        TestObjectBuilder2.createIfBundle();
+        TestObjectBuilder2.createConfigBundle();
 
         Database.executeBatch(new CustomCalendar_ba(-1), 100);
         Database.executeBatch(new CustomCalendar_ba(0), 100);

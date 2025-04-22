@@ -1,7 +1,7 @@
 /**
 * @Author            : payo03@solomontech.net
 * @Description 		 : 
-* @Target            : CreateVehicleStock_ba, AsyncOrderConfirm, AsyncPurchaseInvoice
+* @Target            : CreateVehicleStock_ba, AsyncCustomsInfo
 * @Modification Log
   Ver      Date            Author                           Modification
   ===================================================================================
@@ -13,6 +13,8 @@ private class CreateVehicleStock_ba_test {
     static void setup() {
         TestObjectBuilder2.createAccountBundle();
         TestObjectBuilder2.createOrderBundle();
+
+        Database.executeBatch(new CreateVehicleStock_ba(null, null), 200);
     }
 
     @IsTest
@@ -20,20 +22,19 @@ private class CreateVehicleStock_ba_test {
         String fields = CreateVehicleStock_ba.getFields();
         String fromObject = 'AvisOrderInfo__c';
         String buildQuery = CommonUtilController.buildQuery(fields, fromObject, '');
-
         List<AvisOrderInfo__c> infos = Database.query(buildQuery);
-        CreateVehicleStock_ba ba = new CreateVehicleStock_ba(null, null);
-
-        Test.startTest();
-
-        Database.QueryLocator queryLocator = ba.start(null);
-        ba.execute(null, infos);
-        ba.finish(null);
 
         List<String> idList = new List<String>();
         for(AvisOrderInfo__c info : infos) {
             idList.add(info.Id);
         }
+
+        Test.startTest();
+
+        CreateVehicleStock_ba ba = new CreateVehicleStock_ba(null, null);
+        Database.QueryLocator queryLocator = ba.start(null);
+        ba.execute(null, infos);
+        ba.finish(null);
         System.enqueueJob(new AsyncCustomsInfo(idList, null));
 
         Test.stopTest();
