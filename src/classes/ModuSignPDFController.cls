@@ -108,7 +108,7 @@ public without sharing class ModuSignPDFController {
     }
 
     public class PaymentType {
-        public Datetime depositDate { get; set; }
+        public String formatDepositDate { get; set; }
         // public Decimal specialPrice { get; set; }
     }
 
@@ -227,7 +227,7 @@ public without sharing class ModuSignPDFController {
             ];
 
             paymentTypeList = [
-                SELECT Id , name, Type__c, PaymentTracker__c, PaymentTracker__r.Opportunity__r.Contract.ContractNumber, format(CreatedDate)
+                SELECT Id , name, Type__c, PaymentTracker__c, PaymentTracker__r.Opportunity__r.Contract.ContractNumber, CreatedDate
                 FROM PaymentType__c
                 WHERE PaymentTracker__r.Opportunity__r.ContractId = :recordId
                 AND Type__c ='1_DEPOSIT'
@@ -342,16 +342,18 @@ public without sharing class ModuSignPDFController {
             wrapper.defermentList = defermentList;
             
             // 계약금 입금일 계산
-            List<PaymentType> pamymentTypeList = new List<PaymentType>();
+            Datetime depositDate = null;
+            List<PaymentType> paymentTypeList = new List<PaymentType>();
             for(PaymentType__c payType : paymentTypeList) {
                 PaymentType paymentType = new PaymentType();
-                paymentType.depositDate = payType.CreatedDate != null ? payType.CreatedDate : '';
-                pamymentTypeList.add(payType);
-                System.debug('paymentType.depositDate :::: ' + paymentType.depositDate);
+                depositDate = Date.valueOf(payType.CreatedDate);
+                // paymentType.formatDepositDate = payType.CreatedDate != null ? payType.CreatedDate : '';
+                paymentType.formatDepositDate = (depositDate != null) ? depositDate.format('yyyy-MM-dd') : null;
+                System.debug('paymentType.depositDate :::: ' + paymentType.formatDepositDate);
+                paymentTypeList.add(payType);
             }
-
-            System.debug('pamymentTypeList :::: ' + pamymentTypeList);
-            wrapper.pamymentTypeList = pamymentTypeList;
+            System.debug('paymentTypeList :::: ' + paymentTypeList);
+            wrapper.paymentTypeList = paymentTypeList;
 
             wrapper.quoteName = quoteDetail.containsKey('name') ? String.valueOf(quoteDetail.get('name')) : '';
             wrapper.oilCouponCount = quoteDetail.containsKey('oilCouponCount') ? Decimal.valueOf(String.valueOf(quoteDetail.get('oilCouponCount'))) : 0;
