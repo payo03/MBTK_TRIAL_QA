@@ -14,17 +14,17 @@ public without sharing class ConfigMasterController {
     private final static String RECORDTYPE_PL_CAL_INFO = Schema.SObjectType.ConfigMaster__c.getRecordTypeInfosByDeveloperName().get('PL_CAL_INFO').getRecordTypeId();
 
     @AuraEnabled
-    public static Map<String, Object> selectConfigMaster() {
+    public static Map<String, Object> selectConfigMaster(String configCode) {
         Map<String, Object> returnMap = new Map<String, Object>();
         List<HierarchyStructure> hierarchyList = new List<HierarchyStructure>();
 
-        List<ConfigMaster__c> masterList = [
-            SELECT Id, Name, Value__c, Description__c,
-                Parent__c, Parent__r.Name,
-                RecordType.DeveloperName
-            FROM ConfigMaster__c
-            ORDER BY Name
-        ];
+        String fields = 'Id, Name, Value__c, Description__c, Parent__c, Parent__r.Name, RecordType.DeveloperName';
+        String fromObject = 'ConfigMaster__c';
+        String whereCondition = configCode != '' ? 'Name = \'' + configCode + '\'' : '';
+        String orderBy = 'Name';
+        String query = CommonUtilController.buildQuery(fields, fromObject, whereCondition, orderBy);
+
+        List<ConfigMaster__c> masterList = Database.query(query);
         returnMap.put('List', masterList);
 
         List<HierarchyStructure> structureList = new List<HierarchyStructure>();
