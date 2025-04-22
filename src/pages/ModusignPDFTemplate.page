@@ -299,10 +299,12 @@
           </table>
           <p>
             계약번호: {!pdfWrapper.contractNumber}
+            <br/>
             안녕하세요 {!pdfWrapper.accountName} 고객님께, 
             <br/>
             <br/>
             먼저 저희 MAN을 믿고 소중한 차량을 구매해 주신 것에 대해 진심으로 감사드립니다.
+            <br/>
             <br/>
             고객님께서 선택하신 차량이 앞으로의 여정에 큰 만족과 기쁨을 드리길 바랍니다.
             <br/>
@@ -314,6 +316,7 @@
             <br/>
             <br/>
             다시 한번 저희를 선택해 주셔서 감사드리며, 고객님의 안전하고 행복한 운전을 항상 응원하겠습니다.
+            <br/>
             <br/>
             앞으로도 지속적인 신뢰와 만족을 드릴 수 있도록 노력하겠습니다.
             <br/>
@@ -548,7 +551,7 @@
                 <th>전화번호</th>
                 <td>{!pdfWrapper.accountPersonMobilePhone}</td>
               </tr>
-              <tr>
+              <tr class="bottom-border">
                 <th>주민등록번호(사업자번호)</th>
                 <td style="text-align: right">
                   <apex:outputText value="{!IF(
@@ -565,11 +568,11 @@
                   </apex:outputText> 
                 </td>
                 <th>사업자명(상호)</th>
-                <td>
+                <td style="text-align: right">
                   <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountName, '')}" />
                 </td>
                 <th>고객구분</th>
-                <td>{!pdfWrapper.accountBusinessCategory}</td>
+                <td style="text-align: right">{!pdfWrapper.accountBusinessCategory}</td>
               </tr>
               <tr>
                 <th>주소</th>
@@ -627,7 +630,7 @@
                 <th>은행명</th>
                 <td>씨티은행</td>
                 <th>예금주</th>
-                <td>만트럭버스</td>
+                <td>만트럭버스코리아</td>
               </tr>
             </table>
             <div style="font-size: 10px; color: red;">1. 계약서마다 가상계좌번호가 상이하므로 반드시 각 계약건의 가상게좌번호를 확인해주시기 바랍니다.</div>
@@ -730,14 +733,15 @@
                 </th>
               </tr>
               <apex:repeat value="{!pdfWrapper.promotionList}" var="item">
-                  <tr>
-                      <th style="text-align: left;">{!item.promotionName}</th>
-                      <th style="text-align: right;">
-                          <apex:outputText value="{0,number,###,###}">
-                              <apex:param value="{!IF(ISBLANK(item.promotionDiscountPrice), (pdfWrapper.product.productPrice * item.promotionDiscountRate) , item.promotionDiscountPrice)}" />
-                          </apex:outputText>원
-                      </th>
-                  </tr>
+                <tr>
+                    <th style="text-align: left;">{!item.promotionName}</th>
+                    <th style="text-align: right;">
+                      <apex:outputText value="{0,number,###,###}">
+                        <!-- <apex:param value="{!IF(ISBLANK(item.promotionDiscountPrice), (pdfWrapper.product.productPrice * item.promotionDiscountRate) , item.promotionDiscountPrice)}" /> -->
+                        <apex:param value="{!item.promotionDiscountPrice}"/>
+                      </apex:outputText>원
+                    </th>
+                </tr>
               </apex:repeat>
             </table>
 
@@ -836,7 +840,7 @@
               </colgroup>
               <tr class="bottom-border">
                 <th colspan="4" style="height: 30px; font-size: 12px">지불조건 </th>
-                <td>
+                <td style="word-break: break-word; font-size: 10px;">
                   <div style="font-size: 10px; color: red;">금융 상품은 일부 다를 수 있으므로 반드시 금융회사와 금융상품에 대한 최종 정보를 확인해 주시기 바랍니다.</div>
                   <div style="font-size: 10px; color: red;">당사와 금융사 금융조건의 차이가 있는 경우, 금융사 금융조건이 우선합니다.</div>
                 </td>
