@@ -149,10 +149,10 @@
 															min={minInterestRate} max={maxInterestRate}
 															message-when-range-underflow="이자율 범위를 확인해주세요."
 															message-when-range-overflow="이자율 범위를 확인해주세요." onchange={handleCalc}></lightning-input>
-							<!-- <lightning-input type="number" label="대출금액(원)" data-id="totalLoan" 
-															class="slds-size_1-of-1" value={totalLoan}  placeholder="예시)200,000,000" onchange={handleCalc}></lightning-input> -->
-							<lightning-input type="number" label="선수금(원)" data-id="downpayment" 
-															class="slds-size_1-of-1" value={downpayment}  placeholder="예시)15,000,000" onchange={handleCalc}></lightning-input>
+							<lightning-input type="number" label="대출금액(원)" data-id="totalLoan" 
+															class="slds-size_1-of-1" value={totalLoan}  placeholder="예시)200,000,000" onchange={handleCalc}></lightning-input>
+							<!-- <lightning-input type="number" label="선수금(원)" data-id="downpayment" 
+															class="slds-size_1-of-1" value={downpayment}  placeholder="예시)15,000,000" onchange={handleCalc}></lightning-input> -->
 							<lightning-slider label="할부기간(개월)" value={duration} step="6" data-id="duration" 
 															min={minimumDuration} max={maximumDuration} onchange={handleCalc}></lightning-slider>
 							<template lwc:if={isMobile}>
@@ -196,14 +196,14 @@
 																		class="slds-size_1-of-2" readonly value="1000000"></lightning-input>
 									<lightning-input type="number" label="할부금리(%)" data-id="interestRate"
 																		class="slds-size_1-of-2" readonly value={interestRate} step=".01"></lightning-input>
-									<lightning-input type="number" label="선수금" data-id="downpayment"
+									<lightning-input type="number" label="인도금" data-id="downpayment"  field-level-help="실 판매가 - 대출금 - 계약금"
 																		class="slds-size_1-of-2" readonly value={downpayment}></lightning-input>
 									<lightning-input type="number" label="할부기간(개월)" data-id="duration"
 																		class="slds-size_1-of-2" readonly value={duration}></lightning-input>
-									<lightning-input type="number" label="대출금" data-id="totalLoan" field-level-help="실 판매가 - 인도금 - 계약금"
+									<lightning-input type="number" label="대출금" data-id="totalLoan"
 																		class="slds-size_1-of-2" readonly value={totalLoan}></lightning-input>
 								</div>
-								<lightning-input type="number" label="월 상환금액" data-id="monthlyPayment" field-level-help="대출금에 대한 원리금균등상환 방식"
+								<lightning-input type="number" label="월 상환금액" data-id="monthlyPayment" field-level-help="할부원금에 대한 원리금균등상환 방식"
 																		class="slds-size_1-of-2 quoteHighlight" readonly value={monthlyPayment}></lightning-input>
 							</div>
 						</div>

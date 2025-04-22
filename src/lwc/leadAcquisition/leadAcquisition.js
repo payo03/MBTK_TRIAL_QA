@@ -247,8 +247,8 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 				, "productId": this.selectedProductId
 				, "campaignIdList": JSON.stringify(this.selectedCampaignList.map(item => item.id))
 				, "financeId": this.financeId
-				// , "totalLoan": this.totalLoan || 0 // 리드 수집에서만
-				, "advancePayment": this.downpayment || 0 // 리드 수집에서만
+				, "totalLoan": this.totalLoan || 0 // 리드 수집에서만
+				// , "advancePayment": this.downpayment || 0 // 리드 수집에서만
 				, "interestRate": this.interestRate || 0// 리드 수집에서만
 				, "duration": this.duration || 0 // 리드 수집에서만
 			};
@@ -553,13 +553,13 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 			case "duration":
 				this.duration = e.target.value;
 				break;
-			case "downpayment":
-				this.downpayment = e.target.value;
+			case "totalLoan":
+				this.totalLoan = e.target.value;
 				break;
 		}
 		this.realSellPrice = this.listPrice - this.salesconditionDiscountAmt - this.discountPrice;
-		// this.downpayment = this.realSellPrice - this.totalLoan - 1000000;
-		this.totalLoan = this.realSellPrice - this.downpayment - 1000000;
+		this.downpayment = this.realSellPrice - this.totalLoan - 1000000;
+		// this.totalLoan = this.realSellPrice - this.downpayment - 1000000;
 		this.monthlyPayment = this.calcMonthPayment(this.totalLoan, this.interestRate, this.duration);
 		// this.totalRepayment = this.monthlyPayment * this.duration;
 		// this.interestTotal = this.totalRepayment > this.totalLoan ? this.totalRepayment - this.totalLoan : 0;
