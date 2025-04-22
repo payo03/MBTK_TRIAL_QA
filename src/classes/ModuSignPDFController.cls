@@ -76,6 +76,7 @@ public without sharing class ModuSignPDFController {
         public Product product { get; set; }
 
         public List<Deferment> defermentList { get; set; }
+        public List<PaymentType> paymentTypeList { get; set; }
         public List<Option> optionList { get; set; }
         public List<Promotion> promotionList { get; set; }
         public List<Special> specialList { get; set; }
@@ -107,7 +108,7 @@ public without sharing class ModuSignPDFController {
     }
 
     public class PaymentType {
-        public String depositDate { get; set; }
+        public Datetime depositDate { get; set; }
         // public Decimal specialPrice { get; set; }
     }
 
