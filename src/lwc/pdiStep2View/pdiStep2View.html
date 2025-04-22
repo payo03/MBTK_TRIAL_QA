@@ -31,7 +31,7 @@
                         <lightning-output-field field-name="ETA__c"> </lightning-output-field>
                         <lightning-output-field field-name="VehicleStatus__c"> </lightning-output-field>
                         <lightning-output-field field-name="Exworks__c"> </lightning-output-field>
-                        <lightning-input type="number" label="주행거리(km)" onchange={handleDriveDistance}></lightning-input>
+                        <lightning-input type="number" label="주행거리(km)" value={driveDistance} onchange={handleDriveDistance}></lightning-input>
                     </div>
                 </div>
                 <lightning-record-edit-form

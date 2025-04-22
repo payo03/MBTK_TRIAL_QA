@@ -11,7 +11,7 @@ import { LightningElement, api, track } from 'lwc';
 
 const bulkColumns = [
     { label: '워크넘버', fieldName: 'WorkNo', hideDefaultActions: 'true' },
-    { label: '주행거리', fieldName: 'DriveDistance', hideDefaultActions: 'true' },
+    // { label: '주행거리', fieldName: 'DriveDistance', hideDefaultActions: 'true' },
     { label: '처리결과', fieldName: 'RequestRes', hideDefaultActions: 'true' }
 ];
 
@@ -40,6 +40,7 @@ export default class pdiStep1View extends LightningElement {
 	set selectedVin(value) {
 		if (value) {
 			this._selectedVIN = { ...value };
+            this.driveDistance = this._selectedVIN.DriveDistance__c
 		}
 	}
 	get selectedVin() {

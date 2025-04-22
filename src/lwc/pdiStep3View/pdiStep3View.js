@@ -35,7 +35,7 @@ export default class PdiStep3View extends LightningElement {
 	stockColumns = stockColumns;
 	stockList = [];
 	selectedStockRowList = [];
-	selectedRowList = [];
+	selectedRowMap = [];
 	selectedRowIdList = [];
 	currentHandover = {};
 
@@ -69,13 +69,11 @@ export default class PdiStep3View extends LightningElement {
 
 	connectedCallback() {
 		this.init();
-		console.log("selectedVin :: ", this._selectedVIN);
 	}
 
 	init() {
 		this.isLoading = true;
 		step3Init({ vinId: this._selectedVIN.Id}).then(res => {
-			console.log('테스트 productId :: ', res);
 			const filterMap = {"Opportunity__r.VehicleStock__r.Product__c" : res};
 			// filterMap.Opportunity__r.IsClosed = false;
 			getFilteredHandoverList({ filterMap: filterMap }).then(res => {
@@ -86,10 +84,6 @@ export default class PdiStep3View extends LightningElement {
 						console.log(el.id);
 					}
 				}
-				const customEvent = new CustomEvent('step3open', {
-					detail: { matchRowIdList: this.selectedRowIdList }
-				});
-				this.dispatchEvent(customEvent);
 			}).catch(err => {
 				console.log("err getFilteredHandoverList :: ", err);
 			});
@@ -102,10 +96,14 @@ export default class PdiStep3View extends LightningElement {
 	 * @description 핸드오버 선택 함수
 	 */
 	handleSelection(e) {
-		this.selectedRowList = e.detail.selectedRows;
-		this.selectedRowIdList = this.selectedRowList.map(row => row.id);
-		console.log(this.selectedRowList);
-		console.log(JSON.stringify(this.selectedRowIdList));
+		this.selectedRowMap = e.detail.selectedRows;
+		this.selectedRowIdList = this.selectedRowMap.map(row => row.id);
+		console.log('step3 확인 :: ', this.selectedRowMap);
+		console.log('step3 확인 :: ', JSON.stringify(this.selectedRowIdList));
+		const customEvent = new CustomEvent('step3open', {
+			detail: { matchRow: this.selectedRowMap }
+		});
+		this.dispatchEvent(customEvent);
 	}
 
 	/**
@@ -116,7 +114,6 @@ export default class PdiStep3View extends LightningElement {
 		const currentRow = e.detail.row;
 		const productId = currentRow.vehicleStock.Product__c;
 		getVehicleStockList({ filterMap: { Product__c: productId } }).then(res => {
-			console.log("getVehicleStockList :: ", res);
 			this.stockList = res?.map(el => ({
 				...el,
 				product: el.Product__r.Name
