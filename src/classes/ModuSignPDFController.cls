@@ -233,6 +233,8 @@ public without sharing class ModuSignPDFController {
                 AND Type__c ='1_DEPOSIT'
             ];
 
+            System.debug('paymentTypeList ::: ' + paymentTypeList);
+
             // isDefermentReq = defermentReqList.isEmpty();
 
             // if (isDefermentReq) {
@@ -345,13 +347,14 @@ public without sharing class ModuSignPDFController {
             List<PaymentType> payList = new List<PaymentType>();
             for(PaymentType__c payType : paymentTypeList) {
                 PaymentType paymentType = new PaymentType();
-                // paymentType.formatDepositDate = payType.CreatedDate != null ? payType.CreatedDate : '';
-                paymentType.formatDepositDate = payType.CreatedDate != null ? payType.CreatedDate.date() : null;
+                System.debug('payType.CreatedDate :::: ' + payType.CreatedDate);
+                paymentType.formatDepositDate = (payType.CreatedDate != null) ? payType.CreatedDate.format('yyyy-MM-dd') : null;
                 System.debug('paymentType.depositDate :::: ' + paymentType.formatDepositDate);
                 payList.add(paymentType);
             }
             System.debug('paymentTypeList :::: ' + payList);
             wrapper.paymentTypeList = payList;
+            System.debug('wrapper.paymentTypeList :::: ' + wrapper.paymentTypeList);
 
             wrapper.quoteName = quoteDetail.containsKey('name') ? String.valueOf(quoteDetail.get('name')) : '';
             wrapper.oilCouponCount = quoteDetail.containsKey('oilCouponCount') ? Decimal.valueOf(String.valueOf(quoteDetail.get('oilCouponCount'))) : 0;
