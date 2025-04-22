@@ -25,8 +25,9 @@
             <div class="table-container slds-large-size_8-of-12 slds-medium-size_6-of-12 slds-small-size_12-of-12">
                 <lightning-card>
                     <div class="card-header">
-                        <h2 class="slds-text-heading_medium">코드 조회 및 추가</h2>
-                        <lightning-button label="코드 추가" onclick={addMasterRow} class="add-button"></lightning-button>
+                        <h2 class="slds-text-heading_medium">코드 조회</h2>
+                        <!-- 개발자가 Control해야함 -->
+<!--                        <lightning-button label="코드 추가" onclick={addMasterRow} class="add-button"></lightning-button>-->
                     </div>
                     <div class="slds-div slds-p-around_small">
                         <template if:true={rData}>
@@ -49,7 +50,7 @@
     </template>
 
     <div class="slds-m-top_medium">
-        <lightning-card title="Custom 시스템 설정">
+        <lightning-card title={detailTitle}>
             <lightning-button label="항목 추가" slot="actions" onclick={addDetailRow}></lightning-button>
             <lightning-button label="항목 삭제" slot="actions" onclick={removeDetailRow}></lightning-button>
             <div class="slds-m-around_medium" onpaste={handlePaste}>
