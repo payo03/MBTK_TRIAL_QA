@@ -329,6 +329,7 @@ public without sharing class ModuSignPDFController {
             product.productPrice = productWrap.price != null ? productWrap.price : 0;
             product.productName = productWrap.name != null ? productWrap.name : '';
             wrapper.product = product;
+            //
 
             List<QuoteCreatorController.OptionWrap> optionWrapList = (List<QuoteCreatorController.OptionWrap>) quoteDetail.get('option');
             List<Option> optionList = new List<Option>();
