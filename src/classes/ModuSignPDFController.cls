@@ -350,7 +350,7 @@ public without sharing class ModuSignPDFController {
                 // paymentType.formatDepositDate = payType.CreatedDate != null ? payType.CreatedDate : '';
                 paymentType.formatDepositDate = (depositDate != null) ? depositDate.format('yyyy-MM-dd') : null;
                 System.debug('paymentType.depositDate :::: ' + paymentType.formatDepositDate);
-                paymentTypeList.add(payType);
+                paymentTypeList.add(paymentType);
             }
             System.debug('paymentTypeList :::: ' + paymentTypeList);
             wrapper.paymentTypeList = paymentTypeList;

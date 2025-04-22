@@ -653,7 +653,12 @@
                   </apex:outputText>원
                 </td>
                 <th>계약금 입금일</th>
-                <td>{!formatTaxDate}</td>
+                <td>
+                  <!-- {!formatTaxDate} -->
+                  <apex:repeat value="{!pdfWrapper.paymentTypeList}" var="item">
+                    <apex:outputText value="{!item.formatDepositDate}" />
+                  </apex:repeat>
+                </td>
               </tr>
             </table>
             <div style="font-size: 10px;">*본 영수증은 자동차 매매대금용으로만 효력이 있으며 기타용도 사용은 무효입니다.</div>
