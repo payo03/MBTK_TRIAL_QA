@@ -67,6 +67,7 @@ public without sharing class ModuSignPDFController {
         public String virtualAccount { get; set; }
         public Decimal totalDownVATDefer { get; set; }
         public Decimal loanAmount { get; set; }
+        public Decimal totalCapitalAmount { get; set; }
         public String formatStartDate { get; set; }
         public Decimal baseDiscount { get; set; }
         public Decimal realSaleDiscount {get; set;}
@@ -311,6 +312,8 @@ public without sharing class ModuSignPDFController {
             wrapper.virtualAccount = !virtualAccountList.isEmpty() ? virtualAccountList.get(0).fm_VirtualAccount__c : '';
             wrapper.totalDownVATDefer = wrapper.contractDeposit + wrapper.quoteDeliveryDiscountPrice + wrapper.opportunityTaxDeferredAmount + wrapper.opportunityPaymentDeferredAmount;
             wrapper.loanAmount = wrapper.quoteTotalLoanAmount - wrapper.quoteCapitalDefermentAmount;
+            // 총 대출금
+            wrapper.totalCapitalAmount = wrapper.loanAmount + wrapper.quoteCapitalDefermentAmount;
             wrapper.formatStartDate = String.valueOf(Date.today());
             wrapper.baseDiscount = baseDiscount != null ? baseDiscount : 0;
             wrapper.realSaleDiscount = wrapper.contractRealSalesPrice - wrapper.quoteDeliveryDiscountPrice;
