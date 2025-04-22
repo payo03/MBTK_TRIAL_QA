@@ -23,11 +23,7 @@ public without sharing class AsyncVAInfo implements Queueable, Database.AllowsCa
     public void execute(QueueableContext context) {
         try {
             Set<String> transferAccSet = new Set<String>();
-            for(IFAuditLogDetail__c logDetail : [
-                    SELECT Id, ExternalId__c
-                    FROM IFAuditLogDetail__c
-                    WHERE fm_LogId__c IN :paramLogIdList
-            ]) {
+            for(IFAuditLogDetail__c logDetail : SAPCommon.fetchLogIdList(paramLogIdList)) {
                 transferAccSet.add(logDetail.ExternalId__c);
             }
 

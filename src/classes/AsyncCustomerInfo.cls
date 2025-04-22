@@ -13,13 +13,18 @@ public without sharing class AsyncCustomerInfo implements Queueable, Database.Al
     private static final String IF_ID = InterfaceSAP.IF_SMS007;
 
     public List<String> idList;
-    public AsyncVAInfo.SEND_TYPE sendType;
-    public AsyncCustomerInfo(List<String> idList, AsyncVAInfo.SEND_TYPE sendType) {
+    public Map<String, Object> infoMap;
+    public AsyncCustomerInfo(List<String> idList, Map<String, Object> infoMap) {
         this.idList = idList;
-        this.sendType = sendType;
+        this.infoMap = infoMap;
     }
 
     public void execute(QueueableContext context) {
+        AsyncVAInfo.SEND_TYPE sendType = infoMap.containsKey('sendType')
+                ? (AsyncVAInfo.SEND_TYPE) infoMap.get('sendType')
+                : AsyncVAInfo.SEND_TYPE.O;
+        Boolean isChain = infoMap.containsKey('isChain') ? (Boolean) infoMap.get('isChain') : true;
+
         String status = 'SUCCESS';
         String requestBody = JSON.serializePretty(idList);
         String responseBody;
@@ -29,20 +34,29 @@ public without sharing class AsyncCustomerInfo implements Queueable, Database.Al
 
         Map<String, IFAuditLog__c> logMap = new Map<String, IFAuditLog__c>();
         Map<String, IFAuditLogDetail__c> logDetailMap = new Map<String, IFAuditLogDetail__c>();
+        Map<String, String> logIdMap = SAPCommon.fetchLogExternalIdMap(idList, LOG_TYPE);
+
         try {
             // BP코드 전송
             List<Account> accList = [
-                    SELECT Id, RecordTypeId, Name, IDNumber__pc, BPCode__c, PersonEmail, IsTaxIDNumber__c,
-                            BusinessNumber__c, BusinessName__c, Phone, RoadAddress__c, DetailAddress__c, PostalCode__c
+                    SELECT Id, RecordTypeId, Name, IDNumber__pc, BPCode__c, PersonEmail,
+                            BusinessNumber__c, BusinessName__c, Phone, RoadAddress__c, DetailAddress__c, PostalCode__c,
+                            (
+                                SELECT Id, IsTaxIDNumber__c
+                                FROM Opportunities
+                                ORDER BY CreatedDate DESC
+                                LIMIT 1
+                            )
                     FROM Account
                     WHERE Id = :idList
             ];
 
             List<IF_DTO.CustomerInfo> infoList = new List<IF_DTO.CustomerInfo>();
             for(Account acc : accList) {
+                Boolean isCreate = !logIdMap.containsKey(acc.Id);
                 String logId = CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.PREFIX_BP);
 
-                IF_DTO.CustomerInfo info = new IF_DTO.CustomerInfo(acc, true);
+                IF_DTO.CustomerInfo info = new IF_DTO.CustomerInfo(acc, isCreate);
                 info.IFID = logId;
                 infoList.add(info);
 
@@ -118,7 +132,7 @@ public without sharing class AsyncCustomerInfo implements Queueable, Database.Al
                 insert details;
 
                 // 고객정보전송(SMS007) 완료시 가상계좌-BP정보(SMS018) 전송
-                if(!logIdList.isEmpty()) System.enqueueJob(new AsyncVAInfo(logIdList, this.sendType)); 
+                if(isChain && !logIdList.isEmpty()) System.enqueueJob(new AsyncVAInfo(logIdList, sendType));
             }
 
             IF_DTO.LogWrapper objLogWrapper = new IF_DTO.LogWrapper();
@@ -131,6 +145,7 @@ public without sharing class AsyncCustomerInfo implements Queueable, Database.Al
             objLogWrapper.logType = IF_DTO.LOG_TYPE.HEROKU_SAP_OUT;
 
             CommonUtilCustomController.setLog(objLogWrapper);
+            SAPCommon.updateLogByExternalId(idList, LOG_TYPE);
         }
     }
 }

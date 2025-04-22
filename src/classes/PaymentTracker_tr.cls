@@ -7,7 +7,8 @@
  * Ver          Date            Author                  Modification
  * 1.0          2025-02-10      th.kim                  Created
  * 1.1          2025-04-01      payo03@solomontech.net  Opportunity PaymentStatus Update
- * 1.2          2025-04-08      chaebeom.do             이전 입금내역 연결시 현재 paymentType 업데이트 로직 추가
+ * 1.2          2025-04-08      chaebeom.do             이전 입금내역 연결 기능 linkPaymentLog() 추가
+ * 1.3          2025-04-21      chaebeom.do             linkPaymentLog() 실행시 PaymentType 업데이트 로직 추가
 **************************************************************/
 public without sharing class PaymentTracker_tr extends TriggerHandler {
 
@@ -120,40 +121,28 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
             curOpptyMap.put(newPT.Id, newPT.Opportunity__c);
         }
 
-        List<PaymentTracker__c> expiredPaymentTrackerList = new List<PaymentTracker__c>([
-            SELECT Id, Name, Opportunity__c
-            FROM PaymentTracker__c
-            WHERE Opportunity__c IN :curOpptyMap.values()
-            AND IsValid__c = false
-            ORDER BY CreatedDate DESC
-        ]);
-
-        Map<Id, List<PaymentTracker__c>> expiredPaymentTrackerMap = new Map<Id, List<PaymentTracker__c>>();
-        for (PaymentTracker__c tracker : expiredPaymentTrackerList) {
-            if (!expiredPaymentTrackerMap.containsKey(tracker.Opportunity__c)) {
-                expiredPaymentTrackerMap.put(tracker.Opportunity__c, new List<PaymentTracker__c>());
-            }
-            expiredPaymentTrackerMap.get(tracker.Opportunity__c).add(tracker);
+        // 만료 TrackerMap
+        Map<String, PaymentTracker__c> expiredPaymentTrackerMap = new Map<String, PaymentTracker__c>();
+        for (PaymentTracker__c tracker : [
+                SELECT Id, Name, Opportunity__c, Status__c, 
+                (
+                    SELECT Id, Amount__c, PaymentTracker__c
+                    FROM PaymentLogs__r
+                )
+                FROM PaymentTracker__c
+                WHERE Opportunity__c IN :curOpptyMap.values()
+                AND IsValid__c = FALSE
+                ORDER BY CreatedDate
+        ]) {
+            expiredPaymentTrackerMap.put(tracker.Opportunity__c, tracker);
         }
 
-        List<PaymentLog__c> expiredPaymentLogList = [
-            SELECT Id, Amount__c, PaymentTracker__c
-            FROM PaymentLog__c
-            WHERE PaymentTracker__r.Opportunity__c IN :expiredPaymentTrackerMap.keySet()
-        ];
-
-        Map<Id, List<PaymentLog__c>> expiredPaymentLogMap = new Map<Id, List<PaymentLog__c>>();
-        for (PaymentLog__c log : expiredPaymentLogList) {
-            if (!expiredPaymentLogMap.containsKey(log.PaymentTracker__c)) {
-                expiredPaymentLogMap.put(log.PaymentTracker__c, new List<PaymentLog__c>());
-            }
-            expiredPaymentLogMap.get(log.PaymentTracker__c).add(log);
-        }
-
-        Map<Id, List<PaymentType__c>> curTypeMap = new Map<Id, List<PaymentType__c>>();
-        for (PaymentType__c type : [SELECT Id, PaymentTracker__c, Type__c, RequestAmount__c, DepositAmount__c
-            FROM PaymentType__c
-            WHERE PaymentTracker__c IN :curOpptyMap.keySet()
+        // 신규 TrackerMap
+        Map<String, List<PaymentType__c>> curTypeMap = new Map<String, List<PaymentType__c>>();
+        for (PaymentType__c type : [
+                SELECT Id, Type__c, RequestAmount__c, DepositAmount__c
+                FROM PaymentType__c
+                WHERE PaymentTracker__c IN :curOpptyMap.keySet()
         ]) {
             if (!curTypeMap.containsKey(type.PaymentTracker__c)) {
                 curTypeMap.put(type.PaymentTracker__c, new List<PaymentType__c>());
@@ -161,30 +150,50 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
             curTypeMap.get(type.PaymentTracker__c).add(type);
         }
 
-        System.debug('확인용 : ' + expiredPaymentTrackerMap);
-        System.debug('확인용 : ' + expiredPaymentLogMap);
-        System.debug('확인용 : ' + curTypeMap);
-
         List<PaymentLog__c> updatePaymentLogList = new List<PaymentLog__c>();
+        Map<String, Decimal> sumPaymentLogMap = new Map<String, Decimal>(); // ver 1.3 이전 입금 로그의 합
 
         // 새 PaymentTracker__c에 기존 PaymentLog 연결
         for (PaymentTracker__c newPT : newList) {
-            if (expiredPaymentTrackerMap.size() > 0) {
-                PaymentTracker__c expiredPT = expiredPaymentTrackerMap.get(newPT.Opportunity__c)[0];
-                if (expiredPT != null && expiredPaymentLogMap.containsKey(expiredPT.Id)) {
-                    for (PaymentLog__c oldLog : expiredPaymentLogMap.get(expiredPT.Id)) {
-                        if (oldLog.Amount__c == 1000000) {
-                            oldLog.PaymentTracker__c = newPT.Id;
-                            updatePaymentLogList.add(oldLog);
-                        }
-                    }
+            PaymentTracker__c expiredPT = expiredPaymentTrackerMap.get(newPT.Opportunity__c);
+
+            if (expiredPT != null) {
+                Decimal sumPaymentLog = 0;
+                for (PaymentLog__c oldLog : expiredPT.PaymentLogs__r) {
+                    oldLog.PaymentTracker__c = newPT.Id;
+                    updatePaymentLogList.add(oldLog);
+                    sumPaymentLog += oldLog.Amount__c;
                 }
+                sumPaymentLogMap.put(newPT.Id, sumPaymentLog);
             }
         }
-        System.debug('확인용 : ' + updatePaymentLogList);
+        if (!updatePaymentLogList.isEmpty()) update updatePaymentLogList;
 
-        if (!updatePaymentLogList.isEmpty()) {
-            update updatePaymentLogList;
+        // ver 1.3 이전 입금 로그 연결 후 로그 금액에 따라 입금현황 종류 금액, 입금현황관리 상태 업데이트
+        List<PaymentTracker__c> updateTrackerList = new List<PaymentTracker__c>();
+        List<PaymentType__c> updateTypeList = new List<PaymentType__c>();
+
+        // 기존금액 분배 Start
+        for (PaymentTracker__c newPT : newList) {
+            PaymentTracker__c oldTracker = expiredPaymentTrackerMap.get(newPT.Opportunity__c);
+
+            newPT.Status__c = oldTracker.Status__c;
+            updateTrackerList.add(newPT);
+
+            Decimal remainingAmount = sumPaymentLogMap.get(newPT.Id);
+            for (PaymentType__c type : curTypeMap.get(newPT.Id)) {
+                if (remainingAmount <= 0) break;
+
+                Decimal requestAmt = type.RequestAmount__c != null ? type.RequestAmount__c : 0;
+                Decimal assignAmount = Math.min(remainingAmount, requestAmt);
+                type.DepositAmount__c = assignAmount;
+                remainingAmount -= assignAmount;
+
+                updateTypeList.add(type);
+            }
         }
+
+        if (!updateTrackerList.isEmpty()) update updateTrackerList;
+        if (!updateTypeList.isEmpty()) update updateTypeList;
     }
 }

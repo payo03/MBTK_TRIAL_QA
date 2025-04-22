@@ -76,13 +76,12 @@ global without sharing class StageUpdateCommonController extends CommonAfterProc
                     WHERE ContractId = :contractId
                     AND Status = 'Published'
                     AND (
-                            Opportunity.StageName = 'Payment' AND
-                            Opportunity.VehicleStock__c != NULL
+                        Opportunity.StageName = 'Payment' AND
+                        Opportunity.VehicleStock__c != NULL
                     )
             ];
             if (quotes.isEmpty()) {
                 // ver1.2 배정 실패시 알림추가
-
                 isNoti = true;
                 notiTitleList.add('견적구성 오류 혹은 차량 배정불가');
                 notiBodyList.add('차량이 배정되지 않았습니다.\n관리자에게 문의 바랍니다.\n 차종명 : ' + productName);
@@ -91,18 +90,17 @@ global without sharing class StageUpdateCommonController extends CommonAfterProc
             Quote quote = quotes[0];
             Date targetDate = quote.HopeHandoverDate__c != null ? quote.HopeHandoverDate__c : Date.today();
             List<Map<String, Object>> paramMapList = new List<Map<String, Object>>{
-                    new Map<String, Object>{
-                            'targetDate' => targetDate,
-                            'opportunityId' => opportunityId,
-                            'stockId' => stockId
-                    }
+                new Map<String, Object>{
+                    'targetDate' => targetDate,
+                    'opportunityId' => opportunityId,
+                    'stockId' => stockId
+                }
             };
             HandoverDateAllocationHistory__c history = TaxInvoiceSchedulerController.createHistory(paramMapList).get(opportunityId);
 
-            if (history != null)  insert history;
+            if (history != null) insert history;
             else {
                 // History가 NULL일경우. 수동으로 출고일 지정필요
-
                 isNoti = true;
                 notiTitleList.add('출고일 자동 선택 불가');
                 notiBodyList.add('해당 기회의 출고일을 다시 선택해 주세요. \n 기회 이름 : ' + contract.Opportunity__r.Name);

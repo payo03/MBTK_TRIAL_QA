@@ -6,11 +6,13 @@
   Ver      Date            Author                           Modification
   ===================================================================================
   1.0      2025-03-20      chaebeom.do@solomontech.net      Created
+  1.1      2025-04-18      chaebeom.do@solomontech.net      계약 취소시 사유 선택 목록 입력 기능 추가
 */
 public without sharing class ContractCancelController {
     
     @AuraEnabled
     public static Opportunity init(String recordId) {
+
         Opportunity oppty = [
             SELECT Contract.ContractNumber
             FROM Opportunity 
@@ -19,8 +21,34 @@ public without sharing class ContractCancelController {
         return oppty;
     }
 
+    //ver 1.1
     @AuraEnabled
-    public static void cancelByCase(String type, String opptyId) {
+    public static Map<String, List<String>> getPicklistValues(String objectName, List<String> fieldNames) {
+
+        Map<String, List<String>> result = new Map<String, List<String>>();
+
+        Schema.SObjectType sObjectType = Schema.getGlobalDescribe().get(objectName);
+        if (sObjectType == null) return result;
+
+        Schema.DescribeSObjectResult describeResult = sObjectType.getDescribe();
+
+        for (String fieldName : fieldNames) {
+            List<String> picklistValues = new List<String>();
+            if (describeResult.fields.getMap().containsKey(fieldName)) {
+                Schema.DescribeFieldResult fieldResult = describeResult.fields.getMap().get(fieldName).getDescribe();
+                for (Schema.PicklistEntry entry : fieldResult.getPicklistValues()) {
+                    picklistValues.add(entry.getLabel()); // 또는 entry.getValue()
+                }
+            }
+            result.put(fieldName, picklistValues);
+        }
+
+        return result;
+    }
+
+    @AuraEnabled
+    public static void cancelByCase(String type, String opptyId, Map<String, List<String>> selectedValues) {
+
         Opportunity opp = [
             SELECT Id, VehicleStock__c, StageName, ContractId, TaxInvoiceNumber__c, AccountId, TaxInvoiceDate__c
             FROM Opportunity
@@ -44,8 +72,6 @@ public without sharing class ContractCancelController {
             ORDER BY CreatedDate DESC LIMIT 1
         ];
         List<PDIStep__c> canceledPDI = new List<PDIStep__c>();  
-        System.debug('type :: ' + type);
-        System.debug('targetContract :: ' + targetContract);
         String beforeOppStage = opp.StageName;
         Date targetTaxDate = opp.TaxInvoiceDate__c;
         try {
@@ -56,6 +82,19 @@ public without sharing class ContractCancelController {
             opp.ContractId = null;
             if(type == 'closedLost' || type == 'returnVehicle') {
                 opp.StageName = 'Closed Lost';
+            }
+            //ver1.1
+            if (selectedValues.containsKey('CompetitorSelection__c')) {
+                opp.CompetitorSelection__c = String.join(selectedValues.get('CompetitorSelection__c'), ';');
+            }
+            if (selectedValues.containsKey('EconomicReasons__c')) {
+                opp.EconomicReasons__c = String.join(selectedValues.get('EconomicReasons__c'), ';');
+            }
+            if (selectedValues.containsKey('PersonalReasons__c')) {
+                opp.PersonalReasons__c = String.join(selectedValues.get('PersonalReasons__c'), ';');
+            }
+            if (selectedValues.containsKey('TechnicalReasons__c')) {
+                opp.TechnicalReasons__c = String.join(selectedValues.get('TechnicalReasons__c'), ';');
             }        
             if(targetContract.ApprovalStatus__c == '제출됨') {
                 //계약에 걸려있는 승인 프로세스 회수됨으로 변경
@@ -66,7 +105,6 @@ public without sharing class ContractCancelController {
                 ];
                 Approval.ProcessWorkitemRequest req = new Approval.ProcessWorkitemRequest();
                 req.setComments('계약 취소');
-                // req.setAction('Reject');
                 req.setAction('Removed');
                 req.setWorkitemId(pendingContract.Id);
                 Approval.ProcessResult result = Approval.process(req);
@@ -98,11 +136,9 @@ public without sharing class ContractCancelController {
                     opp.VehicleStock__c = null;
                     // 차량배정 해제(SAP 재고 이동 취소) -> Opportunity_tr에서 처리하기 때문에 여기서 추가 작업 필요 없음
                 } 
-                // 해당 계약과 관련된 모두사인 취소 -> 모두사인 요금제 만료로 현재 실행해도 취소 안됨(250325)
                 String targetModuSignCondition = 'AND (Status__c != \'ABORTED\' OR Status__c != \'COMPLETED\') AND Contract__c = \'' + targetContract.Id + '\'';
                 Database.executeBatch(new CancelRequestModuSign_ba(targetModuSignCondition), 4);
                 
-                // if(virtualAccount.VirtualAccountMaster__r.Status__c == '할당중' && (type == 'closedLost' || type == 'returnVehicle')) {
                 if(virtualAccount.size() > 0 && (type == 'closedLost' || type == 'returnVehicle')) {
                     // 가상계좌 할당 해제?
                     update new VirtualAccount__c(Id = virtualAccount[0].Id, IsValid__c = false);
@@ -145,7 +181,6 @@ public without sharing class ContractCancelController {
                 update new Contract(Id = targetContract.Id, ConStatus__c = '계약 취소');
                 update new PaymentTracker__c(Id = pt.Id, IsValid__c = false, Status__c = 'CANCELED');
                 update new Handover__c(Id = ho.Id, IsActive__c = false); 
-                // throw new AuraHandledException('정상 취소 후 롤백용 에러. :: ');
             }
         } catch (Exception e) {
             System.debug('msg >> '+e.getMessage() + ' getStackTraceString >>' + e.getStackTraceString());
