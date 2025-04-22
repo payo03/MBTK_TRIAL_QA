@@ -8,6 +8,7 @@
  1.0      2025-01-22      payo03@solomontech.net           Create
  1.1      2025-01-22      chaebeom.do@solomontech.net      차량재고 링크 추가
  1.2      2025-04-21      chaebeom.do@solomontech.net      PDI step3 완료시 기회 연결 로직 추가
+ 1.3      2025-04-22      chaebeom.do@solomontech.net      PDI step1,2,5 이슈 저장용 별도 버튼 변수 추가
  */
 import {LightningElement, track} from 'lwc';
 import {showToast} from "c/commonUtil";
@@ -38,9 +39,16 @@ export default class pdiMain extends LightningElement {
     isLoading = false;
     isModalOpen = false;
     // 0326 추가
-    isNext = false;
+    // isNext = false;
     // ver 1.1
     url = '/';
+    // ver 1.3
+    modalMap = {
+        nextStep : false,
+        prevStep : false,
+        saveIssue : false
+    }
+    isIssueSave = false;
 
     @track selectedRow = null;  // 개별 SelectedRow
 
@@ -193,18 +201,6 @@ export default class pdiMain extends LightningElement {
 
     // Handle Step0 E
 
-    // Handle Step1, 2 S
-    handleDriveDistance(event) {
-        this.idMapList = [];
-        const vinObj = {
-            WorkNo: this.workNo[0],
-            DriveDistance: event.detail.driveDistance
-        };
-        this.idMapList.push(vinObj);
-    }
-
-    // Handle Step1, 2 E
-
     // Handle Step3 S
     handleStep3open(event) {
         const tempMap = event.detail.matchRow;
@@ -222,6 +218,8 @@ export default class pdiMain extends LightningElement {
             this[`is${tab.name}`] = false;
         });
         this[`is${this.switchTabName}`] = true;
+        // ver 1.3
+        this.isIssueSave = !this.isBulk && (this.switchTabName == 'Step1' || this.switchTabName == 'Step2' || this.switchTabName == 'Step5');
     }
 
     showStep(isRollback) {
@@ -252,8 +250,12 @@ export default class pdiMain extends LightningElement {
      * @description 모달 on/off
      */
     toggleModal(e) {
-        this.isNext = (e.target.dataset.name === 'nextStep');
+        // this.isNext = (e.target.dataset.name === 'nextStep');
+        const name = e.target.dataset.name;
         this.isModalOpen = !this.isModalOpen;
+        if (this.isModalOpen) {
+			Object.keys(this.modalMap).forEach(el => this.modalMap[el] = (el === name));
+		}
     }
 
     handleRollback() {
@@ -300,7 +302,7 @@ export default class pdiMain extends LightningElement {
 
         if (this.switchTabName == 'Step3') {
             doRollbackStep3({rollbackMap: this.step3SelectMap}).then(() => {
-                showToast('Success', '배정 취소 완료', 'Success');
+                showToast('PDI 단계 취소 완료', '배정 취소 완료', 'Success');
                 this.showStep(false);
             }).catch(error => {
                 showToast('Error', 'Error Update', 'error', 'dismissable');
@@ -315,7 +317,7 @@ export default class pdiMain extends LightningElement {
                 vinInfoList: this.idMapList,
             }).then(response => {
                 // 단일 업데이트인경우
-                showToast('Success', this.switchTabName.toUpperCase() + ' 취소 완료', 'Success');
+                showToast('PDI 단계 취소 완료', this.switchTabName.toUpperCase() + ' 취소 완료', 'Success');
                 this.showStep(true);
             }).catch(error => {
                 showToast('Error', 'Error Update', 'error', 'dismissable');
@@ -396,6 +398,7 @@ export default class pdiMain extends LightningElement {
             updateVehicleStock({
                 stepName: stepName.toUpperCase(),
                 vinInfoList: this.idMapList,
+                isBulk: this.isBulk
             }).then(response => {
                 if (this.isBulk) {
                     // Bulk 업데이트일경우
@@ -410,8 +413,9 @@ export default class pdiMain extends LightningElement {
                     if (this.switchTabName == 'Step1' || this.switchTabName == 'Step2' || this.switchTabName == 'Step5') {
                         const tableChoosen = this.template.querySelector(`c-pdi-${this.switchTabName.toLowerCase()}-view`);
                         tableChoosen.handleUpdateIssue();
+                        // this.handleUpdateIssue();
                     }
-                    showToast('Success', this.switchTabName.toUpperCase() + ' 완료', 'Success');
+                    showToast('PDI 단계 완료', this.switchTabName.toUpperCase() + ' 완료', 'Success');
                     this.showStep(false);
                 }
             }).catch(error => {
@@ -422,6 +426,14 @@ export default class pdiMain extends LightningElement {
                 this.isModalOpen = false;
             });
         }
+    }
+
+    // ver 1.3
+    handleUpdateIssue() {
+        const tableChoosen = this.template.querySelector(`c-pdi-${this.switchTabName.toLowerCase()}-view`);
+        tableChoosen.handleUpdateIssue();
+        showToast('저장 완료', '주행거리와 이슈가 저장되었습니다.', 'Success');
+        this.isModalOpen = false;
     }
 
     async step3CallSAP() {
