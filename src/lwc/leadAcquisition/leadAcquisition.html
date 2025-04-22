@@ -9,6 +9,7 @@
  * 1.3          2024-11-13      chaebeom.do     Added funtion for pre-quote calculation
  * 1.4          2025-02-19      chaebeom.do     담당 SA 변경 기능 '견적 생성' 버튼에 통합
  * 1.5          2025-03-24      th.kim          UI/UX 변경 및 프로세스 변경
+ * 1.6          2025-04-22      chaebeom.do     인도금 입력, 대출금 계산으로 변경
 -->
 <!-- leadAcquisition -->
 <template>
@@ -78,24 +79,11 @@
 										                       required="true" value={phone} onchange={handleChange} style="display: none;"></lightning-input-field>
 										<lightning-input type="text" label="휴대폰" data-id="MobilePhone"
 										                 class="slds-p-horizontal_xx-small slds-col" value={phone} maxlength={phoneLength} onchange={handleChange} required="true"></lightning-input>
-										<!--									<div class="slds-form-element search-btn-wrap">-->
-										<!--										<label class="slds-form-element__label">-->
-										<!--										</label>-->
-										<!--										<button class="slds-button slds-button_neutral slds-m-right_x-small slds-m-bottom_xxx-small" type="button" onclick={handleDupCheck}>중복 확인-->
-										<!--										</button>-->
-										<!--									</div>-->
 									</div>
 								</div>
 								<div class="slds-grid slds-size_1-of-1 slds-form__item slds-no-space">
 									<div class="slds-grid slds-size_1-of-1 slds-form-element">
 										<lightning-input-field field-name="BusinessNumber__c" class="leadInfo" data-id="bizNum" value={bizNum} onchange={handleChange}></lightning-input-field>
-										<!--									<div class="slds-form-element search-btn-wrap">-->
-										<!--										<label class="slds-form-element__label">-->
-										<!--											<abbr class="slds-required" title="필수"></abbr>-->
-										<!--										</label>-->
-										<!--										<button class="slds-button slds-button_neutral" type="button" onclick={handleBizCheck}>확인-->
-										<!--										</button>-->
-										<!--									</div>-->
 									</div>
 								</div>
 								<div class="slds-grid slds-size_1-of-1 slds-form__item slds-no-space">
@@ -125,59 +113,8 @@
 									<lightning-input-field field-name="PostalCode__c" class="leadInfo" data-id="PostalCode"
 									                       value={postalCode} style="display: none;"></lightning-input-field>
 								</div>
-								<!--							<div class="slds-m-top_small slds-align_absolute-center slds-wrap slds-grid">-->
-								<!--								<template lwc:if={leadCreated}>-->
-								<!--									<lightning-button-->
-								<!--										class="slds-m-right_xx-small"-->
-								<!--										label="새 리드 입력"-->
-								<!--										onclick={createNewLead}-->
-								<!--									></lightning-button>-->
-								<!--								</template>-->
-								<!--								<template lwc:if={isNewLead}>-->
-								<!--									<lightning-button-->
-								<!--										variant="brand"-->
-								<!--										class="slds-m-right_xx-small"-->
-								<!--										type={dupComplete}-->
-								<!--										label="리드 생성"-->
-								<!--										onclick={handleSave}-->
-								<!--									></lightning-button>-->
-								<!--								</template>-->
-								<!--								<template lwc:else>-->
-								<!--									<lightning-button-->
-								<!--										variant="brand"-->
-								<!--										class="slds-m-right_xx-small"-->
-								<!--										type={dupComplete}-->
-								<!--										label="리드 수정"-->
-								<!--										onclick={handleSave}-->
-								<!--									></lightning-button>-->
-								<!--								</template>-->
-								<!--								<template lwc:if={isMobile}>-->
-								<!--									<lightning-button	-->
-								<!--										variant="brand" -->
-								<!--										class="" -->
-								<!--										label="차종 선택"-->
-								<!--										data-id="product" -->
-								<!--										onclick={handleScroll}-->
-								<!--									></lightning-button>-->
-								<!--								</template>-->
-								<!--							</div>-->
 							</lightning-record-edit-form>
 						</div>
-<!--						<template lwc:if={leadCreated}>-->
-<!--							<div class="slds-card__body slds-card__body_inner">-->
-<!--								<div style="height: 250px;">-->
-<!--									<lightning-datatable-->
-<!--													key-field="id"-->
-<!--													data={leadData}-->
-<!--													columns={leadColumns}-->
-<!--													max-row-selection="1"-->
-<!--													selected-rows={selectedLeadRowIds}-->
-<!--													resize-column-disabled-->
-<!--													onrowselection={handleLeadRowSelection}>-->
-<!--									</lightning-datatable>-->
-<!--								</div>-->
-<!--							</div>-->
-<!--						</template>-->
 					</template>
 					<!-- 주소 검색 View 화면 -->
 				<iframe class={iframeClass} src="/apex/SearchAddress?isdtp=p1"></iframe>
@@ -190,26 +127,6 @@
 			<!-- Middle Section Start -->
 			<div class="slds-col slds-size_1-of-1 slds-large-size_2-of-3">
 				<c-product-campaign-table onrowselect={handleRowSelect}></c-product-campaign-table>
-<!--				<template lwc:if={isPC}>-->
-<!--					<div class="slds-m-top_small slds-align_absolute-center">-->
-<!--						<lightning-button-->
-<!--							class="slds-m-right_xx-small"-->
-<!--							type="button"-->
-<!--							label="선택 초기화"-->
-<!--							onclick={clearSelection}-->
-<!--						></lightning-button>-->
-<!--						<lightning-button-->
-<!--							variant="brand"-->
-<!--							class="slds-m-right_xx-small"-->
-<!--							type="button"-->
-<!--							label="견적 생성"-->
-<!--							onclick={handleConvert}-->
-<!--						></lightning-button>-->
-<!--					</div>-->
-<!--				</template>-->
-<!--				<template lwc:if={isLoading}>-->
-<!--					<lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>-->
-<!--				</template>-->
 			</div>
 			<!-- Middle Section End -->
 
@@ -232,8 +149,10 @@
 															min={minInterestRate} max={maxInterestRate}
 															message-when-range-underflow="이자율 범위를 확인해주세요."
 															message-when-range-overflow="이자율 범위를 확인해주세요." onchange={handleCalc}></lightning-input>
-							<lightning-input type="number" label="대출금액(원)" data-id="totalLoan" 
-															class="slds-size_1-of-1" value={totalLoan}  placeholder="예시)200,000,000" onchange={handleCalc}></lightning-input>
+							<!-- <lightning-input type="number" label="대출금액(원)" data-id="totalLoan" 
+															class="slds-size_1-of-1" value={totalLoan}  placeholder="예시)200,000,000" onchange={handleCalc}></lightning-input> -->
+							<lightning-input type="number" label="선수금(원)" data-id="downpayment" 
+															class="slds-size_1-of-1" value={downpayment}  placeholder="예시)15,000,000" onchange={handleCalc}></lightning-input>
 							<lightning-slider label="할부기간(개월)" value={duration} step="6" data-id="duration" 
 															min={minimumDuration} max={maximumDuration} onchange={handleCalc}></lightning-slider>
 							<template lwc:if={isMobile}>
@@ -277,18 +196,14 @@
 																		class="slds-size_1-of-2" readonly value="1000000"></lightning-input>
 									<lightning-input type="number" label="할부금리(%)" data-id="interestRate"
 																		class="slds-size_1-of-2" readonly value={interestRate} step=".01"></lightning-input>
-									<lightning-input type="number" label="할부원금" data-id="totalLoan"
-																		class="slds-size_1-of-2" readonly value={totalLoan}></lightning-input>
+									<lightning-input type="number" label="선수금" data-id="downpayment"
+																		class="slds-size_1-of-2" readonly value={downpayment}></lightning-input>
 									<lightning-input type="number" label="할부기간(개월)" data-id="duration"
 																		class="slds-size_1-of-2" readonly value={duration}></lightning-input>
-									<lightning-input type="number" label="인도금" data-id="downpayment" field-level-help="실 판매가 - 할부원금 - 계약금"
-																		class="slds-size_1-of-2" readonly value={downpayment}></lightning-input>
-									<!-- <lightning-input type="number" label="총 상환금액" data-id="totalRepayment" field-level-help="월 상환금액 X 할부기간"
-																		class="slds-size_1-of-2" readonly value={totalRepayment}></lightning-input>
-									<lightning-input type="number" label="이자합계" data-id="interestTotal" field-level-help="총 상환금액 - 할부원금"
-																		class="slds-size_1-of-2" readonly value={interestTotal}></lightning-input> -->
+									<lightning-input type="number" label="대출금" data-id="totalLoan" field-level-help="실 판매가 - 인도금 - 계약금"
+																		class="slds-size_1-of-2" readonly value={totalLoan}></lightning-input>
 								</div>
-								<lightning-input type="number" label="월 상환금액" data-id="monthlyPayment" field-level-help="할부원금에 대한 원리금균등상환 방식"
+								<lightning-input type="number" label="월 상환금액" data-id="monthlyPayment" field-level-help="대출금에 대한 원리금균등상환 방식"
 																		class="slds-size_1-of-2 quoteHighlight" readonly value={monthlyPayment}></lightning-input>
 							</div>
 						</div>
@@ -319,8 +234,6 @@
 						onclick={handleConvert}
 					></lightning-button>
 				</div>
-				<!-- <div class="slds-m-bottom_small slds-align_absolute-center slds-p-around_x-small">
-				</div> -->
 			 </template>
 		</div>
 	</div>

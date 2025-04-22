@@ -10,6 +10,7 @@
  * 1.4          2024-11-27      chaebeom.do     Separate Product/Campaign table funtion
  * 2.0          2024-12-20      chaebeom.do     캠페인 중복 적용으로 인한 견적 수정
  * 2.1          2025-03-25      th.kim          리드 생성, 견적 생성 프로세스 변경 및 버튼 통합, UI/UX 조정
+ * 2.2          2025-04-22      chaebeom.do     인도금 입력, 대출금 계산으로 변경
  **************************************************************/
 import { LightningElement, wire, track } from "lwc";
 import { NavigationMixin } from "lightning/navigation";
@@ -89,7 +90,7 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 	@track maxInterestRate;
 	@track minimumDuration;
 	@track maximumDuration;
-	totalLoan; //대출금액 = 할부원금
+	totalLoan; //대출금
 	interestRate; //할부금리
 	duration = 12; //할부기간
 
@@ -246,7 +247,8 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 				, "productId": this.selectedProductId
 				, "campaignIdList": JSON.stringify(this.selectedCampaignList.map(item => item.id))
 				, "financeId": this.financeId
-				, "totalLoan": this.totalLoan || 0 // 리드 수집에서만
+				// , "totalLoan": this.totalLoan || 0 // 리드 수집에서만
+				, "advancePayment": this.downpayment || 0 // 리드 수집에서만
 				, "interestRate": this.interestRate || 0// 리드 수집에서만
 				, "duration": this.duration || 0 // 리드 수집에서만
 			};
@@ -551,12 +553,13 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 			case "duration":
 				this.duration = e.target.value;
 				break;
-			case "totalLoan":
-				this.totalLoan = e.target.value;
+			case "downpayment":
+				this.downpayment = e.target.value;
 				break;
 		}
 		this.realSellPrice = this.listPrice - this.salesconditionDiscountAmt - this.discountPrice;
-		this.downpayment = this.realSellPrice - this.totalLoan - 1000000;
+		// this.downpayment = this.realSellPrice - this.totalLoan - 1000000;
+		this.totalLoan = this.realSellPrice - this.downpayment - 1000000;
 		this.monthlyPayment = this.calcMonthPayment(this.totalLoan, this.interestRate, this.duration);
 		// this.totalRepayment = this.monthlyPayment * this.duration;
 		// this.interestTotal = this.totalRepayment > this.totalLoan ? this.totalRepayment - this.totalLoan : 0;

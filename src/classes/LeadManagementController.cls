@@ -436,9 +436,11 @@ public without sharing class LeadManagementController {
                 quote.DiscountAmt__c = discountPrice;
 //                quote.RealSalesPrice__c = tempPrice;
                 quote.Deposit__c = 1000000;
-                Decimal loadAmount = inputInfo.get('totalLoan') != null ? totalLoan : 0;
-//                quote.LoanAmount__c = inputInfo.get('totalLoan') != null ? totalLoan : 0;
-                quote.AdvancePayment__c = tempPrice - loadAmount;
+                // Decimal loadAmount = inputInfo.get('totalLoan') != null ? totalLoan : 0;
+                //                quote.LoanAmount__c = inputInfo.get('totalLoan') != null ? totalLoan : 0;
+                // quote.AdvancePayment__c = tempPrice - loadAmount;
+                quote.AdvancePayment__c = inputInfo.get('advancePayment') != null ? totalLoan : 0;
+                Decimal loadAmount = quote.TotalVehiclePrice__c - quote.SalesconditionDiscountAmt__c - quote.DiscountAmt__c - quote.Deposit__c - quote.AdvancePayment__c;
 //                quote.DeliveryPrice__c = quote.TotalVehiclePrice__c - quote.Deposit__c - quote.LoanAmount__c;
                 quote.DefaultInterestRate__c = inputInfo.get('interestRate') != null ? interestRate : 0;
                 quote.MonthDivideInputMonth__c = Integer.valueOf(inputInfo.get('duration'));
