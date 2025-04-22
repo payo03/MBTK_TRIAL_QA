@@ -300,6 +300,7 @@
           <p>
             계약번호: {!pdfWrapper.contractNumber}
             <br/>
+            <br/>
             안녕하세요 {!pdfWrapper.accountName} 고객님께, 
             <br/>
             <br/>
@@ -847,8 +848,8 @@
                 </td> -->
                 <td colspan="5" style="font-size: 12px; word-break: break-word;">
                   <div>지불조건</div>
-                  <div style="font-size: 10px; color: red;">금융 상품은 일부 다를 수 있으므로 반드시 금융회사와 금융상품에 대한 최종 정보를 확인해 주시기 바랍니다.</div>
-                  <div style="font-size: 10px; color: red;">당사와 금융사 금융조건의 차이가 있는 경우, 금융사 금융조건이 우선합니다.</div>
+                  <div style="font-size: 10px; color: red; text-align: right;">금융 상품은 일부 다를 수 있으므로 반드시 금융회사와 금융상품에 대한 최종 정보를 확인해 주시기 바랍니다.</div>
+                  <div style="font-size: 10px; color: red; text-align: right;">당사와 금융사 금융조건의 차이가 있는 경우, 금융사 금융조건이 우선합니다.</div>
                 </td>
               </tr>
               <tr>
@@ -1264,7 +1265,7 @@
                 </apex:outputText>
               </td>
             </tr>
-            <tr>
+            <!-- <tr>
               <th>Deffered payment</th>
               <td style="text-align: right;">
                 <apex:outputText value="{0,number,###,###}">
@@ -1275,7 +1276,7 @@
               <td></td>
               <th></th>
               <td></td>
-            </tr>
+            </tr> -->
           </table>
           <table>
             <tr class="bottom-border">
@@ -1292,13 +1293,6 @@
             <tr>
               <th>Residential Number(Biz Number)</th>
               <td style="text-align: right">
-                <!-- <apex:outputText value="{!IF(
-                  AND(NOT(ISBLANK(pdfWrapper.accountIDNumber)), NOT(ISBLANK(pdfWrapper.accountBusinessNumber))),
-                  pdfWrapper.accountIDNumber & ' / ' & pdfWrapper.accountBusinessNumber,
-                  IF(NOT(ISBLANK(pdfWrapper.accountIDNumber)), 
-                      pdfWrapper.accountIDNumber, 
-                      IF(NOT(ISBLANK(pdfWrapper.accountBusinessNumber)), pdfWrapper.accountBusinessNumber, '')))}">
-                </apex:outputText> -->
                 <apex:outputText value="{!IF(
                       AND(NOT(ISBLANK(TRIM(pdfWrapper.accountIDNumber))), NOT(ISBLANK(pdfWrapper.accountBusinessNumber))),
                       pdfWrapper.accountIDNumber & ' / ' & pdfWrapper.accountBusinessNumber,
@@ -1341,14 +1335,27 @@
             <tr>
               <th>Residential number(Biz number)</th>
               <td style="text-align: right">{!pdfWrapper.accountRealDriverIDNumber}</td>
-              <th>Email</th>
-              <td>{!pdfWrapper.accountRealDriverEmail}</td>
-              <th></th>
-              <td></td>
+              <th>Company Name</th>
+              <td style="text-align: right">
+                <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountName, '')}" />
+              </td>
+              <th>Business Type</th>
+              <td style="text-align: right">{!pdfWrapper.accountBusinessCategory}</td>
             </tr>
             <tr>
               <th>Adderess</th>
-              <td colspan="5">{!pdfWrapper.accountRealDriverAddress}</td>
+              <td colspan="3">{!pdfWrapper.accountRealDriverAddress}</td>
+              <th>Email</th>
+              <td>{!pdfWrapper.accountRealDriverEmail}</td>
+            </tr>
+          </table>
+          <!-- 담당 영업인 테이블 추가 -->
+          <table>
+            <tr>
+              <th>Sales Agent</th>
+              <td>{!pdfWrapper.opportunityOwnerName}</td>
+              <th>Phone</th>
+              <td>{!pdfWrapper.ownerPhone}</td>
             </tr>
           </table>
           <table>
@@ -1361,7 +1368,7 @@
               <th>Bank</th>
               <td>씨티은행</td>
               <th>Account owner</th>
-              <td>만트럭버스</td>
+              <td>만트럭버스코리아</td>
             </tr>
           </table> 
           <div style="font-size: 10px; color: red;">1. 계약서마다 가상계좌번호가 상이하므로 반드시 각 계약건의 가상게좌번호를 확인해주시기 바랍니다.</div>
@@ -1453,11 +1460,11 @@
             </tr>
             <apex:repeat value="{!pdfWrapper.promotionList}" var="item">
               <tr>
-                <th style="text-align: left; ">{!item.promotionName}</th>
-                <th style="text-align: right; ">
-                    <apex:outputText value="{0,number,###,###}">
-                        <apex:param value="{!IF(ISBLANK(item.promotionDiscountPrice), (pdfWrapper.product.productPrice * item.promotionDiscountRate) , item.promotionDiscountPrice)}" />
-                      </apex:outputText>
+                <th style="text-align: left;">{!item.promotionName}</th>
+                <th style="text-align: right;">
+                  <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!IF(item.promotionDiscountPrice != 0, item.promotionDiscountPrice, pdfWrapper.product.productPrice * item.promotionDiscountRate)}"/>
+                  </apex:outputText>원
                 </th>
               </tr>
             </apex:repeat>
@@ -1565,7 +1572,12 @@
                 <col width="20%"/>
             </colgroup>
             <tr class="bottom-border">
-                <th colspan="4" style="height: 30px; font-size: 15px">Financing – Based on Total Price [individual offering of MFS / other banks] [lump sum] </th>
+              <!-- <th colspan="4" style="height: 30px; font-size: 15px">Financing – Based on Total Price [individual offering of MFS / other banks] [lump sum] </th> -->
+              <td colspan="5" style="font-size: 12px; word-break: break-word;">
+                <div>Financing – Based on Total Price [individual offering of MFS / other banks] [lump sum]</div>
+                <div style="font-size: 10px; color: red; text-align: right;">금융 상품은 일부 다를 수 있으므로 반드시 금융회사와 금융상품에 대한 최종 정보를 확인해 주시기 바랍니다.</div>
+                <div style="font-size: 10px; color: red; text-align: right;">당사와 금융사 금융조건의 차이가 있는 경우, 금융사 금융조건이 우선합니다.</div>
+              </td>
             </tr>
             <tr>
                 <th style="height: 30px;">Downpayment</th>

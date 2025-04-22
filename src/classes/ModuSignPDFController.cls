@@ -106,6 +106,11 @@ public without sharing class ModuSignPDFController {
         public Decimal specialPrice { get; set; }
     }
 
+    public class PaymentType {
+        public String depositDate { get; set; }
+        // public Decimal specialPrice { get; set; }
+    }
+
     public static String lang { get; set; }
 
     public static ContractWrapper pdfWrapper { get; set; }
@@ -122,6 +127,7 @@ public without sharing class ModuSignPDFController {
     public static Quote quote {get; set;}
     public static VirtualAccount__c virtualAcc {get; set;}
     public static List<DefermentRequest__c> defermentReqList {get; set;}
+    public static List<PaymentType__c> paymentTypeList {get; set;}
     public static Opportunity opp {get; set;}
     public static Map<String, Object> quoteDetail {get; set;}
     public static Decimal baseDiscount {get; set;}
@@ -217,6 +223,13 @@ public without sharing class ModuSignPDFController {
                 AND Status__c = 'COMPLETED'
                 AND Type__c = 'VATDeferred'
                 AND Opportunity__r.ContractId = :recordId
+            ];
+
+            paymentTypeList = [
+                SELECT Id , name, Type__c, PaymentTracker__c, PaymentTracker__r.Opportunity__r.Contract.ContractNumber, format(CreatedDate)
+                FROM PaymentType__c
+                WHERE PaymentTracker__r.Opportunity__r.ContractId = :recordId
+                AND Type__c ='1_DEPOSIT'
             ];
 
             // isDefermentReq = defermentReqList.isEmpty();
@@ -326,7 +339,18 @@ public without sharing class ModuSignPDFController {
                 defermentList.add(deferment);
             }
             wrapper.defermentList = defermentList;
+            
+            // 계약금 입금일 계산
+            List<PaymentType> pamymentTypeList = new List<PaymentType>();
+            for(PaymentType__c payType : paymentTypeList) {
+                PaymentType paymentType = new PaymentType();
+                paymentType.depositDate = payType.CreatedDate != null ? payType.CreatedDate : '';
+                pamymentTypeList.add(payType);
+                System.debug('paymentType.depositDate :::: ' + paymentType.depositDate);
+            }
 
+            System.debug('pamymentTypeList :::: ' + pamymentTypeList);
+            wrapper.pamymentTypeList = pamymentTypeList;
 
             wrapper.quoteName = quoteDetail.containsKey('name') ? String.valueOf(quoteDetail.get('name')) : '';
             wrapper.oilCouponCount = quoteDetail.containsKey('oilCouponCount') ? Decimal.valueOf(String.valueOf(quoteDetail.get('oilCouponCount'))) : 0;
