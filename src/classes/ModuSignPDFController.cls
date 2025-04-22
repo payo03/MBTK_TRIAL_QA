@@ -233,47 +233,16 @@ public without sharing class ModuSignPDFController {
                 AND Type__c ='1_DEPOSIT'
             ];
 
-            System.debug('paymentTypeList ::: ' + paymentTypeList);
-
-            // isDefermentReq = defermentReqList.isEmpty();
-
-            // if (isDefermentReq) {
-            //     defermentReqList = new List<DefermentRequest__c>();
-            // }
-
-            // if (defermentReqList.isEmpty()) {
-            //     defermentReqList = new List<DefermentRequest__c>();
-            // } else {
-            //     for (DefermentRequest__c req : defermentReqList) {
-            //         if (req.RequestDays__c != null) {
-            //             req.RequestDays__c = (req.RequestDays__c / 30).setScale(1, RoundingMode.HALF_UP);
-            //         } else {
-            //             req.RequestDays__c = 0;
-            //         }
-            //     }
-            // }
-
-            // Decimal advancePayment = contract.Quote__r != null ? contract.Quote__r.AdvancePayment__c : 0;
-            // Decimal taxDeferred = contract.Opportunity__r != null ? contract.Opportunity__r.TaxDeferredAmount__c : 0; // 부가세 유예 금액
-            // Decimal paymentDeferred = contract.Opportunity__r != null ? contract.Opportunity__r.PaymentDeferredAmount__c : 0; // 인도금 유예 금액
-            // Decimal quoteloan = contract.Quote__r != null ? contract.Quote__r.fm_TotalLoanAmount__c : 0;
-            // Decimal capitalDefer = contract.Quote__r != null ? contract.Quote__r.CapitalDefermentAmount__c : 0;
-            // Decimal deliveryDiscountPrice = contract.Quote__r != null ? contract.Quote__r.fm_DeliveryDiscountPrice__c : 0; // 선수금
-
             Datetime taxInvoiceDate = null;
             if (contract.Opportunity__r.TaxInvoiceDate__c != null) {
                 taxInvoiceDate = Date.valueOf(contract.Opportunity__r.TaxInvoiceDate__c);
             }
             String formatTaxDate = (taxInvoiceDate != null) ? taxInvoiceDate.format('yyyy-MM-dd') : null;
 
-
-            System.debug('selectedOption ::: ' + selectedOption);
-
             QuoteCreatorController.oppId = quote.OpportunityId;
             QuoteCreatorController.quoteId = quote.Id;
             quoteDetail = QuoteCreatorController.getQuoteDetail();
 
-            System.debug('quoteDetail test :::: ' +  quoteDetail);
             baseDiscount = QuoteCreatorController.getBaseDiscount();
 
             // ver2.0 Refactoring(Wrapper클래스 사용)
@@ -347,14 +316,10 @@ public without sharing class ModuSignPDFController {
             List<PaymentType> payList = new List<PaymentType>();
             for(PaymentType__c payType : paymentTypeList) {
                 PaymentType paymentType = new PaymentType();
-                System.debug('payType.CreatedDate :::: ' + payType.CreatedDate);
                 paymentType.formatDepositDate = (payType.CreatedDate != null) ? payType.CreatedDate.format('yyyy-MM-dd') : null;
-                System.debug('paymentType.depositDate :::: ' + paymentType.formatDepositDate);
                 payList.add(paymentType);
             }
-            System.debug('paymentTypeList :::: ' + payList);
             wrapper.paymentTypeList = payList;
-            System.debug('wrapper.paymentTypeList :::: ' + wrapper.paymentTypeList);
 
             wrapper.quoteName = quoteDetail.containsKey('name') ? String.valueOf(quoteDetail.get('name')) : '';
             wrapper.oilCouponCount = quoteDetail.containsKey('oilCouponCount') ? Decimal.valueOf(String.valueOf(quoteDetail.get('oilCouponCount'))) : 0;

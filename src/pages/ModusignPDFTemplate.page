@@ -1392,7 +1392,6 @@
                 </apex:outputText>
               </td>
               <th>Deposit date</th>
-              <!-- <td>{!formatTaxDate}</td> -->
               <td>
                 <apex:repeat value="{!pdfWrapper.paymentTypeList}" var="item">
                   <apex:outputText value="{!item.formatDepositDate}" />
