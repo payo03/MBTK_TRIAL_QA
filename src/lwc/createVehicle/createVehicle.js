@@ -44,8 +44,9 @@ export default class createVehicle extends LightningElement  {
 
     @track modalClass = 'slds-modal slds-fade-in-open';
     @track status = 'info';
-    @track isMsgOpen = false;
     @track msgText = '';
+    @track isMsgOpen = false;
+    @track isLoading = false;
 
     @api paramFilterId;
 
@@ -112,9 +113,11 @@ export default class createVehicle extends LightningElement  {
         this.status = status;
         this.msgText = message;
         this.isMsgOpen = true;
+        this.isLoading = true;
 
         setTimeout(() => {
             this.isMsgOpen = false;
+            this.isLoading = false;
             if (!this.inputVisible) this.changePopup();
             this.modalClass = 'slds-modal slds-fade-in-hide';
 
@@ -277,6 +280,8 @@ export default class createVehicle extends LightningElement  {
 
     // ver1.2 Interface기능 분리
     nextButtonLog() {
+        this.isLoading = true;
+
         window.postMessage({
             type: 'SELECT_LOG_LWC',
             filterId: this.selectFilterId,
@@ -285,6 +290,8 @@ export default class createVehicle extends LightningElement  {
     }
 
     nextButtonOrder() {
+        this.isLoading = true;
+
         window.postMessage({
             type: 'SELECT_ORDER_LWC',
             filterId: this.selectFilterId,
@@ -339,6 +346,8 @@ export default class createVehicle extends LightningElement  {
     }
 
     changePopup() {
+        this.isLoading = false;
+
         this.inputVisible = !this.inputVisible;
         this.modalClass = this.inputVisible ? 'slds-modal slds-fade-in-open' : 'slds-modal slds-fade-in-open slds-modal_large';
     }
