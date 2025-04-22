@@ -161,12 +161,6 @@
 						</template>
 					</div>
 				</div>
-				
-				<!-- Step0은 VIN 선택창 -->
-				<!-- <template if:false={isShowComplete}>
-					<button class="fixed-bottom-button slds-button slds-button_brand" onclick={toggleModal}>완료
-					</button>
-				</template> -->
 			</div>
 			<template lwc:if={isLoading}>
 				<lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
@@ -207,26 +201,23 @@
 																	<strong>현재 단계를 취소하시겠습니까?</strong>
 															</div>
 													</template>
-<!--												<div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">-->
-<!--														<strong>현재 단계를 완료하시겠습니까?</strong>-->
-<!--												</div>-->
 											</div>
 									</div>
 							</div>
 							<div class="slds-modal__footer slds-text-align_center">
-									<template if:true={isNext}>
-											<button class="slds-button slds-button_brand" data-name="save"
-															onclick={handleComplete}>확인
-											</button>
-									</template>
-									<template if:false={isNext}>
-											<button class="slds-button slds-button_brand" data-name="rollback"
-															onclick={handleRollback}>확인
-											</button>
-									</template>
-									<button class="slds-button slds-button_neutral" data-name="cancel"
-													onclick={toggleModal}>취소
-									</button>
+								<button class="slds-button slds-button_neutral" data-name="cancel"
+												onclick={toggleModal}>취소
+								</button>
+								<template if:true={isNext}>
+										<button class="slds-button slds-button_brand" data-name="save"
+														onclick={handleComplete}>확인
+										</button>
+								</template>
+								<template if:false={isNext}>
+										<button class="slds-button slds-button_brand" data-name="rollback"
+														onclick={handleRollback}>확인
+										</button>
+								</template>
 							</div>
 					</div>
 					<template lwc:if={isLoading}>

@@ -9,12 +9,6 @@
 */
 import { LightningElement, api, track } from 'lwc';
 
-// const columns = [
-//     { label: 'VIN', fieldName: 'Name', hideDefaultActions: 'true' },
-//     { label: '입항일', fieldName: 'RealArrivalDate__c', hideDefaultActions: 'true' },
-//     { label: 'Model Name', fieldName: 'ProductName', hideDefaultActions: 'true' }
-// ];
-
 const bulkColumns = [
     { label: '워크넘버', fieldName: 'WorkNo', hideDefaultActions: 'true' },
     { label: '주행거리', fieldName: 'DriveDistance', hideDefaultActions: 'true' },
@@ -26,7 +20,6 @@ export default class pdiStep2View extends LightningElement {
 
     @track _selectedVIN;
 
-    // @track data;
     @track searchKey;
     driveDistance;
 
@@ -43,25 +36,11 @@ export default class pdiStep2View extends LightningElement {
         return this.varIsBulk;
     }
 
-    // @api
-    // set varStockList(value) {
-    //     if (value) {
-    //         console.log('PDI Step2 View : ', JSON.stringify(value));
-
-    //         this.data = value.map(item => ({
-    //             ...item,
-    //             ProductName: item.Product__r ? item.Product__r.Name : ''
-    //         }));
-    //     }
-    // }
-    // get varStockList() {
-    //     return this.data;
-    // }
-
     @api
 	set selectedVin(value) {
 		if (value) {
 			this._selectedVIN = { ...value };
+            this.driveDistance = this._selectedVIN.DriveDistance__c
 		}
 	}
 	get selectedVin() {
@@ -78,32 +57,11 @@ export default class pdiStep2View extends LightningElement {
         this.dispatchEvent(customEvent);
     }
 
-    // handleSearch(event) {
-    //     this.searchKey = event.target.value;
-    // }
-
-    // handleKeyDown(event) {
-    //     if(event.key === 'Enter') {
-    //         event.preventDefault();
-    //         this.handleSearchButton();
-    //     }
-    // }
-
     @api
     handleUpdateIssue() {
         const currentIssue = this.template.querySelector('.vehicleIssue');
         currentIssue.submit();
     }
-
-    // handleSearchButton() {
-    //     console.log('searchKey : ', this.searchKey);
-    //     const customEvent = new CustomEvent('searchvin', {
-    //         detail: {
-    //             searchKey: this.searchKey
-    //         }
-    //     });
-    //     this.dispatchEvent(customEvent);
-    // }
 
     handlePaste(event) {
         event.preventDefault();
