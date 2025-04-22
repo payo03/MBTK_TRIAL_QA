@@ -342,18 +342,16 @@ public without sharing class ModuSignPDFController {
             wrapper.defermentList = defermentList;
             
             // 계약금 입금일 계산
-            Datetime depositDate = null;
-            List<PaymentType> paymentTypeList = new List<PaymentType>();
+            List<PaymentType> payList = new List<PaymentType>();
             for(PaymentType__c payType : paymentTypeList) {
                 PaymentType paymentType = new PaymentType();
-                depositDate = Date.valueOf(payType.CreatedDate);
                 // paymentType.formatDepositDate = payType.CreatedDate != null ? payType.CreatedDate : '';
-                paymentType.formatDepositDate = (depositDate != null) ? depositDate.format('yyyy-MM-dd') : null;
+                paymentType.formatDepositDate = payType.CreatedDate != null ? payType.CreatedDate.date() : null;
                 System.debug('paymentType.depositDate :::: ' + paymentType.formatDepositDate);
-                paymentTypeList.add(paymentType);
+                payList.add(paymentType);
             }
-            System.debug('paymentTypeList :::: ' + paymentTypeList);
-            wrapper.paymentTypeList = paymentTypeList;
+            System.debug('paymentTypeList :::: ' + payList);
+            wrapper.paymentTypeList = payList;
 
             wrapper.quoteName = quoteDetail.containsKey('name') ? String.valueOf(quoteDetail.get('name')) : '';
             wrapper.oilCouponCount = quoteDetail.containsKey('oilCouponCount') ? Decimal.valueOf(String.valueOf(quoteDetail.get('oilCouponCount'))) : 0;
