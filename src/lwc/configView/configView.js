@@ -9,7 +9,8 @@
   1.1      2024-11-02      payo03@solomontech.net           각 Grid별 기능 활성화 및 데이터 Load
 */
 
-import { LightningElement, track, api } from 'lwc';
+import { LightningElement, track, api, wire } from 'lwc';
+import { CurrentPageReference } from 'lightning/navigation';
 import { showToast, resourceList } from "c/commonUtil";
 import jqueryTest from '@salesforce/resourceUrl/jQuery';
 import { loadScript } from 'lightning/platformResourceLoader';
@@ -142,6 +143,9 @@ export default class configView extends LightningElement {
     @track dData = [];
     @track currentRow = {};
     @track showUpperGrid = true;
+    @track detailTitle = 'Custom 시스템 설정';
+
+    @wire(CurrentPageReference) pageRef;
 
     lColumns = LCOLUMNS;
     rColumns = RCOLUMNS;
@@ -157,13 +161,28 @@ export default class configView extends LightningElement {
     jquery;
 
     connectedCallback() {
-        this.viewConfigMaster();
+        let configCode = '';
+
+        let apiName = this.pageRef.attributes.apiName;
+        if('ConditionUpload' == apiName) {
+            this.showUpperGrid = false;
+            this.detailTitle = '판매조건 Excel 대량Upload';
+            configCode = 'MAN1000';
+        } else if ('LocalCost' == apiName) {
+            this.showUpperGrid = false;
+            this.detailTitle = '리포트스펙 평균 Local Cost';
+            configCode = 'MAN6000';
+        }
+
+        this.viewConfigMaster(configCode);
     }
 
     renderedCallback() {
-        // Expand All
-        let treeGrid = this.template.querySelector('lightning-tree-grid[data-id="treeGrid"]');
-        treeGrid.expandAll();
+        if(this.showUpperGrid) {
+            // Expand All
+            let treeGrid = this.template.querySelector('lightning-tree-grid[data-id="treeGrid"]');
+            treeGrid.expandAll();
+        }
 
         // 중복로드 방지
         if (this.jquery) return;
@@ -232,7 +251,7 @@ export default class configView extends LightningElement {
         upsertConfigMaster({ paramMList : filterList }).then(() => {
 
             this.draftMasterValues = [];
-            this.viewConfigMaster();
+            this.viewConfigMaster('');
             showToast('Success', 'Master Row updated successfully', 'success', 'dismissable');
         }).catch(error => {
             showToast('Error', 'Error Upsert Master', 'error', 'dismissable');
@@ -241,7 +260,7 @@ export default class configView extends LightningElement {
     }
 
     handleMasterCancel() {
-        this.viewConfigMaster();
+        this.viewConfigMaster('');
     }
 
     // Detail Row Checkbox
@@ -371,8 +390,8 @@ export default class configView extends LightningElement {
         this.dData = [ ...this.dData, row ];
     }
 
-    viewConfigMaster() {
-        selectConfigMaster().then(res => {
+    viewConfigMaster(configCode) {
+        selectConfigMaster({configCode : configCode}).then(res => {
             this.lData = res.Hierarchy;
             this.rData = res.List;
             this.currentRow = this.rData[0];

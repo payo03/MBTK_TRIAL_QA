@@ -449,4 +449,8 @@
             </div>
         </div>
     </template>
+
+    <template lwc:if={isLoading}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
 </template>
