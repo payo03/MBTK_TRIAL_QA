@@ -737,8 +737,9 @@
                     <th style="text-align: left;">{!item.promotionName}</th>
                     <th style="text-align: right;">
                       <apex:outputText value="{0,number,###,###}">
-                        <!-- <apex:param value="{!IF(ISBLANK(item.promotionDiscountPrice), (pdfWrapper.product.productPrice * item.promotionDiscountRate) , item.promotionDiscountPrice)}" /> -->
-                        <apex:param value="{!item.promotionDiscountPrice}"/>
+                        <apex:param value="{!IF(item.promotionDiscountPrice != 0, item.promotionDiscountPrice, pdfWrapper.product.productPrice * item.promotionDiscountRate)}"/>
+                        <!-- <apex:param value="{!IF(ISBLANK(item.promotionDiscountPrice), (pdfWrapper.product.productPrice * item.promotionDiscountRate), item.promotionDiscountPrice)}" /> -->
+                        <!-- <apex:param value="{!IF(item['discountPrice'] == null, (quoteDetail['product']['price'] * item['discountRate']) , item['discountPrice'])}" /> -->
                       </apex:outputText>원
                     </th>
                 </tr>
@@ -839,8 +840,13 @@
                   <col width="20%"/>
               </colgroup>
               <tr class="bottom-border">
-                <th colspan="4" style="height: 30px; font-size: 12px">지불조건 </th>
+                <!-- <th colspan="4" style="height: 30px; font-size: 12px">지불조건 </th>
                 <td style="word-break: break-word; font-size: 10px;">
+                  <div style="font-size: 10px; color: red;">금융 상품은 일부 다를 수 있으므로 반드시 금융회사와 금융상품에 대한 최종 정보를 확인해 주시기 바랍니다.</div>
+                  <div style="font-size: 10px; color: red;">당사와 금융사 금융조건의 차이가 있는 경우, 금융사 금융조건이 우선합니다.</div>
+                </td> -->
+                <td colspan="5" style="font-size: 12px; word-break: break-word;">
+                  <div>지불조건</div>
                   <div style="font-size: 10px; color: red;">금융 상품은 일부 다를 수 있으므로 반드시 금융회사와 금융상품에 대한 최종 정보를 확인해 주시기 바랍니다.</div>
                   <div style="font-size: 10px; color: red;">당사와 금융사 금융조건의 차이가 있는 경우, 금융사 금융조건이 우선합니다.</div>
                 </td>
