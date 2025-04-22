@@ -21,8 +21,6 @@ export default class pdiStep1View extends LightningElement {
     @track _selectedVIN;
 
     @track searchKey;
-    driveDistance;
-    vehicleIssue;
 
     @track bulkData = [];
     @track varIsBulk = false;
@@ -47,18 +45,10 @@ export default class pdiStep1View extends LightningElement {
 		return this._selectedVIN;
 	}
 
-    handleDriveDistance(event) {
-        this.driveDistance = event.target.value;
-        const customEvent = new CustomEvent('changedrivedistance', {
-            detail: {
-                driveDistance: this.driveDistance
-            }
-        });
-        this.dispatchEvent(customEvent);
-    }
-
     @api
     handleUpdateIssue() {
+        const driveDistance = this.template.querySelector('.driveDistance');
+        driveDistance.submit();
         const currentIssue = this.template.querySelector('.vehicleIssue');
         currentIssue.submit();
     }

@@ -131,7 +131,7 @@ public with sharing class PdiController {
     }
 
     @AuraEnabled
-    public static Map<String, Map<String, String>> updateVehicleStock(String stepName, List<Map<String, String>> vinInfoList) {
+    public static Map<String, Map<String, String>> updateVehicleStock(String stepName, List<Map<String, String>> vinInfoList, Boolean isBulk) {
         Map<String, Map<String, String>> resultMap = new Map<String, Map<String, String>>();
         List<String> vinNumberList = new List<String>();
         for (Map<String, String> vinInfoMap : vinInfoList) {
@@ -153,18 +153,18 @@ public with sharing class PdiController {
         String status;
         Boolean driveDistance;
         switch on stepName {
-            when 'STEP0' { status = '입고'; entryDate = Date.today(); driveDistance = false;}
+            when 'STEP0' { status = '입고'; entryDate = Date.today(); driveDistance = false; }
             when 'STEP1' { status = '입고'; entryDate = Date.today(); driveDistance = true; }
             when 'STEP2' { status = '판매준비완료'; driveDistance = true; }
-            when 'STEP3' { status = '출고예정'; driveDistance = false;}
-            when 'STEP4' { status = '출고예정'; driveDistance = false;}
-            when 'STEP5' { status = '출고준비완료'; driveDistance = false;}
+            when 'STEP3' { status = '출고예정'; driveDistance = false; }
+            when 'STEP4' { status = '출고예정'; driveDistance = false; }
+            when 'STEP5' { status = '출고준비완료'; driveDistance = false; }
         }
 
         for (VehicleStock__c stock : stockList) {
             stock.VehicleStatus__c = status;
             if(entryDate != null) stock.PDIEntryDate__c = entryDate;
-            if(driveDistance) stock.DriveDistance__c = Decimal.valueOf(resultMap.get(stock.VehicleNo__c).get('DriveDistance'));
+            if(driveDistance && isBulk) stock.DriveDistance__c = Decimal.valueOf(resultMap.get(stock.VehicleNo__c).get('DriveDistance'));
         }
 
         Map<String, Map<String, Object>> returnMap = CommonUtilController.applyObject(stockList, 'update');

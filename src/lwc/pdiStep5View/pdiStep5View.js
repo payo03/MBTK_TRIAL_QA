@@ -18,10 +18,7 @@ export default class PdiStep5View extends LightningElement {
     bulkColumns = bulkColumns;
 
     @track _selectedVIN;
-
-    // @track data;
     @track searchKey;
-
     @track bulkData = [];
     @track varIsBulk = false;
 
@@ -35,21 +32,6 @@ export default class PdiStep5View extends LightningElement {
         return this.varIsBulk;
     }
 
-    // @api
-    // set varStockList(value) {
-    //     if (value) {
-    //         console.log('PDI Step5 View : ', JSON.stringify(value));
-
-    //         this.data = value.map(item => ({
-    //             ...item,
-    //             ProductName: item.Product__r ? item.Product__r.Name : ''
-    //         }));
-    //     }
-    // }
-    // get varStockList() {
-    //     return this.data;
-    // }
-
     @api
     set selectedVin(value) {
         if (value) {
@@ -59,33 +41,12 @@ export default class PdiStep5View extends LightningElement {
     get selectedVin() {
         return this._selectedVIN;
     }
-
-    // handleSearch(event) {
-    //     this.searchKey = event.target.value;
-    // }
-
-    // handleKeyDown(event) {
-    //     if(event.key === 'Enter') {
-    //         event.preventDefault();
-    //         this.handleSearchButton();
-    //     }
-    // }
     
     @api
     handleUpdateIssue() {
         const currentIssue = this.template.querySelector('.vehicleIssue');
         currentIssue.submit();
     }
-
-    // handleSearchButton() {
-    //     console.log('searchKey : ', this.searchKey);
-    //     const customEvent = new CustomEvent('searchvin', {
-    //         detail: {
-    //             searchKey: this.searchKey
-    //         }
-    //     });
-    //     this.dispatchEvent(customEvent);
-    // }
 
     handlePaste(event) {
         event.preventDefault();
