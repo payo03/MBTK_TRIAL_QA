@@ -53,9 +53,7 @@ export default class PdiStep4View extends LightningElement {
 
 	init() {
 		this.isLoading = true;
-		step4Init({ selectVIN: this._selectedVIN.Id, installedSpoiler: this._selectedVIN.SpoilerPart__c }).then(response => {
-			console.log("### response : ", response);
-
+		step4Init({ selectVIN: this._selectedVIN.Id}).then(response => {
 			this.selectedOptionData = response?.selectedOption;
 			this.installList = response?.installList;
 			if(this.installList.length) this.installList[0].installDate = this.varStepList[3].StepEnd__c;
@@ -211,63 +209,4 @@ export default class PdiStep4View extends LightningElement {
 			console.log(error);
 		});
 	}
-
-	// pdi 스포일러 재고이동 타이밍 수정으로 안씀(250326)
-	// /**
-	//  * @description 스포일러 추가(SAP 인터페이스)
-	//  */
-	// // 	결과 PASS여부가 TRUE일때(화면단에서 완료 누를때) 2개 IF 진행
-	// // 	1. 스포일러 재고이동요청
-	// // 	2. 차량 재고이동요청
-
-
-	// // # 초기상태 시작 pdi step 4 not completed (0,1은 스포일러 장착 여부)
-	// // 0 -> 1 / API 호출 
-	// // 0 -> 0 / API 호출 x
-	// // 1 -> 1 / API 호출
-	// // 1 -> 0 / API 호출 x
-
-	// // # 수정 변경시 pdi step 4 completed
-	// // 0 -> 1 / API 호출
-	// // 0 -> 0 / API 호출 x
-	// // 1 -> 0 / API 호출 
-	// // 1 -> 1 / API 호출 x
-	// @api
-	// handleSAPInstall(){
-	// 	let msg = '';
-	// 	if (
-	// 		(this.varStepList[3].IsPass__c == false && this.installList.length == 0) ||
-	// 		(this.varStepList[3].IsPass__c == true && this.installList.length == this.initialInstallStatus)
-	// 	) {
-	// 		msg = '스포일러를 변경하지 않고 단계를 완료하였습니다.';
-	// 		updateStep4({stockId: this._selectedVIN.Id}).then(() => {
-	// 			this.updateStep();
-	// 		}).catch(error => {
-	// 			showToast('Error', 'Error Update', 'error', 'dismissable');
-	// 			console.log(error);
-	// 		});
-	// 	} else {
-	// 		msg = '스포일러 변경이 SAP에 반영되었습니다.';
-			// spoilerDropoffSAP({inputMapList: this.paramMapList}).then(() => {
-			// 	this.updateStep();
-			// }).catch(error => {
-			// 	showToast('Error', 'Error Update', 'error', 'dismissable');
-			// 	console.log(error);
-			// });
-	// 	}
-	// 	showToast('Success', msg, 'success');
-	// }
-
-	// updateStep() {
-	// 	fetchStatus({workNo: [this._selectedVIN.Name]}).then(response => {
-	// 		console.log('pdi step4 :: ', response);
-	// 		const customEvent = new CustomEvent('step4complete', {
-	// 				detail: { updatedStep: response }
-	// 		});
-	// 		this.dispatchEvent(customEvent);
-	// 	}).catch(error => {
-	// 		showToast('Error', 'Error Fetch Status', 'error', 'dismissable');
-	// 		console.log(error);
-	// 	});
-	// }
 }

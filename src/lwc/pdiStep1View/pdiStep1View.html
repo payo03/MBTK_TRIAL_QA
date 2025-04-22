@@ -30,7 +30,7 @@
                         <lightning-output-field field-name="Product__c"> </lightning-output-field>
                         <lightning-output-field field-name="VehicleNo__c"> </lightning-output-field>
                         <lightning-output-field field-name="IsPTO__c"> </lightning-output-field>
-                        <lightning-output-field field-name="IsAERO__c"> </lightning-output-field>
+                        <lightning-output-field field-name="IsSpoiler__c"> </lightning-output-field>
                         <lightning-output-field field-name="EngineType__c"> </lightning-output-field>
                     </div>
                     <div class="slds-col slds-size_1-of-2">
@@ -38,7 +38,13 @@
                         <lightning-output-field field-name="ETA__c"> </lightning-output-field>
                         <lightning-output-field field-name="VehicleStatus__c"> </lightning-output-field>
                         <lightning-output-field field-name="Exworks__c"> </lightning-output-field>
-                        <lightning-input type="number" label="주행거리(km)" value={driveDistance} onchange={handleDriveDistance}></lightning-input>
+                        <lightning-record-edit-form
+                            object-api-name="VehicleStock__c"
+                            record-id={_selectedVIN.Id}
+                            class="driveDistance"
+                        >
+                            <lightning-input-field field-name="DriveDistance__c"></lightning-input-field>                        
+                        </lightning-record-edit-form>
                     </div>
                 </div>
                 <lightning-record-edit-form

@@ -6,6 +6,8 @@
   Ver      Date            Author                           Modification
   ===================================================================================
   1.0      2025-01-22      payo03@solomontech.net           Created
+  1.1      2025-04-21      chaebeom.do@solomontech.net      PDI step3 완료시 기회 연결 로직 추가
+  1.2      2025-04-22      chaebeom.do@solomontech.net      PDI step4Init 수정
 */
 public with sharing class PdiController {
 
@@ -55,7 +57,6 @@ public with sharing class PdiController {
 
     @AuraEnabled
     public static List<VehicleStock__c> searchVINbyKey(String keyword) {
-//        String searchKey = (keyword == null) ? '%%' : 'Name LIKE \'%' + keyword + '%\'';
         String searchKey = (keyword == null) ? '%%' : 'VehicleNo__c LIKE \'%' + keyword + '%\'';
         String query = getStockList(searchKey);
         return Database.query(query);
@@ -64,7 +65,6 @@ public with sharing class PdiController {
     @AuraEnabled
     public static Map<String, Map<String, String>> rollbackVehicleStock(String stepName, List<Map<String, String>> vinInfoList) {
 
-        System.debug('vinInfoList :: ' + vinInfoList);
         Map<String, Map<String, String>> resultMap = new Map<String, Map<String, String>>();
 
         Map<String, String> tempMap = new Map<String, String>();
@@ -104,7 +104,6 @@ public with sharing class PdiController {
         stockInfo.VehicleStatus__c = status;
 
         Map<String, Map<String, Object>> returnMap = CommonUtilController.applyObject(new List<VehicleStock__c> { stockInfo }, 'update');
-        System.debug('returnMap :: ' + returnMap);
         List<PDIStep__c> updateStepList = new List<PDIStep__c>();
 
         Map<String, Object> successMap = returnMap.get('SUCCESS');
@@ -132,8 +131,7 @@ public with sharing class PdiController {
     }
 
     @AuraEnabled
-    public static Map<String, Map<String, String>> updateVehicleStock(String stepName, List<Map<String, String>> vinInfoList) {
-        System.debug('vinInfoList :: ' + vinInfoList);
+    public static Map<String, Map<String, String>> updateVehicleStock(String stepName, List<Map<String, String>> vinInfoList, Boolean isBulk) {
         Map<String, Map<String, String>> resultMap = new Map<String, Map<String, String>>();
         List<String> vinNumberList = new List<String>();
         for (Map<String, String> vinInfoMap : vinInfoList) {
@@ -144,7 +142,6 @@ public with sharing class PdiController {
             tempMap.put('RequestRes', '업데이트 실패');
             resultMap.put(vinInfoMap.get('WorkNo'), tempMap);
         }
-        System.debug('resultMap :: ' + resultMap);
         List<VehicleStock__c> stockList = [
                 SELECT Id, Name, VehicleNo__c
                 FROM VehicleStock__c
@@ -156,19 +153,18 @@ public with sharing class PdiController {
         String status;
         Boolean driveDistance;
         switch on stepName {
-            when 'STEP0' { status = '입고'; entryDate = Date.today(); driveDistance = false;}
+            when 'STEP0' { status = '입고'; entryDate = Date.today(); driveDistance = false; }
             when 'STEP1' { status = '입고'; entryDate = Date.today(); driveDistance = true; }
             when 'STEP2' { status = '판매준비완료'; driveDistance = true; }
-            when 'STEP3' { status = '출고예정'; driveDistance = false;}
-            when 'STEP4' { status = '출고예정'; driveDistance = false;}
-            when 'STEP5' { status = '출고준비완료'; driveDistance = false;}
+            when 'STEP3' { status = '출고예정'; driveDistance = false; }
+            when 'STEP4' { status = '출고예정'; driveDistance = false; }
+            when 'STEP5' { status = '출고준비완료'; driveDistance = false; }
         }
 
-        // for문안에서 Switch구문 사용은 지양바람...
         for (VehicleStock__c stock : stockList) {
             stock.VehicleStatus__c = status;
             if(entryDate != null) stock.PDIEntryDate__c = entryDate;
-            if(driveDistance) stock.DriveDistance__c = Decimal.valueOf(resultMap.get(stock.VehicleNo__c).get('DriveDistance'));
+            if(driveDistance && isBulk) stock.DriveDistance__c = Decimal.valueOf(resultMap.get(stock.VehicleNo__c).get('DriveDistance'));
         }
 
         Map<String, Map<String, Object>> returnMap = CommonUtilController.applyObject(stockList, 'update');
@@ -220,11 +216,102 @@ public with sharing class PdiController {
         ];
         return spoilerRequestList;
     }
+
+    //ver 1.1
+    /**
+     * @author chaebeom.do
+     * @description 선택된 차량의 배정 확정(단건)
+     * @param completeMap 출고할 차량, 기회, 현재 기회에 배정된 차량
+     */
+    @AuraEnabled
+    public static void doCompleteStep3(Map<String, String> completeMap) {
+
+        List<SObject> updateList = new List<SObject>();
+        updateList.add(new VehicleStock__c(
+            Id = completeMap.get('stockId'),
+            VehicleStatus__c = '출고예정'
+        ));
+        PDIStep__c selectedVINStep = [
+            SELECT Id
+            FROM PDIStep__c
+            WHERE VehicleStock__c = :completeMap.get('stockId')
+            AND Stage__c = 'STEP3'
+        ];
+        updateList.add(new PDIStep__c(
+            Id = selectedVINStep.Id,
+            IsPass__c = true,
+            StepStart__c = System.now(),
+            StepEnd__c = System.now(),
+            StepWorker__c = UserInfo.getName()
+        ));
+        // 기회에 선택한 차량과 다른 차량이 배정되어있을 경우
+        if(completeMap.get('stockId') != completeMap.get('previousStockId')) {
+            updateList.add(new VehicleStock__c(
+                Id = completeMap.get('previousStockId'),
+                VehicleStatus__c = '판매준비완료'
+            ));
+            for(PDIStep__c previousVINStep : [
+                SELECT Id
+                FROM PDIStep__c
+                WHERE VehicleStock__c = :completeMap.get('previousStockId')
+                AND Stage__c IN ('STEP3', 'STEP4', 'STEP5')
+            ]) {
+                updateList.add(new PDIStep__c(
+                    Id = previousVINStep.Id,
+                    IsPass__c = false,
+                    StepStart__c = null,
+                    StepEnd__c = null,
+                    StepWorker__c = null
+                ));
+            }
+            updateList.add(new Opportunity(
+                Id = completeMap.get('opportunityId'),
+                VehicleStock__c = completeMap.get('stockId')
+            ));
+        }
+
+        if (!updateList.isEmpty()) update updateList;
+    }
+    //ver 1.1
+    /**
+     * @author chaebeom.do
+     * @description 선택된 차량의 배정 취소(단건)
+     * @param rollbackMap 취소할 기회, 기회에 배정된 차량
+     */
+    @AuraEnabled
+    public static void doRollbackStep3(Map<String, String> rollbackMap) {
+
+        List<SObject> updateList = new List<SObject>();
+        updateList.add(new VehicleStock__c(
+            Id = rollbackMap.get('previousStockId'),
+            VehicleStatus__c = '판매준비완료'
+        ));
+        for(PDIStep__c previousVINStep : [
+            SELECT Id
+            FROM PDIStep__c
+            WHERE VehicleStock__c = :rollbackMap.get('previousStockId')
+            AND Stage__c IN ('STEP3', 'STEP4', 'STEP5')
+        ]) {
+            updateList.add(new PDIStep__c(
+                Id = previousVINStep.Id,
+                IsPass__c = false,
+                StepStart__c = null,
+                StepEnd__c = null,
+                StepWorker__c = null
+            ));
+        }
+        updateList.add(new Opportunity(
+            Id = rollbackMap.get('opportunityId'),
+            VehicleStock__c = null
+        ));
+
+        if (!updateList.isEmpty()) update updateList;
+    }
     //step3 End
 
     //step4 Start
     @AuraEnabled
-    public static Map<String, Object> step4Init(String selectVIN, String installedSpoiler) {
+    public static Map<String, Object> step4Init(String selectVIN) {
         // 선택 차량의 publish된 견적 옵션 리스트 가져오기
         String selectFields = 'Id, VehicleOptionMaster__r.Division__c, VehicleOptionMaster__r.Name, VehicleOptionMaster__r.Price__c';
 
@@ -241,11 +328,18 @@ public with sharing class PdiController {
             optionWrapList.add(new OptionWrap(optionMaster?.Id, optionMaster?.Name, optionMaster?.Division__c, optionMaster?.Price__c));
         }
 
+        // 선택 차량에 연결된 Spoiler Id 가져오기
+        VehicleStock__c curStock = [
+            SELECT Id, Name, SpoilerPart__c
+            FROM VehicleStock__c
+            WHERE Id = :selectVIN
+        ];
+
         // 선택 차량에 연결된 Spoiler 가져오기
         List<SpoilerPart__c> installList = [
             SELECT Id, Name, SpoilerCode__c
             FROM SpoilerPart__c
-            WHERE Id = :installedSpoiler
+            WHERE Id = :curStock.SpoilerPart__c
         ];
 
         // Spoiler 목록 가져오기
@@ -259,7 +353,6 @@ public with sharing class PdiController {
         for(SpoilerPartsJuntion__c tempSpoilerPartsJuntion : spoilerPartsJuntion) {
             spoilerCodeSet.add(tempSpoilerPartsJuntion.SpoilerParts__r.SpoilerCode__c);
         }
-        System.debug('spoiler code set :: ' + spoilerCodeSet);
         IF_DTO.PartStock partStock = SAPCommon.fetchSpoilerStockAPI(spoilerCodeSet);
 
         Map<String, Map<String, Integer>> qtySpoilerMap = new Map<String, Map<String, Integer>>();
@@ -295,7 +388,6 @@ public with sharing class PdiController {
         return new Map<String, Object>{
             'selectedOption' => optionWrapList,
             'installList' => installList,
-//            'partsGroup' => partsGroup
             'spoilerPartsJuntion' => customSpoilerPartsJuntionList
         };
     }
@@ -327,20 +419,17 @@ public with sharing class PdiController {
     @AuraEnabled
     public static void spoilerDropoffSAP(List<Map<String, Object>> inputMapList) {
         System.enqueueJob(new AsyncSpoilerRequest(inputMapList));
-        // String stockId = (String) inputMapList[0].get('stockId');
-        // updateStep4(stockId);
     }
     //step4 End
 
     public static String getStockList(String whereCondition) {
-        String selectFields =   'Id, Name, RealArrivalDate__c, Product__r.Name, VehicleNo__c, VehicleStatus__c, Status__c, SpoilerPart__c, SpoilerPart__r.SpoilerCode__c, toLabel(CarColor__c), fm_PdiNextStep__c, fm_UnresolvedIssues__c';
+        String selectFields =   'Id, Name, RealArrivalDate__c, Product__r.Name, VehicleNo__c, VehicleStatus__c, Status__c, SpoilerPart__c, SpoilerPart__r.SpoilerCode__c, toLabel(CarColor__c), fm_PdiNextStep__c, fm_UnresolvedIssues__c, DriveDistance__c';
         String fromObject =     'VehicleStock__c';
 
         List<String> whereConditionList = new List<String>();
         whereConditionList.add('VehicleStatus__c != \'항구도착전\'');
         whereConditionList.add('VehicleStatus__c != \'출고됨\''); // 출고불가도 안보여줄지?
         whereConditionList.add('Name LIKE \'WMA%\''); 
-        // whereConditionList.add('demoTest__c = true'); // sp4 데모 시연 vehicleStock 필터링
         if(whereCondition != '') whereConditionList.add(whereCondition);
 
         String query = CommonUtilController.buildQuery(selectFields, fromObject, String.join(whereConditionList, ' AND '), 'fm_PdiNextStep__c ASC NULLS LAST, VehicleNo__c NULLS LAST, Name NULLS LAST'); // 단계, 워크넘버, vin 순서로 정렬

@@ -11,7 +11,7 @@ import { LightningElement, api, track } from 'lwc';
 
 const bulkColumns = [
     { label: '워크넘버', fieldName: 'WorkNo', hideDefaultActions: 'true' },
-    { label: '주행거리', fieldName: 'DriveDistance', hideDefaultActions: 'true' },
+    // { label: '주행거리', fieldName: 'DriveDistance', hideDefaultActions: 'true' },
     { label: '처리결과', fieldName: 'RequestRes', hideDefaultActions: 'true' }
 ];
 
@@ -21,8 +21,6 @@ export default class pdiStep1View extends LightningElement {
     @track _selectedVIN;
 
     @track searchKey;
-    driveDistance;
-    vehicleIssue;
 
     @track bulkData = [];
     @track varIsBulk = false;
@@ -40,24 +38,17 @@ export default class pdiStep1View extends LightningElement {
 	set selectedVin(value) {
 		if (value) {
 			this._selectedVIN = { ...value };
+            this.driveDistance = this._selectedVIN.DriveDistance__c
 		}
 	}
 	get selectedVin() {
 		return this._selectedVIN;
 	}
 
-    handleDriveDistance(event) {
-        this.driveDistance = event.target.value;
-        const customEvent = new CustomEvent('changedrivedistance', {
-            detail: {
-                driveDistance: this.driveDistance
-            }
-        });
-        this.dispatchEvent(customEvent);
-    }
-
     @api
     handleUpdateIssue() {
+        const driveDistance = this.template.querySelector('.driveDistance');
+        driveDistance.submit();
         const currentIssue = this.template.querySelector('.vehicleIssue');
         currentIssue.submit();
     }
