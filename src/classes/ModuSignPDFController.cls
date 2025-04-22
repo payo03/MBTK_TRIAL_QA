@@ -76,6 +76,7 @@ public without sharing class ModuSignPDFController {
         public Product product { get; set; }
 
         public List<Deferment> defermentList { get; set; }
+        public List<PaymentType> paymentTypeList { get; set; }
         public List<Option> optionList { get; set; }
         public List<Promotion> promotionList { get; set; }
         public List<Special> specialList { get; set; }
@@ -106,6 +107,11 @@ public without sharing class ModuSignPDFController {
         public Decimal specialPrice { get; set; }
     }
 
+    public class PaymentType {
+        public String formatDepositDate { get; set; }
+        // public Decimal specialPrice { get; set; }
+    }
+
     public static String lang { get; set; }
 
     public static ContractWrapper pdfWrapper { get; set; }
@@ -122,6 +128,7 @@ public without sharing class ModuSignPDFController {
     public static Quote quote {get; set;}
     public static VirtualAccount__c virtualAcc {get; set;}
     public static List<DefermentRequest__c> defermentReqList {get; set;}
+    public static List<PaymentType__c> paymentTypeList {get; set;}
     public static Opportunity opp {get; set;}
     public static Map<String, Object> quoteDetail {get; set;}
     public static Decimal baseDiscount {get; set;}
@@ -219,30 +226,12 @@ public without sharing class ModuSignPDFController {
                 AND Opportunity__r.ContractId = :recordId
             ];
 
-            // isDefermentReq = defermentReqList.isEmpty();
-
-            // if (isDefermentReq) {
-            //     defermentReqList = new List<DefermentRequest__c>();
-            // }
-
-            // if (defermentReqList.isEmpty()) {
-            //     defermentReqList = new List<DefermentRequest__c>();
-            // } else {
-            //     for (DefermentRequest__c req : defermentReqList) {
-            //         if (req.RequestDays__c != null) {
-            //             req.RequestDays__c = (req.RequestDays__c / 30).setScale(1, RoundingMode.HALF_UP);
-            //         } else {
-            //             req.RequestDays__c = 0;
-            //         }
-            //     }
-            // }
-
-            // Decimal advancePayment = contract.Quote__r != null ? contract.Quote__r.AdvancePayment__c : 0;
-            // Decimal taxDeferred = contract.Opportunity__r != null ? contract.Opportunity__r.TaxDeferredAmount__c : 0; // 부가세 유예 금액
-            // Decimal paymentDeferred = contract.Opportunity__r != null ? contract.Opportunity__r.PaymentDeferredAmount__c : 0; // 인도금 유예 금액
-            // Decimal quoteloan = contract.Quote__r != null ? contract.Quote__r.fm_TotalLoanAmount__c : 0;
-            // Decimal capitalDefer = contract.Quote__r != null ? contract.Quote__r.CapitalDefermentAmount__c : 0;
-            // Decimal deliveryDiscountPrice = contract.Quote__r != null ? contract.Quote__r.fm_DeliveryDiscountPrice__c : 0; // 선수금
+            paymentTypeList = [
+                SELECT Id , name, Type__c, PaymentTracker__c, PaymentTracker__r.Opportunity__r.Contract.ContractNumber, CreatedDate
+                FROM PaymentType__c
+                WHERE PaymentTracker__r.Opportunity__r.ContractId = :recordId
+                AND Type__c ='1_DEPOSIT'
+            ];
 
             Datetime taxInvoiceDate = null;
             if (contract.Opportunity__r.TaxInvoiceDate__c != null) {
@@ -250,14 +239,10 @@ public without sharing class ModuSignPDFController {
             }
             String formatTaxDate = (taxInvoiceDate != null) ? taxInvoiceDate.format('yyyy-MM-dd') : null;
 
-
-            System.debug('selectedOption ::: ' + selectedOption);
-
             QuoteCreatorController.oppId = quote.OpportunityId;
             QuoteCreatorController.quoteId = quote.Id;
             quoteDetail = QuoteCreatorController.getQuoteDetail();
 
-            System.debug('quoteDetail test :::: ' +  quoteDetail);
             baseDiscount = QuoteCreatorController.getBaseDiscount();
 
             // ver2.0 Refactoring(Wrapper클래스 사용)
@@ -326,7 +311,15 @@ public without sharing class ModuSignPDFController {
                 defermentList.add(deferment);
             }
             wrapper.defermentList = defermentList;
-
+            
+            // 계약금 입금일 계산
+            List<PaymentType> payList = new List<PaymentType>();
+            for(PaymentType__c payType : paymentTypeList) {
+                PaymentType paymentType = new PaymentType();
+                paymentType.formatDepositDate = (payType.CreatedDate != null) ? payType.CreatedDate.format('yyyy-MM-dd') : null;
+                payList.add(paymentType);
+            }
+            wrapper.paymentTypeList = payList;
 
             wrapper.quoteName = quoteDetail.containsKey('name') ? String.valueOf(quoteDetail.get('name')) : '';
             wrapper.oilCouponCount = quoteDetail.containsKey('oilCouponCount') ? Decimal.valueOf(String.valueOf(quoteDetail.get('oilCouponCount'))) : 0;
