@@ -9,6 +9,8 @@
 */
 public without sharing class AsyncLoanRequestMFS implements Queueable, Database.AllowsCallouts {
 
+    private static final String LOG_TYPE = 'MFS_LOAN_REQUEST';
+    private static final String IF_ID = 'AWS_LOAN001';
     private static final String BANK_NM = '만트럭';
     private static final String BANK_CD = '027';    // https://www.kftc.or.kr/search/searchAll?keyword=%EA%B8%88%EC%9C%B5%ED%9A%8C%EC%82%AC%EC%BD%94%EB%93%9C
     private static final String X_API_KEY = CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.DFLT);
@@ -34,7 +36,7 @@ public without sharing class AsyncLoanRequestMFS implements Queueable, Database.
         List<Quote> quoteList = [
                 SELECT Id, CreatedById, CreatedBy.Name, DefaultInterestRate__c, MonthDivideInputMonth__c, TotalVehiclePrice__c, VATAmountMFS__c,
                         fm_TotalLoanAmount__c, fm_RegistrationTax__c, fm_DeliveryDiscountPrice__c, fm_TotalExtraExpenses__c, ru_SpecialPrice__c,
-                        OpportunityId, Opportunity.TaxInvoiceDate__c,
+                        OpportunityId, Opportunity.Name, Opportunity.TaxInvoiceDate__c,
                         Opportunity.VirtualAccount__r.fm_VirtualAccount__c,
                         Account.Name, Account.PersonEmail, Account.BusinessNumber__c, Account.IDNumber__pc, Account.PersonMobilePhone, Account.RoadAddress__c,
                         Contact.Name, Contact.MobilePhone,
@@ -68,6 +70,7 @@ public without sharing class AsyncLoanRequestMFS implements Queueable, Database.
             keyCodeMap.put(detail.Attribute20__c, detail.Name);
         }
 
+        Map<String, String> keyMap = new Map<String, String>();
         List<IF_DTO.LoanRequestInfo> loanRequestInfoList = new List<IF_DTO.LoanRequestInfo>();
         for(Quote quote : quoteList) {
             IF_DTO.LoanRequestInfo loanRequestInfo = new IF_DTO.LoanRequestInfo();
@@ -137,11 +140,22 @@ public without sharing class AsyncLoanRequestMFS implements Queueable, Database.
             loanRequestInfo.loan_request_dt = String.valueOf(Date.today());
 
             loanRequestInfoList.add(loanRequestInfo);
+            keyMap.put(quote.Id, quote.Opportunity.Name);
         }
 
-        IF_Util ifUtil = new IF_Util('');
-        ifUtil.webCallout2('', new Map<String, String>{
-                'X-API-KEY' => X_API_KEY
-        });
+        if(!loanRequestInfoList.isEmpty()) {
+            Map<String, Object> infoMap = new Map<String, Object>();
+
+            infoMap.put('ifId', IF_ID);
+            infoMap.put('logId', X_API_KEY);
+            infoMap.put('logType', LOG_TYPE);
+            infoMap.put('items', loanRequestInfoList);
+            infoMap.put('keyMap', keyMap);
+            infoMap.put('isLogDetail', true);
+
+            Map<String, Object> resultMap = InterfaceSAP.doCallOutSAPLog(infoMap);
+            resultMap.put('isAll', true);
+            SAPCommon.syncLogDetailUpdate(X_API_KEY, resultMap);    // AWS 통신 완료시. Sync
+        }
     }
 }

@@ -9,6 +9,7 @@
 */
 public without sharing class AsyncVAInfo implements Queueable, Database.AllowsCallouts {
 
+    private static final String LOG_TYPE = 'VA_CUSTOMER_INFO';
     // O : 영업기회, S : 영업사원(User)
     public enum SEND_TYPE {
         O, S
@@ -50,11 +51,10 @@ public without sharing class AsyncVAInfo implements Queueable, Database.AllowsCa
 
             if(!vaInfoList.isEmpty()) {
                 Map<String, Object> infoMap = new Map<String, Object>();
-                String logType = 'VA_CUSTOMER_INFO';
 
                 infoMap.put('ifId', InterfaceSAP.IF_SMS018);
                 infoMap.put('logId', logId);
-                infoMap.put('logType', logType);
+                infoMap.put('logType', LOG_TYPE);
                 infoMap.put('items', vaInfoList);
                 infoMap.put('keyMap', keyMap);
                 infoMap.put('isLogDetail', true);

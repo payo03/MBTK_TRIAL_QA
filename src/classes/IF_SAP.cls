@@ -124,7 +124,7 @@ global without sharing class IF_SAP {
                     if (type.fm_LeftAmount__c == 0) {
                         adjustStatus = type.UpdateStage__c;                                     // 가장 마지막 UpdateStage 조회
                     } else {
-                        if (OVER_PAID_KEY.equals(targetKey)) adjustStatus = 'OVER_PAID';        // 초과금 납부 Case
+                        if (OVER_PAID_KEY.equals(targetKey) && type.DepositAmount__c > 0) adjustStatus = 'OVER_PAID'; // 초과금 납부 Case
                         break;                                                                  // Update 대상 OUT
                     }
                 }
