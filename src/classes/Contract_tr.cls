@@ -133,7 +133,8 @@ public without sharing class Contract_tr extends TriggerHandler {
             Decimal discountAmount = quote.DiscountAmt__c != null ? quote.DiscountAmt__c : 0;
             Decimal vat = quote.Opportunity.VATDefermentStatus__c == '승인됨' ? quote.fm_DefermentVAT__c : 0;
             paymentTracker.TotalAmount__c = quote.Deposit__c + quote.fm_DeliveryPrice__c + vat +
-                    (quote.fm_TotalLoanAmount__c * (1 - (subventionRate / 100))) + discountAmount;
+                    (quote.fm_TotalLoanAmount__c * (1 - (subventionRate / 100)));
+            if (discountAmount != 0 && quote.Finance__r.FScompany__c == 'MFS') paymentTracker.TotalAmount__c += discountAmount;
             paymentTracker.IsValid__c = true;
             paymentTracker.OwnerId = newCon.OwnerId;
 
