@@ -51,7 +51,7 @@ public without sharing class InterfaceSAP {
         IF_DTO.CommonResult result = new IF_DTO.CommonResult();
         IF_Util ifUtil = new IF_Util(IF_SMS000);
 
-        HttpResponse response = ifUtil.webCallout(null);
+        HttpResponse response = ifUtil.webCallout2(null);
         if (HttpCallOutConsts.SUCCESS_CODES.contains(response.getStatusCode())) {
             try {
                 result = (IF_DTO.CommonResult) JSON.deserialize(response.getBody(), IF_DTO.CommonResult.class);
@@ -80,7 +80,7 @@ public without sharing class InterfaceSAP {
         System.debug('Log Id : ' + logId);
         String body = CommonUtilCustomController.parseStringSAP(ifId, items, logId);
 
-        HttpResponse response = ifUtil.webCallout(body);
+        HttpResponse response = ifUtil.webCallout2(body);
         if (HttpCallOutConsts.SUCCESS_CODES.contains(response.getStatusCode())) {
             returnMap = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
         }
@@ -121,6 +121,7 @@ public without sharing class InterfaceSAP {
         Map<String, Object> returnMap = new Map<String, Object>();
         String requestBody = CommonUtilCustomController.parseStringSAP(ifId, items, logId);
         System.debug(requestBody);
+
         String responseBody;
         try {
             returnMap = doCallOutSAP(ifId, items, logId);
