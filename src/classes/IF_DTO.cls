@@ -153,7 +153,7 @@ global without sharing class IF_DTO {
         public String exct_dt { get; set; }         // 실행일자
         public String cntr_no { get; set; }         // TFS 계약번호
         public String mtbk_cnsn_no { get; set; }    // MTBK 품의번호
-        public String subsidy_amt { get; set; }     // Subsidy
+        public String subsidy_amt { get; set; }     // Subsidy (보조금. Subvention 금액)
         public String mfs_camp_amt { get; set; }    // MFS 캠페인 금액
     }
 
