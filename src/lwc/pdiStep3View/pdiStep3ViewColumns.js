@@ -34,12 +34,13 @@ const columns = [
 	{
 		label: "VIN",
 		fieldName: "VIN",
-		type: "button",
+		// type: "button",
+		type: "text",
 		hideDefaultActions: true,
-		typeAttributes: {
-			label: { fieldName: "VIN" },
-			variant: "base"
-		},
+		// typeAttributes: {
+		// 	label: { fieldName: "VIN" },
+		// 	variant: "base"
+		// },
 		cellAttributes: {
 			style: { fieldName: "VINStyle" }
 		}

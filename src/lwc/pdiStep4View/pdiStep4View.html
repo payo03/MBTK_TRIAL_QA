@@ -10,31 +10,33 @@
 <!-- Pdi Step 4 View -->
 <template>
     <div class="slds-grid slds-wrap">
-        <div class="slds-col slds-size_2-of-5 slds-m-around_x-small box-wrap">
-            <lightning-card title="선택된 옵션" icon-name="standard:custom">
-                <div class="slds-card__body slds-p-around_small slds-p-top_none">
-                    <template lwc:if={isSelectedOptionData}>
-                        <div class="slds-size_1-of-1">
-                            <lightning-datatable
-                                key-field="id"
-                                data-name="option"
-                                data={selectedOptionData}
-                                columns={optionColumns}
-                                onrowaction={handleRowAction}
-                                hide-checkbox-column="true"
-                                column-widths-mode="auto">
-                            </lightning-datatable>
-                        </div>
-                    </template>
-                    <template lwc:else>
-                        <div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">
-                            <strong>선택된 차량에 부착된 옵션이 없습니다.</strong>
-                        </div>
-                    </template>
-                </div>
-            </lightning-card>
+        <div class="slds-col slds-size_2-of-5">
+            <div class="box-wrap slds-m-right_small">
+                <lightning-card title="선택된 옵션" icon-name="standard:custom">
+                    <div class="slds-card__body slds-p-around_small slds-p-top_none">
+                        <template lwc:if={isSelectedOptionData}>
+                            <div class="slds-size_1-of-1">
+                                <lightning-datatable
+                                    key-field="id"
+                                    data-name="option"
+                                    data={selectedOptionData}
+                                    columns={optionColumns}
+                                    onrowaction={handleRowAction}
+                                    hide-checkbox-column="true"
+                                    column-widths-mode="auto">
+                                </lightning-datatable>
+                            </div>
+                        </template>
+                        <template lwc:else>
+                            <div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">
+                                <strong>선택된 차량에 부착된 옵션이 없습니다.</strong>
+                            </div>
+                        </template>
+                    </div>
+                </lightning-card>
+            </div>
         </div>
-        <div class="slds-col slds-size_2-of-5 slds-m-around_x-small">
+        <div class="slds-col slds-size_3-of-5">
             <div class="box-wrap">
                 <!-- <div class="slds-grid slds-grid_align-end slds-wrap slds-p-vertical_small filter-wrap">
                     <lightning-button-group>
@@ -133,6 +135,9 @@
                     </div>
                 </div>
                 <div class="slds-modal__footer slds-text-align_center">
+                    <button class="slds-button slds-button_neutral" data-name="cancel"
+                            onclick={toggleModal}>취소
+                    </button>
                     <template lwc:if={modalMap.add}>
                         <button class="slds-button slds-button_brand" data-name="save"
                             onclick={handleAdd}>확인
@@ -143,9 +148,6 @@
                             onclick={removeSpoiler}>확인
                         </button>
                     </template>
-                    <button class="slds-button slds-button_neutral" data-name="cancel"
-                            onclick={toggleModal}>Cancel
-                    </button>
                 </div>
             </div>
         </section>

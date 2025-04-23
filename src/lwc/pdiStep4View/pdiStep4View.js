@@ -59,7 +59,7 @@ export default class PdiStep4View extends LightningElement {
 			if(this.installList.length) this.installList[0].installDate = this.varStepList[3].StepEnd__c;
 			this.groupList = response?.spoilerPartsJuntion;
 		}).catch(error => {
-			showToast("Error", "Error Loading step4 Init", "error", "dismissable");
+			showToast("불러오기 실패", "옵션장착을 위한 정보를 불러오는 중 에러가 발생했습니다.", "error", "dismissable");
 			console.log(error);
 		}).finally(this.isLoading = false);
 	}
@@ -128,18 +128,6 @@ export default class PdiStep4View extends LightningElement {
 			Object.keys(this.modalMap).forEach(el => this.modalMap[el] = (el === type));
 		}
 	}
-
-	/**
-	 * @description Pdi Main 모달 on
-	 */
-	handleMainModal() {
-		if(this.varStepList[2].IsPass__c == false) {
-			showToast('Warning', 'Step 3를 먼저 완료해주세요.', 'warning');
-			return;
-		}
-		const customEvent = new CustomEvent('step4open');
-		this.dispatchEvent(customEvent);
-	}
 	
 	/**
 	 * @description 스포일러 추가
@@ -161,7 +149,7 @@ export default class PdiStep4View extends LightningElement {
 				this.paramMapList = [paramMap];
 				this.callSAP();
 			}).catch(error => {
-				showToast('Error', 'Error SF Spoiler Update', 'error', 'dismissable');
+				showToast('스포일러 장착 에러', '스포일러 장착 중 에러가 발생했습니다.', 'error', 'dismissable');
 				console.log(error);
 			}).finally(() => {
 				this.isLoading = false;
@@ -193,7 +181,7 @@ export default class PdiStep4View extends LightningElement {
 			this.installList = [];
 			this.callSAP();
 		}).catch(error => {
-			showToast('Error', 'Error Update', 'error', 'dismissable');
+			showToast('스포일러 제거 에러', '스포일러 제거 중 에러가 발생했습니다.', 'error', 'dismissable');
 			console.log(error);
 		}).finally(() => {
 			this.isLoading = false;
@@ -205,7 +193,7 @@ export default class PdiStep4View extends LightningElement {
 		await spoilerDropoffSAP({inputMapList: this.paramMapList}).then(() => {
 			// this.updateStep();
 		}).catch(error => {
-			showToast('Error', 'Error SAP Update', 'error', 'dismissable');
+			showToast('SAP 반영 에러', 'SAP에 스포일러 재고 전송 요청 중 에러가 발생했습니다.', 'error', 'dismissable');
 			console.log(error);
 		});
 	}

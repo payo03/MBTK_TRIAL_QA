@@ -8,6 +8,7 @@
   1.0      2025-01-22      payo03@solomontech.net           Created
   1.1      2025-04-21      chaebeom.do@solomontech.net      PDI step3 완료시 기회 연결 로직 추가
   1.2      2025-04-22      chaebeom.do@solomontech.net      PDI step4Init 수정
+  1.3      2025-04-23      chaebeom.do@solomontech.net      PDI step3 완료시 기회 연결 로직 수정
 */
 public with sharing class PdiController {
 
@@ -221,12 +222,13 @@ public with sharing class PdiController {
     /**
      * @author chaebeom.do
      * @description 선택된 차량의 배정 확정(단건)
-     * @param completeMap 출고할 차량, 기회, 현재 기회에 배정된 차량
+     * @param completeMap 출고할 차량, 선택한 기회, 선택한 기회에 배정된 차량
      */
     @AuraEnabled
     public static void doCompleteStep3(Map<String, String> completeMap) {
 
         List<SObject> updateList = new List<SObject>();
+
         updateList.add(new VehicleStock__c(
             Id = completeMap.get('stockId'),
             VehicleStatus__c = '출고예정'
@@ -244,7 +246,20 @@ public with sharing class PdiController {
             StepEnd__c = System.now(),
             StepWorker__c = UserInfo.getName()
         ));
-        // 기회에 선택한 차량과 다른 차량이 배정되어있을 경우
+        // ver 1.3 선택한 기회 이외의 출고할 차량이 배정된 기회는 모두 연결 해제
+        String whereCondition = 'Opportunity__r.VehicleStock__c =\'' + completeMap.get('stockId') +  '\'';
+        List<SchedulerMainController.HandoverWrap> hoList = SchedulerMainController.getHandoverData(whereCondition);
+        if(hoList.size() > 0) {
+            for(SchedulerMainController.HandoverWrap hw : hoList) {
+                if(hw.opp.Id != completeMap.get('opportunityId')) {
+                    updateList.add(new Opportunity(
+                        Id = hw.opp.Id,
+                        VehicleStock__c = null
+                    ));
+                }
+            }
+        }
+        // 선택한 기회에 출고할 차량과 다른 차량이 배정되어있을 경우
         if(completeMap.get('stockId') != completeMap.get('previousStockId')) {
             updateList.add(new VehicleStock__c(
                 Id = completeMap.get('previousStockId'),
@@ -269,7 +284,7 @@ public with sharing class PdiController {
                 VehicleStock__c = completeMap.get('stockId')
             ));
         }
-
+        updateList.sort();
         if (!updateList.isEmpty()) update updateList;
     }
     //ver 1.1
@@ -305,6 +320,7 @@ public with sharing class PdiController {
             VehicleStock__c = null
         ));
 
+        updateList.sort();
         if (!updateList.isEmpty()) update updateList;
     }
     //step3 End

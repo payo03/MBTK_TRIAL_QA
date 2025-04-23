@@ -10,15 +10,8 @@
 <!-- Pdi Step 3 View -->
 <template>
     <!-- Body Start -->
-    <div class="slds-m-around_x-small" style="width: 80%;">
+    <div class="slds-m-around_x-small">
         <div class="box-wrap">
-            <!-- <template if:true={opportunityList.length}>
-                <div class="slds-grid slds-grid_align-end slds-wrap slds-p-vertical_small filter-wrap">
-                    <button class="slds-button slds-button_neutral" data-name="search" onclick={handleMainModal}>
-                        배정 확인
-                    </button>
-                </div>
-            </template> -->
             <div>
                 <template if:true={opportunityList.length}>
                     <c-custom-data-table
@@ -33,10 +26,22 @@
                         max-row-selection="1"
                     ></c-custom-data-table>
                 </template>
-                <template if:false={opportunityList.length}>
+                <!-- <template if:false={opportunityList.length}>
                     <div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">
                         <strong>해당하는 차종의 출고 예정 데이터가 없습니다.</strong>
                     </div>
+                </template> -->
+                <template if:false={opportunityList.length}>
+                    <c-custom-data-table
+                        key-field="id"
+                        columns={columns}
+                        data={defaultList}
+                        selected-rows={selectedRowIdList}
+                        onrowselection={handleSelection}
+                        column-widths-mode="auto"
+                        min-column-width="20"
+                        max-row-selection="1"
+                    ></c-custom-data-table>
                 </template>
             </div>
         </div>
@@ -44,7 +49,7 @@
     <!-- Body End -->
 
     <!-- Modal Start -->
-    <template lwc:if={isModalOpen}>
+    <!-- <template lwc:if={isModalOpen}>
         <section role="dialog" tabindex="-1" aria-modal="true"
 			         aria-label="Meaningful description of the modal content"
 			         class="slds-modal slds-fade-in-open slds-modal_large">
@@ -87,6 +92,6 @@
 				</template>
 			</section>
 			<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
-    </template>
+    </template> -->
     <!-- Modal End -->
 </template>
