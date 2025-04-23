@@ -22,7 +22,10 @@ public class IF_SAP_test {
     static void testOne(){
         Test.startTest();
 
-        Opportunity oppty = [SELECT Id, Account.BPCode__c, VirtualAccount__r.fm_VirtualAccount__c FROM Opportunity WHERE VirtualAccount__c != NULL LIMIT 1];
+        Opportunity oppty = [SELECT Id, AccountId, Account.BPCode__c, VirtualAccount__r.fm_VirtualAccount__c FROM Opportunity WHERE VirtualAccount__c != NULL LIMIT 1];
+        PaymentTracker__c tracker = [SELECT Id FROM PaymentTracker__c LIMIT 1];
+        tracker.Account__c = oppty.AccountId;
+        update tracker;
 
         RestRequest req = new RestRequest();
         String requestBody = '';

@@ -37,7 +37,7 @@ private class ConfigMasterController_test {
                 LIMIT 1
         ];
 
-        ConfigMasterController.selectConfigMaster();
+        ConfigMasterController.selectConfigMaster('MAN1000');
         ConfigMasterController.selectConfigDetailById(detail.Id);
 
         List<Map<String, Object>> paramMList = new List<Map<String, Object>>();

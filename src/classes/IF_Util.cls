@@ -2,8 +2,7 @@
  * @author          : th.kim
  * @date            : 2024-11-08
  * @description     :
- * @TestClass       : InterfaceSAP_test
- * @target : Template_ba_test
+ * @TestClass       : Template_ba_test
 ==============================================================
  * Ver          Date            Author                  Modification
  * 1.0          2024-11-08      th.kim                  Created
@@ -26,13 +25,14 @@ public without sharing class IF_Util {
     };
 
     // ver1.3 IF_Log. LogType 추가
-    private final static Map<String, IF_DTO.LOG_TYPE> logTypeMap = new Map<String, IF_DTO.LOG_TYPE>{
+    private final static Map<String, IF_DTO.LOG_TYPE> LOG_TYPE_MAP = new Map<String, IF_DTO.LOG_TYPE>{
             'MDSIGN'       => IF_DTO.LOG_TYPE.MODUSIGN_OUT,
             'API'          => IF_DTO.LOG_TYPE.PUBLIC_API,
             'HEROKU_SFDC'  => IF_DTO.LOG_TYPE.HEROKU_SFDC,
             'HEROKU_WSMOKA'=> IF_DTO.LOG_TYPE.HEROKU_WSMOKA,
             'HEROKU_KAKAO' => IF_DTO.LOG_TYPE.HEROKU_KAKAO_OUT,
-            'HEROKU_SMS'   => IF_DTO.LOG_TYPE.HEROKU_SAP_OUT
+            'HEROKU_SMS'   => IF_DTO.LOG_TYPE.HEROKU_SAP_OUT,
+            'AWS_LOAN'     => IF_DTO.LOG_TYPE.AWS_OUT
     };
 
     public class LogWrapper {
@@ -152,8 +152,8 @@ public without sharing class IF_Util {
         objLogWrapper.responseTime = Datetime.now();
         objLogWrapper.responseBody = responseBody;
         objLogWrapper.errorCode = errorCode;
-        for (String key : logTypeMap.keySet()) {
-            if (ifId.startsWith(key)) objLogWrapper.logType = logTypeMap.get(key);
+        for (String key : LOG_TYPE_MAP.keySet()) {
+            if (ifId.startsWith(key)) objLogWrapper.logType = LOG_TYPE_MAP.get(key);
         }
 
         // 로그 생성
@@ -322,8 +322,8 @@ public without sharing class IF_Util {
             logWrapper.errorCode = errorCode;
 
             String ifId = this.objIfMaster.IF_Id__c;
-            for (String key : logTypeMap.keySet()) {
-                if (ifId.startsWith(key)) logWrapper.logType = logTypeMap.get(key);
+            for (String key : LOG_TYPE_MAP.keySet()) {
+                if (ifId.startsWith(key)) logWrapper.logType = LOG_TYPE_MAP.get(key);
             }
             setLog(logWrapper);
         }

@@ -27,6 +27,7 @@ global without sharing class IF_SAP {
         requestTime = Datetime.now();
         request = RestContext.request;
         response = RestContext.response;
+        response.addHeader('Content-Type', 'application/json');
 
         switch on pathCase {
             // 가상계좌 입금금액 Update
@@ -53,8 +54,7 @@ global without sharing class IF_SAP {
         final Set<String> TARGET_KEY_SET = new Set<String>{
                 DEPOSIT_KEY, DOWM_PAYMENT_KEY, DEFERRED_PAYMENT_KEY, VAT_KEY, OVER_PAID_KEY, LOAN_KEY
         };
-        
-        response.addHeader('Content-Type', 'application/json');
+
         String requestBody = request.requestBody.toString();
         System.debug(requestBody);
 
@@ -69,6 +69,7 @@ global without sharing class IF_SAP {
         paymentLog.Name = CommonUtilController.formatDate(Datetime.now(), 'C') + '_' + virtualAccountNumber;
         paymentLog.Amount__c = depositAmount;
         paymentLog.InternalDocumentId__c = documentId;
+        paymentLog.Account__c = [SELECT Id FROM Account WHERE BPCode__c = :BPCode].Id;
 
         String responseMessage;
         String paymentTrackerId;
@@ -86,7 +87,7 @@ global without sharing class IF_SAP {
                     FROM PaymentType__c
                     WHERE PaymentTracker__r.IsValid__c = TRUE
                     AND PaymentTracker__r.Opportunity__r.VirtualAccount__r.fm_VirtualAccount__c = :virtualAccountNumber
-                    AND PaymentTracker__r.Opportunity__r.Account.BPCode__c = :BPCode
+                    AND PaymentTracker__r.Account__r.BPCode__c = :BPCode
 //                    AND fm_LeftAmount__c != 0
                     AND Type__c IN :TARGET_KEY_SET  // ver1.1 대출금 입금상태 반영로직 추가
                     ORDER BY Type__c
@@ -97,67 +98,70 @@ global without sharing class IF_SAP {
                 targetKeyMap.put(objType.Type__c, objType);
             }
 
-            // 2. 입금금액에 맞게 Payment Type 계정별 Update
-            List<PaymentType__c> updateList = new List<PaymentType__c>();
-            Boolean updateFlag = false;                 // 계약금 입금완료시
-            Boolean loanClear = false;                  // ver1.1 대출금 입금상태 반영로직 추가
-            String adjustStatus;                        // 최종반영 Status
-            Integer adjustAmount = depositAmount;       // 입금금액 Start
+            // 영업기회 / SA 비용관련 분기처리
+            if(!targetKeyMap.isEmpty()) {
+                // 2. 입금금액에 맞게 Payment Type 계정별 Update
+                List<PaymentType__c> updateList = new List<PaymentType__c>();
+                Boolean updateFlag = false;                 // 계약금 입금완료시
+                Boolean loanClear = false;                  // ver1.1 대출금 입금상태 반영로직 추가
+                String adjustStatus;                        // 최종반영 Status
+                Integer adjustAmount = depositAmount;       // 입금금액 Start
 
-            // 3. 금액처리
-            // 3-1. 대출계정 처리
-            // Capital에서 입금해준 금액으로 매핑이 아닌. 입금한 사람의 정보를 가지고 로직 필요하지 않나... 100분의 1의 확률로 사용자가 Capital의 금액을 입금하면 어떡하지
-            PaymentType__c loanType = targetKeyMap.remove(LOAN_KEY);
-            if (loanType.fm_LeftAmount__c == 0) loanClear = true;   // ver1.1 대출금 입금상태 반영로직 추가. 기반영건 확인
+                // 3. 금액처리
+                // 3-1. 대출계정 처리
+                // Capital에서 입금해준 금액으로 매핑이 아닌. 입금한 사람의 정보를 가지고 로직 필요하지 않나... 100분의 1의 확률로 사용자가 Capital의 금액을 입금하면 어떡하지
+                PaymentType__c loanType = targetKeyMap.remove(LOAN_KEY);
+                if (loanType.fm_LeftAmount__c == 0) loanClear = true;   // ver1.1 대출금 입금상태 반영로직 추가. 기반영건 확인
 
-            if (!loanClear && adjustAmount.equals(loanType.fm_LeftAmount__c)) {
-                loanClear = true;   // ver1.1 대출금 입금상태 반영로직 추가. 신규입금건
+                if (!loanClear && adjustAmount.equals(loanType.fm_LeftAmount__c)) {
+                    loanClear = true;   // ver1.1 대출금 입금상태 반영로직 추가. 신규입금건
 
-                loanType.DepositAmount__c = adjustAmount;
-                updateList.add(loanType);
-                adjustAmount = 0;   // 잔여금액 끝
+                    loanType.DepositAmount__c = adjustAmount;
+                    updateList.add(loanType);
+                    adjustAmount = 0;   // 잔여금액 끝
 
-                // ver1.1 대출금 입금상태 반영로직 추가. 기 반영데이터 확인 -> Update
-                for(String targetKey : targetKeyMap.keySet()) {
-                    PaymentType__c type = targetKeyMap.get(targetKey);
+                    // ver1.1 대출금 입금상태 반영로직 추가. 기 반영데이터 확인 -> Update
+                    for (String targetKey : targetKeyMap.keySet()) {
+                        PaymentType__c type = targetKeyMap.get(targetKey);
 
-                    if (type.fm_LeftAmount__c == 0) {
-                        adjustStatus = type.UpdateStage__c;                                     // 가장 마지막 UpdateStage 조회
-                    } else {
-                        if (OVER_PAID_KEY.equals(targetKey)) adjustStatus = 'OVER_PAID';        // 초과금 납부 Case
-                        break;                                                                  // Update 대상 OUT
+                        if (type.fm_LeftAmount__c == 0) {
+                            adjustStatus = type.UpdateStage__c;                                     // 가장 마지막 UpdateStage 조회
+                        } else {
+                            if (OVER_PAID_KEY.equals(targetKey) && type.DepositAmount__c > 0) adjustStatus = 'OVER_PAID'; // 초과금 납부 Case
+                            break;                                                                  // Update 대상 OUT
+                        }
                     }
                 }
+
+                // 3-2. 대출계정 외 처리
+                for (String targetKey : targetKeyMap.keySet()) {
+                    PaymentType__c type = targetKeyMap.get(targetKey);
+
+                    if (adjustAmount <= 0) break;               // 입금금액 소진시 End.
+                    if (type.fm_LeftAmount__c == 0) continue;   // ver1.1 대출금 입금상태 반영로직 추가. 기 입금완료시 PASS
+                    System.debug('잔여금액 : ' + adjustAmount);
+
+                    // 계정별 금액 할당 Process
+                    Integer leftAmount = Integer.valueOf(type.fm_LeftAmount__c);
+                    Integer assignAmount = Math.min(leftAmount, adjustAmount);
+                    type.DepositAmount__c += assignAmount;
+                    updateList.add(type);
+                    adjustAmount -= assignAmount;               // 잔여금액 반영(다음 Loop에서 사용)
+
+                    // 납부금에 따른 Logic
+                    if (OVER_PAID_KEY.equals(targetKey)) adjustStatus = 'OVER_PAID';                 // 초과금 납부 시작시
+                    if (leftAmount.equals(assignAmount)) adjustStatus = type.UpdateStage__c;         // 계정별 납입금 완료시
+                    if (adjustStatus != null && 'DEPOSIT'.equals(adjustStatus)) updateFlag = true;   // 계약금 완료시
+                }
+
+                paymentLog.PaymentTracker__c = paymentTrackerId;                                     // Process 완료 후 PaymentTracker 매핑처리
+                if (!updateList.isEmpty()) update updateList;                                        // PaymentType Update(DepositAmount__c)
+                if (
+                    adjustStatus != null &&                         // 상태값 존재
+                    (loanClear || 'DEPOSIT'.equals(adjustStatus))   // 대출완료 or 계약금 납입
+                ) update new PaymentTracker__c(Id = paymentTrackerId, Status__c = adjustStatus);     // PaymentTracker Update(Status__c)
+                if (updateFlag) StageUpdateCommonController.doUpdateOpportunity(contractId);         // 계약금 입금 확인. Opportunity Update
             }
-
-            // 3-2. 대출계정 외 처리
-            for(String targetKey : targetKeyMap.keySet()) {
-                PaymentType__c type = targetKeyMap.get(targetKey);
-
-                if (adjustAmount <= 0) break;               // 입금금액 소진시 End.
-                if (type.fm_LeftAmount__c == 0) continue;   // ver1.1 대출금 입금상태 반영로직 추가. 기 입금완료시 PASS
-                System.debug('잔여금액 : ' + adjustAmount);
-
-                // 계정별 금액 할당 Process
-                Integer leftAmount = Integer.valueOf(type.fm_LeftAmount__c);
-                Integer assignAmount = Math.min(leftAmount, adjustAmount);
-                type.DepositAmount__c += assignAmount;
-                updateList.add(type);
-                adjustAmount -= assignAmount;               // 잔여금액 반영(다음 Loop에서 사용)
-
-                // 납부금에 따른 Logic
-                if (OVER_PAID_KEY.equals(targetKey)) adjustStatus = 'OVER_PAID';                 // 초과금 납부 시작시
-                if (leftAmount.equals(assignAmount)) adjustStatus = type.UpdateStage__c;         // 계정별 납입금 완료시
-                if (adjustStatus != null && 'DEPOSIT'.equals(adjustStatus)) updateFlag = true;   // 계약금 완료시
-            }
-
-            paymentLog.PaymentTracker__c = paymentTrackerId;                                     // Process 완료 후 PaymentTracker 매핑처리
-            if (!updateList.isEmpty()) update updateList;                                        // PaymentType Update(DepositAmount__c)
-            if (
-                adjustStatus != null &&                         // 상태값 존재
-                (loanClear || 'DEPOSIT'.equals(adjustStatus))   // 대출완료 or 계약금 납입
-            ) update new PaymentTracker__c(Id = paymentTrackerId, Status__c = adjustStatus);     // PaymentTracker Update(Status__c)
-            if (updateFlag) StageUpdateCommonController.doUpdateOpportunity(contractId);         // 계약금 입금 확인. Opportunity Update
 
             response.statusCode = 200;
             response.responseBody = Blob.valueOf(responseMessage);
@@ -185,7 +189,6 @@ global without sharing class IF_SAP {
     }
 
     private static void asyncOrderConfirm() {
-        response.addHeader('Content-Type', 'application/json');
         String requestBody = request.requestBody.toString();
         System.debug(requestBody);
 
@@ -234,7 +237,6 @@ global without sharing class IF_SAP {
     }
 
     private static void asyncInvoiceConfirm() {
-        response.addHeader('Content-Type', 'application/json');
         String requestBody = request.requestBody.toString();
         System.debug(requestBody);
 
@@ -283,7 +285,6 @@ global without sharing class IF_SAP {
     }
 
     private static void asyncCustomsInfo() {
-        response.addHeader('Content-Type', 'application/json');
         String requestBody = request.requestBody.toString();
         System.debug(requestBody);
 

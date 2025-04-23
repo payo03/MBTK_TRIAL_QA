@@ -153,7 +153,7 @@ global without sharing class IF_DTO {
         public String exct_dt { get; set; }         // 실행일자
         public String cntr_no { get; set; }         // TFS 계약번호
         public String mtbk_cnsn_no { get; set; }    // MTBK 품의번호
-        public String subsidy_amt { get; set; }     // Subsidy
+        public String subsidy_amt { get; set; }     // Subsidy (보조금. Subvention 금액)
         public String mfs_camp_amt { get; set; }    // MFS 캠페인 금액
     }
 
@@ -691,7 +691,7 @@ global without sharing class IF_DTO {
     /* ------------------------------------------ LOG ------------------------------------------ */
     public enum LOG_TYPE {
         HEROKU_KAKAO_OUT, KAKAO_IN, HEROKU_SAP_OUT, HEROKU_SAP_IN, HEROKU_WSMOKA, HEROKU_SFDC,
-        MODUSIGN_OUT, MODUSIGN_IN, PUBLIC_API
+        MODUSIGN_OUT, MODUSIGN_IN, PUBLIC_API, AWS_OUT, AWS_IN
     }
     public class LogWrapper {
         public String status;
