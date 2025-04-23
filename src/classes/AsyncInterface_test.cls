@@ -1,7 +1,7 @@
 /**
 * @Author            : payo03@solomontech.net
 * @Description 		 : 
-* @Target            : AsyncTaxInvoiceIssuance, AsyncCustomerInfo, AsyncVAInfo, AsyncSpoilerRequest, AsyncOffsetRequest
+* @Target            : AsyncTaxInvoiceIssuance, AsyncCustomerInfo, AsyncVAInfo, AsyncSpoilerRequest, AsyncOffsetRequest, AsyncLoanRequestMFS
 * @Modification Log
   Ver      Date            Author                           Modification
   ===================================================================================
@@ -90,5 +90,19 @@ private class AsyncInterface_test {
         }
 
         System.enqueueJob(new AsyncOffsetRequest(opptyIdList));
+    }
+
+    @IsTest
+    static void testBehavior5() {
+
+        List<String> quoteIdList = new List<String>();
+        for(Quote quote : [
+                SELECT Id
+                FROM Quote
+        ]) {
+            quoteIdList.add(quote.Id);
+        }
+
+        System.enqueueJob(new AsyncLoanRequestMFS(quoteIdList, null));
     }
 }

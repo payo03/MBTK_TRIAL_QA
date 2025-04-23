@@ -1,7 +1,7 @@
 /**
 * @Author            : payo03@solomontech.net
 * @Description 		 : 대출심사요청 MFS
-* @Target            :
+* @Target            : AsyncInterface_test
 * @Modification Log
   Ver      Date            Author                           Modification
   ===================================================================================
@@ -34,7 +34,7 @@ public without sharing class AsyncLoanRequestMFS implements Queueable, Database.
         /* ------------------------------------------------------------------- */
 
         List<Quote> quoteList = [
-                SELECT Id, CreatedById, CreatedBy.Name, DefaultInterestRate__c, MonthDivideInputMonth__c, TotalVehiclePrice__c, VATAmountMFS__c,
+                SELECT Id, CreatedById, CreatedBy.Name, DefaultInterestRate__c, MonthDivideInputMonth__c, TotalVehiclePrice__c, VATAmountMFS__c, AdvancePayment__c,
                         fm_TotalLoanAmount__c, RegistrationTax__c, fm_DeliveryDiscountPrice__c, fm_TotalExtraExpenses__c, ru_SpecialPrice__c,
                         OpportunityId, Opportunity.Name, Opportunity.TaxInvoiceDate__c,
                         Opportunity.VirtualAccount__r.fm_VirtualAccount__c,
@@ -57,9 +57,9 @@ public without sharing class AsyncLoanRequestMFS implements Queueable, Database.
             SAIdMap.put(quote.CreatedById, null);
         }
         for(Account acc : [
-                SELECT Id, User__c
+                SELECT Id, User__c, Phone
                 FROM Account
-                WHERE Id IN :SAIdMap.keySet()
+                WHERE User__c IN :SAIdMap.keySet()
         ]) {
             SAIdMap.put(acc.User__c, acc);
         }
@@ -106,7 +106,7 @@ public without sharing class AsyncLoanRequestMFS implements Queueable, Database.
             loanRequestInfo.cs_nm = quote.Contact.Name;
 
             loanRequestInfo.stock_no = quote.VehicleStock__r.Name;
-            loanRequestInfo.vhc_model_nm = quote.VehicleStock__r.Product__r.Name;
+            loanRequestInfo.vhc_model_nm = quote.Product__r.Name;
 
             Decimal optionPrice = 0;
             String CFDivision = '';
