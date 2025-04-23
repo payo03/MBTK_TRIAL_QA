@@ -691,7 +691,7 @@ global without sharing class IF_DTO {
     /* ------------------------------------------ LOG ------------------------------------------ */
     public enum LOG_TYPE {
         HEROKU_KAKAO_OUT, KAKAO_IN, HEROKU_SAP_OUT, HEROKU_SAP_IN, HEROKU_WSMOKA, HEROKU_SFDC,
-        MODUSIGN_OUT, MODUSIGN_IN, PUBLIC_API
+        MODUSIGN_OUT, MODUSIGN_IN, PUBLIC_API, AWS_OUT, AWS_IN
     }
     public class LogWrapper {
         public String status;

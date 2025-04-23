@@ -35,7 +35,7 @@ public without sharing class AsyncLoanRequestMFS implements Queueable, Database.
 
         List<Quote> quoteList = [
                 SELECT Id, CreatedById, CreatedBy.Name, DefaultInterestRate__c, MonthDivideInputMonth__c, TotalVehiclePrice__c, VATAmountMFS__c,
-                        fm_TotalLoanAmount__c, fm_RegistrationTax__c, fm_DeliveryDiscountPrice__c, fm_TotalExtraExpenses__c, ru_SpecialPrice__c,
+                        fm_TotalLoanAmount__c, RegistrationTax__c, fm_DeliveryDiscountPrice__c, fm_TotalExtraExpenses__c, ru_SpecialPrice__c,
                         OpportunityId, Opportunity.Name, Opportunity.TaxInvoiceDate__c,
                         Opportunity.VirtualAccount__r.fm_VirtualAccount__c,
                         Account.Name, Account.PersonEmail, Account.BusinessNumber__c, Account.IDNumber__pc, Account.PersonMobilePhone, Account.RoadAddress__c,
@@ -83,7 +83,7 @@ public without sharing class AsyncLoanRequestMFS implements Queueable, Database.
             loanRequestInfo.vhc_dc = String.valueOf(quote.fm_DeliveryDiscountPrice__c);
             loanRequestInfo.vhc_exp = String.valueOf(quote.fm_TotalExtraExpenses__c);
             loanRequestInfo.loan_amt = String.valueOf(quote.fm_TotalLoanAmount__c);
-            loanRequestInfo.reg_tax = String.valueOf(quote.fm_RegistrationTax__c);
+            loanRequestInfo.reg_tax = String.valueOf(quote.RegistrationTax__c);
             loanRequestInfo.spc_vhc_price = String.valueOf(quote.ru_SpecialPrice__c);
             loanRequestInfo.pre_amt = String.valueOf(quote.AdvancePayment__c);
 
