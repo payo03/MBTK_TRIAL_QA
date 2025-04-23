@@ -29,7 +29,7 @@ global without sharing class IF_AWS {
 
         switch on pathCase {
             // 대출심사 결과
-            when 'loan002' { updateLoanResult(); }
+            when 'loan/response' { updateLoanResult(); }
         }
     }
 

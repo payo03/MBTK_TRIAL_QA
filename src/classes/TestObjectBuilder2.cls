@@ -499,7 +499,7 @@ public class TestObjectBuilder2 {
         if(ifMasterList == null) {
             ifMasterList = new List<IF_Master__c>();
 
-            for(Integer i = 0; i <= 25; i++) {
+            for(Integer i = 0; i <= 100; i++) {
                 IF_Master__c ifMaster = new IF_Master__c();
 
                 ifMaster.PrefixURL__c = 'https://test.com';
@@ -659,9 +659,15 @@ public class TestObjectBuilder2 {
                     ifMaster.Endpoint__c = 'https://test.com/api/check';
                     ifMaster.IsSendParameter__c = false;
                     ifMaster.IsLogInsert__c = false;
+                } else if(i==26) {
+                    ifMaster.IF_Id__c = 'AWS_LOAN001';
+                    ifMaster.Method__c = 'POST';
+                    ifMaster.Endpoint__c = 'https://test.com/v1/aws/loan';
+                    ifMaster.IsSendParameter__c = false;
+                    ifMaster.IsLogInsert__c = false;
                 }
 
-                ifMasterList.add(ifMaster);
+                if(ifMaster.IF_Id__c != null) ifMasterList.add(ifMaster);
             }
         }
         return ifMasterList;
