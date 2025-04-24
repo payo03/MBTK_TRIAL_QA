@@ -76,6 +76,9 @@
                   onrowselection={handleRowSelect}
                   data-type="product">
           </lightning-datatable>
+          <template lwc:if={isNoData}>
+            <div class="slds-p-around_small">{myLabel.EmptyResult}</div>
+          </template>
         </div>
       </div>
     </div>

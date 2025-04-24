@@ -56,16 +56,13 @@ export default class ContractRenegotiation extends NavigationMixin(
     }
   }
 
-  //계약 재협상상 실행
+  //계약 재협상 실행
   handleCancelContract() {
     this.isLoading = true;
     cancelByCase({ type: "renegotiation", opptyId: this.recordId, selectedValues: null })
       .then((result) => {
         console.log("result :: ", result);
         showToast("취소 완료", "변경된 견적에서 새 계약을 생성하세요.", "success");
-        setTimeout(() => {
-          location.reload();
-        }, 1000);
       })
       .catch((error) => {
         showToast("Error", "Error cancelContract", "error", "dismissable");
@@ -74,9 +71,9 @@ export default class ContractRenegotiation extends NavigationMixin(
       .finally(() => {
         this.handleCancel();
         this.isLoading = false;
-        // setTimeout(() => {
-        //   location.reload();
-        // }, 1000);
+        setTimeout(() => {
+          location.reload();
+        }, 1000);
       });
   }
 }

@@ -71,11 +71,6 @@ export default class CreateContract extends NavigationMixin(LightningElement) {
       this.isLoading = false;
       return;
     }
-    // if (!this.stockId) {
-    //   showToast("", "", "warning");
-    //   this.isLoading = false;
-    //   return;
-    // }
     let inputMap = { 
       recordId: this.recordId, 
       accId: this.curQuote.accId, 
@@ -85,7 +80,6 @@ export default class CreateContract extends NavigationMixin(LightningElement) {
       segment: this.curQuote.segment,
       totalLoanAmount: this.curQuote.totalLoanAmount
     };
-    console.log('inputMap :: ' + inputMap);
     createContract({inputMap: inputMap}).then(res => {
       if (res == 'noStockForSelling') {
         showToast("판매 가능 재고 없음", "선택한 모델의 차량재고 중 기본작업이 완료된 재고가 없습니다. 매니지먼트팀에 문의바랍니다.", "error", "sticky")
@@ -101,7 +95,12 @@ export default class CreateContract extends NavigationMixin(LightningElement) {
     }).catch(err => {
       showToast("계약 생성 실패", "관리자에게 문의 바랍니다.", "error");
       console.log("err createContract :: ", err)
-    }).finally(() => this.isLoading = false);
+    }).finally(() => {
+      this.isLoading = false;
+      setTimeout(() => {
+        location.reload();
+      }, 1000);
+    });
   }
 
   handleCancel() {

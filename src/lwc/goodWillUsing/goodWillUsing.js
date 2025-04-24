@@ -89,6 +89,7 @@ export default class goodWillUsing extends LightningElement {
       return;
     }
     this.applyValidation = "submit";
+    this.isLoading = true;
   }
 
   /**
@@ -96,7 +97,6 @@ export default class goodWillUsing extends LightningElement {
    */
   handleSuccess(e) {
     //  this.recordId = e.detail.id;
-    this.isLoading = true;
     attachFiles({ fileDetails: this.fileDetails, recordId: e.detail.id }).then(() => {
       showToast("사용신청 완료", "신청 내용이 승인되면 잔액에서 차감됩니다.", "success");
       this.clearEditForm();
@@ -107,7 +107,7 @@ export default class goodWillUsing extends LightningElement {
    * @description 사용신청 생성 실패 시
   */
   handleError(e) {
-    console.log(e.detail.detail);
+    this.isLoading = false;
     showToast("신청 실패", e.detail.message, "warning");
   }
 

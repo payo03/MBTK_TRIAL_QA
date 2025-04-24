@@ -63,7 +63,6 @@ export default class DepositInvoice extends LightningElement {
 
     // ver 1.1 요청시 account의 고객코드/사업자명/사업자 번호 필드가 없으면 에러 토스트 발생 및 어떤 필드 값이 비었는지 표시
   sendDeposit() {
-    this.isLoading = true;
     if (!this.accBpCode || !this.accBusinessName || (!this.accBusinessNo && !this.accIdNo)) { //ver 1.2
       let required = ["", "", ""];
       if(!this.accBpCode) required[0] = "고객코드";
@@ -72,19 +71,21 @@ export default class DepositInvoice extends LightningElement {
       const filteredRequired = required.filter(str => str && str.trim());
       let msg = "계정의 다음 필드를 입력해주세요. : " + filteredRequired.join(", ");
       showToast("필수 항목이 빈 값입니다.", msg, "error");
-      this.isLoading = false;
       return;
     }
     if (this.deposit == null) {
       showToast("필수 입력", "계약금을 입력해주세요.", "error");
-      this.isLoading = false;
     } else {
       let inputMap = { recordId: this.opptyId, deposit: this.deposit, stockId: this.stockId, contractId: this.recordId, type: 'deposit' };
+      this.isLoading = true;
       createAssignRequest({inputMap: inputMap}).then(() => {
         showToast("전송 완료", "계약금 요청을 고객에게 전송하였습니다.", "success");
       }).finally(() => {
         this.isLoading = false;
         this.handleCancel();
+        setTimeout(() => {
+          location.reload();
+        }, 1000);
       })
     }
   }

@@ -179,20 +179,64 @@
 								</header>
 							</div>
 							<div class="slds-grid slds-wrap">
-								<lightning-input type="number" label="기준가" data-id="listPrice" 
-																		class="slds-size_1-of-2 quoteHighlight" readonly value={listPrice}></lightning-input>
+								<div class="slds-size_1-of-2 quoteHighlight">
+									<div class="slds-m-bottom_x-small">기준가</div>
+									<lightning-formatted-number value={listPrice} format-style="decimal" maximum-fraction-digits="0"></lightning-formatted-number>
+								</div>
+								<!-- <lightning-input type="number" label="기준가" data-id="listPrice" 
+																		class="slds-size_1-of-2 quoteHighlight" readonly value={listPrice}></lightning-input> -->
 								<div class="quoteSection slds-grid slds-wrap slds-size_1-of-1">
-									<lightning-input type="number" label="판매조건 할인가" data-id="salesconditionDiscountAmt"
+									<div class="slds-size_1-of-2">
+										<div class="slds-m-vertical_xx-small">판매조건 할인가</div>
+										<lightning-formatted-number value={salesconditionDiscountAmt} format-style="decimal" maximum-fraction-digits="0"></lightning-formatted-number>
+									</div>
+									<div class="slds-size_1-of-2">
+										<div class="slds-m-vertical_xx-small">총 할인율(%)</div>
+										<lightning-formatted-number value={discountRate} format-style="decimal" maximum-fraction-digits="2"></lightning-formatted-number>
+									</div>
+									<div class="slds-size_1-of-2">
+										<div class="slds-m-vertical_xx-small">캠페인 할인가</div>
+										<lightning-formatted-number value={discountPrice} format-style="decimal" maximum-fraction-digits="0"></lightning-formatted-number>
+									</div>
+									<!-- <lightning-input type="number" label="판매조건 할인가" data-id="salesconditionDiscountAmt"
 																		class="slds-size_1-of-2" readonly value={salesconditionDiscountAmt}></lightning-input>
 									<lightning-input type="number" label="총 할인율(%)" data-id="discountRate"
 																		class="slds-size_1-of-2" readonly value={discountRate} step=".01"></lightning-input>
 									<lightning-input type="number" label="캠페인 할인가" data-id="discountPrice"
-																		class="slds-size_1-of-2" readonly value={discountPrice}></lightning-input>
+																		class="slds-size_1-of-2" readonly value={discountPrice}></lightning-input> -->
 								</div>
-								<lightning-input type="number" label="실 판매가" data-id="realSellPrice" field-level-help="기준가 - (세일즈컨디션 할인가 + 캠페인 할인가)"
-																	class="slds-size_1-of-2 quoteHighlight" readonly value={realSellPrice}></lightning-input>
+								<div class="slds-size_1-of-2 quoteHighlight">
+									<div class="slds-m-vertical_xx-small">실 판매가
+										<lightning-helptext content="기준가 - (세일즈컨디션 할인가 + 캠페인 할인가)" class="slds-m-left_xx-small"></lightning-helptext>
+									</div>
+									<lightning-formatted-number value={realSellPrice} format-style="decimal" maximum-fraction-digits="0"></lightning-formatted-number>
+								</div>
+								<!-- <lightning-input type="number" label="실 판매가" data-id="realSellPrice" field-level-help="기준가 - (세일즈컨디션 할인가 + 캠페인 할인가)"
+																	class="slds-size_1-of-2 quoteHighlight" readonly value={realSellPrice}></lightning-input> -->
 								<div class="quoteSection slds-grid slds-wrap slds-size_1-of-1">
-									<lightning-input type="number" label="계약금"
+									<div class="slds-size_1-of-2">
+										<div class="slds-m-vertical_xx-small">계약금</div>
+										<lightning-formatted-number value="1000000" format-style="decimal" maximum-fraction-digits="0"></lightning-formatted-number>
+									</div>
+									<div class="slds-size_1-of-2">
+										<div class="slds-m-vertical_xx-small">할부금리(%)</div>
+										<lightning-formatted-number value={interestRate} format-style="decimal" maximum-fraction-digits="2"></lightning-formatted-number>
+									</div>
+									<div class="slds-size_1-of-2">
+										<div class="slds-m-vertical_xx-small">인도금
+											<lightning-helptext content="실 판매가 - 대출금 - 계약금" class="slds-m-left_xx-small"></lightning-helptext>
+										</div>
+										<lightning-formatted-number value={downpayment} format-style="decimal" maximum-fraction-digits="0"></lightning-formatted-number>
+									</div>
+									<div class="slds-size_1-of-2">
+										<div class="slds-m-vertical_xx-small">할부기간(개월)</div>
+										<lightning-formatted-number value={duration} format-style="decimal" maximum-fraction-digits="0"></lightning-formatted-number>
+									</div>
+									<div class="slds-size_1-of-2">
+										<div class="slds-m-vertical_xx-small">대출금</div>
+										<lightning-formatted-number value={totalLoan} format-style="decimal" maximum-fraction-digits="0"></lightning-formatted-number>
+									</div>
+									<!-- <lightning-input type="number" label="계약금"
 																		class="slds-size_1-of-2" readonly value="1000000"></lightning-input>
 									<lightning-input type="number" label="할부금리(%)" data-id="interestRate"
 																		class="slds-size_1-of-2" readonly value={interestRate} step=".01"></lightning-input>
@@ -201,10 +245,16 @@
 									<lightning-input type="number" label="할부기간(개월)" data-id="duration"
 																		class="slds-size_1-of-2" readonly value={duration}></lightning-input>
 									<lightning-input type="number" label="대출금" data-id="totalLoan"
-																		class="slds-size_1-of-2" readonly value={totalLoan}></lightning-input>
+																		class="slds-size_1-of-2" readonly value={totalLoan}></lightning-input> -->
 								</div>
-								<lightning-input type="number" label="월 상환금액" data-id="monthlyPayment" field-level-help="할부원금에 대한 원리금균등상환 방식"
-																		class="slds-size_1-of-2 quoteHighlight" readonly value={monthlyPayment}></lightning-input>
+								<div class="slds-size_1-of-2 quoteHighlight">
+									<div class="slds-m-vertical_xx-small">월 상환금액
+										<lightning-helptext content="할부원금에 대한 원리금균등상환 방식" class="slds-m-left_xx-small"></lightning-helptext>
+									</div>
+									<lightning-formatted-number value={monthlyPayment} format-style="decimal" maximum-fraction-digits="0"></lightning-formatted-number>
+								</div>
+								<!-- <lightning-input type="number" label="월 상환금액" data-id="monthlyPayment" field-level-help="할부원금에 대한 원리금균등상환 방식"
+																		class="slds-size_1-of-2 quoteHighlight" readonly value={monthlyPayment}></lightning-input> -->
 							</div>
 						</div>
 					</div>
