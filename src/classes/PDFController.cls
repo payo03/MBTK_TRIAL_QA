@@ -53,7 +53,8 @@ public without sharing class PDFController {
                 Deposit__c, fm_DeliveryPrice__c, AdvancePayment__c,
                 fm_DefermentVAT__c, fm_TotalLoanAmount__c, CapitalDefermentAmount__c, 
                 MonthlyPayment__c, fm_NotarizedFee__c, ConsignmentPrice__c,
-                fm_RegistrationTax__c // financial 금액
+                RegistrationTax__c // financial 금액
+                // fm_RegistrationTax__c // financial 금액
                 FROM Quote 
                 WHERE Id = :recordId];
             acc = [SELECT Id, Name FROM Account WHERE Id = :quote.AccountId];
