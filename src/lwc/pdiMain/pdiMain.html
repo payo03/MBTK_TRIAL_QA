@@ -16,16 +16,15 @@
 								<div class="slds-page-header__name-title">
 									<h1 class="slds-page-header__title slds-truncate">
 										<span>PDI Step</span>
+									</h1>
 										<template if:true={selectedRow}>
 											<template lwc:if={selectedRow.CarColor__c}>
-												<!-- <span>[{selectedRow.Name} / 색상: {selectedRow.CarColor__c}]</span> -->
-												<span>[<lightning-formatted-url value={url} label={selectedRow.Name} target="_blank" ></lightning-formatted-url> / 색상: {selectedRow.CarColor__c} / 미해결 이슈: {selectedRow.fm_UnresolvedIssues__c}건]</span>
+												<span class="slds-text-heading_medium">[<lightning-formatted-url value={url} label={selectedRow.Name} target="_blank" ></lightning-formatted-url> / 워크넘버: {selectedRow.VehicleNo__c} / 미해결 이슈: {selectedRow.fm_UnresolvedIssues__c}건 / 색상: {selectedRow.CarColor__c}]</span>
 											</template>
 											<template lwc:else>
-												<span>[<lightning-formatted-url value={url} label={selectedRow.Name} target="_blank" ></lightning-formatted-url> / 미해결 이슈: {selectedRow.fm_UnresolvedIssues__c}건]</span>
+												<span class="slds-text-heading_medium">[<lightning-formatted-url value={url} label={selectedRow.Name} target="_blank" ></lightning-formatted-url> / 워크넘버: {selectedRow.VehicleNo__c} / 미해결 이슈: {selectedRow.fm_UnresolvedIssues__c}건]</span>
 											</template>
 										</template>
-									</h1>
 								</div>
 							</div>
 						</div>
@@ -91,7 +90,7 @@
 					<!-- RIGHT -->
 					<div class="right-section">
 						<template if:false={isStep0}>
-							<div class="slds-grid slds-grid_align-end slds-p-vertical_x-small" style="width: 80%;">
+							<div class="slds-grid slds-grid_align-end slds-p-vertical_x-small">
 								<ul class="slds-button-group-list">
 									<template if:true={isIssueSave}>
 										<li>

@@ -743,7 +743,8 @@
                     <th>취등록세 (Registration fee)</th>
                     <th style="text-align: right;">
                         <apex:outputText value="{0,number,###,###}">
-                            <apex:param value="{!quote.fm_RegistrationTax__c}" />
+                            <!-- <apex:param value="{!quote.fm_RegistrationTax__c}" /> -->
+                            <apex:param value="{!quote.RegistrationTax__c}" />
                         </apex:outputText>
                     </th>
                     <th></th>

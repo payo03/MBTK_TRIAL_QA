@@ -48,15 +48,15 @@
     <div class="slds-align_absolute-center">
       <lightning-button
         class="slds-m-right_xx-small"
+        label="취소"
+        onclick={handleCancel}>
+      </lightning-button>
+      <lightning-button
         variant="brand"
         label="계약 생성하기"
         onclick={createContract}
         >
       </lightning-button>
-      <lightning-button
-          label="취소"
-          onclick={handleCancel}>
-        </lightning-button>
     </div>
   </lightning-modal-footer>
   <template lwc:if={isLoading}>

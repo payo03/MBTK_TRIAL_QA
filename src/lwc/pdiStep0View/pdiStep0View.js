@@ -8,6 +8,7 @@
   1.0      2025-01-22      payo03@solomontech.net           Created
 */
 import { LightningElement, api, track } from 'lwc';
+import { labelList } from "c/commonUtil";
 
 const columns = [		
     { label: '워크넘버', fieldName: 'VehicleNo__c', hideDefaultActions: 'true' },		
@@ -33,6 +34,8 @@ export default class pdiStep0View extends LightningElement {
     @track data;
     @track selectedId;
     @track searchKey;
+    @track myLabel = labelList;
+    isNoData = false;
     driveDistance;
 
     selectedStockRowList = [];
@@ -74,6 +77,7 @@ export default class pdiStep0View extends LightningElement {
                 ...item,
                 ProductName: item.Product__r ? item.Product__r.Name : ''
             }));
+            this.isNoData = this.data.length === 0 ? true : false;
         }
     }
     get varStockList() {
