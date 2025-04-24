@@ -23,7 +23,11 @@ public class ReleaseScheduleController {
     public void init(){
         docImage1 = PDFCommonController.getDocumentId('MAN_Truck_Bus_Korea_LOGO');
         opportunity = PDFCommonController.getOpportunity(ApexPages.currentPage().getParameters().get('id')).get(0);
-        year = opportunity.VehicleStock__r.Name.length() > 9 ? opportunity.VehicleStock__r.Name.charAt(9) : 0;
+        year = (opportunity.VehicleStock__r != null &&
+                String.isNotBlank(opportunity.VehicleStock__r.Name) &&
+                opportunity.VehicleStock__r.Name.length() > 9)
+                ? opportunity.VehicleStock__r.Name.charAt(9)
+                : 0;
         TotalWeight = opportunity.VehicleStock__r.Product__r.TotalWeight__c == null ? '' : opportunity.VehicleStock__r.Product__r.TotalWeight__c.replace(',','.');
         MaxLoad = opportunity.VehicleStock__r.Product__r.MaxLoad__c == null ? '' : opportunity.VehicleStock__r.Product__r.MaxLoad__c.replace(',','.');
         isNewAddress = PDFCommonController.isNewAddress(opportunity.HandoverDate__c);
@@ -33,7 +37,7 @@ public class ReleaseScheduleController {
         String handoverDate = (String.isBlank(year) || String.isBlank(month) || String.isBlank(day))
                 ? String.valueOf(opportunity?.HandoverDate__c)
                 : year + '-' + month + '-' + day;
-        handOverDateCheck = Date.valueOf(handoverDate) >= System.today();
+        handOverDateCheck = handoverDate != null ? Date.valueOf(handoverDate) >= System.today() : false;
         totalAddress = opportunity?.Account?.fm_TotalAddress__c;
         segment2 = opportunity?.VehicleStock__r?.Product__r?.Segment2__c;
         uzIngam = PDFCommonController.getDocumentId('man_useingam');

@@ -18,10 +18,8 @@ global without sharing class TaxInvoiceSchedulerController {
     final static Integer MAX_NUM = 6;
 
     public static void getVFInfo() {
-        System.debug('getVFInfo INIT ::: ');
 
         String recordId = ApexPages.currentPage().getParameters().get('recordId');
-        System.debug('recordId ::: ' + recordId);
 
         paymentMap = new Map<String, Object>{
             '입금 합계' => 0
@@ -71,13 +69,9 @@ global without sharing class TaxInvoiceSchedulerController {
                     WHERE Id =: handover.PaymentTracker__c
             ];
 
-            System.debug('paymentTracker.PaymentTypes__r ::: ' + paymentTracker.PaymentTypes__r);
-
             Decimal totalPrice = 0;
             Decimal deliveryPrice = 0;
             for (PaymentType__c paymentType : paymentTracker.PaymentTypes__r) {
-                System.debug('payment.Type__c ::: ' + paymentType.Type__c);
-                System.debug('payment.DepositAmount__c ::: ' + paymentType.DepositAmount__c);
                 paymentMap.put(paymentType.Type__c, formatNumber(paymentType.DepositAmount__c));
 
 //                if(paymentType.Type__c == '5_OVER_PAID') { continue; }
@@ -214,7 +208,6 @@ global without sharing class TaxInvoiceSchedulerController {
         Map<String, HandoverDateAllocationHistory__c> resultMap = createHistory(paramMapList);
         List<HandoverDateAllocationHistory__c> insertList = new List<HandoverDateAllocationHistory__c>();
 
-        System.debug('resultMap.values() ::: ' + resultMap.values());
         for(HandoverDateAllocationHistory__c resultHistory : resultMap.values()) {
             if(resultHistory != null) {
                 insertList.add(resultHistory);
@@ -428,7 +421,7 @@ global without sharing class TaxInvoiceSchedulerController {
         String searchSalesAgentName = String.escapeSingleQuotes(filterMap.get('searchSalesAgentName')).trim();
         filterMap.remove('searchAccountName');
         filterMap.remove('searchSalesAgentName');
-        System.debug('filterMap.keySet() ::: ' + filterMap.keySet());
+
         String whereCondition = CommonUtilController.buildWhereConditions(filterMap);
 
         if(searchAccountName.length() != 0) {
@@ -437,14 +430,34 @@ global without sharing class TaxInvoiceSchedulerController {
         if(searchSalesAgentName.length() != 0) {
             whereCondition += ' AND Opportunity__r.Owner.Name LIKE \'%'+ searchSalesAgentName +'%\' ';
         }
-        System.debug('whereCondition :: ' + whereCondition);
 
         return SchedulerMainController.getHandoverData(whereCondition);
     }
 
+//    @AuraEnabled
+//    public static Map<String, Object> generatePdfBlob(String recordId) {
+//
+//        Map<String, Object> resultMap;
+//        try {
+//            // Visualforce 페이지 생성 및 데이터 전달
+//            PageReference pdfPage = Page.DepositReceiptPDF; // Visualforce 페이지 이름
+//            pdfPage.getParameters().put('recordId', recordId);
+//
+//            // PDF 생성
+//            Blob pdfBlob = pdfPage.getContentAsPDF();
+//            String file = EncodingUtil.base64Encode(pdfBlob);
+//
+//            resultMap = new Map<String, Object> {'pdfBase64' => file};
+//
+//        } catch (Exception e) {
+//            System.debug('error ::: ' + e.getStackTraceString());
+//            throw new AuraHandledException('Failed to generate PDF Blob: ' + e.getMessage());
+//        }
+//
+//        return resultMap;
+//    }
     @AuraEnabled
-    public static Map<String, Object> generatePdfBlob(String recordId) {
-        System.debug('generatePdfBlob ::: ' + recordId);
+    public static Map<String, Object> generatePdfBlobSave(String recordId) {
 
         Map<String, Object> resultMap;
         try {
@@ -453,10 +466,66 @@ global without sharing class TaxInvoiceSchedulerController {
             pdfPage.getParameters().put('recordId', recordId);
 
             // PDF 생성
-            Blob pdfBlob = pdfPage.getContentAsPDF();
-            String file = EncodingUtil.base64Encode(pdfBlob);
+            Blob pdfBlob;
+            if (Test.isRunningTest()) {
+                pdfBlob = Blob.valueOf('Dummy PDF data'); // 테스트용 더미 데이터
+            } else {
+                pdfBlob = pdfPage.getContentAsPDF(); // 실제 PDF 생성
+            }
 
-            resultMap = new Map<String, Object> {'pdfBase64' => file};
+            String fileName = '입금 영수증';
+            String pdfBase64 = EncodingUtil.base64Encode(pdfBlob);
+
+            // 1. 해당 레코드에 연결된 동일 이름의 PDF 검색
+            List<ContentDocumentLink> existingLinks = [
+                    SELECT ContentDocumentId,
+                            LinkedEntityId,
+                            ContentDocument.LatestPublishedVersion.Title,
+                            ContentDocument.LatestPublishedVersion.FileExtension
+                    FROM ContentDocumentLink
+                    WHERE LinkedEntityId = :recordId
+            ];
+
+            Set<Id> contentDocIdsToDelete = new Set<Id>();
+            for (ContentDocumentLink link : existingLinks) {
+                if (link.ContentDocument.LatestPublishedVersion.Title.contains(fileName) &&
+                        link.ContentDocument.LatestPublishedVersion.FileExtension == 'pdf') {
+                    contentDocIdsToDelete.add(link.ContentDocumentId);
+                }
+            }
+
+            // 2. 기존 파일 삭제
+            if (!contentDocIdsToDelete.isEmpty()) {
+                delete [SELECT Id FROM ContentDocument WHERE Id IN :contentDocIdsToDelete];
+            }
+
+            // 3. 새 파일 업로드
+            ContentVersion newVersion = new ContentVersion();
+            newVersion.Title = fileName;
+            newVersion.PathOnClient = fileName + '.pdf';
+            newVersion.VersionData = pdfBlob;
+            insert newVersion;
+
+            // 4. ContentDocumentId 조회
+            ContentVersion inserted = [
+                    SELECT Id, ContentDocumentId, ContentDocument.LatestPublishedVersionId
+                    FROM ContentVersion
+                    WHERE Id = :newVersion.Id
+                    LIMIT 1
+            ];
+
+            // 5. 레코드에 연결 (ContentDocumentLink)
+            ContentDocumentLink link = new ContentDocumentLink();
+            link.ContentDocumentId = inserted.ContentDocumentId;
+            link.LinkedEntityId = recordId;
+            link.ShareType = 'V'; // View 권한
+            link.Visibility = 'AllUsers';
+            insert link;
+
+            resultMap = new Map<String, Object> {
+                    'pdfBase64' => pdfBase64
+                    , 'fileId' => inserted.ContentDocumentId
+            };
 
         } catch (Exception e) {
             System.debug('error ::: ' + e.getStackTraceString());
@@ -465,4 +534,6 @@ global without sharing class TaxInvoiceSchedulerController {
 
         return resultMap;
     }
+
+
 }

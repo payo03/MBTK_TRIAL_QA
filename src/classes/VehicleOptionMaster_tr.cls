@@ -35,7 +35,7 @@ public with sharing class VehicleOptionMaster_tr extends TriggerHandler {
     private void updateRequiredField() {
 
         for (VehicleOptionMaster__c newOption : newList) {
-            Boolean isRequired = newOption.Division__c == '필수 옵션' || newOption.Name.contains('No Carefree');
+            Boolean isRequired = newOption.Division__c == '필수 옵션' || newOption.Division__c == '기본제공' || newOption.Name.contains('No Carefree');
 
             // 생성 시 필수체크 필드를 직접 true로 바꾼 경우 제외
             if (Trigger.isInsert && !newOption.IsRequired__c) {

@@ -327,6 +327,8 @@ public without sharing class LeadManagementController {
                 oppty.StageName = 'Quotation';
                 oppty.CloseDate = closeDate;
                 oppty.OwnerId = lead.OwnerId;
+                // 기본으로 실차주는 oppty의 Account로 임시 저장
+                oppty.RealDriverAccount__c = oppty.AccountId;
 
                 opptyMap.put(oppty.AccountId, oppty);
             }

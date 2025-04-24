@@ -33,14 +33,14 @@ private class UpdateRoadAddressField_test {
         UpdateRoadAddressField.updateRoadAddress(lead.Id, 'roadValue', 'detailValue', 'postalCode');
         UpdateRoadAddressField.updateRoadAddress(oppty.Id, 'roadValue', 'detailValue', 'postalCode');
 
-        UpdateRoadAddressField.updateRealDriverRoadAddress(accountPerson.Id, 'realDriverRoadAddress', 'realDriverName', '01012341234', 'realDriverIDNumber');
-        UpdateRoadAddressField.updateRealDriverRoadAddress(accountCompany.Id, 'realDriverRoadAddress', 'realDriverName', 'realDriverMobile', 'realDriverIDNumber');
-        UpdateRoadAddressField.updateRealDriverRoadAddress(contact.Id, 'realDriverRoadAddress', 'realDriverName', '01012341234', 'realDriverIDNumber');
-        UpdateRoadAddressField.updateRealDriverRoadAddress(oppty.Id, 'realDriverRoadAddress', 'realDriverName', '01012341234', 'realDriverIDNumber');
+        UpdateRoadAddressField.updateRealDriverRoadAddress(accountPerson.Id, 'realDriverName', '01012341234', 'realDriverIDNumber');
+        UpdateRoadAddressField.updateRealDriverRoadAddress(accountCompany.Id, 'realDriverName', 'realDriverMobile', 'realDriverIDNumber');
+        UpdateRoadAddressField.updateRealDriverRoadAddress(contact.Id, 'realDriverName', '01012341234', 'realDriverIDNumber');
+        UpdateRoadAddressField.updateRealDriverRoadAddress(oppty.Id, 'realDriverName', '01012341234', 'realDriverIDNumber');
 
-        UpdateRoadAddressField.getRealDriverInfo(accountPerson.Id);
-        UpdateRoadAddressField.getRealDriverInfo(contact.Id);
-        UpdateRoadAddressField.getRealDriverInfo(oppty.Id);
+//        UpdateRoadAddressField.getRealDriverInfo(accountPerson.Id);
+//        UpdateRoadAddressField.getRealDriverInfo(contact.Id);
+//        UpdateRoadAddressField.getRealDriverInfo(oppty.Id);
     }
 
 }

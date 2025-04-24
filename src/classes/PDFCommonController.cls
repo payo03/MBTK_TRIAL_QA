@@ -34,9 +34,10 @@ public without sharing class PDFCommonController {
         String obj_fields = getField(Schema.SObjectType.Opportunity.fields.getMap());
         String selectFields = obj_fields +
                                 ' , Account.Owner.Name, Account.Owner.Department, Account.fm_TotalAddress__c, Account.CompRegNum__c, Account.Owner.Agency__c, Account.Owner.FirstName, Account.Owner.LastName, Account.PostalCode__c, Account.IDNumber__pc, Account.Name, Account.RoadAddress__c, NoMDSApprover__r.Email, Account.LastName,  Account.FirstName, Account.DetailAddress__c, Account.RecordType.Name, Account.PersonMobilePhone,' +
-                                ' Account.BillingCity, Account.RealDriverMobile__pc, Account.RealDriver__pc, Account.BusinessNumber__c, VehicleStock__r.VehicleNo__c,  VehicleStock__r.CarColor__c, VehicleStock__r.EngineNumber__c, VehicleStock__r.WantedOutDT__c, VehicleStock__r.Product__r.ReleaseDate__c, Contract.Quote__c,' +
-                                ' Contract.ContractNumber, VehicleStock__r.Product__c, VehicleStock__r.Product__r.MaxLoad__c, VehicleStock__r.Product__r.PurePriceWscCfx__c,VehicleStock__r.Name,VehicleStock__r.Product__r.TotalWeight__c, VehicleStock__r.Product__r.Name, VehicleStock__r.Product__r.Segment2__c,' +
-                                ' VehicleStock__r.Product__r.VehicleCategory__r.Name, VehicleStock__r.Displacement__c, VehicleStock__r.TaxType__c, VehicleStock__r.EmissionLevelEu__c, VehicleStock__r.HorsePower__c, Campaign.Name, VehicleStock__r.LongtermDiscountRate__c, VehicleStock__r.OptionDiscountRate__c, VehicleStock__r.SpecialDiscountRate__c ';
+                                ' Account.BillingCity, Account.RealDriverMobile__pc, Account.EmailTaxInvoice__c, Account.RealDriver__pc, Account.BusinessNumber__c, VehicleStock__r.VehicleNo__c,  VehicleStock__r.CarColor__c, VehicleStock__r.EngineNumber__c, VehicleStock__r.WantedOutDT__c, VehicleStock__r.Product__r.ReleaseDate__c, Contract.Quote__c,' +
+                                ' Contract.fm_RealSalesPrice__c, Contract.ContractNumber, VehicleStock__r.Product__c,  VehicleStock__r.Product__r.CarAmt__c, VehicleStock__r.Product__r.MaxLoad__c, VehicleStock__r.Product__r.PurePriceWscCfx__c,VehicleStock__r.Name,VehicleStock__r.Product__r.TotalWeight__c, VehicleStock__r.Product__r.Name, VehicleStock__r.Product__r.Segment2__c,' +
+                                ' VehicleStock__r.Product__r.VehicleCategory__r.Name, VehicleStock__r.Displacement__c, VehicleStock__r.TaxType__c, VehicleStock__r.EmissionLevelEu__c, VehicleStock__r.HorsePower__c, Campaign.Name, VehicleStock__r.LongtermDiscountRate__c, VehicleStock__r.OptionDiscountRate__c, VehicleStock__r.SpecialDiscountRate__c,' +
+                                ' TransferAccount__r.Name ';
         //TotOilCouponAmt__c
         String whereConditions = objName == 'Opportunity' ? ' Id =\''+ recordId + '\'' : ' VehicleStock__c = \'' + recordId + '\'';
         String query = CommonUtilController.buildQuery(selectFields, 'Opportunity', whereConditions);
@@ -51,8 +52,8 @@ public without sharing class PDFCommonController {
         String subQueryfields = getField(Schema.SObjectType.PaymentType__c.fields.getMap());
         String selectFields = obj_fields + ' ,Account__r.Name ' +
                             ' , (SELECT ' + subQueryfields + ' FROM PaymentTypes__r ORDER BY CreatedDate ) ';
-        String whereConditions = ' Opportunity__c = \'' + opportunityId + '\'';
-        String query = CommonUtilController.buildQuery(selectFields, 'PaymentTracker__c', whereConditions);
+        String whereConditions = ' Opportunity__c = \'' + opportunityId + '\' AND IsValid__c = true ';
+        String query = CommonUtilController.buildQuery(selectFields, 'PaymentTracker__c', whereConditions, ' CreatedDate DESC ');
 
         return Database.query(query);
     }
@@ -68,12 +69,12 @@ public without sharing class PDFCommonController {
         return Database.query(query);
     }
 
-    // Quote Detail 공통 쿼리
+    // Quote Detail 주유상품권 공통 쿼리
     public static List<QuoteDetail__c> getQuoteDetail(String quoteId){
 
         String obj_fields = getField(Schema.SObjectType.QuoteDetail__c.fields.getMap());
         String selectFields = obj_fields + ' ,CampaignMaster__r.Name ';
-        String whereConditions = ' Quote__c = \'' + quoteId + '\'';
+        String whereConditions = ' Quote__c = \'' + quoteId + '\' and Type__c = \'주유상품권\'';
         String query = CommonUtilController.buildQuery(selectFields, 'QuoteDetail__c', whereConditions);
 
         return Database.query(query);
@@ -121,7 +122,7 @@ public without sharing class PDFCommonController {
         String selectFields = obj_fields + ' ,VehicleOptionMaster__r.Name, VehicleOptionMaster__r.Price__c ';
         String whereConditions = ' Product__c = \'' + productId + '\' and VehicleOptionMaster__r.Division__c ';
                 whereConditions += division == true ? ' = \'' + '기본제공' + '\' ' : ' != \'' + '기본제공' +'\' ';
-        String query = CommonUtilController.buildQuery(selectFields, 'ProductOption__c', whereConditions, 'VehicleOptionMaster__r.Price__c Desc');
+        String query = CommonUtilController.buildQuery(selectFields, 'ProductOption__c', whereConditions, 'VehicleOptionMaster__r.Price__c ASC');
 
         return Database.query(query);
     }
@@ -173,7 +174,6 @@ public without sharing class PDFCommonController {
 
     // Document 공통 쿼리
     public static Id getDocumentId(String documentName){
-
         return  [SELECT Id
                 FROM Document
                 WHERE DeveloperName =:documentName].Id;
