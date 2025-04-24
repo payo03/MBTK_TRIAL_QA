@@ -131,6 +131,7 @@ public without sharing class Lead_tr extends TriggerHandler {
             for(Integer i = 0; i<lockOpptyList.size(); i++) {
                 Opportunity lockOppty = lockOpptyList.get(i);
                 lockOppty.IsLock__c = lockResults.get(i).isSuccess();
+                lockOppty.StageName = 'Closed Lost';
                 System.debug(i + ' lockOppty ::: ' + lockOppty);
                 lockList.add(lockOppty);
             }

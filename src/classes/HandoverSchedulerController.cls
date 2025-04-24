@@ -17,7 +17,7 @@ public without sharing class HandoverSchedulerController {
      * @return HandoverWrap 리스트
      */
     @AuraEnabled
-    public static List<SchedulerMainController.HandoverWrap> getFilteredHandoverList(Map<String, String> filterMap) {
+    public static List<SchedulerMainController.HandoverWrap> getFilteredHandoverList(Map<String, Object> filterMap) {
 
         String whereCondition = filterMap != null ? CommonUtilController.buildWhereConditions(filterMap) : 'Opportunity__r.HandoverDate__c = THIS_MONTH';
 

@@ -109,7 +109,7 @@ public without sharing class Contract_tr extends TriggerHandler {
         for(Quote quote : [
                 SELECT ContractId, Deposit__c, DiscountAmt__c,
                         fm_DeliveryPrice__c, fm_TotalLoanAmount__c, fm_DefermentVAT__c,
-                        Finance__r.SubventionRate__c,
+                        Finance__r.SubventionRate__c, Finance__r.FScompany__c,
                         Opportunity.VATDefermentStatus__c
                 FROM Quote
                 WHERE Id IN :quoteIdSet

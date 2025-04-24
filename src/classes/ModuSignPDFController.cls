@@ -26,12 +26,14 @@ public without sharing class ModuSignPDFController {
         public String ownerFax { get; set; }
 
         public String accountName { get; set; }
+        public String accountRealName { get; set; }
         public String accountPersonMobilePhone { get; set; }
         public String accountPersonEmail { get; set; }
         public String accountRealDriverEmail { get; set; }
         public String accountBusinessNumber { get; set; }
         public String accountIDNumber { get; set; }
         public String accountBusinessCategory { get; set; }
+        public String accountRealBusinessCategory { get; set; }
         public String accountRealDriverAddress { get; set; }
         public String accountRealDriver { get; set; }
         public String accountRealDriverIDNumber { get; set; }
@@ -153,16 +155,23 @@ public without sharing class ModuSignPDFController {
                         Account.Name,
                         Account.PersonMobilePhone,
                         Account.PersonEmail,
-                        Account.RealDriverEmail__pc,
+                        // Account.RealDriverEmail__pc,
                         Account.BusinessNumber__c,
                         Account.IDNumber__pc,
                         Account.BusinessCategory__c,
-                        Account.RealDriverAddress__pc,
+                        // Account.RealDriverAddress__pc,
                         Account.RealDriver__pc,
-                        Account.RealDriverIDNumber__pc,
-                        Account.RealDriverMobile__pc,
+                        // Account.RealDriverIDNumber__pc,
+                        // Account.RealDriverMobile__pc,
                         Account.RoadAddress__c,
                         Opportunity__c,
+                        Opportunity__r.RealDriverAccount__r.Name,
+                        Opportunity__r.RealDriverAccount__r.PersonMobilePhone,
+                        Opportunity__r.RealDriverAccount__r.PersonEmail,
+                        Opportunity__r.RealDriverAccount__r.IDNumber__pc,
+                        Opportunity__r.RealDriverAccount__r.RoadAddress__c,
+                        Opportunity__r.RealDriverAccount__r.BusinessCategory__c,
+                        Opportunity__r.RealDriverAccount__r.LastName,
                         Opportunity__r.PaymentDeferredAmount__c,
                         Opportunity__r.TaxInvoiceDate__c,
                         Opportunity__r.TaxDeferredAmount__c,
@@ -181,7 +190,7 @@ public without sharing class ModuSignPDFController {
                         Quote__r.AdvancePayment__c,
                         Quote__r.MonthlyPayment__c,
                         Quote__r.MonthDivideInputMonth__c,
-                        Quote__r.fm_RegistrationTax__c,
+                        Quote__r.RegistrationTax__c,
                         Quote__r.fm_DeliveryDiscountPrice__c,
                         Quote__r.fm_TotalRealAndSpecialPrice__c,
                         Quote__r.fm_VehicleDiscountPrice__c,
@@ -259,16 +268,18 @@ public without sharing class ModuSignPDFController {
             wrapper.accountName = contract.Account.Name != null ? contract.Account.Name : '';
             wrapper.accountPersonMobilePhone = contract.Account.PersonMobilePhone != null ? contract.Account.PersonMobilePhone : '';
             wrapper.accountPersonEmail = contract.Account.PersonEmail != null ? contract.Account.PersonEmail : '';
-            wrapper.accountRealDriverEmail = contract.Account.RealDriverEmail__pc != null ? contract.Account.RealDriverEmail__pc : '';
             wrapper.accountBusinessNumber = contract.Account.BusinessNumber__c != null ? contract.Account.BusinessNumber__c : '';
             wrapper.accountIDNumber = contract.Account.IDNumber__pc != null ? contract.Account.IDNumber__pc : '';
             wrapper.accountBusinessCategory = contract.Account.BusinessCategory__c != null ? contract.Account.BusinessCategory__c : '';
-            wrapper.accountRealDriverAddress = contract.Account.RealDriverAddress__pc != null ? contract.Account.RealDriverAddress__pc : '';
-            wrapper.accountRealDriver = contract.Account.RealDriver__pc != null ? contract.Account.RealDriver__pc : '';
-            wrapper.accountRealDriverIDNumber = contract.Account.RealDriverIDNumber__pc != null ? contract.Account.RealDriverIDNumber__pc : '';
-            wrapper.accountRealDriverMobile = contract.Account.RealDriverMobile__pc != null ? contract.Account.RealDriverMobile__pc : '';
             wrapper.accountRoadAddress = contract.Account.RoadAddress__c != null ? contract.Account.RoadAddress__c : '';
-
+            
+            wrapper.accountRealName = contract.Opportunity__r.RealDriverAccount__r.Name != null ? contract.Opportunity__r.RealDriverAccount__r.Name : '';
+            wrapper.accountRealDriverEmail = contract.Opportunity__r.RealDriverAccount__r.PersonEmail != null ? contract.Opportunity__r.RealDriverAccount__r.PersonEmail : '';
+            wrapper.accountRealBusinessCategory = contract.Opportunity__r.RealDriverAccount__r.BusinessCategory__c != null ? contract.Opportunity__r.RealDriverAccount__r.BusinessCategory__c : '';
+            wrapper.accountRealDriverAddress = contract.Opportunity__r.RealDriverAccount__r.RoadAddress__c != null ? contract.Opportunity__r.RealDriverAccount__r.RoadAddress__c : '';
+            wrapper.accountRealDriver = contract.Opportunity__r.RealDriverAccount__r.LastName != null ? contract.Opportunity__r.RealDriverAccount__r.LastName : '';
+            wrapper.accountRealDriverIDNumber = contract.Opportunity__r.RealDriverAccount__r.IDNumber__pc != null ? contract.Opportunity__r.RealDriverAccount__r.IDNumber__pc : '';
+            wrapper.accountRealDriverMobile = contract.Opportunity__r.RealDriverAccount__r.PersonMobilePhone != null ? contract.Opportunity__r.RealDriverAccount__r.PersonMobilePhone : '';
             wrapper.opportunityTaxDeferredAmount = contract.Opportunity__r.TaxDeferredAmount__c != null ? contract.Opportunity__r.TaxDeferredAmount__c : 0;
             wrapper.opportunityPaymentDeferredAmount = contract.Opportunity__r.PaymentDeferredAmount__c != null ? contract.Opportunity__r.PaymentDeferredAmount__c : 0;
             wrapper.opportunityOwnerName = contract.Opportunity__r.Owner.Name != null ? contract.Opportunity__r.Owner.Name : '';
@@ -278,7 +289,7 @@ public without sharing class ModuSignPDFController {
             wrapper.quoteTotalLoanAmount = contract.Quote__r.fm_TotalLoanAmount__c != null ? contract.Quote__r.fm_TotalLoanAmount__c : 0;
             wrapper.quoteOilCouponPrice = contract.Quote__r.ru_OilCouponPrice__c != null ? contract.Quote__r.ru_OilCouponPrice__c : 0;
             wrapper.quoteDefaultInterestRate = contract.Quote__r.DefaultInterestRate__c != null ? contract.Quote__r.DefaultInterestRate__c : 0;
-            wrapper.quoteRegistrationTax = contract.Quote__r.fm_RegistrationTax__c != null ? contract.Quote__r.fm_RegistrationTax__c : 0;
+            wrapper.quoteRegistrationTax = contract.Quote__r.RegistrationTax__c != null ? contract.Quote__r.RegistrationTax__c : 0;
             wrapper.quoteConsignmentPrice = contract.Quote__r.ConsignmentPrice__c != null ? contract.Quote__r.ConsignmentPrice__c : 0;
             wrapper.quoteCapitalDefermentAmount = contract.Quote__r.CapitalDefermentAmount__c != null ? contract.Quote__r.CapitalDefermentAmount__c : 0;
             wrapper.quoteDeliveryDiscountPrice = contract.Quote__r.fm_DeliveryDiscountPrice__c != null ? contract.Quote__r.fm_DeliveryDiscountPrice__c : 0;
@@ -389,8 +400,7 @@ public without sharing class ModuSignPDFController {
     public static Map<String, Object> getAccountInfo(String recordId) {
         Map<String, Object> returnMap = new Map<String, Object>();
         Account account = [
-                SELECT Id, Name, Phone, RoadAddress__c, DetailAddress__c, PostalCode__c, PersonMobilePhone, RecordType.DeveloperName,
-                (SELECT Id, Name, RoadAddress__c, DetailAddress__c, PostalCode__c, MobilePhone, RealDriverMobile__c, RealDriver__c, RealDriverAddress__c FROM Contacts)
+                SELECT Id, Name, Phone, RoadAddress__c, DetailAddress__c, PostalCode__c, PersonMobilePhone
                 FROM Account
                 WHERE Id IN (SELECT AccountId FROM Contract WHERE Id = :recordId)
                 LIMIT 1
@@ -402,13 +412,26 @@ public without sharing class ModuSignPDFController {
                 LIMIT 1
         ];
         Contract contractInfo = [
-                SELECT Id, Opportunity__r.NoMDSStatus__c
+                SELECT Id, Opportunity__r.NoMDSStatus__c, Opportunity__r.RealDriverAccount__c
                 FROM Contract
                 WHERE Id = :recordId
                 LIMIT 1
         ];
 
+        Account realDriver;
+        if(contractInfo.Opportunity__r.RealDriverAccount__c == null) {
+            realDriver = account;
+        } else {
+            realDriver = [
+                    SELECT Id, Name, Phone, RoadAddress__c, DetailAddress__c, PostalCode__c, PersonMobilePhone
+                    FROM Account
+                    WHERE Id = :contractInfo.Opportunity__r.RealDriverAccount__c
+                    LIMIT 1
+            ];
+        }
+
         returnMap.put('account', account);
+        returnMap.put('realDriver', realDriver);
         returnMap.put('internalUser', internalUser);
         returnMap.put('opptyInfo', contractInfo.Opportunity__r);
         return returnMap;
@@ -518,6 +541,7 @@ public without sharing class ModuSignPDFController {
     @Future(Callout=true)
     private static void asyncModuSignAndKakao(String recordId, String selectedOption, Map<String, String> signInfo, String language ) {
         System.debug('asyncGeneratePdfBlob ::: ' + recordId);
+        System.debug('signInfo ::: ' + JSON.serialize(signInfo));
 
         Map<String, String> fileNameMap = new Map<String, String> {
                 'all' => '계약서 + RIO & MDS'
@@ -578,7 +602,7 @@ public without sharing class ModuSignPDFController {
                 //this.recordId, this.selectedRowInfo["Id"], this.selectedOption
                 Map<Object, Object> infoMap = new Map<Object, Object>{
                         'recordId' => signInfo.get('Id')
-                        , 'customerType' => '실차주'.equals(signInfo.get('Info')) ? 'realdriver' : 'owner'
+//                        , 'customerType' => '실차주'.equals(signInfo.get('Info')) ? 'realdriver' : 'owner'
                 };
 
                 Map<String, Object> paramMap = new Map<String, Object>{
@@ -608,7 +632,8 @@ public without sharing class ModuSignPDFController {
             };
             APIDocument__c failDocument = InterfaceModuSign.createDocument(JSON.serialize(errorMap));
             failDocument.Description__c = '해당 번호는 화이트리스트에 포함되지 않습니다.';
-            failDocument.Destination__c = signInfo.get('MobilePhone');
+//            failDocument.Destination__c = signInfo.get('MobilePhone');
+            failDocument.Destination__c = signInfo.get('PersonMobilePhone');
             failDocument.ExternalId__c = recordId;
             failDocument.Contract__c = recordId;
             insert failDocument;
@@ -676,7 +701,7 @@ public without sharing class ModuSignPDFController {
         IF_DTO.SigningMethod signingMethodMain = new IF_DTO.SigningMethod();
         signingMethodMain.type = 'KAKAO';
         // TODO :: 화이트리스트 반영 필요
-        String phoneNumber = signInfo.get('MobilePhone').replace('-', '');
+        String phoneNumber = signInfo.get('PersonMobilePhone').replace('-', '');
         signingMethodMain.value = phoneNumber;
         // 테스트 중 사고 방지를 위해 01098868298 으로 고정
 //        signingMethodMain.value = '01098868298';
@@ -704,7 +729,8 @@ public without sharing class ModuSignPDFController {
 
         participantMain.locale = 'ko';
         participantMain.signingDuration = InterfaceModuSign.getSmallestValueDefault();
-        participantMain.role = signInfo.get('Info');
+//        participantMain.role = signInfo.get('Info');
+        participantMain.role = '고객';
         participantMain.name = signInfo.get('Name');
         participantMain.signingOrder = 1;
         participantMain.signingMethod = signingMethodMain;
@@ -806,13 +832,13 @@ public without sharing class ModuSignPDFController {
             List<String> RequesterInputValuesLarge = new List<String>{
                     account.Name                == null ? '' : account.Name,                        // RIO 회사
                     signInfo.get('Name') == null ? '' : signInfo.get('Name'),                       // RIO 이름
-                    signInfo.get('RoadAddress') == null ? '' : signInfo.get('RoadAddress'),         // RIO 도로명
+                    signInfo.get('RoadAddress__c') == null ? '' : signInfo.get('RoadAddress__c'),         // RIO 도로명
                     '',                                                                             // RIO 이메일 주소
                     account.BusinessNumber__c   == null ? '' : account.BusinessNumber__c,           // RIO 사업자등록번호
                     '',                                                                             // RIO 성
                     '',                                                                             // RIO 건물번호
                     '대한민국',                                                                      // RIO 국가명
-                    signInfo.get('MobilePhone') == null ? '' : signInfo.get('MobilePhone'),         // RIO 전화번호
+                    signInfo.get('PersonMobilePhone') == null ? '' : signInfo.get('PersonMobilePhone'),         // RIO 전화번호
                     quote.Product__r.Name       == null ? '' : quote.Product__r.Name                // MDS 차종
             };
 
@@ -830,9 +856,9 @@ public without sharing class ModuSignPDFController {
                     new IF_DTO.Position(0.2085, 0.0905, MDS_PAGE)   // MDS 구입장소
             };
             List<String> RequesterInputValuesSmall = new List<String>{
-                    signInfo.get('PostalCode')   == null ? '' : signInfo.get('PostalCode'),         // RIO 우편번호
+                    signInfo.get('PostalCode__c')   == null ? '' : signInfo.get('PostalCode__c'),         // RIO 우편번호
 //                    contact.RoadAddress__c  == null ? '' : contact.RoadAddress__c.split(' ')[0],    // RIO 도시명
-                    signInfo.get('RoadAddress') == null ? '' : signInfo.get('RoadAddress').split(' ')[0],       // RIO 도시명
+                    signInfo.get('RoadAddress__c') == null ? '' : signInfo.get('RoadAddress__c').split(' ')[0],       // RIO 도시명
                     user.Name               == null ? '' : user.Name,                               // RIO 판매담당자 이름
                     '',                                                                             // RIO 판매담당자 성
                     '',                                                                             // RIO 판매담당자 사원번호

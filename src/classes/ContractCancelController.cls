@@ -82,20 +82,20 @@ public without sharing class ContractCancelController {
             opp.ContractId = null;
             if(type == 'closedLost' || type == 'returnVehicle') {
                 opp.StageName = 'Closed Lost';
+                //ver1.1 계약 취소시 취소 사유 입력
+                if (selectedValues.containsKey('CompetitorSelection__c')) {
+                    opp.CompetitorSelection__c = String.join(selectedValues.get('CompetitorSelection__c'), ';');
+                }
+                if (selectedValues.containsKey('EconomicReasons__c')) {
+                    opp.EconomicReasons__c = String.join(selectedValues.get('EconomicReasons__c'), ';');
+                }
+                if (selectedValues.containsKey('PersonalReasons__c')) {
+                    opp.PersonalReasons__c = String.join(selectedValues.get('PersonalReasons__c'), ';');
+                }
+                if (selectedValues.containsKey('TechnicalReasons__c')) {
+                    opp.TechnicalReasons__c = String.join(selectedValues.get('TechnicalReasons__c'), ';');
+                }        
             }
-            //ver1.1
-            if (selectedValues.containsKey('CompetitorSelection__c')) {
-                opp.CompetitorSelection__c = String.join(selectedValues.get('CompetitorSelection__c'), ';');
-            }
-            if (selectedValues.containsKey('EconomicReasons__c')) {
-                opp.EconomicReasons__c = String.join(selectedValues.get('EconomicReasons__c'), ';');
-            }
-            if (selectedValues.containsKey('PersonalReasons__c')) {
-                opp.PersonalReasons__c = String.join(selectedValues.get('PersonalReasons__c'), ';');
-            }
-            if (selectedValues.containsKey('TechnicalReasons__c')) {
-                opp.TechnicalReasons__c = String.join(selectedValues.get('TechnicalReasons__c'), ';');
-            }        
             if(targetContract.ApprovalStatus__c == '제출됨') {
                 //계약에 걸려있는 승인 프로세스 회수됨으로 변경
                 ProcessInstanceWorkitem pendingContract = [

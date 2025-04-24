@@ -44,7 +44,7 @@ private class TaxInvoiceSchedulerController_test {
         TaxInvoiceSchedulerController.insertHandoverDateAllocationHistory(Date.today(), oppty.Id, vehicleStock.Id);
         TaxInvoiceSchedulerController.getFilteredHandoverList(filterMap);
         try {
-            TaxInvoiceSchedulerController.generatePdfBlob(handover.Id);
+            TaxInvoiceSchedulerController.generatePdfBlobSave(handover.Id);
         } catch(Exception e) {
             System.debug('Expected exception: ' + e.getMessage());
             Blob pdfBlob = Blob.valueOf('Mock PDF Data');
