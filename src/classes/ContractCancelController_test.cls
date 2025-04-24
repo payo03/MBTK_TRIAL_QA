@@ -12,12 +12,25 @@ private class ContractCancelController_test {
     static final Opportunity opportunity;
     static final Contract contract;
     static final List<PDIStep__c> pdiStepList;
+    static final Map<String, List<String>> selectedValue = new Map<String, List<String>>();
 
     static {
         TestObjectBuilder.createObjects();
         opportunity = TestObjectBuilder.opportunity;
         contract = TestObjectBuilder.contract;
         pdiStepList = TestObjectBuilder.pdiStepList;
+        List<String> value1 = new List<String>();
+        value1.add('볼보 Volvo');
+        List<String> value2 = new List<String>();
+        value2.add('차량가격 Price');
+        List<String> value3 = new List<String>();
+        value3.add('브랜드 인지도 Brand Loyalty');
+        List<String> value4 = new List<String>();
+        value4.add('차량 스펙 Vehicle Specification');
+        selectedValue.put('CompetitorSelection__c', value1);
+        selectedValue.put('EconomicReasons__c', value2);
+        selectedValue.put('PersonalReasons__c', value3);
+        selectedValue.put('TechnicalReasons__c', value4);
     }
 
     @isTest
@@ -28,12 +41,25 @@ private class ContractCancelController_test {
     }
 
     @isTest
+    static void testGetPicklistValues() {
+        List<String> fieldNames = new List<String>();
+        fieldNames.add('CompetitorSelection__c');
+        fieldNames.add('EconomicReasons__c');
+        fieldNames.add('PersonalReasons__c');
+        fieldNames.add('TechnicalReasons__c');
+
+        Test.startTest();
+        ContractCancelController.getPicklistValues('Opportunity', fieldNames);
+        Test.stopTest();
+    }
+
+    @isTest
     static void testCancelByCase1() {
         opportunity.ContractId = contract.Id;
         update opportunity;
 
         Test.startTest();
-        ContractCancelController.cancelByCase('Renegotiation', opportunity.Id);
+        ContractCancelController.cancelByCase('Renegotiation', opportunity.Id, selectedValue);
         Test.stopTest();
     }
 
@@ -43,7 +69,7 @@ private class ContractCancelController_test {
         update opportunity;
 
         Test.startTest();
-        ContractCancelController.cancelByCase('closedLost', opportunity.Id);
+        ContractCancelController.cancelByCase('closedLost', opportunity.Id, selectedValue);
         Test.stopTest();
     }
 
@@ -53,7 +79,7 @@ private class ContractCancelController_test {
         update opportunity;
 
         Test.startTest();
-        ContractCancelController.cancelByCase('returnVehicle', opportunity.Id);
+        ContractCancelController.cancelByCase('returnVehicle', opportunity.Id, selectedValue);
         Test.stopTest();
     }
 }

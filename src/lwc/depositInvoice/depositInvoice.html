@@ -30,16 +30,16 @@
   <lightning-modal-footer>
     <div class="slds-size_1-of-1 slds-align_absolute-center">
       <lightning-button
+        class="slds-m-right_xx-small"
+        label="취소"
+        onclick={handleCancel}
+        >
+      </lightning-button>
+      <lightning-button
         variant="brand"
         class="slds-m-right_xx-small"
         label="계약금 요청 전송"
         onclick={sendDeposit}
-        >
-      </lightning-button>
-      <lightning-button
-        class="slds-m-right_xx-small"
-        label="취소"
-        onclick={handleCancel}
         >
       </lightning-button>
       <!-- <lightning-button

@@ -95,7 +95,6 @@
                 </div>
 
                 <div class="slds-m-vertical_small">
-                    <!-- <div style="overflow-x: auto; overflow-y: auto; width: 100%; max-width: 100%; max-height: 500px;"> -->
                     <div class="custom-scroll">
                         <lightning-datatable
                             class="custom-datatable"
@@ -107,11 +106,14 @@
                             data-id="master">
                             <!-- hide-checkbox-column = "true" -->
                         </lightning-datatable>
+                        
+                        <!-- <template lwc:if={isNoData}>
+                            <div class="slds-p-around_small">조건에 맞는 데이터가 없습니다.</div>
+                        </template> -->
+                        <template lwc:if={isNoData}>
+                            <div class="slds-p-around_small">{myLabel.EmptyResult}</div>
+                        </template>
                     </div>
-
-                    <template lwc:if={isNoData}>
-                        <div class="slds-p-around_small">조건에 맞는 데이터가 없습니다.</div>
-                    </template>
                 </div>
             </div>
         </div>
@@ -138,7 +140,7 @@
                             data-id="payment">
                         </lightning-datatable>
                         <template lwc:if={ispaymentData}>
-                            <div class="slds-p-around_small">입금현황 종류가 존재하지 않습니다.</div>
+                            <div class="slds-p-around_small">{myLabel.EmptyResult}</div>
                         </template>
                     </div>
                 </div>

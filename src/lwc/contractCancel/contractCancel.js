@@ -79,7 +79,6 @@ export default class ContractCancel extends NavigationMixin(LightningElement) {
   handleChange(e) {
     const fieldName = e.target.name; // dual-listbox의 name 속성으로 필드명 지정
     this.selectedValues[fieldName] = e.detail.value;
-    console.log('선택값 :: ' + JSON.stringify(this.selectedValues));
   }
 
   //선택 취소
@@ -97,6 +96,11 @@ export default class ContractCancel extends NavigationMixin(LightningElement) {
   //계약 취소 실행
   handleCancelContract() {
     this.isLoading = true;
+    if(this.selectedValues.length == 0) {
+      showToast("취소 사유 미선택", "취소 사유를 하나 이상 선택해주세요.", "warning");
+      this.isLoading = false;
+      return;
+    }
     cancelByCase({ type: "closedLost", opptyId: this.recordId, selectedValues: this.selectedValues })
       .then((result) => {
         console.log("result :: ", result);
