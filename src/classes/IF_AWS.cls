@@ -38,11 +38,6 @@ global without sharing class IF_AWS {
         System.debug(requestBody);
 
         IF_DTO.LoanResponseInfo responseInfo = (IF_DTO.LoanResponseInfo) JSON.deserialize(requestBody, IF_DTO.LoanResponseInfo.class);
-        Quote quote = [
-                SELECT Id, OpportunityId
-                FROM Quote
-                WHERE Id =: responseInfo.quote_id
-        ];
 
         String responseMessage;
         try {
@@ -50,8 +45,13 @@ global without sharing class IF_AWS {
             responseTime = Datetime.now();
             responseMessage = JSON.serialize(responseInfo);
 
-
-
+            /*
+            Quote quote = [
+                    SELECT Id, OpportunityId
+                    FROM Quote
+                    WHERE Id =: responseInfo.quote_id
+            ];
+            */
 
             response.statusCode = 200;
             response.responseBody = Blob.valueOf(responseMessage);
