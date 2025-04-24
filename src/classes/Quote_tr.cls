@@ -4,25 +4,41 @@
  * @description : 견적 트리거 핸들러
  * @target : Quote
 ==============================================================
- * Ver          Date            Author          Modification
- * 1.0          2025-01-06      th.kim          Created
+ * Ver          Date            Author                  Modification
+ * 1.0          2025-01-06      th.kim                  Created
+ * 1.1          2025-04-23      payo03@solomontech.net  대출승인여부 Update Validation
 **************************************************************/
 public with sharing class Quote_tr extends TriggerHandler {
 
+    private final static Map<Id, Profile> PROFILE_MAP = new Map<Id, Profile>([
+            SELECT Id
+            FROM Profile
+            WHERE Name IN ('System Administrator', '시스템 관리자', 'Salesforce API Only System Integrations')
+    ]);
     private final List<Quote> newList { get; set; }
     private final List<Quote> oldList { get; set; }
     private final Map<Id, Quote> newMap { get; set; }
     private final Map<Id, Quote> oldMap { get; set; }
+    private final User curUser { get; set; }
 
     public Quote_tr() {
         newList = Trigger.new;
         oldList = Trigger.old;
         newMap = (Map<Id, Quote>) Trigger.newMap;
         oldMap = (Map<Id, Quote>) Trigger.oldMap;
+        curUser = [
+                SELECT Id, ProfileId
+                FROM User
+                WHERE Id = :UserInfo.getUserId()
+        ];
     }
 
     public override void beforeInsert() {
         setName();
+    }
+
+    public override void beforeUpdate() {
+        doSetDefaultValues();   // ver1.1 대출승인여부 Update Validation
     }
 
     public override void afterUpdate() {
@@ -141,6 +157,33 @@ public with sharing class Quote_tr extends TriggerHandler {
             }
             System.debug('opportunityList'+opportunityList);
             if(!opportunityList.isEmpty()) update opportunityList;
+        }
+    }
+
+    // ver1.1 대출승인여부 Update Validation
+    private void doSetDefaultValues() {
+        Map<Id, Quote> financeMap = new Map<Id, Quote>([
+                SELECT Id, Finance__r.FScompany__c
+                FROM Quote
+                WHERE Id IN :newMap.keySet()
+        ]);
+
+        for(Quote newQuote : newList) {
+            Quote oldQuote = oldMap.get(newQuote.Id);
+            String company = financeMap.get(newQuote.Id).Finance__r.FScompany__c;
+            /*
+                대출승인여부 승인 Update조건
+                1. 대출승인여부 Update했을때
+                2. 대출사 MFS일경우
+                3. Update진행자 Validation (Admin, IF계정)
+            */
+            if (
+                newQuote.IsApproveLoan__c != oldQuote.IsApproveLoan__c &&
+                'MFS'.equals(company) &&
+                !PROFILE_MAP.keySet().contains(curUser.ProfileId)
+            ) {
+                newQuote.addError('(MFS) 대출승인여부는 임의변경이 불가능합니다');
+            }
         }
     }
 }

@@ -6,6 +6,7 @@
   Ver      Date            Author           Modification
   ===================================================================================
   1.0      2024-12-17      jh.jung           Created
+  1.0      2025-04-23      jh.jung           updateRealDriverRoadAddress / 실차주 -> Account 생성으로 변경
 */
 public with sharing class UpdateRoadAddressField {
 
@@ -14,7 +15,7 @@ public with sharing class UpdateRoadAddressField {
 
         System.debug('updateRoadAddress ::: ');
 
-        // objectType ::: Account, Contact, Lead
+        // objectType ::: Account, Lead
         String objectType = recordId.getSobjectType().getDescribe().getName();
         Savepoint sp = Database.setSavepoint();
 
@@ -25,21 +26,8 @@ public with sharing class UpdateRoadAddressField {
                     accountRecord.RoadAddress__c = roadValue;
                     accountRecord.DetailAddress__c = detailValue;
                     accountRecord.PostalCode__c = postalCode;
-                    if(accountRecord.IsPersonAccount) {
-                        accountRecord.RoadAddress__pc = roadValue;
-                        accountRecord.DetailAddress__pc = detailValue;
-                        accountRecord.PostalCode__pc = postalCode;
-                    }
                     update accountRecord;
 //                    CommonUtilController.applyObject(new List<Account> {accountRecord}, 'UPDATE');
-                }
-                when 'Contact' {
-                    Contact contactRecord = [SELECT Id, RoadAddress__c, DetailAddress__c, PostalCode__c FROM Contact WHERE Id = :recordId LIMIT 1];
-                    contactRecord.RoadAddress__c = roadValue;
-                    contactRecord.DetailAddress__c = detailValue;
-                    contactRecord.PostalCode__c = postalCode;
-                    update contactRecord;
-//                    CommonUtilController.applyObject(new List<Contact> {contactRecord}, 'UPDATE');
                 }
                 when 'Lead' {
                     Lead leadRecord = [SELECT Id, RoadAddress__c, DetailAddress__c, PostalCode__c FROM Lead WHERE Id = :recordId LIMIT 1];
@@ -64,63 +52,37 @@ public with sharing class UpdateRoadAddressField {
 
         return false;
     }
+
+    // 사용위치 : Oppty
+    // 실차주를 Account로 생성으로 변경하고 Oppty에 룩업 바꿔주기 (4/23)
     @AuraEnabled
-    public static Boolean updateRealDriverRoadAddress(Id recordId, String realDriverRoadAddress, String realDriverName, String realDriverMobile, String realDriverIDNumber) {
+//    public static Boolean updateRealDriverRoadAddress(Id recordId, String realDriverRoadAddress, String realDriverName, String realDriverMobile, String realDriverIDNumber) {
+    public static Boolean updateRealDriverRoadAddress(Id recordId, String realDriverName, String realDriverMobile, String realDriverIDNumber) {
 
-        System.debug('updateRealDriverRoadAddress ::: ');
+        System.debug('updateRealDriverRoadAddress ::: ' + recordId);
 
-        // objectType ::: Account, Contact
+        // objectType ::: Account, Opportunity
         String objectType = recordId.getSobjectType().getDescribe().getName();
         Savepoint sp = Database.setSavepoint();
 
         try {
             switch on objectType {
-                when 'Account' {
-                    Account accountRecord = [
-                            SELECT Id, IsPersonAccount, RealDriver__pc, RealDriverAddress__pc, RealDriverMobile__pc, RealDriverIDNumber__pc
-                            FROM Account
+                when 'Opportunity' {
+                    // Account를 만들고 해당 Account를 부모로 가지는 실차주 Account를 생성
+                    Account realDriverAccount = new Account();
+                    realDriverAccount.LastName = realDriverName;
+                    realDriverAccount.PersonMobilePhone = realDriverMobile;
+                    realDriverAccount.IDNumber__pc = realDriverIDNumber;
+                    realDriverAccount.AccountType__c = '실차주';
+                    insert realDriverAccount;
+
+                    Opportunity oppty = [
+                            SELECT Id, RealDriverAccount__c
+                            FROM Opportunity
                             WHERE Id = :recordId
-                            LIMIT 1
                     ];
-                    // 개인 계정 : __pc 수정 -> contact에도 자동 반영
-                    if (accountRecord.IsPersonAccount) {
-                        accountRecord.RealDriver__pc            = realDriverName;
-                        accountRecord.RealDriverAddress__pc     = realDriverRoadAddress;
-                        accountRecord.RealDriverMobile__pc      = realDriverMobile;
-                        accountRecord.RealDriverIDNumber__pc    = realDriverIDNumber;
-                        update accountRecord;
-//                        CommonUtilController.applyObject(new List<Account> {accountRecord}, 'UPDATE');
-                    }
-                    // 법인 계정 : contact을 직접 생성
-                    else {
-                        Contact contact = new Contact();
-                        contact.LastName        = realDriverName;
-                        contact.RoadAddress__c  = realDriverRoadAddress;
-                        contact.MobilePhone     = realDriverMobile;
-                        contact.IDNumber__c     = realDriverIDNumber;
-                        contact.AccountId       = recordId;
-                        insert contact;
-//                        CommonUtilController.applyObject(new List<Contact> {contact}, 'INSERT');
-                    }
-                }
-                when 'Contact' {
-                    Contact contactRecord = [
-                            SELECT Id, Name, RoadAddress__c, MobilePhone, IDNumber__c
-//                                    RealDriver__c, RealDriverAddress__c, RealDriverMobile__c, RealDriverIDNumber__c
-                            FROM Contact
-                            WHERE Id = :recordId
-                            LIMIT 1
-                    ];
-                    contactRecord.LastName          = realDriverName;
-                    contactRecord.RoadAddress__c    = realDriverRoadAddress;
-                    contactRecord.MobilePhone       = realDriverMobile;
-                    contactRecord.IDNumber__c       = realDriverIDNumber;
-//                    contactRecord.RealDriver__c = realDriverName;
-//                    contactRecord.RealDriverAddress__c = realDriverRoadAddress;
-//                    contactRecord.RealDriverMobile__c = realDriverMobile;
-//                    contactRecord.RealDriverIDNumber__c = realDriverIDNumber;
-                    update contactRecord;
-//                    CommonUtilController.applyObject(new List<Contact> {contactRecord}, 'UPDATE');
+                    oppty.RealDriverAccount__c = realDriverAccount.Id;
+                    update oppty;
                 }
                 when else {
                     return false;
@@ -137,29 +99,4 @@ public with sharing class UpdateRoadAddressField {
 
         return false;
     }
-
-    @AuraEnabled
-    public static Map<String, String> getRealDriverInfo(Id recordId) {
-        System.debug('getRealDriverInfo ::: ');
-
-        Map<String, String> resultMap = new Map<String, String>();
-        String objectType = recordId.getSobjectType().getDescribe().getName();
-        if(objectType.equals('Account')) {
-            Account accountRecord = [SELECT Id, RealDriver__pc, RealDriverAddress__pc, RealDriverMobile__pc, RealDriverIDNumber__pc FROM Account WHERE Id = :recordId LIMIT 1];
-            resultMap.put('RealDriver', accountRecord.RealDriver__pc);
-            resultMap.put('RealDriverAddress', accountRecord.RealDriverAddress__pc);
-            resultMap.put('RealDriverMobile', accountRecord.RealDriverMobile__pc);
-            resultMap.put('RealDriverIDNumber', accountRecord.RealDriverIDNumber__pc);
-        } else if(objectType.equals('Contact')) {
-            Contact contactRecord = [SELECT Id, RealDriver__c, RealDriverAddress__c, RealDriverMobile__c, RealDriverIDNumber__c FROM Contact WHERE Id = :recordId LIMIT 1];
-            resultMap.put('RealDriver', contactRecord.RealDriver__c);
-            resultMap.put('RealDriverAddress', contactRecord.RealDriverAddress__c);
-            resultMap.put('RealDriverMobile', contactRecord.RealDriverMobile__c);
-            resultMap.put('RealDriverIDNumber', contactRecord.RealDriverIDNumber__c);
-        } else {
-            return null;
-        }
-        return resultMap;
-    }
-
 }

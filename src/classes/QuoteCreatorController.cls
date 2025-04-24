@@ -250,6 +250,7 @@ public without sharing class QuoteCreatorController {
             quote.ConsignmentPrice__c = extraExpenses.consignment;
             quote.InsurancePrice__c = extraExpenses.insurance;
             quote.StampDuty__c = extraExpenses.stampDuty;
+            quote.RegistrationTax__c = extraExpenses.registrationTax;
             quote.TotalVehiclePrice__c = summaryData.get('totalPrice');
             quote.MonthlyPayment__c = summaryData.get('monthlyPayment');
 
@@ -487,7 +488,7 @@ public without sharing class QuoteCreatorController {
             }
 
             FinancialWrap financialWrap = new FinancialWrap(financeId, financialName, quote.AdvancePayment__c, quote.DefaultInterestRate__c, quote.MonthDivideInputMonth__c, quote.Deposit__c, quote.CapitalDefermentAmount__c, null, null, quote.InterestDefermentVAT__c);
-            ExtraExpensesWrap extraExpensesWrap = new ExtraExpensesWrap(quote.ConsignmentPrice__c, quote.InsurancePrice__c, quote.StampDuty__c, null, null/*, quote.RegistrationTax__c*/);
+            ExtraExpensesWrap extraExpensesWrap = new ExtraExpensesWrap(quote.ConsignmentPrice__c, quote.InsurancePrice__c, quote.StampDuty__c, null, null, quote.RegistrationTax__c);
 
             return new Map<String, Object>{
                 'name' => quote.Name,
@@ -586,7 +587,7 @@ public without sharing class QuoteCreatorController {
 
         List<Quote> quoteList = [
             SELECT Id, Name, Status, OpportunityId, SalesconditionDiscountAmt__c, DefaultInterestRate__c, MonthDivideInputMonth__c, DiscountAmt__c,
-                Product__c, Finance__c, Finance__r.Name, ConsignmentPrice__c, InsurancePrice__c, VehicleStock__c,
+                Product__c, Finance__c, Finance__r.Name, ConsignmentPrice__c, InsurancePrice__c, VehicleStock__c, RegistrationTax__c,
                 HopeHandoverDate__c, StampDuty__c, Deposit__c, InterestDefermentVAT__c, AdditionalLossPrice__c,
                 AdvancePayment__c, CapitalDefermentAmount__c, fm_VehicleDiscountPrice__c, Opportunity.OwnerId, (
                 SELECT Id, Type__c, Product__c, CampaignMaster__c, OilCouponCount__c, SpecialOption__c, SpecialSubOption__c, SpecialPrice__c,
@@ -922,14 +923,16 @@ public without sharing class QuoteCreatorController {
         @AuraEnabled public Decimal stampDuty { get; set; }
         @AuraEnabled public Decimal notarizedFee { get; set; }
         @AuraEnabled public Decimal totalExpenses { get; set; }
+        @AuraEnabled public Decimal registrationTax { get; set; }
         @AuraEnabled public Boolean isStampDuty { get; set; }
 
-        public ExtraExpensesWrap(Decimal consignment, Decimal insurance, Decimal stampDuty, Decimal notarizedFee, Decimal totalExpenses) {
+        public ExtraExpensesWrap(Decimal consignment, Decimal insurance, Decimal stampDuty, Decimal notarizedFee, Decimal totalExpenses, Decimal registrationTax) {
             this.consignment = consignment;
             this.insurance = insurance;
             this.stampDuty = stampDuty;
             this.notarizedFee = notarizedFee;
             this.totalExpenses = totalExpenses;
+            this.registrationTax = registrationTax;
             this.isStampDuty = stampDuty > 0;
         }
     }

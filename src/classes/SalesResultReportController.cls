@@ -69,6 +69,7 @@ public with sharing class SalesResultReportController {
     public String fScompany{get;set;} // 할부금융사
     public String realLoanAmt{get;set;} // 할부원금
     public String capitalDefermentAmt{get;set;} // 캐피탈유예금
+    public String totalloanAmountStr{get;set;} // 대출금 합계
     public String defaultInterestRate{get;set;} // 할부이율
     public String monthDivideInputMonth{get;set;} // 분납개월수
     public String monthlyPayment{get;set;} // 1회 납입금액
@@ -80,7 +81,7 @@ public with sharing class SalesResultReportController {
     public String totalExtraExpenses{get;set;} //부대비용 합계
     public String agency{get;set;} // 판매지점
     public String salesName{get;set;} // 판매직원
-    public String taxAccount{get;set;} // 세금계산서명의
+    public String taxInvoiceOwner{get;set;} // 세금계산서명의
     public String emailTaxInvoice{get;set;} // 세금계산서이메일
     public String transferAccount{get;set;} // 양도증 명의
 //    public String vehicleName{get;set;}
@@ -170,6 +171,7 @@ public with sharing class SalesResultReportController {
             paymentDeferredAmount = setScale(opportunity.PaymentDeferredAmount__c);
             realLoanAmt = setScale(opportunity.fm_TotalLoan__c);
             monthlyPaymentDate = opportunity.HandoverDate__c != null ? setDateType(opportunity.HandoverDate__c.addMonths(1)) : '';
+            Decimal totalloamAmount  = opportunity.fm_TotalLoan__c;
             // 견적 데이터
             if(quote != null){
                 capitalDefermentAmt = setScale(quote.CapitalDefermentAmount__c);
@@ -178,8 +180,13 @@ public with sharing class SalesResultReportController {
                 monthlyPayment = setScale(quote.MonthlyPayment__c);
                 notarizedFee = setScale(quote.fm_NotarizedFee__c);
                 consignmentPrice = setScale(quote.ConsignmentPrice__c);
-                registrationTax = setScale(quote.fm_RegistrationTax__c);
+                registrationTax = setScale(quote.RegistrationTax__c);
                 totalExtraExpenses = setScale(quote.fm_TotalExtraExpenses__c);
+
+                System.debug('totalloamAmount'+totalloamAmount);
+                System.debug('quote.CapitalDefermentAmount__c'+quote.CapitalDefermentAmount__c);
+                totalloanAmountStr = setScale(totalloamAmount + (quote.CapitalDefermentAmount__c == null ? 0 : quote.CapitalDefermentAmount__c));
+
                 if(quote.Finance__c != null){
                     Finance__c finance = quote.Finance__r;
                     fScompany = finance.FScompany__c;
@@ -188,10 +195,10 @@ public with sharing class SalesResultReportController {
             // 차량재고 데이터
             if(opportunity.VehicleStock__c != null){
                 VehicleStock__c vehicleStcok = opportunity.VehicleStock__r;
-                vehicleName = vehicleStcok.Name;
                 carColor = opportunity.VehicleStock__r.CarColor__c;
                 if(vehicleStcok.Product__c != null){
                     Product2 product2 = vehicleStcok.Product__r;
+                    vehicleName = product2.Name;
                     carAmt = setScale(product2.CarAmt__c);
                     totalPrice = setScale(otherProductAmt + product2.CarAmt__c);
                 }
@@ -217,20 +224,23 @@ public with sharing class SalesResultReportController {
                 address = account.RoadAddress__c + account.DetailAddress__c;
                 businessNumber = account.BusinessNumber__c;
                 transferAccount = opportunity.TransferAccount__c != null ? opportunity.TransferAccount__r.Name : account.Name;
-                taxAccount = opportunity.TaxAccount__c != null ? opportunity.TaxAccount__r.Name : account.Name;
-                emailTaxInvoice = opportunity.TaxAccount__c != null ? opportunity.TaxAccount__r.EmailTaxInvoice__c : account.EmailTaxInvoice__c;
+                taxInvoiceOwner = account.Name;
+                emailTaxInvoice = account.EmailTaxInvoice__c;
+                if(account.Id != opportunity.fm_TaxAccountId__c){
+                    Account taxAccount = [SELECT Name, EmailTaxInvoice__c FROM Account WHERE Id =:opportunity.fm_TaxAccountId__c];
+                    taxInvoiceOwner = taxAccount.Name;
+                    emailTaxInvoice = taxAccount.EmailTaxInvoice__c;
+                }
 
                 if(account.OwnerId != null){
                     User user = account.Owner;
                     agency = user.Agency__c;
                     salesName = user.Name;
                     List<CommissionManagement__c> commissionManagements = [SELECT Id,ru_TotalCommissionSum__c FROM CommissionManagement__c WHERE OwnerId =:user.Id ];
-                    if(!commissionManagements.isEmpty()){
-                        totalCommissionSum = setScale(commissionManagements[0].ru_TotalCommissionSum__c);
-                    }
+                    totalCommissionSum = setScale(0);
+                    if(!commissionManagements.isEmpty()) totalCommissionSum = setScale(commissionManagements[0].ru_TotalCommissionSum__c);
                 }
             }
-
             // 입금내역 및 인도금
             if (paymentTracker != null) {
                 System.debug('paymentTracker'+paymentTracker);
