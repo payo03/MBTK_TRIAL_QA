@@ -6,6 +6,7 @@
 ==============================================================
  * Ver          Date            Author          Modification
  * 1.0          2025-01-22      th.kim          Created
+ * 1.1          2025-04-24      chaebeom.do     워크넘버 클릭시 PDI 메인으로 이동하게 url 추가
 **************************************************************/
 public with sharing class SchedulerMainController {
 
@@ -20,6 +21,7 @@ public with sharing class SchedulerMainController {
         @AuraEnabled public String stockUrl;
         @AuraEnabled public String VIN;
         @AuraEnabled public String vehicleNo;
+        @AuraEnabled public String vehicleNoUrl;        // ver 1.1
         @AuraEnabled public String vehicleStatus;
         @AuraEnabled public String productId;
         @AuraEnabled public String handoverDate;
@@ -61,6 +63,7 @@ public with sharing class SchedulerMainController {
                 this.stockId = vehicleStock.Id;
                 this.stockUrl = '/lightning/r/VehicleStock__c/' + vehicleStock.Id + '/view';
                 this.vehicleNo = vehicleStock.VehicleNo__c;
+                this.vehicleNoUrl = '/lightning/n/PDIMain';     // ver 1.1
                 this.vehicleStatus = vehicleStock.VehicleStatus__c;
                 this.vehicleStock = vehicleStock;
             }

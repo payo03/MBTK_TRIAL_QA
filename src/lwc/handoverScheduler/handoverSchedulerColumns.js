@@ -6,6 +6,7 @@
 ==============================================================
  * Ver          Date            Author          Modification
  * 1.0          2025-01-22      th.kim          Initial Version
+ * 1.1          2025-04-24      chaebeom.do     워크넘버 클릭시 PDI 메인으로 이동하게 url 추가
  **************************************************************/
 const columns = [
 	{
@@ -56,9 +57,14 @@ const columns = [
 	},
 	{
 		label: "워크넘버",
-		fieldName: "vehicleNo",
-		type: "text",
+		// fieldName: "vehicleNo",
+		fieldName: "vehicleNoUrl",
+		// type: "text",
+		type: "url",
 		hideDefaultActions: true,
+		typeAttributes: {
+			label: { fieldName: "vehicleNo" }
+		},
 		cellAttributes: {
 			style: { fieldName: "vehicleNoStyle" }
 		}
