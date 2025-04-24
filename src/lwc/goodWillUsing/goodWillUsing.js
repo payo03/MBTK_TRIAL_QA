@@ -41,7 +41,6 @@ export default class goodWillUsing extends LightningElement {
 
   connectedCallback() {
     init({ userId: this.curUserId }).then(result => {
-      console.log('res :: ', result);
       this.goodWillMasterId = result.goodWillMaster[0].Id;
       this.availablePoints = result.goodWillMaster[0].ru_TotalGoodWillPoints__c;
       this.usingHistory = result.goodWillUsing;
@@ -64,7 +63,6 @@ export default class goodWillUsing extends LightningElement {
       this.description = value;
     } else if (id === "VehicleStock") {
       this.vinNo = value;
-      console.log(this.vinNo.length);
     }
   }
 
@@ -74,21 +72,20 @@ export default class goodWillUsing extends LightningElement {
   handleSubmit() {
     // 굿윌 사용 신청시 요청금액이 굿윌 마스터의 사용가능액을 넘으면 토스트 발생
     if (!this.usingGoodWill) {
-      showToast("Warning", "사용 요청금액을 입력해주세요.", "warning");
+      showToast("필수값 확인", "사용 요청금액을 입력해주세요.", "warning");
       return;
     } else if (this.usingGoodWill > this.availablePoints) {
-      showToast("Warning", "굿윌 잔액이 부족합니다.", "warning");
+      showToast("필수값 확인", "굿윌 잔액이 부족합니다.", "warning");
       return;
     }
-    console.log('this.vinNo :: ', this.vinNo);
     // 굿윌 사용 차량이 'WMA'로 시작하지 않거나 텍스트가 17자리보다 작으면 토스트 발생
     if (!this.vinNo.startsWith("WMA") || this.vinNo.length < 17) {
-      showToast("Warning", "차량 VIN 양식이 올바르지 않습니다.", "warning");
+      showToast("필수값 확인", "차량 VIN 양식이 올바르지 않습니다.", "warning");
       return;
     }
     // 굿윌 마스터가 없으면 토스트 발생
     if (!this.goodWillMasterId) {
-      showToast("Warning", "굿윌 마스터가 없는 사용자입니다.", "warning");
+      showToast("신청 불가", "굿윌 마스터가 없는 사용자입니다.", "warning");
       return;
     }
     this.applyValidation = "submit";
@@ -111,7 +108,7 @@ export default class goodWillUsing extends LightningElement {
   */
   handleError(e) {
     console.log(e.detail.detail);
-    showToast("", e.detail.message, "warning");
+    showToast("신청 실패", e.detail.message, "warning");
   }
 
   /**

@@ -16,17 +16,17 @@
     <div slot="footer" class="slds-align_absolute-center">
         <div class="slds-m-bottom_small slds-align_absolute-center">
             <lightning-button
+                    class="slds-m-right_xx-small"
+                    label="뒤로"
+                    onclick={handleCancel}>
+            </lightning-button>
+            <lightning-button
                     variant="brand"
                     class=""
                     type="submit"
                     label="확인"
                     onclick={handleCancelContract}
                     >
-            </lightning-button>
-            <lightning-button
-                    class="slds-m-left_xx-small"
-                    label="뒤로"
-                    onclick={handleCancel}>
             </lightning-button>
         </div>
     </div>

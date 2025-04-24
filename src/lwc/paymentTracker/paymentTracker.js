@@ -6,7 +6,7 @@ import getPaymentTypeList from '@salesforce/apex/PaymentTrackerController.getPay
 import startBatchJob from '@salesforce/apex/PaymentTrackerController.startBatchJob';
 import { NavigationMixin, CurrentPageReference } from "lightning/navigation";
 
-import { showToast } from "c/commonUtil";
+import { showToast, labelList } from "c/commonUtil";
 import { getRecord } from "lightning/uiRecordApi";
 import userId from "@salesforce/user/Id";
 
@@ -76,6 +76,8 @@ export default class PaymentTracker extends NavigationMixin(LightningElement) {
     isModalOpen = false;
     profileName;
 
+    @track myLabel = labelList;
+
     get isSA() {
 		return this.profileName === "MTBK Agent";
 	}
@@ -87,12 +89,10 @@ export default class PaymentTracker extends NavigationMixin(LightningElement) {
 			this.columns = columns;
 		}
 	}
-    
 
     connectedCallback() {
         
         getInitData().then(res => {
-            // console.log('pList ::: ', res.paymentTrackerList);
 
             let styleEl = document.querySelector(".payment-custom-style");
 			// 첫 로드 시
@@ -108,8 +108,6 @@ export default class PaymentTracker extends NavigationMixin(LightningElement) {
 			}
 
             this.masterData = res.paymentTrackerList;
-            // this.filteredData = res.paymentTrackerList;
-            // console.log('this.masterData ::: ', JSON.stringify(this.masterData));
             this.filterOptions.status = [{ label: "선택안함", value: "" }].concat(res.status);
             
             this.masterData = this.masterData.map(opp => {
@@ -120,7 +118,6 @@ export default class PaymentTracker extends NavigationMixin(LightningElement) {
                     customerUrl: opp.customerUrl ? `/lightning/r/Opportunity/${opp.customerUrl}/view` : "",
                     oppUrl: opp.oppUrl ? `/lightning/r/Opportunity/${opp.oppUrl}/view` : "",
                     currentPath: opp.status, // 현재 Path
-                    // nextPath: this.calculateNextPath(opp.status, opp.isPayment, opp.isVat), // Next Path
                 };
             });
            
@@ -128,45 +125,12 @@ export default class PaymentTracker extends NavigationMixin(LightningElement) {
             console.log('err ::: ', err );
         });
     }
-
-    // 다음 상태 표시하는 컬럼
-    // calculateNextPath(currentPath, isPayment, isVat) {
-    //     // console.log(`currentPath: ${currentPath}, isPayment: ${isPayment}, isVat: ${isVat}`);
-
-    //     if(currentPath === '계약금 대기') {
-    //         return '계약금 입금완료';
-    //     } 
-    //     if(currentPath === '계약금 입금완료') {
-    //         if(isPayment) {
-    //             return '출고 입금 진행중';
-    //         } else if (isVat){
-    //             return '출고가능';
-    //         } else {
-    //             return '모든입금완료';
-    //         }
-    //     }
-    //     if(currentPath === '출고 입금 진행중') {
-    //         if(isPayment && !isVat) {
-    //             return '모든입금완료';
-    //         } else {
-    //             return '출고가능';
-    //         }
-    //     }
-    //     if(currentPath === '출고가능') {
-    //         return '모든입금완료';
-    //     }
-    //     if (currentPath === '모든입금완료') {
-    //         return ''; 
-    //     }
-    // }
-
+   
     handleChange(e) {
         console.log('Change 이벤트');
 
         const id = e.target.dataset.id;
 		const value = e.target.value;
-
-        // console.log('this.filterMap ::: ', JSON.stringify(this.filterMap));
 
         switch (id) {
 			case "sa" :
@@ -182,24 +146,18 @@ export default class PaymentTracker extends NavigationMixin(LightningElement) {
     }
 
     handleSearch(e) {
-        console.log('검색 시작');
-        // console.log('filterMap1111 ::: ', JSON.stringify(this.filterMap));
         const id = e.currentTarget.dataset.id;
 		if (id === "refresh") {
-            console.log('selected row :::', JSON.stringify(this.currentlySelectedRows));
             this.currentlySelectedRows = [];
             
             const datatable = this.template.querySelector('lightning-datatable');
             if (datatable) {
                 datatable.selectedRows = [];
             }
-            console.log('selected row222 :::', JSON.stringify(this.currentlySelectedRows));
 			this.filterMap = { ...filterDefault };
 
 		} else if (id === "search") {
-            console.log('selected row3333 :::', JSON.stringify(this.currentlySelectedRows));
             getFilteredPaymentTrackerList({ filterMap: this.filterMap }).then(res => {
-                // console.log('res ::: ', res);
                 this.masterData = res;
                 this.masterData = this.masterData.map(opp => {
                     return {
@@ -211,6 +169,7 @@ export default class PaymentTracker extends NavigationMixin(LightningElement) {
                         // nextPath: this.calculateNextPath(opp.status, opp.isPayment, opp.isVat), // Next Path
                     };
                 });
+
                 if (this.masterData.length === 0) {
                     this.isNoData = true;
                 } else {
@@ -225,8 +184,6 @@ export default class PaymentTracker extends NavigationMixin(LightningElement) {
     handleRowAction(e) {
         const currentRow = e.detail.row;
         getPaymentTypeList({recordId : currentRow.id}).then(res => {
-            // console.log('modalPayment ::: ', JSON.stringify(res));
-            // console.log('modalPayment ::: ', res);
             this.paymentData = res;
             this.paymentData = this.paymentData.filter(el => {
                 return el.status !== '대출금 할인금액' && el.status !== 'MFS 캠페인 할인금액' && (el.status !== '초과금' || el.depositAmount > 0)
@@ -258,21 +215,18 @@ export default class PaymentTracker extends NavigationMixin(LightningElement) {
         let validRows = selectedRows.filter(row => row.saleNumber);
     
         if (validRows.length !== selectedRows.length) {
-            showToast('Error', '매출번호가 없는 행은 선택할 수 없습니다.', 'error');
+            showToast('매출번호 선택 오류', '매출번호가 없는 행은 선택할 수 없습니다.', 'error');
         }
     
         this.currentlySelectedRows = validRows.map(row => row.oppId);
-        console.log('Valid selected rows ::: ', JSON.stringify(this.currentlySelectedRows));
     
         this.template.querySelector('lightning-datatable').selectedRows = validRows.map(row => row.id);
     }
 
     handleButtonClick(e) {
-        console.log(' 반제 처리 찍힌다 ::: ');
-        console.log(' this.currentlySelectedRows ::: ', JSON.stringify(this.currentlySelectedRows) );
         if(this.currentlySelectedRows.length > 0) {
             startBatchJob({ oppIdList: this.currentlySelectedRows }).then(res => {
-                showToast("Success", '반제 요청 진행됐습니다', "success");
+                showToast("반제 요청 성공", '반제 요청 진행됐습니다', "success");
                 setTimeout(() => {
                     window.location.reload();   // 새로고침
                 }, 1500);
@@ -280,7 +234,7 @@ export default class PaymentTracker extends NavigationMixin(LightningElement) {
                 console.log('err ::: ', err);
             });
         } else {
-            showToast('Error', '매출번호가 있는 레코드를 선택해주세요', 'error');
+            showToast('매출번호 유무 확인', '매출번호가 있는 레코드를 선택해주세요', 'error');
             console.log('err ::: ', err);
         }
     }

@@ -189,7 +189,7 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 
 	async submitLead() {
 		if (this.selectedProductId == null) {
-			showToast("", "차종 테이블에서 고객의 관심 차종을 선택해주세요.", "warning");
+			showToast("필수값 확인", "차종 테이블에서 고객의 관심 차종을 선택해주세요.", "warning");
 			return false;
 		}
 
@@ -236,7 +236,7 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 		// showToast("", "리드가 저장되었습니다.", "success");
 		if (this.isCreateQuote) {
 			if (this.recordId == null) {
-				showToast("리드가 생성되지 않았습니다.", "관리자에게 문의해주세요.", "warning");
+				showToast("리드 생성 실패", "관리자에게 문의해주세요.", "warning");
 				return;
 			}
 			if (!this.downpayment) this.downpayment = 0;
@@ -259,7 +259,7 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 				const accountId = res["accountId"];
 
 				if (dupType === "error") {
-					showToast("Error.", "관리자에게 문의.", "error");
+					showToast("견적 생성 실패", "관리자에게 문의해주세요.", "error");
 					return;
 				}
 
@@ -292,7 +292,7 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 						}
 					});
 				} else {
-					showToast("Success", "견적이 생성 되었습니다.", "success");
+					showToast("견적 생성 성공", "견적이 생성 되었습니다.", "success");
 					defaultNavigation(this, "Quote", "", res["value"]);
 				}
 			}).catch(err => {
@@ -328,7 +328,7 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 	handleError(e) {
 		console.log(e.detail.detail);
 		this.isLoading = false;
-		showToast("", e.detail.detail, "warning");
+		showToast("리드 저장 실패", e.detail.detail, "warning");
 	}
 
 	/**
@@ -399,11 +399,11 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 				}
 			}).catch(err => {
 				console.log("err :: ", err);
-				showToast("", e.detail.message, "warning");
+				showToast("중복 체크 실패", e.detail.message, "warning");
 				returnValue = false;
 			});
 		} else {
-			showToast("", "고객 이름과 전화번호를 모두 입력해주세요.", "warning");
+			showToast("중복 체크 필수값 확인", "고객 이름과 전화번호를 모두 입력해주세요.", "warning");
 			returnValue = false;
 		}
 		return returnValue;
