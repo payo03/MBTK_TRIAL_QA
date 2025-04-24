@@ -22,9 +22,6 @@
           <p> 모델명: {vehicleName}</p>
         </div>
       </div>
-      <!-- <div class="slds-m-around_small slds-p-around_small slds-align_absolute-center">
-        <lightning-input type="number" label="납입 계약금" data-id="deposit" onchange={handleChange}></lightning-input>
-      </div> -->
     </div>
   </lightning-modal-body>
   <lightning-modal-footer>
@@ -42,12 +39,6 @@
         onclick={sendDeposit}
         >
       </lightning-button>
-      <!-- <lightning-button
-        class="slds-m-right_xx-small"
-        label="뒤로 가기"
-        onclick={closeDepositModal}
-        >
-      </lightning-button> -->
     </div>
   </lightning-modal-footer>
   <template lwc:if={isLoading}>
