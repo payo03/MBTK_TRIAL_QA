@@ -11,6 +11,7 @@
   1.3      2025-01-13      payo03@solomontech.net           ERPCode값이 NULL일경우 Insert PASS
   1.4      2025-02-19      payo03@solomontech.net           Spoiler장착된 차량Case 적용
   2.0      2025-04-10      payo03@solomontech.net           Product Key : IsSpoiler여부 제거. Stock Status Update조건 IsCompleted 제거, IF 분리, Product2 금액 복제
+  2.1      2025-04-25      payo03@solomontech.net           PDI Step INIT추가
 */
 public without sharing class CreateVehicleStock_ba implements Database.Batchable<SObject>, Database.Stateful, Database.AllowsCallouts {
 
@@ -411,6 +412,7 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
         if(!insertP2List.isEmpty()) insert insertP2List;
 
         // 3. VehicleStock - Product2 Lookup & Insert
+        List<String> workNoList = new List<String>();
         for (VehicleStock__c stock : stockList) {
             AvisOrderInfo__c info = vehicleNoMap.get(stock.Name);
             String p2Key = info.fm_SpecShort__c +
@@ -428,8 +430,10 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
                     info.fm_Generation__c;
 
             stock.Product__c = p2KeyMap.get(p2Key).Id;
+            if(stock.VehicleNo__c != null) workNoList.add(stock.VehicleNo__c);
         }
         upsert stockList;
+        if (!workNoList.isEmpty()) PdiController.fetchStatus(workNoList);   // ver2.1 PDI Step INIT추가
     }
 
     // ver2.0 Stock Status Update조건 IsCompleted 제거
