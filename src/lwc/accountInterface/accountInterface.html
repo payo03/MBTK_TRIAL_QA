@@ -64,8 +64,8 @@
             <div class="slds-form-element">
                 <lightning-input
                         label="연락처"
-                        name="PersonMobilePhone"
-                        value={account.PersonMobilePhone}
+                        name="Phone"
+                        value={account.Phone}
                         onchange={handleInputChange}>
                 </lightning-input>
             </div>
@@ -79,6 +79,7 @@
                     onclick={handleSave}>
             </lightning-button>&nbsp;
             <lightning-button
+                    variant="brand"
                     label="전송"
                     onclick={handleSendInfo}>
             </lightning-button>

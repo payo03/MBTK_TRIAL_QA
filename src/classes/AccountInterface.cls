@@ -12,7 +12,7 @@ public with sharing class AccountInterface {
     @AuraEnabled
     public static Account fetchRecord(String recordId) {
         return [
-                SELECT Id, BusinessNumber__c, BusinessName__c, IDNumber__pc, PersonEmail, PostalCode__c, RoadAddress__c, PersonMobilePhone
+                SELECT Id, BusinessNumber__c, BusinessName__c, IDNumber__pc, PersonEmail, PostalCode__c, RoadAddress__c, Phone
                 FROM Account
                 WHERE Id = :recordId
         ];
