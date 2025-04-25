@@ -9,6 +9,7 @@
  * 1.1          2025-04-01      payo03@solomontech.net  Opportunity PaymentStatus Update
  * 1.2          2025-04-08      chaebeom.do             이전 입금내역 연결 기능 linkPaymentLog() 추가
  * 1.3          2025-04-21      chaebeom.do             linkPaymentLog() 실행시 PaymentType 업데이트 로직 추가
+ * 1.4          2025-04-25      chaebeom.do             linkPaymentLog() 실행 타이밍 수정
 **************************************************************/
 public without sharing class PaymentTracker_tr extends TriggerHandler {
 
@@ -25,11 +26,11 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
     }
 
     public override void afterInsert() {
-        linkPaymentLog();
+        // linkPaymentLog();
     }
 
     public override void afterUpdate() {
-        // linkPaymentLog();
+        linkPaymentLog();
         updateHandover();
         createCommission();
         updateOpportunity();
@@ -107,10 +108,10 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
 
     /**
      * @author chaebeom.do
-     * @description PaymentTracker가 생성되면 기존 입금 로그를 연결하기 위한 메서드
+     * @description PaymentTracker가 생성되고 PaymentType 생성이 완료되면 기존 입금 로그를 연결하기 위한 메서드
      */
     private void linkPaymentLog() {
-        // PaymentTractker__c이 생성되었을 때
+        // PaymentTractker__c의 PaymentTypeCreation__c 필드가 true로 변경되었을 때
         // 같은 영업기회를 부모로 가지는 IsValid__c 필드가 false인 PaymentTractker가 있다면
         // 그 중에서 가장 최근 PaymentTractker를 가지고 오고
         // 가져온 PaymentTractker 아래에 연결된 PaymentLog를 가져와
@@ -118,13 +119,14 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
 
         Map<String, String> curOpptyMap = new Map<String, String>();
         for (PaymentTracker__c newPT : newList) {
-            curOpptyMap.put(newPT.Id, newPT.Opportunity__c);
+            PaymentTracker__c oldPT = oldMap.get(newPT.Id);
+            if(oldPT.PaymentTypeCreation__c == false && newPT.PaymentTypeCreation__c == true) curOpptyMap.put(newPT.Id, newPT.Opportunity__c); // ver 1.4
         }
 
         // 만료 TrackerMap
         Map<String, PaymentTracker__c> expiredPaymentTrackerMap = new Map<String, PaymentTracker__c>();
         for (PaymentTracker__c tracker : [
-                SELECT Id, Name, Opportunity__c, Status__c, 
+                SELECT Id, Name, Opportunity__c, Status__c, StatusBeforeCancel__c, 
                 (
                     SELECT Id, Amount__c, PaymentTracker__c
                     FROM PaymentLogs__r
@@ -140,7 +142,7 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
         // 신규 TrackerMap
         Map<String, List<PaymentType__c>> curTypeMap = new Map<String, List<PaymentType__c>>();
         for (PaymentType__c type : [
-                SELECT Id, Type__c, RequestAmount__c, DepositAmount__c
+                SELECT Id, Type__c, RequestAmount__c, DepositAmount__c, PaymentTracker__c
                 FROM PaymentType__c
                 WHERE PaymentTracker__c IN :curOpptyMap.keySet()
         ]) {
@@ -178,10 +180,15 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
             PaymentTracker__c oldTracker = expiredPaymentTrackerMap.get(newPT.Opportunity__c);
             if(oldTracker != null) {
 
-                newPT.Status__c = oldTracker.Status__c;
-                updateTrackerList.add(newPT);
+                // newPT.Status__c = oldTracker.StatusBeforeCancel__c;
+                PaymentTracker__c curPT = new PaymentTracker__c(
+                    Id = newPT.Id,
+                    Status__c = oldTracker.StatusBeforeCancel__c
+                );
+                updateTrackerList.add(curPT);
 
                 Decimal remainingAmount = sumPaymentLogMap.get(newPT.Id);
+                System.debug('paymentTracker 트리거 체크 :: ' + curTypeMap);
                 for (PaymentType__c type : curTypeMap.get(newPT.Id)) {
                     if (remainingAmount <= 0) break;
 

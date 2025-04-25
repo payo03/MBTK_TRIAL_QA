@@ -165,7 +165,7 @@ public without sharing class ContractCancelController {
                 // 페이먼트트래커 상태 취소
                 // 핸드오버 유효하지 않음
                 PaymentTracker__c pt = [
-                    SELECT Id
+                    SELECT Id, Status__c
                     FROM PaymentTracker__c
                     WHERE Opportunity__c = :opp.Id
                     AND IsValid__c = true
@@ -179,7 +179,7 @@ public without sharing class ContractCancelController {
                 update vehicle;
                 if(!canceledPDI.isEmpty()) update canceledPDI;
                 update new Contract(Id = targetContract.Id, ConStatus__c = '계약 취소');
-                update new PaymentTracker__c(Id = pt.Id, IsValid__c = false, Status__c = 'CANCELED');
+                update new PaymentTracker__c(Id = pt.Id, IsValid__c = false, Status__c = 'CANCELED', StatusBeforeCancel__c = pt.Status__c);
                 update new Handover__c(Id = ho.Id, IsActive__c = false); 
             }
         } catch (Exception e) {
