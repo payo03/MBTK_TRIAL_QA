@@ -101,7 +101,7 @@ public without sharing class User_tr extends TriggerHandler {
 
         // 3. VirtualAccount Insert
         List<VirtualAccountMaster__c> validVAMList = [
-                SELECT Id
+                SELECT Id, Status__c
                 FROM VirtualAccountMaster__c
                 WHERE Status__c = '사용가능'
                 ORDER BY Name DESC
@@ -109,6 +109,7 @@ public without sharing class User_tr extends TriggerHandler {
         ];
 
         Map<String, VirtualAccount__c> vaAccountMap = new Map<String, VirtualAccount__c>();
+        List<VirtualAccountMaster__c> updateVAMList = new List<VirtualAccountMaster__c>();
         for(Opportunity oppty : [
                 SELECT Id, AccountId, Account.Name
                 FROM Opportunity
@@ -116,15 +117,20 @@ public without sharing class User_tr extends TriggerHandler {
         ]) {
             if(validVAMList.isEmpty()) break;   // 가상계좌 소진시 종료
 
+            VirtualAccountMaster__c vam = validVAMList.remove(0);
+            vam.Status__c = '할당중';
+            updateVAMList.add(vam);
+
             Map<String, Object> paramMap = new Map<String, Object>{
                     'opportunity' => oppty,
-                    'virtualAccountMasterId' => validVAMList.remove(0).Id,
+                    'virtualAccountMasterId' => vam.Id,
                     'depositAmount' => 0,
                     'validDate' => EXPIRED_DATE
             };
             vaAccountMap.put(oppty.Id, CommonUtilCustomController.createVirtualAccount(paramMap));
         }
         if(!vaAccountMap.isEmpty()) insert vaAccountMap.values();
+        if(!updateVAMList.isEmpty()) update updateVAMList;
 
         // 4. Object Update
         // Opportunity - VirtualAccount 매핑
