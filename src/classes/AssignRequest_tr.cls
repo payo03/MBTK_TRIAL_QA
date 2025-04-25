@@ -181,7 +181,7 @@ public without sharing class AssignRequest_tr extends TriggerHandler {
         infoMapList.add(objNameMap);
         
         Map<String, Object> InfoMap = new Map<String, Object>{
-            'templateTitle' => '가상계좌정보 전송',
+            'templateTitle' => '가상계좌정보 전송2',
             'object' => 'VirtualAccount__c',
             'recordId' => inputMap.get('recordId'),
             'infoMapList' => infoMapList,
