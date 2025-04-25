@@ -95,12 +95,7 @@ export default class CreateContract extends NavigationMixin(LightningElement) {
     }).catch(err => {
       showToast("계약 생성 실패", "관리자에게 문의 바랍니다.", "error");
       console.log("err createContract :: ", err)
-    }).finally(() => {
-      this.isLoading = false;
-      setTimeout(() => {
-        location.reload();
-      }, 1000);
-    });
+    }).finally(() => this.isLoading = false);
   }
 
   handleCancel() {

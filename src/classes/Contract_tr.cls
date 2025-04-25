@@ -96,14 +96,13 @@ public without sharing class Contract_tr extends TriggerHandler {
     private void createPaymentTracker() {
         List<PaymentTracker__c> insertPTList = new List<PaymentTracker__c>();
         // 트리거가 돈 계약의 기회에 연결 && 상태가 '계약취소'가 아닌 입금현황 쿼리
-        // 쿼리한 입금현황이 0이 아니면 입금현황 생성 안함
+        // 쿼리한 입금현황이 0이면 입금현황 생성
 
         Set<String> quoteIdSet = new Set<String>();
         for(Contract newCon : newList) {
             Contract oldCon = oldMap.get(newCon.Id);
             if (oldCon.ApprovalStatus__c == '제출됨' && newCon.ApprovalStatus__c == '승인됨') quoteIdSet.add(newCon.Quote__c);
         }
-        System.debug('test contract_tr :: ' + quoteIdSet);
 
         Map<String, Quote> contractQuoteMap = new Map<String, Quote>();
         for(Quote quote : [
@@ -116,7 +115,6 @@ public without sharing class Contract_tr extends TriggerHandler {
         ]) {
             contractQuoteMap.put(quote.ContractId, quote);
         }
-        System.debug('test contract_tr :: ' + contractQuoteMap);
 
         // 모집단 Contract
         for(Contract newCon : newList) {
@@ -149,6 +147,7 @@ public without sharing class Contract_tr extends TriggerHandler {
     // TODO 03-28 송찬영. 1. 인도금 유예 통 생성시. 함수호출 필요
     private static void createPayments(List<PaymentTracker__c> paymentTrackerList){
         List<PaymentType__c> typeList = new List<PaymentType__c>();
+        List<PaymentTracker__c> updateTrackerList = new List<PaymentTracker__c>();
         Map<String, String> typeMap = CommonUtilController.getPickListMap('PaymentType__c', 'Type__c');
 
         Set<String> paymentTrackerOppSet = new Set<String>();
@@ -212,9 +211,13 @@ public without sharing class Contract_tr extends TriggerHandler {
             overType.RequestAmount__c = 999999999;
     
             typeList.add(overType);
+
+            paymentTracker.PaymentTypeCreation__c = true;
+            updateTrackerList.add(paymentTracker);
         }
         if (!typeList.isEmpty()) {
             insert typeList;    // TODO 03-28 송찬영. 2. upsert로 변경이 필요하다(PaymentType을 선 조회)
+            update updateTrackerList;
         }
     }
 
@@ -240,8 +243,6 @@ public without sharing class Contract_tr extends TriggerHandler {
             Handover__c handover = new Handover__c();
             handover.Opportunity__c = paymentTracker.Opportunity__c;
             handover.PaymentTracker__c = paymentTracker.Id;
-            // handover.VehicleStock__c = opp.Contract.VehicleStock__c;
-            // handover.OwnerId = opp.OwnerId;
             handover.OwnerId = paymentTracker.OwnerId;
     
             handoverList.add(handover);
