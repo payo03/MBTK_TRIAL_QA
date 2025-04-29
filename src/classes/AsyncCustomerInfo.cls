@@ -39,7 +39,7 @@ public without sharing class AsyncCustomerInfo implements Queueable, Database.Al
         try {
             // BP코드 전송
             List<Account> accList = [
-                    SELECT Id, RecordTypeId, Name, IDNumber__pc, BPCode__c, PersonEmail,
+                    SELECT Id, Name, IDNumber__pc, BPCode__c, PersonEmail, AccountType__c,
                             BusinessNumber__c, BusinessName__c, Phone, RoadAddress__c, DetailAddress__c, PostalCode__c,
                             (
                                 SELECT Id, IsTaxIDNumber__c
