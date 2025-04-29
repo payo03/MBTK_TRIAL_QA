@@ -159,7 +159,7 @@ public without sharing class CommonUtilCustomController {
         return specMap;
     }
 
-    public static String parseIFIdSAP(String prefix) {
+    public static String parseIFId(String prefix) {
         Datetime now = System.now();
         String retStr = prefix;
         retStr += now.format('yyyyMMddHHmmss');

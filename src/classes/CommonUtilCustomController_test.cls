@@ -47,7 +47,7 @@ private class CommonUtilCustomController_test {
         };
         CommonUtilCustomController.ContractAmendmentApprovalProcess(InfoMap);
 
-        String ifId = CommonUtilCustomController.parseIFIdSAP('U');
+        String ifId = CommonUtilCustomController.parseIFId('U');
         List<Map<String, Object>> configMapList = CommonUtilCustomController.getConfigMapList('[샘플] 개인정보 수집 이용 동의서');
 
         List<IF_DTO.LogWrapper> logList = new List<IF_DTO.LogWrapper>();

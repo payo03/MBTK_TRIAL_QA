@@ -26,7 +26,7 @@ public without sharing class AsyncCustomsInfo implements Queueable, Database.All
                 ? new Map<String, Object>()
                 : infoMap;
 
-        String logId = CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.PREFIX_CUSTOMS_INFO);
+        String logId = CommonUtilCustomController.parseIFId(InterfaceSAP.PREFIX_CUSTOMS_INFO);
         Boolean isCreate = dataMap.isEmpty() ? true : Boolean.valueOf(dataMap.get('isCreate'));
         String logType = isCreate ? LOG_TYPE_S : LOG_TYPE_C;
 

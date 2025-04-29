@@ -160,7 +160,7 @@ public without sharing class ModuSignPDFController {
                         Account.IDNumber__pc,
                         Account.BusinessCategory__c,
                         // Account.RealDriverAddress__pc,
-                        Account.RealDriver__pc,
+                        // Account.RealDriver__pc,
                         // Account.RealDriverIDNumber__pc,
                         // Account.RealDriverMobile__pc,
                         Account.RoadAddress__c,
@@ -344,6 +344,10 @@ public without sharing class ModuSignPDFController {
             List<QuoteCreatorController.OptionWrap> optionWrapList = (List<QuoteCreatorController.OptionWrap>) quoteDetail.get('option');
             List<Option> optionList = new List<Option>();
             for(QuoteCreatorController.OptionWrap optionWrap : optionWrapList) {
+                String optionCarefree = optionWrap.name != null ? optionWrap.name.toUpperCase() : '';
+                if (optionCarefree.contains('NO CAREFREE')) {
+                    continue;
+                }
                 Option option = new Option();
 
                 option.optionName = optionWrap.name != null ? optionWrap.name : '';
@@ -626,7 +630,7 @@ public without sharing class ModuSignPDFController {
         } catch (CustomException e) {
 
             Map<String, String> errorMap = new Map<String, String> {
-                'id' => CommonUtilCustomController.parseIFIdSAP('')
+                'id' => CommonUtilCustomController.parseIFId('')
                 , 'title' => fileNameMap.get(selectedOption)
                 , 'status' => 'FAIL'
             };
