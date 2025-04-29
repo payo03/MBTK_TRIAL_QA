@@ -11,6 +11,9 @@ public without sharing class InterfaceMFS {
 
     public static final String DFLT = 'L';
 
+    public static final String IF_MFS000 = 'AWS_LOAN000';   // API Health Check
+    public static final String IF_MFS001 = 'AWS_LOAN001';
+
     /**
      * @param ifId          Interface Id
      * @param items         Body Items
