@@ -28,7 +28,7 @@ public without sharing class AsyncVAInfo implements Queueable, Database.AllowsCa
                 transferAccSet.add(logDetail.ExternalId__c);
             }
 
-            String logId = CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.DFLT);
+            String logId = CommonUtilCustomController.parseIFId(InterfaceSAP.DFLT);
             Map<String, String> keyMap = new Map<String, String>();
             List<IF_DTO.AccountVAInfo> vaInfoList = new List<IF_DTO.AccountVAInfo>();
             for(Opportunity oppty : [

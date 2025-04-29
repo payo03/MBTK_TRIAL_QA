@@ -298,19 +298,19 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 
 		requestDeferred({ paramMap: infoMap }).then(response => {
 			/*
-						let isEqualUser = response.isEqualUser;
-						if(!isEqualUser) {
-							// Record의 Owner가 아닐경우. Validation
-							showToast('Error', 'Record Owner Error', 'error', 'dismissable');
-						} else {
-							let isSuccess = response.isSuccess;
+            let isEqualUser = response.isEqualUser;
+            if(!isEqualUser) {
+                // Record의 Owner가 아닐경우. Validation
+                showToast('Error', 'Record Owner Error', 'error', 'dismissable');
+            } else {
+                let isSuccess = response.isSuccess;
 
-							if(isSuccess) {
-								showToast('Success', '승인 요청이 완료되었습니다', 'success', 'dismissable');
-							} else {
-								showToast('Error', response.message, 'error', 'dismissable');
-							}
-						}
+                if(isSuccess) {
+                    showToast('Success', '승인 요청이 완료되었습니다', 'success', 'dismissable');
+                } else {
+                    showToast('Error', response.message, 'error', 'dismissable');
+                }
+            }
 			*/
 
 			let isSuccess = response.isSuccess;
@@ -330,15 +330,15 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 	}
 
 	handleCancel() {
-    this.dispatchEvent(new CloseActionScreenEvent());
-    this.mobileReturnPage();
-  }
-
-  mobileReturnPage() {
-    if(formFactor === "Small") {
-      recordNavigation(this, "Contract", this.recordId);
+        this.dispatchEvent(new CloseActionScreenEvent());
+        this.mobileReturnPage();
     }
-  }
+
+    mobileReturnPage() {
+        if(formFactor === "Small") {
+            recordNavigation(this, "Contract", this.recordId);
+        }
+    }
 
 	handleChange(event) {
 		let fieldLabelName = event.target.name;

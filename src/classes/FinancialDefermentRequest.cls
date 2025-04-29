@@ -43,7 +43,9 @@ public with sharing class FinancialDefermentRequest {
                     요청하기전엔 안되어도 됩니다
             */
             opportunity.ContractAmount__c = Decimal.valueOf(contractAmount);
-            opportunity.VATRequestDays__c = Decimal.valueOf(paramMap.get('requestDays'));
+            opportunity.VATRequestDays__c = paramMap.containsKey('requestDays') ?
+                    Decimal.valueOf(paramMap.get('requestDays'))
+                    : null;
             opportunity.put(updateField, Decimal.valueOf(deferredAmount));
             update opportunity;
 

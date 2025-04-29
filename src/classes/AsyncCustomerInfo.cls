@@ -54,7 +54,7 @@ public without sharing class AsyncCustomerInfo implements Queueable, Database.Al
             List<IF_DTO.CustomerInfo> infoList = new List<IF_DTO.CustomerInfo>();
             for(Account acc : accList) {
                 Boolean isCreate = !logIdMap.containsKey(acc.Id);
-                String logId = CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.PREFIX_BP);
+                String logId = CommonUtilCustomController.parseIFId(InterfaceSAP.PREFIX_BP);
 
                 IF_DTO.CustomerInfo info = new IF_DTO.CustomerInfo(acc, isCreate);
                 info.IFID = logId;

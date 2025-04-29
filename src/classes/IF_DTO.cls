@@ -230,7 +230,7 @@ global without sharing class IF_DTO {
         public String RRNYN {get; set;}     // [v] 주민번호 기입여부
 
         // Recommend 필드
-        public String IFID {get; set;}      // Interface ID (CommonUtilCustomController.parseIFIdSAP)
+        public String IFID {get; set;}      // Interface ID (CommonUtilCustomController.parseIFId)
         public String RRN {get; set;}       // 주민번호
         public String REPNM {get; set;}     // 이름            | type == 'B' ? Represent__c : Name__c
         public String EMAIL {get; set;}     // 이메일          | opportunity.TaxEmail__c

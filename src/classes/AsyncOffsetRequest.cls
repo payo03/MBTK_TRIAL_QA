@@ -37,7 +37,7 @@ public without sharing class AsyncOffsetRequest implements Queueable, Database.A
                 opptyTrackerMap.put(key, tracker);
             }
 
-            String logId = CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.DFLT);
+            String logId = CommonUtilCustomController.parseIFId(InterfaceSAP.DFLT);
             List<IF_DTO.OffsetProcess> processList = new List<IF_DTO.OffsetProcess>();
             Map<String, String> keyMap = new Map<String, String>();
             List<PaymentLog__c> updateList = new List<PaymentLog__c>();
