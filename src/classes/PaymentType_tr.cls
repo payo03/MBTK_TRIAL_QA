@@ -83,7 +83,7 @@ public with sharing class PaymentType_tr extends TriggerHandler {
                 String type = typeOrder.get(1); // OVER_PAID DEFAULT 생성
                 switch on type {
                     // 입금계정의 마지막 순번 찾기
-                    when '4_VAT' {
+                    when '91_VAT' {
                         // 부가세 후취 최종
                         adjustPaymentType(infoMap, '4_VAT', 'COMPLETE');                        // 부가세 후취[4]
                         if (infoMap.containsKey('3_DEFERRED_PAYMENT')) {
@@ -103,7 +103,7 @@ public with sharing class PaymentType_tr extends TriggerHandler {
                         adjustPaymentType(infoMap, '2_DOWN_PAYMENT', 'COMPLETE');               // 인도금[2]
                     }
                 }
-                adjustPaymentType(infoMap, '5_OVER_PAID', 'OVER_PAID');
+                adjustPaymentType(infoMap, '90_OVER_PAID', 'OVER_PAID');
                 adjustPaymentType(infoMap, '1_DEPOSIT', 'DEPOSIT');
             }
 

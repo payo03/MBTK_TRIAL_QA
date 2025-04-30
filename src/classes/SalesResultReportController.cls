@@ -216,11 +216,12 @@ public with sharing class SalesResultReportController {
             // 계정 데이터
             if(opportunity.AccountId != null){
                 Account account = opportunity.Account;
+                Account realDriverAccount = opportunity.RealDriverAccount__c != null ?  opportunity.RealDriverAccount__r : account;
                 name = account.Name;
-                String idNumber = account.IDNumber__pc != null ? account.IDNumber__pc.substring(0, 6) + '-XXXXXXX' : '';
+                String idNumber = realDriverAccount.IDNumber__pc != null ? realDriverAccount.IDNumber__pc.substring(0, 6) + '-XXXXXXX' : '';
                 compRegNum = account.CompRegNum__c == null ? idNumber : account.CompRegNum__c;
                 phoneNumber = account.PersonMobilePhone;
-                realDriver = account.RealDriver__pc;
+                realDriver = realDriverAccount.LastName;
                 address = account.RoadAddress__c + account.DetailAddress__c;
                 businessNumber = account.BusinessNumber__c;
                 transferAccount = opportunity.TransferAccount__c != null ? opportunity.TransferAccount__r.Name : account.Name;
@@ -271,6 +272,10 @@ public with sharing class SalesResultReportController {
                                 totaldeferredPrice += paymentType.RequestAmount__c;
                             }
                             when '4_VAT' {
+                                vatPrice = setScale(paymentType.DepositAmount__c);
+                                totaldeferredPrice += paymentType.RequestAmount__c;
+                            }
+                            when '91_VAT' {
                                 vatPrice = setScale(paymentType.DepositAmount__c);
                                 totaldeferredPrice += paymentType.RequestAmount__c;
                             }

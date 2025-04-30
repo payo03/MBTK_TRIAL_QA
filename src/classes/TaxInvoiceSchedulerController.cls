@@ -28,7 +28,8 @@ global without sharing class TaxInvoiceSchedulerController {
             , '2_DOWN_PAYMENT' => 0
             , '3_DEFERRED_PAYMENT' => 0
             , '4_VAT' => 0
-            , '5_OVER_PAID' => 0
+            , '91_VAT' => 0
+            , '90_OVER_PAID' => 0
             , '99_LOAN' => 0
             , '99_SUBVENTION' => 0
         };
@@ -74,13 +75,13 @@ global without sharing class TaxInvoiceSchedulerController {
             for (PaymentType__c paymentType : paymentTracker.PaymentTypes__r) {
                 paymentMap.put(paymentType.Type__c, formatNumber(paymentType.DepositAmount__c));
 
-//                if(paymentType.Type__c == '5_OVER_PAID') { continue; }
+//                if(paymentType.Type__c == '90_OVER_PAID') { continue; }
 
                 // 인도금 : 선수금 + 인도금 + 인도금유예 + 부가세유예
                 if(
                     paymentType.Type__c == '2_DOWN_PAYMENT' ||
                     paymentType.Type__c == '3_DEFERRED_PAYMENT' ||
-                    paymentType.Type__c == '4_VAT'
+                    paymentType.Type__c == '4_VAT' || paymentType.Type__c == '91_VAT'
                 ) {
                     deliveryPrice += paymentType.DepositAmount__c;
                 }
@@ -108,20 +109,7 @@ global without sharing class TaxInvoiceSchedulerController {
         System.enqueueJob(new AsyncTaxInvoiceIssuance(opptyIdList, paramMap));
     }
 
-    // Canlenar로 잠시 추가 Start
-
-    // 날짜별 핸드오버 개수 -> TODO: 출고일 배정 관리로 변경 필요
-//    @AuraEnabled
-//    public static List<Object> getHandoverDateList() {
-//        return [
-//                SELECT COUNT(Id) title, fm_HandoverDate__c start
-//                FROM Handover__c
-//                WHERE fm_HandoverDate__c != NULL
-//                GROUP BY fm_HandoverDate__c
-//        ];
-//    }
     @AuraEnabled
-//    public static List<Object> getHandoverDateList(String vehicleStockId) {
     public static Map<String, Object> getCalendarInit(String vehicleStockId) {
 
         // default : 3일(기본 옵션)
@@ -135,18 +123,6 @@ global without sharing class TaxInvoiceSchedulerController {
             configDate = infoMap.get('config');
             availableDate = infoMap.get('available');
         }
-//        else {
-//            Map<Date, Date> availableDateMap = CommonUtilCustomController.availableDateMap(30);
-//            System.debug('availableDateMap ::: ' + JSON.serialize(availableDateMap));
-//            configDate = Date.today().addDays(3);
-//            availableDate = availableDateMap.get(configDate);
-//        }
-
-//        List<HandOverDateManagement__c> handoverDateList = [
-//                SELECT ru_Count__c, Date__c, IsHoliday__c
-//                FROM HandOverDateManagement__c
-//                WHERE Date__c >= :availableDate
-//        ];
 
         List<CustomCalendar__c> customCalendarList = [
                 SELECT ru_Count__c, Date__c, IsHoliday__c
@@ -158,14 +134,6 @@ global without sharing class TaxInvoiceSchedulerController {
         Integer diffDays = today.daysBetween(configDate);
 
         List<ConfigDetail__c> optionDelayList = CommonUtilCustomController.getConfigDetailLow('MAN3000');
-//        CommonUtilController.sortSObjectList(optionDelayList, 'Attribute1__c', true);
-//        for(ConfigDetail__c configDetail : optionDelayList) {
-//            // 빈 슬롯 사용
-//            configDetail.Attribute18__c = '';
-//            if(configDetail.Attribute2__c == String.valueOf(diffDays)) {
-//                configDetail.Attribute18__c = 'true';
-//            }
-//        }
 
         return new Map<String, Object> {
             'handoverDateList' => customCalendarList
@@ -173,26 +141,6 @@ global without sharing class TaxInvoiceSchedulerController {
             , 'diffDays' => diffDays
         };
     }
-
-    // 해당 HandoverDate에 Oppty 몇개 있는지 확인
-//    @AuraEnabled
-//    public static List<Handover__c> getOpptyListByHandoverDate(String handoverDate) {
-//        return [
-//                SELECT Id
-//                FROM Handover__c
-//                WHERE fm_HandoverDate__c = :Date.valueOf(handoverDate)
-//        ];
-//    }
-
-    // 바뀐 HandoverDate를 oppty에 업데이트
-//    @AuraEnabled
-//    public static Boolean updateHandoverDate(Object handoverInfo, String targetDate) {
-//
-//        Boolean result = false;
-//        Map<String, String> objMap = (Map<String, String>) JSON.deserialize(JSON.serialize(handoverInfo), Map<String, String>.class);
-//
-//        return result;
-//    }
 
     @AuraEnabled
     public static Boolean insertHandoverDateAllocationHistory(Date targetDate, String opptyId, String stockId) {
@@ -254,11 +202,7 @@ global without sharing class TaxInvoiceSchedulerController {
 
         // HandOverDateManagement SObject 조회. ru_Count 데이터 확인
         Map<String, Map<String, Date>> validDateMap = fetchDelayDateSet(stockSet);
-//        List<HandOverDateManagement__c> managementList = [
-//                SELECT Id, Date__c, ru_Count__c
-//                FROM HandOverDateManagement__c
-//                WHERE Date__c = :dateInfoMap.keySet()
-//        ];
+
         List<CustomCalendar__c> customCalendarList = [
                 SELECT Id, Date__c, ru_Count__c
                 FROM CustomCalendar__c
@@ -434,28 +378,6 @@ global without sharing class TaxInvoiceSchedulerController {
         return SchedulerMainController.getHandoverData(whereCondition);
     }
 
-//    @AuraEnabled
-//    public static Map<String, Object> generatePdfBlob(String recordId) {
-//
-//        Map<String, Object> resultMap;
-//        try {
-//            // Visualforce 페이지 생성 및 데이터 전달
-//            PageReference pdfPage = Page.DepositReceiptPDF; // Visualforce 페이지 이름
-//            pdfPage.getParameters().put('recordId', recordId);
-//
-//            // PDF 생성
-//            Blob pdfBlob = pdfPage.getContentAsPDF();
-//            String file = EncodingUtil.base64Encode(pdfBlob);
-//
-//            resultMap = new Map<String, Object> {'pdfBase64' => file};
-//
-//        } catch (Exception e) {
-//            System.debug('error ::: ' + e.getStackTraceString());
-//            throw new AuraHandledException('Failed to generate PDF Blob: ' + e.getMessage());
-//        }
-//
-//        return resultMap;
-//    }
     @AuraEnabled
     public static Map<String, Object> generatePdfBlobSave(String recordId) {
 

@@ -47,7 +47,7 @@ global without sharing class IF_SAP {
         final String DOWM_PAYMENT_KEY = '2_DOWN_PAYMENT';
         final String DEFERRED_PAYMENT_KEY = '3_DEFERRED_PAYMENT';
         final String VAT_KEY = '4_VAT';
-        final String OVER_PAID_KEY = '5_OVER_PAID';
+        final String OVER_PAID_KEY = '90_OVER_PAID';
         final String LOAN_KEY = '99_LOAN';
 //        final String SUBVENTION_KEY = '99_SUBVENTION';
 //        final String CAMPAIGN_KEY = '99_CAMPAIGN';
