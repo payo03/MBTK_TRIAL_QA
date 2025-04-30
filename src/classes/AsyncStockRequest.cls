@@ -100,7 +100,7 @@ public without sharing class AsyncStockRequest implements Queueable, Database.Al
 
                 // 재고 이동요청 Start
                 List<IF_DTO.StockInfo> stockInfoList = new List<IF_DTO.StockInfo>();
-                String logId = CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.PREFIX_STOCK);
+                String logId = CommonUtilCustomController.parseIFId(InterfaceSAP.PREFIX_STOCK);
 
                 List<IF_DTO.StockDetailInfo> detailInfos = new List<IF_DTO.StockDetailInfo>();
                 IF_DTO.StockDetailInfo detailInfo = new IF_DTO.StockDetailInfo(

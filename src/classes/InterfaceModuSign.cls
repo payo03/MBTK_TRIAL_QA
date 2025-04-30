@@ -177,7 +177,7 @@ global without sharing class InterfaceModuSign {
         }
 
         Map<String, String> infoMap = new Map<String, String>{
-                'id' => CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.DFLT),
+                'id' => CommonUtilCustomController.parseIFId(InterfaceSAP.DFLT),
                 'title' => templateTitle,
                 'status' => 'FAIL'
         };
@@ -303,7 +303,7 @@ global without sharing class InterfaceModuSign {
         resultMap.put('message', 'Great. you\'ve got ' + Integer.valueOf(Math.random()*10) + ' points');
 
         Map<String, String> infoMap = new Map<String, String>{
-                'id' => CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.DFLT),
+                'id' => CommonUtilCustomController.parseIFId(InterfaceSAP.DFLT),
                 'title' => requestDTO.title,
                 'status' => 'FAIL'
         };

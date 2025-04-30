@@ -104,7 +104,7 @@ public without sharing class AsyncSpoilerRequest implements Queueable, Database.
             for (String spoilerCode : spoilerInfoListMap.keySet()) {
                 // 재고이동 요청은 Spoiler : Request = 1 : 1
                 List<IF_DTO.StockInfo> stockInfoList = new List<IF_DTO.StockInfo>();
-                String logId = CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.PREFIX_OPTION);
+                String logId = CommonUtilCustomController.parseIFId(InterfaceSAP.PREFIX_OPTION);
 
                 // 스포일러별 Info
                 Integer i = 1;

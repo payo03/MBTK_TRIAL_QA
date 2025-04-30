@@ -39,7 +39,7 @@ public without sharing class AsyncCustomerInfo implements Queueable, Database.Al
         try {
             // BP코드 전송
             List<Account> accList = [
-                    SELECT Id, RecordTypeId, Name, IDNumber__pc, BPCode__c, PersonEmail,
+                    SELECT Id, Name, IDNumber__pc, BPCode__c, PersonEmail, AccountType__c,
                             BusinessNumber__c, BusinessName__c, Phone, RoadAddress__c, DetailAddress__c, PostalCode__c,
                             (
                                 SELECT Id, IsTaxIDNumber__c
@@ -54,7 +54,7 @@ public without sharing class AsyncCustomerInfo implements Queueable, Database.Al
             List<IF_DTO.CustomerInfo> infoList = new List<IF_DTO.CustomerInfo>();
             for(Account acc : accList) {
                 Boolean isCreate = !logIdMap.containsKey(acc.Id);
-                String logId = CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.PREFIX_BP);
+                String logId = CommonUtilCustomController.parseIFId(InterfaceSAP.PREFIX_BP);
 
                 IF_DTO.CustomerInfo info = new IF_DTO.CustomerInfo(acc, isCreate);
                 info.IFID = logId;

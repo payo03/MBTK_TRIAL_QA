@@ -1817,6 +1817,23 @@ public class TestObjectBuilder2 {
         if(defermentRequest2 == null) insert createStatusDefermentRequest();
     }
 
+    public static void createContractBundle2() {
+        createQuoteBundle();
+
+        if(contract == null) {
+            insert createContract();
+
+            List<SObject> SObjectList = new List<SObject>();
+            opportunity.ContractId = contract.Id;
+            quote.ContractId = contract.Id;
+
+            SObjectList.add(opportunity);
+            SObjectList.add(quote);
+
+            update SObjectList;
+        }
+    }
+
     public static void createCampaignBundle() {
         if(campaignPreventDup == null) insert createCampaignPreventDuplicate();
         if(campaignJunction == null) insert createCampaignJunction();
@@ -1831,7 +1848,7 @@ public class TestObjectBuilder2 {
     }
 
     public static void createHandoverBundle() {
-        createContractBundle();
+        createContractBundle2();
 
         if(pdiStepList == null) insert createPDIStep();
         if(handover == null) insert createHandover();

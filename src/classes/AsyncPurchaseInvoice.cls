@@ -26,7 +26,7 @@ public without sharing class AsyncPurchaseInvoice implements Queueable, Database
                 ? new Map<String, Object>()
                 : infoMap;
 
-        String logId = CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.PREFIX_INVOICE_INFO);
+        String logId = CommonUtilCustomController.parseIFId(InterfaceSAP.PREFIX_INVOICE_INFO);
         Boolean isCreate = dataMap.isEmpty() ? true : Boolean.valueOf(dataMap.get('isCreate'));
         String logType = isCreate ? LOG_TYPE_S : LOG_TYPE_C;
 

@@ -17,6 +17,22 @@ global without sharing class IF_AWS {
     global static RestRequest request;
     global static RestResponse response;
 
+    @HttpGet
+    global static void doGet() {
+        String pathCase = RestContext.request.requestURI.substringAfter('/v1/aws/');
+        System.debug(pathCase);
+
+        requestTime = Datetime.now();
+        request = RestContext.request;
+        response = RestContext.response;
+        response.addHeader('Content-Type', 'application/json');
+
+        switch on pathCase {
+            // Health Check
+            when 'healthcheck' { new Result(); }
+        }
+    }
+
     @HttpPost
     global static void doPost() {
         String pathCase = RestContext.request.requestURI.substringAfter('/v1/aws/');
@@ -28,8 +44,19 @@ global without sharing class IF_AWS {
         response.addHeader('Content-Type', 'application/json');
 
         switch on pathCase {
+            // Health Check
+            when 'healthcheck' { new Result(); }
             // 대출심사 결과
             when 'loan/response' { updateLoanResult(); }
+        }
+    }
+
+    global class Result {
+        global String result{get; set;}
+        global String responseDate{get; set;}
+        global Result() {
+            this.result = 'v1. Health Check Success!';
+            this.responseDate = Datetime.now().toString();
         }
     }
 

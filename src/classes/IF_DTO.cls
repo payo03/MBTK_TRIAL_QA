@@ -230,7 +230,7 @@ global without sharing class IF_DTO {
         public String RRNYN {get; set;}     // [v] 주민번호 기입여부
 
         // Recommend 필드
-        public String IFID {get; set;}      // Interface ID (CommonUtilCustomController.parseIFIdSAP)
+        public String IFID {get; set;}      // Interface ID (CommonUtilCustomController.parseIFId)
         public String RRN {get; set;}       // 주민번호
         public String REPNM {get; set;}     // 이름            | type == 'B' ? Represent__c : Name__c
         public String EMAIL {get; set;}     // 이메일          | opportunity.TaxEmail__c
@@ -255,6 +255,8 @@ global without sharing class IF_DTO {
             // 필수값 데이터
             this.CARDCD = acc.BPCode__c;
             this.CARDNM = acc.BusinessName__c;
+            this.BPFLNM = acc.Name;
+
             /*
                 사업자번호 조건
                 1. 사업자 번호 != NULL일때
@@ -273,16 +275,15 @@ global without sharing class IF_DTO {
             this.RRNYN = acc.IDNumber__pc != null ? 'Y' : 'N';
 
             // AS_IS. [개인 : P, 개인사업자 : G, 그외 : B] / TO_BE [개인 - 법인]
-            Boolean isPersonal = acc.RecordTypeId.equals(RECORDTYPE_ACC_PERSON);
+            Boolean isPersonal = '개인'.equals(acc.AccountType__c);
             // 권장 필드들
             this.RRN = acc.IDNumber__pc;
             this.REPNM = acc.Name;
             this.EMAIL = acc.PersonEmail != null ? acc.PersonEmail : '';
-            this.INDUSNM = isPersonal ? '운수업' : '';
-            this.BPFLNM = isPersonal ? acc.Name : acc.Name;
             this.ZIPCD = acc.PostalCode__c != null ? acc.PostalCode__c : '';
             this.ADDR1 = acc.RoadAddress__c != null ? acc.RoadAddress__c : '';
             this.ADDR2 = acc.DetailAddress__c != null ? acc.DetailAddress__c : '';
+            this.INDUSNM = isPersonal ? '운수업' : '';
             this.BUSNM = isPersonal ? '특수화물' : '';
 
             // 필드 필수값 x

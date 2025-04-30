@@ -10,10 +10,10 @@
 public without sharing class AsyncLoanRequestMFS implements Queueable, Database.AllowsCallouts {
 
     private static final String LOG_TYPE = 'MFS_LOAN_REQUEST';
-    private static final String IF_ID = 'AWS_LOAN001';
+    private static final String IF_ID = InterfaceMFS.IF_MFS001;
     private static final String BANK_NM = '만트럭';
     private static final String BANK_CD = '027';    // https://www.kftc.or.kr/search/searchAll?keyword=%EA%B8%88%EC%9C%B5%ED%9A%8C%EC%82%AC%EC%BD%94%EB%93%9C
-    private static final String X_API_KEY = CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.DFLT);
+    private static final String X_API_KEY = CommonUtilCustomController.parseIFId(InterfaceMFS.DFLT);
 
     public List<String> quoteIdList;
     public Map<String, Object> paramMap;
@@ -153,9 +153,14 @@ public without sharing class AsyncLoanRequestMFS implements Queueable, Database.
             infoMap.put('keyMap', keyMap);
             infoMap.put('isLogDetail', true);
 
-            Map<String, Object> resultMap = InterfaceSAP.doCallOutSAPLog(infoMap);
+            Map<String, String> cHeaderMap = new Map<String, String>{
+                    'X-API-KEY' => X_API_KEY
+            };
+            infoMap.put('cHeaderMap', cHeaderMap);
+
+            Map<String, Object> resultMap = InterfaceMFS.doCallOutMFSLog(infoMap);
             resultMap.put('isAll', true);
-            SAPCommon.syncLogDetailUpdate(X_API_KEY, resultMap);    // AWS 통신 완료시. Sync
+//            SAPCommon.syncLogDetailUpdate(X_API_KEY, resultMap);    // AWS 통신 완료시. Sync
         }
     }
 }

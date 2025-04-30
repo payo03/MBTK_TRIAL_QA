@@ -27,6 +27,22 @@ public class IF_AWS_test {
         IF_DTO.LoanResponseInfo info = new IF_DTO.LoanResponseInfo();
         info.quote_id = quote.Id;
 
+        requestBody = 'test';
+        req.requestURI = '/v1/aws/healthcheck';
+        req.httpMethod = 'GET';
+        req.requestBody = Blob.valueOf(requestBody);
+        RestContext.request = req;
+        RestContext.response = new RestResponse();
+        IF_AWS.doGet();
+
+        requestBody = 'test';
+        req.requestURI = '/v1/aws/healthcheck';
+        req.httpMethod = 'POST';
+        req.requestBody = Blob.valueOf(requestBody);
+        RestContext.request = req;
+        RestContext.response = new RestResponse();
+        IF_AWS.doPost();
+
         requestBody = JSON.serialize(info);
         req.requestURI = '/v1/aws/loan/response';
         req.httpMethod = 'POST';

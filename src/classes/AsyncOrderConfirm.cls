@@ -27,7 +27,7 @@ public without sharing class AsyncOrderConfirm implements Queueable, Database.Al
                 ? new Map<String, Object>()
                 : infoMap;
 
-        String logId = CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.PREFIX_ORDER_CONFIRM);
+        String logId = CommonUtilCustomController.parseIFId(InterfaceSAP.PREFIX_ORDER_CONFIRM);
         Boolean isCreate = dataMap.isEmpty() ? true : Boolean.valueOf(dataMap.get('isCreate'));
         String logType = isCreate ? LOG_TYPE_S : LOG_TYPE_C;
 

@@ -39,7 +39,7 @@ public class InterfaceSAP_test {
 
         Map<String, Object> infoMap = new Map<String, Object>();
         infoMap.put('ifId', InterfaceSAP.IF_SMS004);
-        infoMap.put('logId', CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.DFLT));
+        infoMap.put('logId', CommonUtilCustomController.parseIFId(InterfaceSAP.DFLT));
         infoMap.put('logType', 'ERP_MODEL');
         infoMap.put('keyMap', keyMap);
         infoMap.put('items', new List<Object>{keyMap});

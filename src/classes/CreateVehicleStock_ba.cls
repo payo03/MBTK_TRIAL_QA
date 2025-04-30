@@ -497,7 +497,7 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
 
                 for (String categoryId : ERPCodeMap.keySet()) {
                     List<IF_DTO.ERPModel> modelList = new List<IF_DTO.ERPModel>();
-                    String logId = CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.PREFIX_MODEL);
+                    String logId = CommonUtilCustomController.parseIFId(InterfaceSAP.PREFIX_MODEL);
 
                     Product2 obj = ERPCodeMap.get(categoryId);
                     IF_DTO.ERPModel model = new IF_DTO.ERPModel(obj, true);
