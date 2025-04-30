@@ -178,7 +178,7 @@ public without sharing class Contract_tr extends TriggerHandler {
                 amountMap.put('인도금', curOpp.Contract.Quote__r.fm_DeliveryPrice__c - curOpp.PaymentDeferredAmount__c);
                 amountMap.put('인도금 유예', curOpp.PaymentDeferredAmount__c);
             }
-            if (curOpp.VATDefermentStatus__c == '승인됨') amountMap.put('부가세후취', curOpp.Contract.Quote__r.fm_DefermentVAT__c);
+            if (curOpp.VATDefermentStatus__c == '승인됨') amountMap.put('부가세 후취(출고전)', curOpp.Contract.Quote__r.fm_DefermentVAT__c);
             // null 체크
             Decimal subventionRate = (curOpp.Contract.Quote__r.Finance__r != null && curOpp.Contract.Quote__r.Finance__r.SubventionRate__c != null) 
                         ? curOpp.Contract.Quote__r.Finance__r.SubventionRate__c : 0;
@@ -207,7 +207,7 @@ public without sharing class Contract_tr extends TriggerHandler {
             }
             PaymentType__c overType = new PaymentType__c();
             overType.PaymentTracker__c = paymentTracker.Id;
-            overType.Type__c = '5_OVER_PAID';
+            overType.Type__c = '90_OVER_PAID';
             overType.RequestAmount__c = 999999999;
     
             typeList.add(overType);
