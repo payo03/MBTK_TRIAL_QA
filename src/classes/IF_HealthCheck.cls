@@ -10,15 +10,15 @@
 @RestResource(UrlMapping='/api/check')
 global class IF_HealthCheck {
     @HttpGet
-    global static IF_HealthCheck.Result doGet() {
-        return new Result();
+    global static Result doGet() {
+        return new Result(null);
     }
 
     global class Result {
         global String result{get; set;}
         global String responseDate{get; set;}
-        global Result() {
-            this.result = 'Health Check Success';
+        global Result(String result) {
+            this.result = result != null ? result : 'Health Check Success';
             this.responseDate = Datetime.now().toString();
         }
     }
