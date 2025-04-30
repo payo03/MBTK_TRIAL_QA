@@ -29,7 +29,7 @@ global without sharing class IF_AWS {
 
         switch on pathCase {
             // Health Check
-            when 'healthcheck' { new Result(); }
+            when 'healthcheck' { returnHealthcheck(); }
         }
     }
 
@@ -45,18 +45,42 @@ global without sharing class IF_AWS {
 
         switch on pathCase {
             // Health Check
-            when 'healthcheck' { new Result(); }
+            when 'healthcheck' { returnHealthcheck(); }
             // 대출심사 결과
             when 'loan/response' { updateLoanResult(); }
         }
     }
 
-    global class Result {
-        global String result{get; set;}
-        global String responseDate{get; set;}
-        global Result() {
-            this.result = 'v1. Health Check Success!';
-            this.responseDate = Datetime.now().toString();
+    private static void returnHealthcheck() {
+        IF_HealthCheck.Result result = new IF_HealthCheck.Result('v1. Hyperforce Health Check');
+        String requestBody = JSON.serialize(result);
+        String responseMessage = 'IF_AWS.HealthCheck';
+
+        try {
+            status = 'SUCCESS';
+            responseTime = Datetime.now();
+
+            response.statusCode = 200;
+            response.responseBody = Blob.valueOf(requestBody);
+        } catch(Exception e) {
+            status = 'ERROR';
+            responseTime = Datetime.now();
+            responseMessage = JSON.serialize(e.getMessage());
+
+            response.responseBody = Blob.valueOf(responseMessage);
+            response.statusCode = 500;
+        } finally {
+            IF_DTO.LogWrapper objLogWrapper = new IF_DTO.LogWrapper();
+
+            objLogWrapper.requestTime = requestTime;
+            objLogWrapper.requestBody = requestBody;
+            objLogWrapper.status = status;
+            objLogWrapper.responseTime = responseTime;
+            objLogWrapper.responseBody = responseMessage;
+            objLogWrapper.errorCode = String.valueOf(response.statusCode);
+            objLogWrapper.logType = IF_DTO.LOG_TYPE.AWS_IN;
+
+            CommonUtilCustomController.setLog(objLogWrapper);
         }
     }
 
