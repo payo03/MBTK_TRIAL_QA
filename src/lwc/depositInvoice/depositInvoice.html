@@ -5,6 +5,7 @@
 - Ver      Date            Author           Modification
 - ===================================================================================
 - 1.0      2025-01-07      chaebeom.do      Created
+- 1.1      2025-04-29      chaebeom.do      selectedAcc 자료 구조 변경
 -->
 <template>
   <lightning-modal-header label="계약금 요청">
@@ -13,13 +14,13 @@
     <div class="slds-m-around_small slds-grid slds-wrap slds-align_absolute-center">
       <div class="slds-grid slds-wrap slds-m-around_small slds-p-around_x-small">
         <div class="slds-size_1-of-1 slds-p-around_small">
-          <p> 고객명: {accName}</p>
+          <p> 고객명: {selectedAcc.accName}</p>
         </div>
         <div class="slds-size_1-of-1 slds-p-around_small">
-          <p> 전화번호: {accPhone}</p>
+          <p> 전화번호: {selectedAcc.accPhone}</p>
         </div>
         <div class="slds-size_1-of-1 slds-p-around_small">
-          <p> 모델명: {vehicleName}</p>
+          <p> 모델명: {selectedAcc.vehicleName}</p>
         </div>
       </div>
     </div>
