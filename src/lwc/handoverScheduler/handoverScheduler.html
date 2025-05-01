@@ -76,7 +76,7 @@
 		<div class="slds-m-vertical_small">
 			<div class="box-wrap">
 				<div class="slds-grid slds-wrap slds-p-bottom_small filter-wrap">
-					<div class="slds-grid">
+					<div class="slds-grid slds-wrap">
 						<lightning-combobox
 							label="입금 상태"
 							options={filterOptionMap.paymentStatusOption}
@@ -149,7 +149,7 @@
 						onrowselection={handleSelection}
 						selected-rows={selectedRowIdList}
 						column-widths-mode="auto"
-						min-column-width="80"
+						min-column-width="100"
 					></c-custom-data-table>
 					<template if:false={handoverList.length}>
 						<div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">
@@ -254,7 +254,7 @@
 						<template lwc:elseif={modalMap.viewVIN}>
 							<div class="slds-grid slds-wrap">
 								<div class="slds-size_1-of-1 filter-wrap">
-									<div class="slds-grid">
+									<div class="slds-grid slds-wrap">
 										<lightning-input
 											type="text"
 											label="VIN"

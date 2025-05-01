@@ -85,7 +85,7 @@ public with sharing class PaymentType_tr extends TriggerHandler {
                     // 입금계정의 마지막 순번 찾기
                     when '91_VAT' {
                         // 부가세 후취 최종
-                        adjustPaymentType(infoMap, '91_VAT', 'COMPLETE');                        // 부가세 후취[4]
+                        adjustPaymentType(infoMap, '91_VAT', 'COMPLETE');                       // 부가세 후취[4]
                         if (infoMap.containsKey('3_DEFERRED_PAYMENT')) {
                             adjustPaymentType(infoMap, '3_DEFERRED_PAYMENT', 'HANDOVER_READY'); // 인도금 유예[3]
                             adjustPaymentType(infoMap, '2_DOWN_PAYMENT', 'TAX_INVOICE');        // 인도금[2]
@@ -221,6 +221,8 @@ public with sharing class PaymentType_tr extends TriggerHandler {
     }
 
     private static void adjustPaymentType(Map<String, PaymentType__c> infoMap, String key, String stage) {
+        System.debug('체크 :: ' + infomap);
+        System.debug('체크 :: ' + key + ', ' + stage);
         PaymentType__c payment = infoMap.get(key);
         payment.UpdateStage__c = stage;
     }

@@ -9,6 +9,7 @@
   1.1      2025-02-22      payo03@solomontech.net           Bulk Update. Payment금액은 Fetch해서 가져와야함
   1.2      2025-03-27      payo03@solomontech.net           배정 실패시 알림추가
   1.3      2025-04-17      payo03@solomontech.net           모두싸인 후처리 Process 상속Class 구현
+  1.3      2025-04-30      jh.jung                          출고일 지정 실패시 noti target 변경
 */
 global without sharing class StageUpdateCommonController extends CommonAfterProcess {
 
@@ -38,6 +39,7 @@ global without sharing class StageUpdateCommonController extends CommonAfterProc
         String productName = contract.Quote__r.VehicleStock__r.Product__r.Name;
 
         Boolean isNoti = false;
+        Boolean isNotiByHandoverDateNotAssign = false;
         List<String> notiTitleList = new List<String>();
         List<String> notiBodyList = new List<String>();
         String senderId = UserInfo.getUserId();
@@ -101,7 +103,8 @@ global without sharing class StageUpdateCommonController extends CommonAfterProc
             if (history != null) insert history;
             else {
                 // History가 NULL일경우. 수동으로 출고일 지정필요
-                isNoti = true;
+//                isNoti = true;
+                isNotiByHandoverDateNotAssign = true;
                 notiTitleList.add('출고일 자동 선택 불가');
                 notiBodyList.add('해당 기회의 출고일을 다시 선택해 주세요. \n 기회 이름 : ' + contract.Opportunity__r.Name);
             }
@@ -120,6 +123,26 @@ global without sharing class StageUpdateCommonController extends CommonAfterProc
                     userIdSet
             );
             if(isNoti) CommonUtilController.sendNotification(notiWrap);
+            // 출고일 지정 실패시 노티 변경 (04/30)
+            if(isNotiByHandoverDateNotAssign) {
+                Map<String, Object> mapObj = new Map<String, Object> {
+                    'type' => 'standard__navItemPage',
+                    'attributes' => new Map<String, String> {
+                        'apiName' => 'SchedulerMain'
+                    },
+                    'state' => new Map<String, String> {
+                        'c__origin' => 'handoverDateNotAssign'
+                    }
+                };
+
+                Messaging.CustomNotification notification = new Messaging.CustomNotification();
+                notification.setTitle(String.join(notiTitleList, '\n'));
+                notification.setBody(String.join(notiBodyList, '\n'));
+                notification.setNotificationTypeId(notificationType.Id);
+                notification.setSenderId(senderId);
+                notification.setTargetPageRef(JSON.serialize(mapObj));
+                notification.send(userIdSet);
+            }
         }
     }
 
