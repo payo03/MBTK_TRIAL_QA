@@ -23,6 +23,7 @@ const columns = [
 		fieldName: "oppUrl",
 		type: "url",
 		hideDefaultActions: true,
+		initialWidth: 300,
 		typeAttributes: {
 			label: { fieldName: "oppName" }
 		},
@@ -55,20 +56,20 @@ const columns = [
 			style: { fieldName: "VINStyle" }
 		}
 	},
-	{
-		label: "워크넘버",
-		// fieldName: "vehicleNo",
-		fieldName: "vehicleNoUrl",
-		// type: "text",
-		type: "url",
-		hideDefaultActions: true,
-		typeAttributes: {
-			label: { fieldName: "vehicleNo" }
-		},
-		cellAttributes: {
-			style: { fieldName: "vehicleNoStyle" }
-		}
-	},
+	// {
+	// 	label: "워크넘버",
+	// 	// fieldName: "vehicleNo",
+	// 	fieldName: "vehicleNoUrl",
+	// 	// type: "text",
+	// 	type: "url",
+	// 	hideDefaultActions: true,
+	// 	typeAttributes: {
+	// 		label: { fieldName: "vehicleNo" }
+	// 	},
+	// 	cellAttributes: {
+	// 		style: { fieldName: "vehicleNoStyle" }
+	// 	}
+	// },
 	{
 		label: "차량상태",
 		fieldName: "vehicleStatus",
@@ -78,6 +79,15 @@ const columns = [
 			style: { fieldName: "vehicleStatusStyle" }
 		}
 	},
+	// {
+	// 	label: "주유 상품권",
+	// 	fieldName: "oilCoupon",
+	// 	type: "text",
+	// 	hideDefaultActions: true,
+	// 	// cellAttributes: {
+	// 	// 	style: { fieldName: "oilCouponStyle" }
+	// 	// }
+	// },
 	{
 		label: "출고일",
 		fieldName: "handoverDate",
@@ -112,6 +122,30 @@ const columns = [
 	}
 ];
 
+const vehicleNoObj = {
+	label: "워크넘버",
+	// fieldName: "vehicleNo",
+	fieldName: "vehicleNoUrl",
+	// type: "text",
+	type: "url",
+	hideDefaultActions: true,
+	typeAttributes: {
+		label: { fieldName: "vehicleNo" }
+	},
+	cellAttributes: {
+		style: { fieldName: "vehicleNoStyle" }
+	}
+};
+
+const oilObj = {
+	label: "주유 상품권",
+	fieldName: "oilCoupon",
+	type: "text",
+	hideDefaultActions: true,
+};
+
+
+
 const handoverProfileColumns = columns.map(col =>
 	col.fieldName === "VIN"
 		? {
@@ -125,6 +159,16 @@ const handoverProfileColumns = columns.map(col =>
 		: col
 );
 
+const pdiColumns = [
+	...columns.slice(0, 4)
+	, vehicleNoObj
+	, ...columns.slice(4, 5)
+	, oilObj
+	, ...columns.slice(5)
+];
+const saColumns = [...handoverProfileColumns];
+const handoverColumns = saColumns;
+const defaultColumns = pdiColumns;
 
 const exportColumns = [
 	{
@@ -349,4 +393,4 @@ const exportMapping = {
 
 const editStyle = "border: 1px solid #A86403; color: #8C4B02; background-color: #f9e3b6; font-weight: bold;";
 
-export { columns, handoverProfileColumns, exportColumns, stockColumns, fieldApiMapping, exportMapping, editStyle };
+export { columns, handoverProfileColumns, exportColumns, stockColumns, fieldApiMapping, exportMapping, editStyle, defaultColumns, saColumns, pdiColumns, handoverColumns };

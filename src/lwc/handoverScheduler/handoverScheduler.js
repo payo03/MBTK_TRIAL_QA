@@ -19,7 +19,7 @@ import getFilteredHandoverList from "@salesforce/apex/HandoverSchedulerControlle
 import updateCheckHandoverList from "@salesforce/apex/HandoverSchedulerController.updateCheckHandoverList";
 import getVehicleStockList from "@salesforce/apex/HandoverSchedulerController.getVehicleStockList";
 import doCompleteHandover from "@salesforce/apex/HandoverSchedulerController.doCompleteHandover";
-import updateHandoverStockList from "@salesforce/apex/HandoverSchedulerController.updateHandoverStockList";
+import updateHandoverStock from "@salesforce/apex/HandoverSchedulerController.updateHandoverStock";
 import getCalendarInit from "@salesforce/apex/TaxInvoiceSchedulerController.getCalendarInit";
 import insertHandoverDateAllocationHistory
 	from "@salesforce/apex/TaxInvoiceSchedulerController.insertHandoverDateAllocationHistory";
@@ -28,13 +28,18 @@ import insertHandoverDateAllocationHistory
 import { getMonthStartAndEnd, labelList, showToast } from "c/commonUtil";
 import {
 	columns,
-	exportColumns,
-	stockColumns,
-	fieldApiMapping,
-	exportMapping,
 	editStyle,
-	handoverProfileColumns
+	exportColumns,
+	exportMapping,
+	fieldApiMapping,
+	handoverProfileColumns,
+	stockColumns,
+	defaultColumns,
+	saColumns,
+	pdiColumns,
+	handoverColumns
 } from "./handoverSchedulerColumns";
+import {CurrentPageReference} from "lightning/navigation";
 
 // 초기화 Map
 const initFilterMap = { paymentStatus: "", vehicleStatus: "", startDate: "", endDate: "" };
@@ -71,6 +76,7 @@ export default class handoverScheduler extends LightningElement {
 	isLoading; // 로딩 여부
 	intervalId; // setInterval Id
 	profileName;
+	permissionSet; // 해당 유저의 퍼미션셋
 
 	// 재고 모달
 	stockList = []; // 재고 리스트
@@ -145,8 +151,23 @@ export default class handoverScheduler extends LightningElement {
 	@wire(getRecord, { recordId: userId, fields: ["User.Profile.Name"] })
 	currentUserInfo({ error, data }) {
 		this.profileName = data?.fields?.Profile?.displayValue;
-		if (this.profileName === "MTBK Agent" || this.profileName === "MTBK Handover") {
-			this.columns = handoverProfileColumns;
+		// if (this.profileName === "MTBK Agent" || this.profileName === "MTBK Handover") {
+		// 	this.columns = handoverProfileColumns;
+		// }
+	}
+
+	@wire(CurrentPageReference)
+	getStateParameters(pageRef) {
+		if (pageRef) {
+			if (pageRef?.state?.c__origin === 'handoverDateNotAssign') {
+				this.handleFilterClick({
+					currentTarget: {
+						dataset: {
+							name: 'undecided'
+						}
+					}
+				});
+			}
 		}
 	}
 
@@ -160,6 +181,23 @@ export default class handoverScheduler extends LightningElement {
 			// 부모 데이터 복사
 			this._parentData = { ...value };
 			this.handoverList = this._parentData?.handoverList || [];
+			this.permissionSet = this._parentData?.permissionSet || {};
+
+			const userRole = this.permissionSet.userRole; // default, sa, handover, pdi
+			switch (userRole) {
+				case 'default':
+					this.columns = defaultColumns;
+					break;
+				case 'sa':
+					this.columns = saColumns;
+					break;
+				case 'handover':
+					this.columns = handoverColumns;
+					break;
+				case 'pdi':
+					this.columns = pdiColumns;
+					break;
+			}
 
 			// 필터 옵션
 			this.filterOptionMap.paymentStatusOption = [...this.filterOptionMap.paymentStatusOption, ...this._parentData?.paymentStatusOption];
@@ -185,13 +223,13 @@ export default class handoverScheduler extends LightningElement {
 
 		// 이번달
 		const currentMonthRange = getMonthStartAndEnd(currentYear, currentMonth);
-		initFilterMap.startDate = this.filterMap.startDate = `=${currentMonthRange.startDate}`;
-		initFilterMap.endDate = this.filterMap.endDate = `=${currentMonthRange.endDate}`;
+		initFilterMap.startDate = this.filterMap.startDate = currentMonthRange.startDate;
+		initFilterMap.endDate = this.filterMap.endDate = currentMonthRange.endDate;
 
 		// 지난달
 		const lastMonthRange = getMonthStartAndEnd(lastYear, lastMonth);
-		this.lastStartDate = `=${lastMonthRange.startDate}`;
-		this.lastEndDate = `=${lastMonthRange.endDate}`;
+		this.lastStartDate = lastMonthRange.startDate;
+		this.lastEndDate = lastMonthRange.endDate;
 	}
 
 	// interval 삭제
@@ -346,7 +384,7 @@ export default class handoverScheduler extends LightningElement {
 				};
 			};
 
-			let dataList;
+			let dataMap;
 			// 차량 변경
 			if (this.modalMap.viewVIN) {
 				const stockId = this.selectedStockRowList.length > 0 ? this.selectedStockRowList[0] : null;
@@ -361,14 +399,14 @@ export default class handoverScheduler extends LightningElement {
 					this.isLoading = false;
 					return;
 				}
-				dataList = [setDataList(currentStock.Id, this.currentHandover.opp, this.currentHandover.VIN, currentStock.Name)];
+				dataMap = setDataList(currentStock.Id, this.currentHandover.opp, this.currentHandover.VIN, currentStock.Name);
 			}
 			// 배정 취소
-			else if (this.modalMap.cancelStock) {
-				dataList = this.selectedRowList.map(row => setDataList(null, row.opp, row.VIN, null));
-			}
+			// else if (this.modalMap.cancelStock) {
+			// 	dataList = this.selectedRowList.map(row => setDataList(null, row.opp, row.VIN, null));
+			// }
 
-			updateHandoverStockList({ dataList: dataList }).then(() =>
+			updateHandoverStock({ dataMap: dataMap }).then(() =>
 				successProcess(this.modalMap.viewVIN ? "차량 변경" : "배정 취소")
 			).catch(err => {
 				console.error("err :: ", err);
@@ -392,10 +430,7 @@ export default class handoverScheduler extends LightningElement {
 	 */
 	handleFilterChange(e) {
 		const name = e.target.dataset.name;
-		const value = e.target.value;
-		this.filterMap[name] = (name === "startDate" || name === "endDate")
-			? (value ? `=${value}` : null)
-			: value;
+		this.filterMap[name] = e.target.value;
 	}
 
 	/**
@@ -412,8 +447,13 @@ export default class handoverScheduler extends LightningElement {
 			if (name === "search") {
 				this.selectedRowList = [];
 				this.selectedRowIdList = [];
+
 				// 각 필터 필드 맵핑
-				Object.keys(this.filterMap).forEach(el => filterMap[fieldApiMapping[el]] = this.filterMap[el]);
+				Object.keys(this.filterMap).forEach(el => {
+					if (this.filterMap[el]) {
+						filterMap[fieldApiMapping[el]] = (el === "startDate" || el === "endDate") ? `=${this.filterMap[el]}` : this.filterMap[el];
+					}
+				});
 
 				// 필터, 버튼 동기화
 				const keyName = (this.filterMap.startDate === initFilterMap.startDate && this.filterMap.endDate === initFilterMap.endDate)
@@ -489,7 +529,7 @@ export default class handoverScheduler extends LightningElement {
 		// VIN 클릭
 		if (actionName === "viewVIN") {
 			this.toggleModal("viewVIN");
-			const productId = currentRow.vehicleStock?.Product__c || currentRow.opp.Contract.Quote__r.Product__c;
+			const productId = currentRow.vehicleStock?.Product__c || currentRow.opp.Contract?.Quote__r?.Product__c;
 			getVehicleStockList({ filterMap: { Product__c: productId } }).then(res => {
 				this.stockList = res?.map(el => ({
 					...el,
@@ -607,6 +647,8 @@ export default class handoverScheduler extends LightningElement {
 				}
 			});
 
+			updatedEl.oilCoupon = updatedEl.quote?.ru_OilCoupon__c;
+
 			// 옵션 보여주기
 			updatedEl.helpText = [
 				optionList.length > 0 ? `옵션\n${optionList.join("\n")}` : "",
@@ -672,7 +714,6 @@ export default class handoverScheduler extends LightningElement {
 				: (startDate === this.lastStartDate && endDate === this.lastEndDate)
 					? `${lastYear}년 ${lastMonth}월 판매예정 리스트`
 					: `${startDate?.replace("=", "") || ""} ~ ${endDate?.replace("=", "") || ""} 판매예정 리스트`;
-
 
 		// 판매예정 리스트 옵션 맵핑
 		this.exportList = this.handoverList?.map(handover => {
@@ -758,7 +799,7 @@ export default class handoverScheduler extends LightningElement {
 
 	/**
 	 * @description 로직 실패 시 토스트 띄우기
- 	 */
+	 */
 	failedProcess(err) {
 		const errTitle = err?.body?.message || err.message || "ERROR";
 		const errBody = errTitle === "ERROR" ? "관리자에게 문의 부탁드립니다" : "";
