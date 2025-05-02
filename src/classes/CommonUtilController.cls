@@ -520,6 +520,7 @@ public without sharing class CommonUtilController {
         public String senderId;
         public String targetId;
         public Set<String> userIdSet;
+        public String pageRef {get; set;}
 
         public NotificationWrap(String title, String body, String notificationTypeId, String senderId, String targetId, Set<String> userIdSet) {
             this.title = title;
@@ -538,7 +539,10 @@ public without sharing class CommonUtilController {
      */
     public static void sendNotification(NotificationWrap notificationWrap) {
 
-        if (notificationWrap == null || notificationWrap.userIdSet == null || notificationWrap.userIdSet.isEmpty()) {
+        if (
+                (notificationWrap == null || notificationWrap.userIdSet == null || notificationWrap.userIdSet.isEmpty()) ||
+                (notificationWrap.targetId == null && notificationWrap.pageRef == null)
+        ) {
             throw new QueryException('필수 알림 데이터 누락');
         }
 
@@ -547,7 +551,8 @@ public without sharing class CommonUtilController {
         notification.setBody(notificationWrap.body);
         notification.setNotificationTypeId(notificationWrap.notificationTypeId);
         notification.setSenderId(notificationWrap.senderId);
-        notification.setTargetId(notificationWrap.targetId);
+        if (notificationWrap.targetId != null) notification.setTargetId(notificationWrap.targetId);
+        if (notificationWrap.pageRef != null) notification.setTargetPageRef(notificationWrap.pageRef);
         notification.send(notificationWrap.userIdSet);
     }
 
