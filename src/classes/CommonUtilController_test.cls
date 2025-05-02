@@ -11,7 +11,7 @@ private class CommonUtilController_test {
     }
 
     @IsTest
-    static void testBehavior() {
+    static void testBehavior1() {
         String dateTypeA = CommonUtilController.formatDate(Datetime.now(), 'A');
         String dateTypeB = CommonUtilController.formatDate(Datetime.now(), 'B');
         String dateTypeC = CommonUtilController.formatDate(Datetime.now(), 'C');
@@ -34,7 +34,10 @@ private class CommonUtilController_test {
         List<String> stringList = new List<String>{'123', '456'};
         String joinedString = CommonUtilController.joinedString(stringList);
         System.debug(joinedString);
+    }
 
+    @IsTest
+    static void testBehavior2() {
         List<String> labelList = new List<String>{'Id', 'Name'};
         List<Account> accountList = [
                 SELECT Id, Name

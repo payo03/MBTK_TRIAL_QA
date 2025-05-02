@@ -88,6 +88,7 @@ public class TestObjectBuilder2 {
     @TestVisible static CommissionManagement__c         commissionManagement;
     @TestVisible static CommissionHistory__c            commissionHistory;
     @TestVisible static IncentiveHistory__c             incentiveHistory;
+    @TestVisible static SpecTypeNoJunction__c           specTypeNoJunction;
 
     public static Account createAccountPerson() {
         if(accountPerson == null) {
@@ -1140,7 +1141,8 @@ public class TestObjectBuilder2 {
                 ServiceItemsMaster__c = serviceItem.Id,
                 EwWscPrice__c = 100,
                 RmcPrice__c = 100,
-                OptionCodeRMC__c = 'ML100'
+                OptionCodeRMC__c = 'ML100',
+                Price__c = 1000000
             );
         }
         return option;
@@ -1399,7 +1401,7 @@ public class TestObjectBuilder2 {
             Map<String, Decimal> amountMap = new Map<String, Decimal>{
                 '인도금' => 100,
                 '인도금 유예' => 100,
-                '부가세후취' => 100,
+                '부가세 후취(출고전)' => 100,
                 '대출금' => 100,
                 '대출금 할인금액' => 100,
                 'MFS 캠페인 할인금액' => 100,
@@ -1569,6 +1571,13 @@ public class TestObjectBuilder2 {
             specTypeNo.SCNTAN__c = '016-1-11111-1111-1111';
         }
         return specTypeNo;
+    }
+
+    public static SpecTypeNoJunction__c createSpecTypeNoJunction() {
+        if (specTypeNoJunction == null) {
+        specTypeNoJunction = new SpecTypeNoJunction__c();
+            }
+        return specTypeNoJunction;
     }
 
     public static List<CustomerConsent__c> createCustomerConsent() {
@@ -1887,6 +1896,6 @@ public class TestObjectBuilder2 {
         if(specTypeNo == null) insert createSpecTypeNo();
         if(customCalendar == null) insert createCustomCalendar();
         if(approvalHierarchy == null) insert createApprovalHierarchy();
+        if(specTypeNoJunction == null) insert createSpecTypeNoJunction();
     }
-
 }
