@@ -1387,7 +1387,7 @@ public class TestObjectBuilder {
             Map<String, Decimal> amountMap = new Map<String, Decimal>{
                 '인도금' => 100,
                 '인도금 유예' => 100,
-                '부가세후취' => 100,
+                '부가세 후취(출고전)' => 100,
                 '대출금' => 100,
                 '대출금 할인금액' => 100,
                 'MFS 캠페인 할인금액' => 100,

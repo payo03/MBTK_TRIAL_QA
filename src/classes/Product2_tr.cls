@@ -120,7 +120,7 @@ public without sharing class Product2_tr extends TriggerHandler {
 
             List<String> additionalList = new List<String>();
             if(String.isNotBlank(newObj.LocalYear__c)) additionalList.add(newObj.LocalYear__c);
-            if(newObj.IsSpoiler__c) additionalList.add('SPOILER');
+//            if(newObj.IsSpoiler__c) additionalList.add('SPOILER');
             if(newObj.IsLNS__c) additionalList.add('LNS');
             if(String.isNotBlank(trimLevel)) additionalList.add(trimLevel.toUpperCase());
             if(newObj.IsOTV__c) additionalList.add('OTV');
