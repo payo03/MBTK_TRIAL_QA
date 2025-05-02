@@ -160,6 +160,13 @@ private class InterfaceModuSign_test {
         draftMap.put('templateTitle', '[샘플] 개인정보 수집 이용 동의서');
         draftMap.put('recordId', contract.Id);
         InterfaceModuSign.doCallOutDraft(draftMap);
+    }
+
+
+
+    @IsTest
+    static void testBehavior2() {
+        APIDocument__c document = [SELECT Id FROM APIDocument__c LIMIT 1];
 
         InterfaceModuSign.doCallOutURLtoPDF(document.Id, 'COMPLETED(CUSTOMER)', false);
         InterfaceModuSign.getSmallestValue(100);
