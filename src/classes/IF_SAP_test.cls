@@ -11,7 +11,7 @@
 public class IF_SAP_test {
     @TestSetup
     static void setup() {
-        TestObjectBuilder2.createContractBundle();
+        TestObjectBuilder2.createContractBundle2();
         TestObjectBuilder2.createIfBundle();
         TestObjectBuilder2.createVirtualAccountBundle();
         TestObjectBuilder2.createStockBundle();
