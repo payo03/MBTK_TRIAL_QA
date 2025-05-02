@@ -5,25 +5,14 @@
 @IsTest
 private class CommonUtilCustomController_test {
 
-    @TestSetup
-    static void setup() {
-        TestObjectBuilder2.createObjects();
-        TestObjectBuilder2.createConfigBundle();
-
-        TestObjectBuilder2.createStockBundle();
-        TestObjectBuilder2.createLeadBundle();
-        TestObjectBuilder2.createContractBundle();
-        TestObjectBuilder2.createIfBundle();
-    }
-
     @IsTest
-    static void testBehavior() {
-        Contract contract = [SELECT Id FROM Contract LIMIT 1];
-        Account account = [SELECT Id FROM Account LIMIT 1];
-        APIDocument__c document = [SELECT Id, Contract__r.Name FROM APIDocument__c LIMIT 1];
-        Lead lead = [SELECT Id, OwnerId FROM Lead LIMIT 1];
-        AvisOrderInfo__c info = [SELECT Id, fm_SpoilerText__c, fm_SpoilerCode__c FROM AvisOrderInfo__c LIMIT 1];
+    static void testBehavior1() {
+        TestObjectBuilder2.createConfigBundle();
+        TestObjectBuilder2.createContractBundle();
+        TestObjectBuilder2.createStockBundle();
+        TestObjectBuilder2.createIfBundle();
 
+        Contract contract = [SELECT Id FROM Contract LIMIT 1];
         String strSAP = CommonUtilCustomController.parseStringSAP('HEROKU_SMS001', new List<String>(), 'A001');
 
         String segment = 'Tipper';
@@ -36,9 +25,7 @@ private class CommonUtilCustomController_test {
         String carCode = CommonUtilCustomController.parseCarCode(segment, specShortRaw, cabMark, intarder, wheelBase, trimLevel, emissionLevel);
 
         Map<String, String> vinMap = CommonUtilCustomController.getYearByVIN(new List<String>{'1234567890'});
-
         Map<String, String> specMap = CommonUtilCustomController.getSpecMap(specShortRaw);
-
         Map<String,String> InfoMap = new Map<String,String>{
                 'recordId' => contract.Id,
                 'userId' => UserInfo.getUserId(),
@@ -49,6 +36,13 @@ private class CommonUtilCustomController_test {
 
         String ifId = CommonUtilCustomController.parseIFId('U');
         List<Map<String, Object>> configMapList = CommonUtilCustomController.getConfigMapList('[샘플] 개인정보 수집 이용 동의서');
+    }
+
+    @IsTest
+    static void testBehavior2() {
+        TestObjectBuilder2.createContractBundle();
+
+        Contract contract = [SELECT Id FROM Contract LIMIT 1];
 
         List<IF_DTO.LogWrapper> logList = new List<IF_DTO.LogWrapper>();
         IF_DTO.LogWrapper log = new IF_DTO.LogWrapper();
@@ -63,6 +57,13 @@ private class CommonUtilCustomController_test {
         CommonUtilCustomController.setLog(log);
         CommonUtilCustomController.setLogList(logList);
         CommonUtilCustomController.createTask(contract.Id, 'modusign', 'subject');
+    }
+
+    @IsTest
+    static void testBehavior3() {
+        TestObjectBuilder2.createLeadBundle();
+
+        Lead lead = [SELECT Id, OwnerId FROM Lead LIMIT 1];
 
         List<Map<String, String>> approvalInputList = new List<Map<String, String>>();
         Map<String,String> approvalInputMap = new Map<String,String>();
@@ -73,6 +74,16 @@ private class CommonUtilCustomController_test {
 
         approvalInputList.add(approvalInputMap);
         Map<String, Object> approvalMap = CommonUtilCustomController.approvalProcessList(approvalInputList);
+    }
+
+    @IsTest
+    static void testBehavior4() {
+        TestObjectBuilder2.createConfigBundle();
+        TestObjectBuilder2.createStockBundle();
+        TestObjectBuilder2.createIfBundle();
+
+        APIDocument__c document = [SELECT Id, Contract__r.Name FROM APIDocument__c LIMIT 1];
+        AvisOrderInfo__c info = [SELECT Id, fm_SpoilerText__c, fm_SpoilerCode__c FROM AvisOrderInfo__c LIMIT 1];
 
         Integer pageNumber = CommonUtilCustomController.getPDFPageNumber('TEXT');
         Object value = CommonUtilCustomController.fetchValueRecur(document, 'Contract__r.Name');
