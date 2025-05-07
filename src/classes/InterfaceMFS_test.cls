@@ -27,7 +27,7 @@ public class InterfaceMFS_test {
 
         Map<String, Object> infoMap = new Map<String, Object>();
         infoMap.put('ifId', InterfaceMFS.IF_MFS001);
-        infoMap.put('logId', CommonUtilCustomController.parseIFId(InterfaceSAP.DFLT));
+        infoMap.put('logId', CommonUtilCustomController.parseIFId(InterfaceMFS.DFLT));
         infoMap.put('logType', 'TEST');
         infoMap.put('keyMap', keyMap);
         infoMap.put('items', new List<Object>{});
