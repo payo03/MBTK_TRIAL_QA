@@ -14,6 +14,19 @@ public without sharing class InterfaceMFS {
     public static final String IF_MFS000 = 'AWS_LOAN000';   // API Health Check
     public static final String IF_MFS001 = 'AWS_LOAN001';
 
+    public static void doHealthCheck() {
+        IF_Util ifUtil = new IF_Util(IF_MFS000);
+        Map<String, String> cHeaderMap = new Map<String, String>{
+                'X-API-KEY' => 'test'
+        };
+
+        HttpResponse response = ifUtil.webCallout2(null, cHeaderMap);
+        if (HttpCallOutConsts.SUCCESS_CODES.contains(response.getStatusCode())) {
+            System.debug(response);
+            System.debug(response.getBody());
+        }
+    }
+
     /**
      * @param ifId          Interface Id
      * @param items         Body Items
