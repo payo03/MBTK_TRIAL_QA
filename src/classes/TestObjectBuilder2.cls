@@ -126,7 +126,7 @@ public class TestObjectBuilder2 {
             accountLicense = new Account();
             accountLicense.RecordTypeId = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName().get('ACCOUNT_PERSON').getRecordTypeId();
             accountLicense.LastName = 'TEST';
-            accountLicense.AccountType__c = 'LICENSE';
+            accountLicense.AccountType__c = '영업인';
             accountLicense.User__c = UserInfo.getUserId();
             accountLicense.IDNumber__pc = '880420-1231233';
             accountLicense.PersonMobilePhone = '090-9999-1919';

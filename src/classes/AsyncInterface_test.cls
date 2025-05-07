@@ -22,7 +22,7 @@ private class AsyncInterface_test {
         TestObjectBuilder2.createStockBundle();
         TestObjectBuilder2.createPaymentBundle();
 
-        Account acc = [SELECT Id, BusinessName__c, BusinessNumber__c, IDNumber__pc, Name, PersonEmail, PostalCode__c, RoadAddress__c, DetailAddress__c FROM Account WHERE AccountType__c != 'LICENSE' LIMIT 1];
+        Account acc = [SELECT Id, BusinessName__c, BusinessNumber__c, IDNumber__pc, Name, PersonEmail, PostalCode__c, RoadAddress__c, DetailAddress__c FROM Account WHERE AccountType__c != '영업인' LIMIT 1];
         System.debug(acc);
         AccountInterface.sendCustomerInfo(acc.Id);
     }
