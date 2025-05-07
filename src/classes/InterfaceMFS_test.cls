@@ -18,6 +18,7 @@ public class InterfaceMFS_test {
 
     @IsTest
     static void testBehavior() {
+        InterfaceMFS.doHealthCheck();
 
         AvisOrderInfo__c info = [SELECT Id FROM AvisOrderInfo__c LIMIT 1];
         Map<String, String> keyMap = new Map<String, String>{
