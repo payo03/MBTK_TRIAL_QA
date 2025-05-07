@@ -16,11 +16,8 @@ public without sharing class InterfaceMFS {
 
     public static void doHealthCheck() {
         IF_Util ifUtil = new IF_Util(IF_MFS000);
-        Map<String, String> cHeaderMap = new Map<String, String>{
-                'X-API-KEY' => 'test'
-        };
 
-        HttpResponse response = ifUtil.webCallout2(null, cHeaderMap);
+        HttpResponse response = ifUtil.webCallout2(null);
         if (HttpCallOutConsts.SUCCESS_CODES.contains(response.getStatusCode())) {
             System.debug(response);
             System.debug(response.getBody());
