@@ -8,7 +8,7 @@
   1.0      2025-05-02      payo03@solomontech.net           Created
 */
 @IsTest
-private class ModuSignIDProces_test {
+private class ModuSignIDProcess_test {
 
     @TestSetup
     static void setup() {
