@@ -661,6 +661,12 @@ public class TestObjectBuilder2 {
                     ifMaster.IsSendParameter__c = false;
                     ifMaster.IsLogInsert__c = false;
                 } else if(i==26) {
+                    ifMaster.IF_Id__c = 'AWS_LOAN000';
+                    ifMaster.Method__c = 'GET';
+                    ifMaster.Endpoint__c = 'https://test.com/healthcheck';
+                    ifMaster.IsSendParameter__c = false;
+                    ifMaster.IsLogInsert__c = false;
+                } else if(i==27) {
                     ifMaster.IF_Id__c = 'AWS_LOAN001';
                     ifMaster.Method__c = 'POST';
                     ifMaster.Endpoint__c = 'https://test.com/v1/aws/loan';
