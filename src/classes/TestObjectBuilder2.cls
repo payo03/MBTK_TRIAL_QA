@@ -83,6 +83,7 @@ public class TestObjectBuilder2 {
     @TestVisible static GoodWillUsing__c                goodWillUsing;
     @TestVisible static List<PDIStep__c>                pdiStepList;
     @TestVisible static ApprovalHierarchy__c            approvalHierarchy;
+    @TestVisible static ApprovalHierarchy__c            approvalHierarchyModify;
     @TestVisible static SelfCertWeightLabel__c          selfCertWeightLabel;
     @TestVisible static SelfCertWeightLabelDtl__c       selfCertWeightLabelDtl;
     @TestVisible static CommissionManagement__c         commissionManagement;
@@ -1668,6 +1669,15 @@ public class TestObjectBuilder2 {
         }
         return approvalHierarchy;
     }
+    public static ApprovalHierarchy__c createApprovalHierarchyModify() {
+        if(managerUser == null) insert createManagerUser();
+        if (approvalHierarchyModify == null) {
+            approvalHierarchyModify = new ApprovalHierarchy__c();
+            approvalHierarchyModify.Approver1__c = managerUser.Id;
+            approvalHierarchyModify.Stage__c = 'OppModifyRequest Approver';
+        }
+        return approvalHierarchyModify;
+    }
 
     public static SelfCertWeightLabel__c createSelfCertWeightLabel() {
         if (selfCertWeightLabel == null) {
@@ -1902,6 +1912,7 @@ public class TestObjectBuilder2 {
         if(specTypeNo == null) insert createSpecTypeNo();
         if(customCalendar == null) insert createCustomCalendar();
         if(approvalHierarchy == null) insert createApprovalHierarchy();
+        if(approvalHierarchyModify == null) insert createApprovalHierarchyModify();
         if(specTypeNoJunction == null) insert createSpecTypeNoJunction();
     }
 }
