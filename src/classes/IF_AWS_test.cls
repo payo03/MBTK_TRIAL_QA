@@ -26,6 +26,18 @@ public class IF_AWS_test {
 
         IF_DTO.LoanResponseInfo info = new IF_DTO.LoanResponseInfo();
         info.quote_id = quote.Id;
+        info.loan_result = '승인';
+        info.comment = 'Test';
+        info.apply_rate = '1';
+        info.loan_amt = '1';
+        info.loan_term = '1';
+        info.mfs_vat_amt = '1';
+        info.mfs_vat_dt = String.valueOf(Date.today());
+        info.exct_dt = String.valueOf(Date.today());
+        info.cntr_no = '1';
+        info.mtbk_cnsn_no = '1';
+        info.subsidy_amt = '1';
+        info.mfs_camp_amt = '1';
 
         requestBody = 'test';
         req.requestURI = '/v1/aws/healthcheck';

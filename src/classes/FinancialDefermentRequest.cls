@@ -99,7 +99,9 @@ public with sharing class FinancialDefermentRequest {
         return [
             SELECT Id, OwnerId, Name, ContractAmount__c, TaxDeferredAmount__c, PaymentDeferredAmount__c,
             (
-                SELECT Id, Name, Status, Product__r.Name, fm_TotalRealAndSpecialPrice__c, fm_RealSellAmt__c, fm_DefermentVAT__c, toLabel(Product__r.Segment2__c)
+                SELECT Id, Name, Status, AdvancePayment__c,
+                        fm_TotalRealAndSpecialPrice__c, fm_RealSellAmt__c, fm_DefermentVAT__c,
+                        Product__r.Name, toLabel(Product__r.Segment2__c)
                 FROM Quotes
                 WHERE Status != 'Canceled'
                 ORDER BY LastModifiedDate DESC

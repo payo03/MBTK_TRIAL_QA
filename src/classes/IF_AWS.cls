@@ -54,7 +54,7 @@ global without sharing class IF_AWS {
     private static void returnHealthcheck() {
         IF_HealthCheck.Result result = new IF_HealthCheck.Result('v1. Hyperforce Health Check');
         String requestBody = JSON.serialize(result);
-        String responseMessage = 'IF_AWS.HealthCheck';
+        String responseMessage = 'IFAWS.HealthCheck';
 
         try {
             status = 'SUCCESS';
@@ -85,25 +85,94 @@ global without sharing class IF_AWS {
     }
 
     private static void updateLoanResult() {
+        CustomNotificationType notificationType = [SELECT Id FROM CustomNotificationType WHERE DeveloperName = 'Custom' LIMIT 1];
         String requestBody = request.requestBody.toString();
         System.debug(requestBody);
 
-        IF_DTO.LoanResponseInfo responseInfo = (IF_DTO.LoanResponseInfo) JSON.deserialize(requestBody, IF_DTO.LoanResponseInfo.class);
+        IF_DTO.LoanResponseInfo dtoInfo = (IF_DTO.LoanResponseInfo) JSON.deserialize(requestBody, IF_DTO.LoanResponseInfo.class);
+        LoanResponseInfoVar responseInfo = new LoanResponseInfoVar(dtoInfo);
 
         String responseMessage;
         try {
             status = 'SUCCESS';
             responseTime = Datetime.now();
-            responseMessage = JSON.serialize(responseInfo);
+            responseMessage = JSON.serialize(dtoInfo);
 
-            /*
             Quote quote = [
-                    SELECT Id, OpportunityId
+                    SELECT Id, OwnerId, OpportunityId, IsApproveLoan__c, Status,
+                            // 비교대상 : 대출금리, 대출금액, Subsidy금액, MFS캠페인 금액, 원금상환 개월수
+                            DefaultInterestRate__c, fm_TotalLoanAmount__c, fm_SubsidyAmount__c, DiscountAmt__c, MonthDivideInputMonth__c,
+                            // Update 대상 : 대상부가세 유예 금액(MFS), 부가세 유예 만기일(MFS), 대출 실행일자(MFS), TFS 계약번호(MFS), MTBK 품의번호(MFS)
+                            Opportunity.VATAmount__c, Opportunity.VATExpiredDate__c, Opportunity.LoanExecuteDate__c, Opportunity.ContractNo__c, Opportunity.ConsentNo__c
                     FROM Quote
-                    WHERE Id =: responseInfo.quote_id
+                    WHERE Id =: responseInfo.quoteId
             ];
+            Boolean boolApplyRate = !responseInfo.applyRate.equals(quote.DefaultInterestRate__c);
+            Boolean boolLoanAmt = !responseInfo.loanAmt.equals(quote.fm_TotalLoanAmount__c);
+            Boolean boolSubsidyAmt = !responseInfo.subsidyAmt.equals(quote.fm_SubsidyAmount__c);
+            Boolean boolMFSCampAmt = !responseInfo.mfsCampAmt.equals(quote.DiscountAmt__c);
+            Boolean boolLoanTerm = !responseInfo.loanTerm.equals(quote.MonthDivideInputMonth__c);
+
+            String title = '[MFS 대출심사 ' + responseInfo.loanResult + ']';
+            String body = responseInfo.comment;
+            if(!boolApplyRate) {
+                body += '\n<요청>금리 : "' + quote.DefaultInterestRate__c + '", <승인>금리 : "' + responseInfo.applyRate + '"';
+            } else if(!boolLoanAmt) {
+                body += '\n<요청>금액 : "' + quote.fm_TotalLoanAmount__c + '", <승인>금액 : "' + responseInfo.loanAmt + '"';
+            } else if(!boolSubsidyAmt) {
+                body += '\n<요청>보조금 금액 : "' + quote.fm_SubsidyAmount__c + '", <승인>보조금 금액 : "' + responseInfo.subsidyAmt + '"';
+            }
+            /*
+            else if(!boolMFSCampAmt) {
+                body += '\n<요청>캠페인 금액 : "' + quote.DiscountAmt__c + '", <승인>캠페인 금액 : "' + responseInfo.mfsCampAmt + '"';
+            }
             */
-            // Test
+            else if(!boolLoanTerm) {
+                body += '\n<요청>상환개월수 : "' + quote.MonthDivideInputMonth__c + '", <승인>상환개월수 : "' + responseInfo.loanTerm + '"';
+            }
+
+            quote.DiscountAmt__c = Decimal.valueOf(responseInfo.mfsCampAmt);
+            quote.LoanResult__c = responseInfo.loanResult;
+            quote.Comment__c = body;
+            switch on responseInfo.loanResult {
+                when '승인' {
+                    Opportunity oppty = new Opportunity(Id = quote.OpportunityId);
+
+                    oppty.VATAmount__c = Decimal.valueOf(responseInfo.mfsVatAmt);
+                    oppty.VATExpiredDate__c = Date.valueOf(responseInfo.mfsVatDt);
+                    oppty.LoanExecuteDate__c = Date.valueOf(responseInfo.exctDt);
+                    oppty.ContractNo__c = responseInfo.cntrNo;
+                    oppty.ConsentNo__c = responseInfo.mtbkCnsnNo;
+                    update oppty;
+
+                    quote.IsApproveLoan__c = true;
+                }
+                when '실행' {
+                    Opportunity oppty = new Opportunity(Id = quote.OpportunityId);
+
+                    oppty.VATAmount__c = Decimal.valueOf(responseInfo.mfsVatAmt);
+                    oppty.VATExpiredDate__c = Date.valueOf(responseInfo.mfsVatDt);
+                    oppty.LoanExecuteDate__c = Date.valueOf(responseInfo.exctDt);
+                    oppty.ContractNo__c = responseInfo.cntrNo;
+                    oppty.ConsentNo__c = responseInfo.mtbkCnsnNo;
+                    update oppty;
+                }
+                // TODO. 보완요청이면 Canceled를 하는게 맞음?? 파일만 주면 될꺼같은데 대기상태로 해야하지 않나
+                when else { // 거절, 보완요청
+                    quote.Status = 'Canceled';
+                }
+            }
+            update quote;
+
+            CommonUtilController.NotificationWrap notiWrap = new CommonUtilController.NotificationWrap(
+                    title,
+                    body,
+                    notificationType.Id,
+                    UserInfo.getUserId(),
+                    quote.Id,
+                    new Set<String>{quote.OwnerId}
+            );
+            CommonUtilController.sendNotification(notiWrap);
 
             response.statusCode = 200;
             response.responseBody = Blob.valueOf(responseMessage);
@@ -126,6 +195,42 @@ global without sharing class IF_AWS {
             objLogWrapper.logType = IF_DTO.LOG_TYPE.AWS_IN;
 
             CommonUtilCustomController.setLog(objLogWrapper);
+        }
+    }
+
+    public class LoanResponseInfoVar {
+        public String oppId { get; set; }
+        public String quoteId { get; set; }
+        public String saleAgentId { get; set; }
+        public String loanResult { get; set; }
+        public String comment { get; set; }
+        public String applyRate { get; set; }
+        public String loanAmt { get; set; }
+        public String loanTerm { get; set; }
+        public String mfsVatAmt { get; set; }
+        public String mfsVatDt { get; set; }
+        public String exctDt { get; set; }
+        public String cntrNo { get; set; }
+        public String mtbkCnsnNo { get; set; }
+        public String subsidyAmt { get; set; }
+        public String mfsCampAmt { get; set; }
+
+        public LoanResponseInfoVar(IF_DTO.LoanResponseInfo info) {
+            this.oppId = info.opp_id;
+            this.quoteId = info.quote_id;
+            this.saleAgentId = info.sale_agent_id;
+            this.loanResult = info.loan_result;
+            this.comment = info.comment;
+            this.applyRate = info.apply_rate;
+            this.loanAmt = info.loan_amt;
+            this.loanTerm = info.loan_term;
+            this.mfsVatAmt = info.mfs_vat_amt;
+            this.mfsVatDt = info.mfs_vat_dt;
+            this.exctDt = info.exct_dt;
+            this.cntrNo = info.cntr_no;
+            this.mtbkCnsnNo = info.mtbk_cnsn_no;
+            this.subsidyAmt = info.subsidy_amt;
+            this.mfsCampAmt = info.mfs_camp_amt;
         }
     }
 }
