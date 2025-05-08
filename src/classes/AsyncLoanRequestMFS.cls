@@ -34,9 +34,9 @@ public without sharing class AsyncLoanRequestMFS implements Queueable, Database.
         /* ------------------------------------------------------------------- */
 
         List<Quote> quoteList = [
-                SELECT Id, CreatedById, CreatedBy.Name, DefaultInterestRate__c, MonthDivideInputMonth__c, TotalVehiclePrice__c, VATAmountMFS__c, AdvancePayment__c,
+                SELECT Id, CreatedById, CreatedBy.Name, DefaultInterestRate__c, MonthDivideInputMonth__c, TotalVehiclePrice__c, AdvancePayment__c,
                         fm_TotalLoanAmount__c, RegistrationTax__c, fm_DeliveryDiscountPrice__c, fm_TotalExtraExpenses__c, ru_SpecialPrice__c,
-                        OpportunityId, Opportunity.Name, Opportunity.TaxInvoiceDate__c,
+                        OpportunityId, Opportunity.Name, Opportunity.TaxInvoiceDate__c, Opportunity.VATAmount__c,
                         Opportunity.VirtualAccount__r.fm_VirtualAccount__c,
                         Account.Name, Account.PersonEmail, Account.BusinessNumber__c, Account.IDNumber__pc, Account.PersonMobilePhone, Account.RoadAddress__c,
                         Contact.Name, Contact.MobilePhone,
@@ -87,7 +87,7 @@ public without sharing class AsyncLoanRequestMFS implements Queueable, Database.
             loanRequestInfo.spc_vhc_price = String.valueOf(quote.ru_SpecialPrice__c);
             loanRequestInfo.pre_amt = String.valueOf(quote.AdvancePayment__c);
 
-            String amt = quote.VATAmountMFS__c != null ? String.valueOf(quote.VATAmountMFS__c) : '0';
+            String amt = quote.Opportunity.VATAmount__c != null ? String.valueOf(quote.Opportunity.VATAmount__c) : '0';
             loanRequestInfo.mfs_vat_amt = amt;
             loanRequestInfo.mfs_vat_request = amt != '0' ? 'Y' : 'N';
 

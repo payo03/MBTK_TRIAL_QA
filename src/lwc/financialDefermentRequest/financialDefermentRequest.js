@@ -10,6 +10,7 @@
   1.2      2025-02-27      th.kim                           유예요청 Step추가. Quote List조회 -> Quote의 데이터 Pick
   1.3      2025-03-31      th.kim                           RealSalesPrice -> fm_RealSellAmt__c 필드 변경
   1.4      2025-04-07      chaebeom.do@solomontech.net      모바일 동작 대응
+  1.5      2025-05-08      payo03@solomontech.net           유예금액 Validation
  */
 import { LightningElement, api, track, wire } from "lwc";
 import { NavigationMixin } from "lightning/navigation";
@@ -252,15 +253,18 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 
 	handleSubmit() {
 		let message = "";
+        let maxDefferedAmount = this.selectedQuoteRow.AdvancePayment__c || 0;
 
-		// 04/07 추가
-		// 4. [인도금 유예] 유예일 범위 Validation
+        console.log(maxDefferedAmount);
+        // 5. 인도금유예 신청 MAX값 Validation
+        if(!this.isVATDeferred && this.selectedQuoteRow.fm_DefermentVAT__c > maxDefferedAmount) message = '유예금액은 인도금을 초과할 수 없습니다';
+
+		// 4-1. [인도금 유예] 유예일 범위 Validation
 		if (!this.isVATDeferred && !this.isDaysValid) {
 			if(this.diffDay < this.minDays) 					message = this.selectedQuoteRow.underflowMessage;
 			if(this.diffDay > this.selectedQuoteRow.maxDays) 	message = this.selectedQuoteRow.overflowMessage;
 		}
-
-		// 4. [부가세 후취] 유예일 범위 Validation
+		// 4-2. [부가세 후취] 유예일 범위 Validation
 		if (this.isVATDeferred && !this.isDaysValid) message = "유예일수 문구를 확인해주세요";
 
 		// 3. [공통] 유예일 설정 Validation
