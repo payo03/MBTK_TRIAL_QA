@@ -3,13 +3,14 @@
 * @Description 		 :
 * @Target            :
 * @Modification Log
-  Ver      Date            Author                   Modification
+  Ver      Date            Author                               Modification
   ===================================================================================
-  1.0      2024-12-31      jh.jung                  Created
-  1.1      2025-02-13      tw.Choi                  Modified
-  2.0      2025-04-02      tw.Choi                  Refactoring(Wrapper클래스 사용)
-  2.1      2025-04-17      payo03@solomontech.net   모두싸인 후처리 Process 상속Class 구현
-  2.2      2025-04-17      payo03@solomontech.net   모두싸인 서명시 본인인증 추가
+  1.0      2024-12-31      jh.jung                              Created
+  1.1      2025-02-13      tw.Choi                              Modified
+  2.0      2025-04-02      tw.Choi                              Refactoring(Wrapper클래스 사용)
+  2.1      2025-04-17      payo03@solomontech.net               모두싸인 후처리 Process 상속Class 구현
+  2.2      2025-05-09      payo03@solomontech.net               모두싸인 서명시 본인인증 추가
+  2.3      2025-05-09      jh.jung, payo03@solomontech.net      Internal 서명자 추가 및 계약서 포함시에만 전달, metadata 추가
 */
 public without sharing class ModuSignPDFController {
 
@@ -410,12 +411,6 @@ public without sharing class ModuSignPDFController {
                 WHERE Id IN (SELECT AccountId FROM Contract WHERE Id = :recordId)
                 LIMIT 1
         ];
-        User internalUser = [
-                SELECT Id, Name, FirstName, EmployeeNumber, CompanyName, MobilePhone
-                FROM User
-                WHERE Id IN (SELECT Approver1__c FROM ApprovalHierarchy__c WHERE Stage__c = 'Contract Modusign Final')
-                LIMIT 1
-        ];
         Contract contractInfo = [
                 SELECT Id, Opportunity__r.NoMDSStatus__c, Opportunity__r.RealDriverAccount__c
                 FROM Contract
@@ -437,7 +432,6 @@ public without sharing class ModuSignPDFController {
 
         returnMap.put('account', account);
         returnMap.put('realDriver', realDriver);
-        returnMap.put('internalUser', internalUser);
         returnMap.put('opptyInfo', contractInfo.Opportunity__r);
         return returnMap;
     }
@@ -685,17 +679,12 @@ public without sharing class ModuSignPDFController {
         // ------------------ isRioMds / isContract 값에 따라 Request 결정 --------------------
 
         // 고정 텍스트에 필요한 레코드 정보
-        // TODO: 조회 개별로 하지말고 한번에 가져오기
         // 계약
         Contract contract = [SELECT Id, AccountId, ContractNumber FROM Contract WHERE Id = :recordId];
         // 고객
         Account account = [SELECT Id, Name, Phone, LastName, FirstName, RoadAddress__c, PersonEmail, PersonMobilePhone, BusinessNumber__c, DetailAddress__c, PostalCode__c, OwnerId FROM Account WHERE Id = :contract.AccountId];
-//            contact = [SELECT Id, AccountId, LastName, RoadAddress__c, DetailAddress__c, PostalCode__c, Email, MobilePhone, RealDriverMobile__c, RealDriverAddress__c, RealDriver__c FROM Contact WHERE Id = :contactId];
         // 판매자
         User user = [SELECT Name, FirstName, EmployeeNumber, CompanyName, MobilePhone, Agency__c FROM User WHERE Id = :account.OwnerId];
-        // 최종 모두사인 받는 Internal 유저
-//        User InternalUser = [SELECT Name, FirstName, EmployeeNumber, CompanyName, MobilePhone FROM User WHERE Id = :Label.MTBK_Internal_Modusign];
-        User InternalUser = [SELECT Name, FirstName, EmployeeNumber, CompanyName, MobilePhone FROM User WHERE Id IN (SELECT Approver1__c FROM ApprovalHierarchy__c WHERE Stage__c = 'Contract Modusign Final')];
         // 견적
         Quote quote = [SELECT Id, Product__r.Name FROM Quote WHERE ContractId = :recordId];
 
@@ -711,18 +700,6 @@ public without sharing class ModuSignPDFController {
         // 테스트 중 사고 방지를 위해 01098868298 으로 고정
 //        signingMethodMain.value = '01098868298';
 //        signingMethodMain.value = '01075782125';
-
-        IF_DTO.Participant participantInternal = new IF_DTO.Participant();
-        // SigningMethod Internal 설정
-        IF_DTO.SigningMethod signingMethodInternal = new IF_DTO.SigningMethod();
-        signingMethodInternal.type = 'KAKAO';
-
-        // TODO :: 화이트리스트 반영 필요
-        signingMethodInternal.value = InternalUser.MobilePhone.replace('-', '');
-
-        // 테스트 중 사고 방지를 위해 01098868298 으로 고정
-//        signingMethodInternal.value = '01098868298';
-//        signingMethodInternal.value = '01075782125';
 
 //        if(!Test.isRunningTest()) {
 //            // WhiteList ON_OFF
@@ -750,20 +727,73 @@ public without sharing class ModuSignPDFController {
             participantMain.verification = verification;
         }
 
-        participantInternal.locale = 'ko';
-//        participantInternal.signingDuration = InterfaceModuSign.getSmallestValueDefault();
-        participantInternal.signingDuration = 525600;  // 최대값 1년
-        participantInternal.role = 'MTBK INTERNAL';
-        participantInternal.name = InternalUser.Name;
-        participantInternal.signingOrder = 2;
-        participantInternal.signingMethod = signingMethodInternal;
-        participantInternal.fields = new List<IF_DTO.Field>();
+        // ver2.3
+        // 1. 결재라인 조회(Field 전부)
+        ApprovalHierarchy__c approvalHierarchy = [
+                SELECT Approver1__c, Approver1__r.Name, Approver1__r.MobilePhone,
+                        Approver2__c, Approver2__r.Name, Approver2__r.MobilePhone,
+                        Approver3__c, Approver3__r.Name, Approver3__r.MobilePhone,
+                        Approver4__c, Approver4__r.Name, Approver4__r.MobilePhone
+                FROM ApprovalHierarchy__c
+                WHERE Stage__c = 'Contract Modusign Final'
+        ];
+
+        Map<Integer, User> orderUserMap = new Map<Integer, User>();
+        Integer orderNumber = 1;
+        if(approvalHierarchy != null) {
+            if(approvalHierarchy.Approver1__c != null) orderUserMap.put(orderNumber++, approvalHierarchy.Approver1__r);
+            if(approvalHierarchy.Approver2__c != null) orderUserMap.put(orderNumber++, approvalHierarchy.Approver2__r);
+            if(approvalHierarchy.Approver3__c != null) orderUserMap.put(orderNumber++, approvalHierarchy.Approver3__r);
+            if(approvalHierarchy.Approver4__c != null) orderUserMap.put(orderNumber++, approvalHierarchy.Approver4__r);
+        }
+
+        // 2. 필드별로 Signing Order 지정(Field Not NULL인 데이터들만)
+        // 3. User조회
+        // 4. User에 갯수만큼 for문
+        List<IF_DTO.Participant> participantInternalList = new List<IF_DTO.Participant>();
+        List<String> metadataValueList = new List<String>{'init'};
+        for(Integer signingOrder : orderUserMap.keySet()) {
+            User internalUser = orderUserMap.get(signingOrder);
+
+            IF_DTO.Participant participantInternal = new IF_DTO.Participant();
+            String internalPhoneNumber = internalUser.MobilePhone.replace('-', '');
+
+            // SigningMethod Internal 설정
+            IF_DTO.SigningMethod signingMethodInternal = new IF_DTO.SigningMethod();
+            signingMethodInternal.type = 'KAKAO';
+            signingMethodInternal.value = internalPhoneNumber;
+
+            participantInternal.locale = 'ko';
+            participantInternal.signingDuration = 525600;  // 최대값 1년
+            participantInternal.role = 'MTBK INTERNAL' + signingOrder;
+            participantInternal.name = internalUser.Name;
+            participantInternal.signingOrder = signingOrder + 1;
+            participantInternal.signingMethod = signingMethodInternal;
+            participantInternal.fields = new List<IF_DTO.Field>();
+
+            if('KAKAO'.equals(signingMethodInternal.type)) {
+                IF_DTO.MobileIdentification mobile = new IF_DTO.MobileIdentification();
+                mobile.name = internalUser.Name;
+                mobile.phoneNumber = internalPhoneNumber;
+                IF_DTO.Verification verification = new IF_DTO.Verification();
+                verification.mobileIdentification = mobile;
+                participantInternal.verification = verification;
+            }
+
+            participantInternalList.add(participantInternal);
+            metadataValueList.add(internalPhoneNumber);
+        }
+        // ver2.3 metadata 추가
+        IF_DTO.Metadatas metadataInfo = new IF_DTO.Metadatas();
+        metadataInfo.key = 'internal';
+        metadataInfo.value = String.join(metadataValueList, ',');
 
         // Request
         IF_DTO.SigningRequestByPDF signingRequest = new IF_DTO.SigningRequestByPDF();
 
         // 고정 텍스트 넣는 곳
         signingRequest.requesterInputs = new List<IF_DTO.RequesterInput>();
+        signingRequest.metadatas = new List<IF_DTO.Metadatas>{metadataInfo};
 
         // 계약서 파트
         if(isContract) {
@@ -933,7 +963,11 @@ public without sharing class ModuSignPDFController {
         signingRequest.title = fileName;
         signingRequest.file = file;
         signingRequest.participants.add(participantMain);
-        signingRequest.participants.add(participantInternal);
+
+        // 계약서 포함된 경우에만 추가
+        if(isContract) {
+            signingRequest.participants.addAll(participantInternalList);
+        }
 
         return signingRequest;
     }

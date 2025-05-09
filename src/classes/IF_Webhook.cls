@@ -10,6 +10,7 @@
   1.2      2025-02-05      payo03@solomontech.net           모두싸인. 모든고객 서명완료시 상태값 분기 추가
   1.3      2025-02-26      payo03@solomontech.net           모두싸인. 후처리 Process 비동기로 실행
   1.4      2025-04-17      payo03@solomontech.net           모두싸인, 카카오톡 후처리 Process 상속Class 구현
+  1.5      2025-05-09      payo03@solomontech.net           Completed(Customer) 상태조건 변경. 최종서명자 -> metadata 확인
 */
 @RestResource(UrlMapping='/api/webhook/*')
 global without sharing class IF_Webhook {
@@ -181,6 +182,7 @@ global without sharing class IF_Webhook {
             List<Object> participants = (List<Object>) docResponseMap.get('participants');
             Integer currentSigningOrder = Integer.valueOf(docResponseMap.get('currentSigningOrder'));
 
+            /*
             Integer maxSigningOrder = 1;
             for(Object participantObj : participants) {
                 Map<String, Object> participant = (Map<String, Object>) participantObj;
@@ -189,6 +191,28 @@ global without sharing class IF_Webhook {
                 maxSigningOrder = Math.max(signingOrder, maxSigningOrder);
             }
             if(maxSigningOrder == currentSigningOrder) status = 'COMPLETED(CUSTOMER)';
+            */
+
+            // ver1.5 Completed(Customer) 상태조건 변경. 최종서명자 -> metadata 확인
+            List<Object> metadataList = (List<Object>) docResponseMap.get('metadatas');
+            List<String> numberList = new List<String>();
+            for(Object obj : metadataList) {
+                Map<String, Object> metadata = (Map<String, Object>) obj;
+
+                String value = String.valueOf(metadata.get('value'));
+                numberList.addAll(value.split(','));
+            }
+
+            // ver1.5 Completed(Customer) 상태조건 변경. 최종서명자 -> metadata 확인
+            for(Object participantObj : participants) {
+                Map<String, Object> participant = (Map<String, Object>) participantObj;
+                Integer signingOrder = Integer.valueOf(participant.get('signingOrder'));
+                Map<String, Object> signingMethod = (Map<String, Object>) participant.get('signingMethod');
+
+                // 현재 서명자가 내부 사용자인경우
+                String userNumber = String.valueOf(signingMethod.get('value'));
+                if (signingOrder.equals(currentSigningOrder) && numberList.contains(userNumber)) status = 'COMPLETED(CUSTOMER)';
+            }
         }
         return status;
     }

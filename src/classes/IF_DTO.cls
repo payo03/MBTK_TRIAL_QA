@@ -725,6 +725,7 @@ global without sharing class IF_DTO {
         public String title { get; set; }                   // [v]
         public String fileOpenPassword { get; set; }
         public List<RequesterInput> requesterInputs { get; set; }
+        public List<Metadatas> metadatas { get; set; }      // 내부사용자 확인 추가
     }
     // 1. File
     public class File {
@@ -741,7 +742,7 @@ global without sharing class IF_DTO {
         public Integer signingDuration { get; set; }
         public String locale { get; set; }
         public String role { get; set; }
-        public Verification verification { get; set; }    // 모두싸인 서명시 본인인증 추가
+        public Verification verification { get; set; }      // 모두싸인 서명시 본인인증 추가
     }
     // 2-1. Field
     public class Field {
@@ -797,13 +798,18 @@ global without sharing class IF_DTO {
         public String name { get; set; }
         public String phoneNumber { get; set; }
     }
-    // 3.
+    // 3. RequesterInput
     public class RequesterInput {
         public FieldType type { get; set; }         // [v]
         public Size size { get; set; }              // [v]
         public Position position { get; set; }      // [v]
         public TextStyle textStyle { get; set; }    // [v]
         public String value { get; set; }           // [v]
+    }
+    // 4. Metadata
+    public class Metadatas {                        // 내부사용자 확인 추가
+        public String key { get; set; }
+        public String value { get; set; }
     }
     // Modusign PDF Request Wrapper End
 
