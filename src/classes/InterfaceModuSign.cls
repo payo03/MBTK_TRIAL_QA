@@ -19,7 +19,7 @@
   1.5      2025-02-07      payo03@solomontech.net           문서취소 API 함수
   1.6      2025-03-17      jh.jung                          영업기회 모두싸인 호출 대응
   1.7      2025-04-17      payo03@solomontech.net           모두싸인 후처리 Process 상속Class 구현
-  1.8      2025-05-09      payo03@solomontech.net           모두싸인 서명시 본인인증 추가
+  1.8      2025-05-09      payo03@solomontech.net           모두싸인 서명시 본인인증 추가, metadata 추가
 */
 global without sharing class InterfaceModuSign {
 
@@ -201,9 +201,11 @@ global without sharing class InterfaceModuSign {
             inputMapList.addAll(CommonUtilCustomController.getConfigMapList(templateTitle));    // 파라미터로 받은 Title명을 기준으로 ConfigList Get
             List<Map<String, Object>> participantMapList = buildParticipantMapList(infoMapList);
             System.debug('\n' + JSON.serializePretty(participantMapList));
+            List<Map<String, String>> metadataList = buildMetadataList();     // ver1.8 metadata 추가
 
             documentMap.put('requesterInputMappings', inputMapList);
             documentMap.put('participantMappings', participantMapList);
+            documentMap.put('metadatas', metadataList);
             documentMap.put('title', templateTitle);
 
             if (title != null) documentMap.put('title', title);
@@ -878,6 +880,32 @@ global without sharing class InterfaceModuSign {
             System.debug('\n' + JSON.serializePretty(participantMapList));
         }
         return participantMapList;
+    }
+
+
+    private static List<Map<String, String>> buildMetadataList() {
+        ApprovalHierarchy__c hierarchy = [
+                SELECT Approver1__c, Approver1__r.MobilePhone,
+                        Approver2__c, Approver2__r.MobilePhone,
+                        Approver3__c, Approver3__r.MobilePhone,
+                        Approver4__c, Approver4__r.MobilePhone
+                FROM ApprovalHierarchy__c
+                WHERE Stage__c = 'Contract Modusign Final'
+        ];
+
+        List<String> phoneList = new List<String>();
+        if(hierarchy != null) {
+            if(hierarchy.Approver1__c != null) phoneList.add(hierarchy.Approver1__r.MobilePhone.replaceAll('-', ''));
+            if(hierarchy.Approver2__c != null) phoneList.add(hierarchy.Approver2__r.MobilePhone.replaceAll('-', ''));
+            if(hierarchy.Approver3__c != null) phoneList.add(hierarchy.Approver3__r.MobilePhone.replaceAll('-', ''));
+            if(hierarchy.Approver4__c != null) phoneList.add(hierarchy.Approver4__r.MobilePhone.replaceAll('-', ''));
+        }
+
+        Map<String, String> metadataMap = new Map<String, String>();
+        metadataMap.put('key', 'internal');
+        metadataMap.put('value', String.join(phoneList, ','));
+
+        return new List<Map<String, String>>{metadataMap};
     }
 
     // 서명요청 API Response값 저장
