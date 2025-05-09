@@ -741,6 +741,7 @@ global without sharing class IF_DTO {
         public Integer signingDuration { get; set; }
         public String locale { get; set; }
         public String role { get; set; }
+        public Verification verification { get; set; }    // 모두싸인 서명시 본인인증 추가
     }
     // 2-1. Field
     public class Field {
@@ -786,6 +787,15 @@ global without sharing class IF_DTO {
     public class CheckboxFieldGroup {
         public String groupLabel { get; set; }          // [v]
         public Integer minCheckRequired { get; set; }   // [v]
+    }
+    // 2-4. Verification
+    public class Verification {
+        public MobileIdentification mobileIdentification { get; set; }
+    }
+    // 2-4-1. Verification
+    public class MobileIdentification {
+        public String name { get; set; }
+        public String phoneNumber { get; set; }
     }
     // 3.
     public class RequesterInput {

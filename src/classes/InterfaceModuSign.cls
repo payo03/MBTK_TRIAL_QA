@@ -19,6 +19,7 @@
   1.5      2025-02-07      payo03@solomontech.net           문서취소 API 함수
   1.6      2025-03-17      jh.jung                          영업기회 모두싸인 호출 대응
   1.7      2025-04-17      payo03@solomontech.net           모두싸인 후처리 Process 상속Class 구현
+  1.8      2025-05-09      payo03@solomontech.net           모두싸인 서명시 본인인증 추가
 */
 global without sharing class InterfaceModuSign {
 
@@ -423,20 +424,8 @@ global without sharing class InterfaceModuSign {
                 file.FirstPublishLocationId = docId;
                 contentList.add(file);
 
-                ContentVersion file2 = new ContentVersion();
-                file2.Title = fileName;
-                file2.PathOnClient = doc.FileName__c + '.pdf';
-                file2.VersionData = fileBlob;
-                file2.IsMajorVersion = true;
-                file2.OwnerId = ownerId;
-                file2.FirstPublishLocationId = doc.ExternalId__c;
-                contentList.add(file2);
-
                 // 0225 영문 PDF 저장 추가
                 // ver1.6 영업기회 모두싸인 호출 대응
-                System.debug(docStatus);
-                System.debug(doc.FileName__c);
-                System.debug(doc.Contract__c);
                 if('COMPLETED(CUSTOMER)'.equals(docStatus) && doc.FileName__c.contains('계약서') && doc.Contract__c != null) {
                     /*
                     // 1. 파일 직접 생성하기 -> 도메인이 내부 도메인으로 생성되서 실패
@@ -473,8 +462,19 @@ global without sharing class InterfaceModuSign {
                     file3.FirstPublishLocationId = doc.ExternalId__c;
                     contentList.add(file3);
                 }
-
                 insert contentList;
+
+                // file에 링크 추가
+                String contentDocumentId = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :file.Id LIMIT 1].ContentDocumentId;
+
+                ContentDocumentLink link = new ContentDocumentLink(
+                    ContentDocumentId = contentDocumentId,
+                    LinkedEntityId = doc.ExternalId__c,
+                    ShareType = 'V',
+                    Visibility = 'AllUsers'
+                );
+                insert link;
+
             } else {
                 status = 'ERROR';
                 responseBody = docResponse.getBody();
@@ -837,11 +837,13 @@ global without sharing class InterfaceModuSign {
 
                 String role = String.valueOf(infoMap.get('role'));
                 String phoneNumber = String.valueOf(infoMap.get('sendTypeValue'));
+                String name = String.valueOf(infoMap.get('name'));
+                String sendType = String.valueOf(infoMap.get('sendType'));
                 // 0307 고객은 말일 자정에 만료, Internal은 최대값 1년
                 Integer documentDuration = '고객'.equals(role) ? getSmallestValueDefault() : 525600;
 
                 Map<String, Object> requestInfoMap = new Map<String, Object>();
-                requestInfoMap.put('type', infoMap.get('sendType'));
+                requestInfoMap.put('type', sendType);
 
                 // 테스트 중 사고 방지를 위해 번호고정
 //                requestInfoMap.put('value', '01029323033');
@@ -850,7 +852,7 @@ global without sharing class InterfaceModuSign {
                 // WhiteList ON_OFF
 //                if(!Test.isRunningTest() && !MODUSIGN_WHITE_LIST.contains(phoneNumber)) throw new AuraHandledException('The destination number ' + phoneNumber + ' is not in the white list.');
 
-                participantMap.put('name', infoMap.get('name'));
+                participantMap.put('name', name);
                 participantMap.put('excluded', false);
                 participantMap.put('signingDuration', documentDuration);
                 participantMap.put('signingMethod', requestInfoMap);
@@ -858,6 +860,17 @@ global without sharing class InterfaceModuSign {
                 participantMap.put('locale', infoMap.containsKey('locale')
                         ? infoMap.get('locale')
                         : DEFAULT_LOCALE);
+
+                // ver1.8 모두싸인 서명시 본인인증 추가
+                if('KAKAO'.equals(sendType)) {
+                    Map<String, Object> mobileIdentificationMap = new Map<String, Object>();
+                    mobileIdentificationMap.put('name', name);
+                    mobileIdentificationMap.put('phoneNumber', phoneNumber);
+
+                    Map<String, Object> verificationMap = new Map<String, Object>();
+                    verificationMap.put('mobileIdentification', mobileIdentificationMap);
+                    participantMap.put('verification', verificationMap);
+                }
 
                 System.debug('\n' + JSON.serializePretty(participantMap));
                 participantMapList.add(participantMap);
