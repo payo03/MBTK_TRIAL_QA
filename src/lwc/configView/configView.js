@@ -350,14 +350,12 @@ export default class configView extends LightningElement {
         };
 
         this.rData = [ ...this.rData, row ];
-        // Test용 함수
-//        this.callModuSignRequest();
-//        this.callKakaoAlimTalk();
     }
 
     addDetailRow(dataRow) {
         // Test용 함수
-        this.callModuSignRequest();
+//        this.callModuSignRequest();
+//        this.callKakaoAlimTalk();
         let row = {
             id: `row-${this.dData.length + 1}`,
             masterCode: this.currentRow.Name,
