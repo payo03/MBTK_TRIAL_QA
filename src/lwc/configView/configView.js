@@ -356,6 +356,8 @@ export default class configView extends LightningElement {
     }
 
     addDetailRow(dataRow) {
+        // Test용 함수
+        this.callModuSignRequest();
         let row = {
             id: `row-${this.dData.length + 1}`,
             masterCode: this.currentRow.Name,

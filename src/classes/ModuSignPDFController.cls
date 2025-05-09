@@ -9,6 +9,7 @@
   1.1      2025-02-13      tw.Choi                  Modified
   2.0      2025-04-02      tw.Choi                  Refactoring(Wrapper클래스 사용)
   2.1      2025-04-17      payo03@solomontech.net   모두싸인 후처리 Process 상속Class 구현
+  2.2      2025-04-17      payo03@solomontech.net   모두싸인 서명시 본인인증 추가
 */
 public without sharing class ModuSignPDFController {
 
@@ -304,7 +305,7 @@ public without sharing class ModuSignPDFController {
             wrapper.quoteProductName = contract.Quote__r.Product__r.Name != null ? contract.Quote__r.Product__r.Name : '';
             wrapper.quoteProductColour = contract.Quote__r.Product__r.Colour__c != null ? contract.Quote__r.Product__r.Colour__c : '';
 
-            wrapper.idNumber = contract.Account.IDNumber__pc != null ? contract.Account.IDNumber__pc : '';
+            // wrapper.idNumber = contract.Account.IDNumber__pc != null ? contract.Account.IDNumber__pc : '';
             wrapper.virtualAccount = !virtualAccountList.isEmpty() ? virtualAccountList.get(0).fm_VirtualAccount__c : '';
             wrapper.totalDownVATDefer = wrapper.contractDeposit + wrapper.quoteDeliveryDiscountPrice + wrapper.opportunityTaxDeferredAmount + wrapper.opportunityPaymentDeferredAmount;
             wrapper.loanAmount = wrapper.quoteTotalLoanAmount - wrapper.quoteCapitalDefermentAmount;
@@ -739,6 +740,15 @@ public without sharing class ModuSignPDFController {
         participantMain.signingOrder = 1;
         participantMain.signingMethod = signingMethodMain;
         participantMain.fields = new List<IF_DTO.Field>();
+        // ver2.2 모두싸인 서명시 본인인증 추가
+        if('KAKAO'.equals(signingMethodMain.type)) {
+            IF_DTO.MobileIdentification mobile = new IF_DTO.MobileIdentification();
+            mobile.name = signInfo.get('Name');
+            mobile.phoneNumber = phoneNumber;
+            IF_DTO.Verification verification = new IF_DTO.Verification();
+            verification.mobileIdentification = mobile;
+            participantMain.verification = verification;
+        }
 
         participantInternal.locale = 'ko';
 //        participantInternal.signingDuration = InterfaceModuSign.getSmallestValueDefault();
