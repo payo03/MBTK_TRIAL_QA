@@ -87,6 +87,8 @@ global without sharing class StageUpdateCommonController extends CommonAfterProc
                 isNoti = true;
                 notiTitleList.add('견적구성 오류 혹은 차량 배정불가');
                 notiBodyList.add('차량이 배정되지 않았습니다.\n관리자에게 문의 바랍니다.\n 차종명 : ' + productName);
+
+                throw new CustomException('선택하신 차종의 배정가능한 재고가 없습니다.');
             }
 
             Quote quote = quotes[0];
@@ -119,6 +121,8 @@ global without sharing class StageUpdateCommonController extends CommonAfterProc
                 pageRef = JSON.serialize(pageRefMap);
                 notiTitleList.add('출고일 자동 선택 불가');
                 notiBodyList.add('해당 기회의 출고일을 다시 선택해 주세요. \n 기회 이름 : ' + contract.Opportunity__r.Name);
+
+                throw new CustomException('출고일 지정이 불가능합니다');
             }
         } catch (Exception e) {
 

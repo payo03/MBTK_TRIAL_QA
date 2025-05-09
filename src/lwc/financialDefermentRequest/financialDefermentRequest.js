@@ -253,27 +253,31 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 
 	handleSubmit() {
 		let message = "";
-        let maxDefferedAmount = this.selectedQuoteRow.AdvancePayment__c || 0;
 
-        console.log(maxDefferedAmount);
-        // 5. 인도금유예 신청 MAX값 Validation
-        if(!this.isVATDeferred && this.selectedQuoteRow.fm_DefermentVAT__c > maxDefferedAmount) message = '유예금액은 인도금을 초과할 수 없습니다';
-
-		// 4-1. [인도금 유예] 유예일 범위 Validation
+		// 5-1. [인도금 유예] 유예일 범위 Validation
 		if (!this.isVATDeferred && !this.isDaysValid) {
 			if(this.diffDay < this.minDays) 					message = this.selectedQuoteRow.underflowMessage;
 			if(this.diffDay > this.selectedQuoteRow.maxDays) 	message = this.selectedQuoteRow.overflowMessage;
 		}
-		// 4-2. [부가세 후취] 유예일 범위 Validation
+		// 5-2. [부가세 후취] 유예일 범위 Validation
 		if (this.isVATDeferred && !this.isDaysValid) message = "유예일수 문구를 확인해주세요";
 
-		// 3. [공통] 유예일 설정 Validation
+		// 4. [공통] 유예일 설정 Validation
 		if (
 			(this.isVATDeferred && !this.selectedQuoteRow.RequestDays__c) ||    // 부가세후취
 			(!this.isVATDeferred && !this.selectedQuoteRow.RequestDueDate__c)   // 인도금유예
 		) {
 			message = "유예일을 설정해 주세요";
 		}
+
+  	    // 3. 인도금유예 신청 MAX값 Validation
+        let maxDefferedAmount = this.selectedQuoteRow.AdvancePayment__c || 0;
+        if (this.isVATDeferred) {
+            let totPrice = this.selectedQuoteRow.fm_TotalRealAndSpecialPrice__c * 0.1;  // 10%의 값
+
+            maxDefferedAmount = Math.min(maxDefferedAmount, totPrice);
+        }
+        if(this.selectedQuoteRow.fm_DefermentVAT__c > maxDefferedAmount) message = '유예금액은 ' + maxDefferedAmount + '원을 초과할 수 없습니다';
 
 		// 2. [인도금 유예] 금액 0원 이하 Validation
 		if (!this.isVATDeferred && !this.selectedQuoteRow.fm_DefermentVAT__c) message = "유예 금액을 입력해주세요";
