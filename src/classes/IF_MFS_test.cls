@@ -8,7 +8,7 @@
   1.0      2025-04-23      payo03@solomontech.net           Created
 */
 @IsTest
-public class IF_AWS_test {
+public class IF_MFS_test {
     @TestSetup
     static void setup() {
         TestObjectBuilder2.createContractBundle();
@@ -45,7 +45,7 @@ public class IF_AWS_test {
         req.requestBody = Blob.valueOf(requestBody);
         RestContext.request = req;
         RestContext.response = new RestResponse();
-        IF_AWS.doGet();
+        IF_MFS.doGet();
 
         requestBody = 'test';
         req.requestURI = '/v1/aws/healthcheck';
@@ -53,7 +53,7 @@ public class IF_AWS_test {
         req.requestBody = Blob.valueOf(requestBody);
         RestContext.request = req;
         RestContext.response = new RestResponse();
-        IF_AWS.doPost();
+        IF_MFS.doPost();
 
         requestBody = JSON.serialize(info);
         req.requestURI = '/v1/aws/loan/response';
@@ -61,7 +61,7 @@ public class IF_AWS_test {
         req.requestBody = Blob.valueOf(requestBody);
         RestContext.request = req;
         RestContext.response = new RestResponse();
-        IF_AWS.doPost();
+        IF_MFS.doPost();
 
         Test.stopTest();
     }

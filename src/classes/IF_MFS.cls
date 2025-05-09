@@ -8,7 +8,7 @@
   1.0      2025-04-23      payo03@solomontech.net           Created
 */
 @RestResource(UrlMapping='/v1/aws/*')
-global without sharing class IF_AWS {
+global without sharing class IF_MFS {
 
     global static String status;
     global static Datetime responseTime;
@@ -107,11 +107,11 @@ global without sharing class IF_AWS {
                     FROM Quote
                     WHERE Id =: responseInfo.quoteId
             ];
-            Boolean boolApplyRate = !responseInfo.applyRate.equals(quote.DefaultInterestRate__c);
-            Boolean boolLoanAmt = !responseInfo.loanAmt.equals(quote.fm_TotalLoanAmount__c);
-            Boolean boolSubsidyAmt = !responseInfo.subsidyAmt.equals(quote.fm_SubsidyAmount__c);
-            Boolean boolMFSCampAmt = !responseInfo.mfsCampAmt.equals(quote.DiscountAmt__c);
-            Boolean boolLoanTerm = !responseInfo.loanTerm.equals(quote.MonthDivideInputMonth__c);
+            Boolean boolApplyRate = !quote.DefaultInterestRate__c.equals(responseInfo.applyRate);
+            Boolean boolLoanAmt = !quote.fm_TotalLoanAmount__c.equals(responseInfo.loanAmt);
+            Boolean boolSubsidyAmt = !quote.fm_SubsidyAmount__c.equals(responseInfo.subsidyAmt);
+//            Boolean boolMFSCampAmt = !quote.DiscountAmt__c.equals(responseInfo.mfsCampAmt);
+            Boolean boolLoanTerm = !quote.MonthDivideInputMonth__c.equals(responseInfo.loanTerm);
 
             String title = '[MFS 대출심사 ' + responseInfo.loanResult + ']';
             String body = responseInfo.comment;
