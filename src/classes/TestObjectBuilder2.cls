@@ -25,7 +25,6 @@ public class TestObjectBuilder2 {
     @TestVisible static List<AvisOrderInfo__c>          infoList;
     @TestVisible static List<AvisConfig__c>             configList;
     @TestVisible static List<IF_Master__c>              ifMasterList;
-    @TestVisible static List<AssignRequest__c>          requestList;
     @TestVisible static VehicleCategory__c              vehicleCategory;
     @TestVisible static Product2                        product;
     @TestVisible static Pricebook2                      pricebook;
@@ -944,26 +943,6 @@ public class TestObjectBuilder2 {
         return vehicleStock;
     }
 
-    public static List<AssignRequest__c> createAssignRequestList() {
-        if(requestList == null) {
-            if(opportunity == null) insert createOpportunity();
-            if(vehicleStock == null) insert createVehicleStock();
-            requestList = new List<AssignRequest__c>();
-            for(Integer i = 10; i >= 7; i--) {
-                AssignRequest__c assignRequestObj = new AssignRequest__c();
-                assignRequestObj.Type__c = '계약금 요청';
-                assignRequestObj.RequestDate__c = System.today().addDays(-(i));
-                assignRequestObj.Opportunity__c = opportunity.Id;
-                assignRequestObj.VehicleStock__c = vehicleStock.Id;
-
-                requestList.add(assignRequestObj);
-                System.debug('requestList :: ' + requestList);
-            }
-            System.debug('requestList :: ' + requestList);
-        }
-        return requestList;
-    }
-
     public static List<VirtualAccountMaster__c> createVirtualAccountMasterList() {
         if(virtualAccountMasterList == null) {
             virtualAccountMasterList = new List<VirtualAccountMaster__c>();
@@ -1110,6 +1089,9 @@ public class TestObjectBuilder2 {
             quote.Segment__c = 'TPP';
             quote.Approver__c = user.Id;
             quote.Status = 'Published';
+
+            quote.DefaultInterestRate__c = 1;
+            quote.MonthDivideInputMonth__c = 1;
         }
         return quote;
     }
@@ -1837,7 +1819,6 @@ public class TestObjectBuilder2 {
             opportunityAdvance.ContractId = contractAdvance.Id;
             update opportunityAdvance;
         }
-        if(requestList == null) insert createAssignRequestList();
         if(defermentRequest == null) insert createDefermentRequest();
         if(defermentRequest2 == null) insert createStatusDefermentRequest();
     }

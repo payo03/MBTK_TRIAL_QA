@@ -14,6 +14,12 @@ public without sharing class InterfaceMFS {
     public static final String IF_MFS000 = 'AWS_LOAN000';   // API Health Check
     public static final String IF_MFS001 = 'AWS_LOAN001';
 
+    @AuraEnabled
+    public static void sendLoanApproval(String recordId) {
+        System.debug(recordId);
+        System.enqueueJob(new AsyncLoanRequestMFS(new List<String>{recordId}, new Map<String, String>()));
+    }
+
     public static void doHealthCheck() {
         IF_Util ifUtil = new IF_Util(IF_MFS000);
 
