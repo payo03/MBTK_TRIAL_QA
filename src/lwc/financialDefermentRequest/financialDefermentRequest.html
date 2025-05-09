@@ -74,22 +74,26 @@
 				
 				<!-- 유예 금액 -->
 				<div class="slds-p-bottom_small">
-					<template if:true={isVATDeferred}>
-						<p class="info-text">유예 금액:
-							<lightning-formatted-number value={selectedQuoteRow.fm_DefermentVAT__c}></lightning-formatted-number>
-							원
-						</p>
-					</template>
-					<template if:false={isVATDeferred}>
-						<lightning-input
-							type="number"
-							label="유예 금액"
-							name="fm_DefermentVAT__c"
-							value={selectedQuoteRow.fm_DefermentVAT__c}
-							class="custom-input"
-							onchange={handleChange}>
-						</lightning-input>
-					</template>
+<!--
+<template if:true={isVATDeferred}>
+	<p class="info-text">유예 금액:
+		<lightning-formatted-number value={selectedQuoteRow.fm_DefermentVAT__c}></lightning-formatted-number>
+		원
+	</p>
+</template>
+<template if:false={isVATDeferred}>
+-->
+					<lightning-input
+						type="number"
+						label="유예 금액"
+						name="fm_DefermentVAT__c"
+						value={selectedQuoteRow.fm_DefermentVAT__c}
+						class="custom-input"
+						onchange={handleChange}>
+					</lightning-input>
+<!--
+</template>
+-->
 				</div>
 				
 				
