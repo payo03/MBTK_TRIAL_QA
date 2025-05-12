@@ -66,7 +66,7 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
 
         Set<String> vinNumberSet = new Set<String>();
         List<AvisOrderInfo__c> infoList = new List<AvisOrderInfo__c>();
-        List<String> orderConfirmList = new List<String>();
+//        List<String> orderConfirmList = new List<String>();
         for(SObject record : records) {
             AvisOrderInfo__c info = (AvisOrderInfo__c) record;
 
