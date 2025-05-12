@@ -116,6 +116,7 @@ public without sharing class InterfaceMFS {
                     String objectType = Id.valueOf(externalId).getSobjectType().getDescribe().getName();
 
                     IFAuditLogDetail__c logDetail = new IFAuditLogDetail__c();
+                    logDetail.IsRequest__c = true;
                     logDetail.IFAuditLog__c = log.Id;
                     logDetail.ObjectType__c = objectType;
                     logDetail.ExternalId__c = externalId;

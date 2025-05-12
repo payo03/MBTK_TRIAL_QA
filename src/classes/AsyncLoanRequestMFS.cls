@@ -35,7 +35,7 @@ public without sharing class AsyncLoanRequestMFS implements Queueable, Database.
 
         List<Quote> quoteList = [
                 SELECT Id, CreatedById, CreatedBy.Name, DefaultInterestRate__c, MonthDivideInputMonth__c, TotalVehiclePrice__c, AdvancePayment__c,
-                        fm_TotalLoanAmount__c, RegistrationTax__c, fm_DeliveryDiscountPrice__c, fm_TotalExtraExpenses__c, ru_SpecialPrice__c,
+                        fm_TotalLoanAmount__c, RegistrationTax__c, fm_DeliveryDiscountPrice__c, fm_TotalExtraExpenses__c, fm_SubsidyAmount__c, ru_SpecialPrice__c,
                         OpportunityId, Opportunity.Name, Opportunity.TaxInvoiceDate__c, Opportunity.VATAmount__c,
                         Opportunity.VirtualAccount__r.fm_VirtualAccount__c,
                         Account.Name, Account.PersonEmail, Account.BusinessNumber__c, Account.IDNumber__pc, Account.PersonMobilePhone, Account.RoadAddress__c,
@@ -46,6 +46,7 @@ public without sharing class AsyncLoanRequestMFS implements Queueable, Database.
                             SELECT Id, Name, Type__c, fm_Price__c, SpecialPrice__c,
                                     VehicleOptionMaster__r.fm_CFDivision__c
                             FROM QuoteDetail__r
+                            WHERE Type__c IN ('특장', '주유상품권')
                         )
                 FROM Quote
                 WHERE Id IN :quoteIdList
@@ -86,6 +87,8 @@ public without sharing class AsyncLoanRequestMFS implements Queueable, Database.
             loanRequestInfo.reg_tax = String.valueOf(quote.RegistrationTax__c);
             loanRequestInfo.spc_vhc_price = String.valueOf(quote.ru_SpecialPrice__c);
             loanRequestInfo.pre_amt = String.valueOf(quote.AdvancePayment__c);
+            loanRequestInfo.campaign = '캠페인 이름 받아야함';
+            loanRequestInfo.campaign_dc_amt = String.valueOf(quote.fm_SubsidyAmount__c);
 
             String amt = quote.Opportunity.VATAmount__c != null ? String.valueOf(quote.Opportunity.VATAmount__c) : '0';
             loanRequestInfo.mfs_vat_amt = amt;
@@ -116,10 +119,6 @@ public without sharing class AsyncLoanRequestMFS implements Queueable, Database.
                 switch on detail.Type__c {
                     when '특장'       { loanRequestInfo.spc_vhc = detail.Name; }
                     when '주유상품권'  { loanRequestInfo.o_coupon_price = String.valueOf(detail.fm_Price__c); }
-                    when '캠페인' {
-                        loanRequestInfo.campaign = detail.Name;
-                        loanRequestInfo.campaign_dc_amt = String.valueOf(detail.fm_Price__c);
-                    }
                 }
 
                 String CF = detail.VehicleOptionMaster__r.fm_CFDivision__c;
@@ -159,8 +158,7 @@ public without sharing class AsyncLoanRequestMFS implements Queueable, Database.
             infoMap.put('cHeaderMap', cHeaderMap);
 
             Map<String, Object> resultMap = InterfaceMFS.doCallOutMFSLog(infoMap);
-            resultMap.put('isAll', true);
-//            SAPCommon.syncLogDetailUpdate(X_API_KEY, resultMap);    // AWS 통신 완료시. Sync
+            System.debug(JSON.serializePretty(resultMap));
         }
     }
 }
