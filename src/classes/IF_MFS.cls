@@ -84,6 +84,7 @@ global without sharing class IF_MFS {
         }
     }
 
+    // TODO : Log Update로직 필요
     private static void updateLoanResult() {
         CustomNotificationType notificationType = [SELECT Id FROM CustomNotificationType WHERE DeveloperName = 'Custom' LIMIT 1];
         String requestBody = request.requestBody.toString();
@@ -100,17 +101,17 @@ global without sharing class IF_MFS {
 
             Quote quote = [
                     SELECT Id, OwnerId, OpportunityId, IsApproveLoan__c, Status,
-                            // 비교대상 : 대출금리, 대출금액, Subsidy금액, MFS캠페인 금액, 원금상환 개월수
-                            DefaultInterestRate__c, fm_TotalLoanAmount__c, fm_SubsidyAmount__c, DiscountAmt__c, MonthDivideInputMonth__c,
-                            // Update 대상 : 대상부가세 유예 금액(MFS), 부가세 유예 만기일(MFS), 대출 실행일자(MFS), TFS 계약번호(MFS), MTBK 품의번호(MFS)
-                            Opportunity.VATAmount__c, Opportunity.VATExpiredDate__c, Opportunity.LoanExecuteDate__c, Opportunity.ContractNo__c, Opportunity.ConsentNo__c
+                            // 비교대상 : 대출금리, 대출금액, Subsidy금액, 원금상환 개월수, 캠페인금액(MFS)
+                            DefaultInterestRate__c, fm_TotalLoanAmount__c, fm_SubsidyAmount__c, MonthDivideInputMonth__c, Finance__r.CampaignAmount__c,
+                            // Update 대상 : 결과, 결과메시지, 캠페인금액, 보조금금액
+                            LoanResult__c, Comment__c, SubventionAmount__c, CampaignAmount__c
                     FROM Quote
                     WHERE Id =: responseInfo.quoteId
             ];
             Boolean boolApplyRate = !quote.DefaultInterestRate__c.equals(responseInfo.applyRate);
             Boolean boolLoanAmt = !quote.fm_TotalLoanAmount__c.equals(responseInfo.loanAmt);
             Boolean boolSubsidyAmt = !quote.fm_SubsidyAmount__c.equals(responseInfo.subsidyAmt);
-//            Boolean boolMFSCampAmt = !quote.DiscountAmt__c.equals(responseInfo.mfsCampAmt);
+//            Boolean boolMFSCampAmt = !quote.Finance__r.CampaignAmount__c.equals(responseInfo.mfsCampAmt);
             Boolean boolLoanTerm = !quote.MonthDivideInputMonth__c.equals(responseInfo.loanTerm);
 
             String title = '[MFS 대출심사 ' + responseInfo.loanResult + ']';
@@ -124,25 +125,26 @@ global without sharing class IF_MFS {
             }
             /*
             else if(!boolMFSCampAmt) {
-                body += '\n<요청>캠페인 금액 : "' + quote.DiscountAmt__c + '", <승인>캠페인 금액 : "' + responseInfo.mfsCampAmt + '"';
+                body += '\n<요청>캠페인 금액 : "' + quote.Finance__r.CampaignAmount__c + '", <승인>캠페인 금액 : "' + responseInfo.mfsCampAmt + '"';
             }
             */
             else if(!boolLoanTerm) {
                 body += '\n<요청>상환개월수 : "' + quote.MonthDivideInputMonth__c + '", <승인>상환개월수 : "' + responseInfo.loanTerm + '"';
             }
 
-            quote.DiscountAmt__c = Decimal.valueOf(responseInfo.mfsCampAmt);
+            quote.SubventionAmount__c = Decimal.valueOf(responseInfo.subsidyAmt);
+            quote.CampaignAmount__c = Decimal.valueOf(responseInfo.mfsCampAmt);
             quote.LoanResult__c = responseInfo.loanResult;
             quote.Comment__c = body;
             switch on responseInfo.loanResult {
                 when '승인' {
                     Opportunity oppty = new Opportunity(Id = quote.OpportunityId);
 
-                    oppty.VATAmount__c = Decimal.valueOf(responseInfo.mfsVatAmt);
-                    oppty.VATExpiredDate__c = Date.valueOf(responseInfo.mfsVatDt);
-                    oppty.LoanExecuteDate__c = Date.valueOf(responseInfo.exctDt);
-                    oppty.ContractNo__c = responseInfo.cntrNo;
-                    oppty.ConsentNo__c = responseInfo.mtbkCnsnNo;
+                    oppty.VATAmount__c = Decimal.valueOf(responseInfo.mfsVatAmt);       // 대상부가세 유예 금액(MFS)
+                    oppty.VATExpiredDate__c = Date.valueOf(responseInfo.mfsVatDt);      // 부가세 유예 만기일(MFS)
+                    oppty.LoanExecuteDate__c = Date.valueOf(responseInfo.exctDt);       // 대출 실행일자(MFS)
+                    oppty.ContractNo__c = responseInfo.cntrNo;                          // TFS 계약번호(MFS)
+                    oppty.ConsentNo__c = responseInfo.mtbkCnsnNo;                       // MTBK 품의번호(MFS)
                     update oppty;
 
                     quote.IsApproveLoan__c = true;
@@ -150,11 +152,11 @@ global without sharing class IF_MFS {
                 when '실행' {
                     Opportunity oppty = new Opportunity(Id = quote.OpportunityId);
 
-                    oppty.VATAmount__c = Decimal.valueOf(responseInfo.mfsVatAmt);
-                    oppty.VATExpiredDate__c = Date.valueOf(responseInfo.mfsVatDt);
-                    oppty.LoanExecuteDate__c = Date.valueOf(responseInfo.exctDt);
-                    oppty.ContractNo__c = responseInfo.cntrNo;
-                    oppty.ConsentNo__c = responseInfo.mtbkCnsnNo;
+                    oppty.VATAmount__c = Decimal.valueOf(responseInfo.mfsVatAmt);       // 대상부가세 유예 금액(MFS)
+                    oppty.VATExpiredDate__c = Date.valueOf(responseInfo.mfsVatDt);      // 부가세 유예 만기일(MFS)
+                    oppty.LoanExecuteDate__c = Date.valueOf(responseInfo.exctDt);       // 대출 실행일자(MFS)
+                    oppty.ContractNo__c = responseInfo.cntrNo;                          // TFS 계약번호(MFS)
+                    oppty.ConsentNo__c = responseInfo.mtbkCnsnNo;                       // MTBK 품의번호(MFS)
                     update oppty;
                 }
                 // TODO. 보완요청이면 Canceled를 하는게 맞음?? 파일만 주면 될꺼같은데 대기상태로 해야하지 않나
