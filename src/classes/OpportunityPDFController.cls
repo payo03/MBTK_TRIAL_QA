@@ -10,6 +10,7 @@
 public with sharing class OpportunityPDFController {
 
     public ApexPages.StandardController vfController { get; set; }
+
     public static String recordId;
     public static OpportunityPDFWrapper pdfWrapper { get; set; }
 
