@@ -454,6 +454,7 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
                     if (info.ETA__c > Date.today().addMonths(2)) stock.Status__c = '60일 재고';
                 }
             }
+            stock.RealArrivalDate__c = info.RealArrivalDate__c;
             updateStockList.add(stock);
         }
         if(!updateStockList.isEmpty()) update updateStockList;

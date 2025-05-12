@@ -265,7 +265,13 @@ global without sharing class IF_Webhook {
                '      "verification": null' +
                '    }' +
                '  ],' +
-               '  "currentSigningOrder": 1' +
+               '  "currentSigningOrder": 1,' +
+               '  "metadatas" : [' +
+               '    {' +
+               '      "key" : "internal", ' +
+               '      "value" : "010" ' +
+               '    }' +
+               '  ]' +
                '}';
     }
 }

@@ -12,15 +12,19 @@ private class InterfaceModuSign_test {
     @TestSetup
     static void setup() {
         TestObjectBuilder2.createIfBundle();
-
         TestObjectBuilder2.createContractBundle();
+
+        ApprovalHierarchy__c hierarchy = new ApprovalHierarchy__c();
+        hierarchy.Stage__c = 'Contract Modusign Final';
+        hierarchy.Approver1__c = UserInfo.getUserId();
+        insert hierarchy;
     }
 
     @IsTest
     static void testBehavior() {
         Contract contract = [SELECT Id FROM Contract LIMIT 1];
         Account account = [SELECT Id FROM Account LIMIT 1];
-        APIDocument__c document = [SELECT Id FROM APIDocument__c LIMIT 1];
+        Contact contact = [SELECT Id FROM Contact LIMIT 1];
 
         IF_DTO.Participant participant1 = new IF_DTO.Participant();
         // Field 1: TEXT
@@ -145,8 +149,15 @@ private class InterfaceModuSign_test {
         infoMapEntry2.put('validDuration', 4);
         infoMapEntry2.put('sendType', 'kakao');
         infoMapEntry2.put('role', '을');
+        Map<Object, Object> infoMapEntry3 = new Map<Object, Object>();
+        infoMapEntry3.put('objectName', 'Contact');
+        infoMapEntry3.put('recordId', contact.Id);
+        infoMapEntry3.put('validDuration', 4);
+        infoMapEntry3.put('sendType', 'kakao');
+        infoMapEntry3.put('customerType', 'OWNER');
+        infoMapEntry3.put('role', '을');
 
-        List<Map<Object, Object>> infoMapList = new List<Map<Object, Object>>{infoMapEntry1, infoMapEntry2};
+        List<Map<Object, Object>> infoMapList = new List<Map<Object, Object>>{infoMapEntry1, infoMapEntry2, infoMapEntry3};
 
         Map<String, Object> templateMap = new Map<String, Object>();
         templateMap.put('templateTitle', '[샘플] 개인정보 수집 이용 동의서');
@@ -170,6 +181,7 @@ private class InterfaceModuSign_test {
 
         InterfaceModuSign.doCallOutURLtoPDF(document.Id, 'COMPLETED(CUSTOMER)', false);
         InterfaceModuSign.getSmallestValue(100);
+        InterfaceModuSign.getSmallestValueDefault();
         InterfaceModuSign.doCallOutCancel(new Map<String, Object>(), '');
     }
 }
