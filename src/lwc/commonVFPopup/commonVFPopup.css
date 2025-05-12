@@ -1,0 +1,24 @@
+.modal-header {
+    text-align: center;
+}
+
+.modal-body {
+    text-align: center;
+}
+
+.modal-iframe-wrapper {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.modal-iframe {
+    width: 100%;
+    height: 65vh;
+    border: none;
+}
+
+.modal-footer {
+    text-align: center;
+}

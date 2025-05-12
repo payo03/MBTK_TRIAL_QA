@@ -1,0 +1,34 @@
+<template>
+    <template if:true={isOpen}>
+        <section class="slds-modal slds-fade-in-open slds-modal_medium" role="alertdialog" aria-modal="true" tabindex="-1" aria-labelledby="modal-heading-id" aria-describedby="modal-content-id">
+            <div class="slds-modal__container" style={containerStyle}>
+
+                <!-- Header -->
+                <header class="slds-modal__header modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close" onclick={handleCancel}>
+                        <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Cancel and close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium" id="modal-heading-id">{header}</h2>
+                </header>
+
+                <!-- Body -->
+                <div class="slds-modal__content modal-body" style="padding: 0; overflow: hidden;">
+                    <iframe
+                            src={vfPageUrl}
+                            class="modal-iframe"
+                            style={iframeStyle}>
+                    </iframe>
+                </div>
+
+
+                <!-- Footer -->
+                <footer class="slds-modal__footer modal-footer">
+                    <lightning-button label="닫기" onclick={handleCancel}></lightning-button>&nbsp;
+                    <lightning-button variant="brand" label={button} onclick={handleButton}></lightning-button>
+                </footer>
+
+            </div>
+        </section>
+    </template>
+</template>

@@ -1,0 +1,22 @@
+<!--
+- @Author            : payo03@solomontech.net
+- @Description 		 : 
+- @Target            : 
+- @Modification Log
+- Ver      Date            Author                           Modification
+- ===================================================================================
+- 1.0      2025-05-12      payo03@solomontech.net           Created
+-->
+<!-- Loan PDF Send -->
+<template>
+    <c-common-v-f-popup
+            is-open={isModalOpen}
+            vf-page-url={vfPageURL}
+            header="대출 PDF정보(MFS)"
+            button="전송"
+            popup-width="1000px"
+            popup-height="90vh"
+            onclose={handleClose}
+            onaction={handleSendMail}>
+    </c-common-v-f-popup>
+</template>
