@@ -1,0 +1,339 @@
+<apex:page id="InvoicePDF"
+           standardController="Opportunity"
+           extensions="OpportunityPDFController"
+           renderAs="pdf"
+           sidebar="false"
+           showHeader="false"
+           applyHtmlTag="false"
+           applyBodyTag="false"
+           action="{!getVFInfo}">
+
+    <html>
+    <head>
+        <style>
+            .title-row {
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .title-table {
+                width: 100%;
+                border: none;
+                table-layout: fixed;
+            }
+
+            .title-table td {
+                border: none;
+                vertical-align: middle;
+                padding: 0;
+            }
+
+            .title-logo {
+                width: 50px;
+                text-align: left;
+            }
+
+            .title-text {
+                text-align: center;
+                font-size: 16pt;
+                font-weight: bold;
+            }
+
+            body {
+                font-family: Arial Unicode MS;
+                font-size: 10pt;
+                margin: 0;
+                padding: 0;
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            th, td {
+                border: 1px solid #000;
+                padding: 4px;
+                text-align: center;
+                font-size: 9pt;
+                white-space: normal;
+                word-wrap: break-word;
+            }
+
+            .title {
+                text-align: center;
+                font-size: 16pt;
+                font-weight: bold;
+                margin: 10px 0 10px 0;
+            }
+
+            /* 상단 전용 3분할 영역 */
+            .info-container {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+                margin-bottom: 20px;
+            }
+
+            .info-cell {
+                display: table-cell;
+                vertical-align: top;
+            }
+
+            .left-info {
+                width: 33%;
+                text-align: left;
+            }
+
+            .middle-info {
+                width: 33%;
+                text-align: center;
+            }
+
+            .right-info {
+                width: 33%;
+                text-align: left;
+                padding-left: 15px;
+                font-size: 7.5pt;
+            }
+
+            .info-table td {
+                border: none;
+                text-align: left;
+                padding: 2px;
+            }
+
+            .double-header th {
+                border-top: 3px double #000;
+                border-bottom: 3px double #000;
+                background-color: #f0f0f0;
+                font-weight: bold;
+            }
+
+            /* 하단 전용 3분할 영역 */
+            .footer-container {
+                display: table;
+                position: fixed;
+                bottom: 10px;
+                padding-left: 10px;
+                padding-right: 10px;
+                width: 100%;
+                font-size: 8pt;
+                table-layout: fixed;
+            }
+
+            .footer-left {
+                display: table-cell;
+                width: 33%;
+                text-align: left;
+                vertical-align: bottom;
+                padding: 0;
+                margin: 0;
+            }
+
+            .footer-middle {
+                display: table-cell;
+                width: 33%;
+                vertical-align: bottom;
+            }
+
+            .footer-right {
+                display: table-cell;
+                width: 33%;
+                text-align: right;
+                vertical-align: bottom;
+            }
+
+            .signature-table {
+                width: 120px;
+                border: 1px solid #000;
+                border-collapse: collapse;
+                margin-left: auto;
+                margin-right: 0;
+                table-layout: fixed;
+            }
+
+            .signature-table td {
+                border: 1px solid #000;
+                text-align: center;
+                padding: 3px;
+            }
+
+            .signature-header {
+                background-color: #ffff00;
+                font-weight: bold;
+            }
+
+            .signature-img {
+                padding-top: 5px;
+            }
+
+            .center-text {
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+
+    <!-- 제목 -->
+    <div class="title-row">
+        <table class="title-table">
+            <tr>
+                <td class="title-logo">
+                    <img src="{!$Resource.MAN_LOGO}" style="width: 100px; height: auto;"/>
+                </td>
+                <td class="title-text">
+                    INVOICE
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- 상단 3분할 -->
+    <div class="info-container">
+        <div class="info-cell left-info">
+            <table class="info-table">
+                <tr><td><b>Invoice Date</b></td><td>2025-01-09</td></tr>
+                <tr><td><b>Due Date</b></td><td>2025-01-10</td></tr>
+            </table>
+        </div>
+        <div class="info-cell middle-info"></div>
+        <div class="info-cell right-info">
+            <p><b>TO:</b><br/>
+                TRATON Financial services Korea Co Ltd.<br/>
+                14th Fl Construction Bld<br/>
+                711, Eonju-ro, Gangnam-gu, Seoul<br/>
+                Attn. Jang Gayoung, TFSK Account<br/>
+                <a href="mailto:gayoung.jang@man.tratonfs.com">gayoung.jang@man.tratonfs.com</a><br/>
+                <a href="mailto:dl7001@tratonfs.com">dl7001@tratonfs.com</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- INVOICE DETAILS -->
+    <h2>INVOICE DETAILS</h2>
+
+    <table>
+        <tr class="double-header">
+            <th style="width:20%;">가상계좌번호</th>
+            <th style="width:20%;">차대번호</th>
+            <th style="width:20%;">실행일자</th>
+            <th style="width:20%;">MTBK 품의번호</th>
+            <th style="width:20%;">TFS 계약번호</th>
+        </tr>
+        <tr>
+            <td>{!pdfWrapper.virtualAccountNo}</td>
+            <td>{!pdfWrapper.chassisFrameNo}</td>
+            <td>
+                <apex:outputText value="{0,date,yyyy-MM-dd}">
+                    <apex:param value="{!pdfWrapper.executeDt}" />
+                </apex:outputText>
+            </td>
+            <td>{!pdfWrapper.mtbkConsentNo}</td>
+            <td>{!pdfWrapper.tfsContractNo}</td>
+        </tr>
+    </table>
+
+    <table>
+        <tr class="double-header">
+            <th style="width:20%;">고객명</th>
+            <th style="width:20%;">총 대출금액(a)</th>
+            <th style="width:20%;">Subsidy(b)</th>
+            <th style="width:20%;">(a-b)</th>
+            <th style="width:20%;">MFS 캠페인(c)</th>
+        </tr>
+        <tr>
+            <td>{!pdfWrapper.customerNm}</td>
+            <td>
+                <apex:outputText value="{0,number,#,##0}">
+                    <apex:param value="{!pdfWrapper.totLoanAmt}" />
+                </apex:outputText>
+            </td>
+            <td>
+                <apex:outputText value="{0,number,#,##0}">
+                    <apex:param value="{!pdfWrapper.subsidyAmt}" />
+                </apex:outputText>
+            </td>
+            <td>
+                <apex:outputText value="{0,number,#,##0}">
+                    <apex:param value="{!pdfWrapper.totSubsidyAmt}" />
+                </apex:outputText>
+            </td>
+            <td>
+                <apex:outputText value="{0,number,#,##0}">
+                    <apex:param value="{!pdfWrapper.mfsCampaignAmt}" />
+                </apex:outputText>
+            </td>
+        </tr>
+    </table>
+
+    <table>
+        <tr class="double-header">
+            <th style="width:20%;">최종 Subsidy(b-c)</th>
+            <th style="width:20%;">Total Funding AMT.</th>
+            <th style="width:20%;">Weekly Funding Date</th>
+            <th style="width:20%;">Weekly Funding Amt.</th>
+            <th style="width:20%;">MTBK 매출일</th>
+        </tr>
+        <tr>
+            <td>
+                <apex:outputText value="{0,number,#,##0}">
+                    <apex:param value="{!pdfWrapper.subsidyMFSAmt}" />
+                </apex:outputText>
+            </td>
+            <td>
+                <apex:outputText value="{0,number,#,##0}">
+                    <apex:param value="{!pdfWrapper.finalAmt}" />
+                </apex:outputText>
+            </td>
+            <td>
+                <apex:outputText value="{0,date,yyyy-MM-dd}">
+                    <apex:param value="{!pdfWrapper.weeklyFundingDt}" />
+                </apex:outputText>
+            </td>
+            <td>
+                <apex:outputText value="{0,number,#,##0}">
+                    <apex:param value="{!pdfWrapper.weeklyFundingAmt}" />
+                </apex:outputText>
+            </td>
+            <td>
+                <apex:outputText value="{0,date,yyyy-MM-dd}">
+                    <apex:param value="{!pdfWrapper.mtbkSaleDt}" />
+                </apex:outputText>
+            </td>
+        </tr>
+    </table>
+
+    <!-- 하단 3분할 -->
+    <div class="footer-container">
+        <div class="footer-left">
+            Man Truck &amp; Bus Korea CO. LTD<br/>
+            Dongsung B/D<br/>
+            21, Teheran-ro 87-gil<br/>
+            Kangnam-Ku, Seoul, Korea
+        </div>
+
+        <div class="footer-middle"></div>
+
+        <div class="footer-right">
+            <table class="signature-table">
+                <tr>
+                    <td class="signature-header">prepared by</td>
+                </tr>
+                <tr>
+                    <td class="signature-img">
+                        <img src="{!URLFOR($Resource.headSign, 'headSign/handover_head.png')}"
+                             width="100" height="50"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="center-text">MTBK</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    </body>
+    </html>
+</apex:page>

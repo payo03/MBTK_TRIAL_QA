@@ -7,7 +7,7 @@
   ===================================================================================
   1.0      2025-05-08      payo03@solomontech.net           Created
 */
-import { LightningElement, api, wire } from 'lwc';
+import { LightningElement, wire } from 'lwc';
 import { CurrentPageReference } from "lightning/navigation";
 import { CloseActionScreenEvent } from "lightning/actions";
 import { showToast } from "c/commonUtil";
