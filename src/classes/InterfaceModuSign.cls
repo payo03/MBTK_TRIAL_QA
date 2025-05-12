@@ -882,7 +882,6 @@ global without sharing class InterfaceModuSign {
         return participantMapList;
     }
 
-
     private static List<Map<String, String>> buildMetadataList() {
         ApprovalHierarchy__c hierarchy = [
                 SELECT Approver1__c, Approver1__r.MobilePhone,
