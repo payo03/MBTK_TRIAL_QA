@@ -78,7 +78,7 @@ public without sharing class User_tr extends TriggerHandler {
             account.AccountType__c = '영업인';
             account.User__c = user.Id;
 
-            accountMap.put(account.Name, account);
+            accountMap.put(account.LastName, account);
         }
         if(!accountMap.isEmpty()) insert accountMap.values();
 
