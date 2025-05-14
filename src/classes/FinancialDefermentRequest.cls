@@ -42,13 +42,6 @@ public with sharing class FinancialDefermentRequest {
                 Q. 정확히는 요청 버튼 눌렀을때 필드값 업데이트 > 승인프로세스 호출 이렇게요
                     요청하기전엔 안되어도 됩니다
             */
-            opportunity.ContractAmount__c = Decimal.valueOf(contractAmount);
-            opportunity.VATRequestDays__c = paramMap.containsKey('requestDays') ?
-                    Decimal.valueOf(paramMap.get('requestDays'))
-                    : null;
-            opportunity.put(updateField, Decimal.valueOf(deferredAmount));
-            update opportunity;
-
             Approval.ProcessSubmitRequest request = new Approval.ProcessSubmitRequest();
 
             request.setObjectId(recordId);
@@ -58,6 +51,13 @@ public with sharing class FinancialDefermentRequest {
 
             Approval.ProcessResult result = Approval.process(request);
             resultMap.put('isSuccess', result.success);
+
+            opportunity.ContractAmount__c = Decimal.valueOf(contractAmount);
+            opportunity.VATRequestDays__c = paramMap.containsKey('requestDays') ?
+                    Decimal.valueOf(paramMap.get('requestDays'))
+                    : null;
+            opportunity.put(updateField, Decimal.valueOf(deferredAmount));
+            update opportunity;
 
             DefermentRequest__c defermentRequest = createDefermentRequest(paramMap);
             insert defermentRequest;
@@ -100,7 +100,7 @@ public with sharing class FinancialDefermentRequest {
             SELECT Id, OwnerId, Name, ContractAmount__c, TaxDeferredAmount__c, PaymentDeferredAmount__c,
             (
                 SELECT Id, Name, Status, AdvancePayment__c,
-                        fm_TotalRealAndSpecialPrice__c, fm_RealSellAmt__c, fm_DefermentVAT__c,
+                        fm_TotalRealAndSpecialPrice__c, fm_RealSellAmt__c, fm_MAXTaxDeferredAmount__c,
                         Product__r.Name, toLabel(Product__r.Segment2__c)
                 FROM Quotes
                 WHERE Status != 'Canceled'

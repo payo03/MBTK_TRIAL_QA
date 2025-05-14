@@ -214,9 +214,16 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 			this.selectedQuoteRow = selectedQuoteRowList.length > 0 ? (() => {
 				const selectedRow = { ...selectedQuoteRowList[0] };
 				const segment = selectedRow.Product__r?.Segment2__c || "N/A";
+    	        const deferredAmount = this.isVATDeferred ? Math.min(selectedRow.fm_MAXTaxDeferredAmount__c, selectedRow.AdvancePayment__c) : selectedRow.AdvancePayment__c;
+                console.log(JSON.stringify(selectedRow));
+
+    	        selectedRow.deferredAmount = deferredAmount;
+    	        selectedRow.maxDeferredAmount = deferredAmount;
 				selectedRow.maxDays = MAX_DAYS_MAP[segment] || 0;
 				selectedRow.overflowMessage = `[${segment}] 유예 최대일수는 ${selectedRow.maxDays}일 이하입니다`;
 				selectedRow.underflowMessage = `[${segment}] 유예 최소일수는 ${this.minDays}일 이상입니다`;
+                console.log(JSON.stringify(selectedRow));
+
 				return selectedRow;
 			})() : [];
 		} catch (err) {
@@ -270,17 +277,12 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 			message = "유예일을 설정해 주세요";
 		}
 
-  	    // 3. 인도금유예 신청 MAX값 Validation
-        let maxDefferedAmount = this.selectedQuoteRow.AdvancePayment__c || 0;
-        if (this.isVATDeferred) {
-            let totPrice = this.selectedQuoteRow.fm_TotalRealAndSpecialPrice__c * 0.1;  // 10%의 값
-
-            maxDefferedAmount = Math.min(maxDefferedAmount, totPrice);
-        }
-        if(this.selectedQuoteRow.fm_DefermentVAT__c > maxDefferedAmount) message = '유예금액은 ' + maxDefferedAmount + '원을 초과할 수 없습니다';
+  	    // 3. 인도금유예 신청 MAX값 Validation ver1.5
+        let maxDeferredAmount = this.selectedQuoteRow.maxDeferredAmount;
+        if(this.selectedQuoteRow.deferredAmount > maxDeferredAmount) message = '유예금액은 ' + maxDeferredAmount + '원을 초과할 수 없습니다';
 
 		// 2. [인도금 유예] 금액 0원 이하 Validation
-		if (!this.isVATDeferred && !this.selectedQuoteRow.fm_DefermentVAT__c) message = "유예 금액을 입력해주세요";
+		if (!this.isVATDeferred && !this.selectedQuoteRow.deferredAmount) message = "유예 금액을 입력해주세요";
 
 		// 1. [공통] 안내문구 Check Validation
 		if (!this.isCheck) message = "안내문구를 확인해주세요";
@@ -295,7 +297,7 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 			recordId: this.recordId,
 			apiName: this.apiName,
 			updateField: this.updateField,
-			deferredAmount: this.selectedQuoteRow.fm_DefermentVAT__c,
+			deferredAmount: this.selectedQuoteRow.deferredAmount,
 			contractAmount: this.selectedQuoteRow.fm_RealSellAmt__c, 
 			comment: this.comment,
 
