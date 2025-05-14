@@ -21,7 +21,7 @@ public with sharing class OpportunityPDFController {
         System.debug(recordId);
     }
 
-    public static void getVFInfo() {
+    public void getVFInfo() {
         Opportunity oppty = [
                 SELECT Id,  ConsentNo__c, ContractNo__c, LoanExecuteDate__c,
                         Account.Name,
