@@ -186,6 +186,7 @@ public without sharing class SalesCondition_ba implements Database.Batchable<SOb
             // ver1.1 판매조건 Key값 변경
             String cabMark = CommonUtilController.getPicklistLabelForLabel('Product2', 'CabMark__c', obj.CabMark__c);
             String wheelBase = CommonUtilController.getPicklistLabelForLabel('Product2', 'WheelBase__c', obj.WheelBase__c);
+            String emissionLevel = CommonUtilController.getPicklistLabelForLabel('Product2', 'EmissionLevel__c', obj.EmissionLevel__c);
             List<String> modelKeyList = new List<String>{
                     obj.SpecShort__c.trim(), cabMark, wheelBase
             };
@@ -196,7 +197,7 @@ public without sharing class SalesCondition_ba implements Database.Batchable<SOb
                     obj.Segment2__c,
                     obj.LocalYear__c,
                     obj.ModelYear__c,
-                    obj.EmissionLevel__c
+                    emissionLevel
             };
             String key = String.join(keyList, '^').toUpperCase();
             obj.SalesConditionMaster__c = keyMap.containsKey(key) ? keyMap.get(key).Id : null;
