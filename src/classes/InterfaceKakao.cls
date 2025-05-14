@@ -412,36 +412,6 @@ public with sharing class InterfaceKakao {
                         objectInfoMap.put(userId, infoMap);
                     }
                 }
-                when 'CONTACT' {
-                    Map<Id, Contact> contactMap = new Map<Id, Contact> ([
-                            SELECT Id, Name, MobilePhone, Email, RealDriver__c, RealDriverMobile__c
-                            FROM Contact
-                            WHERE Id IN :objectInfoMap.keySet()
-                    ]);
-                    for(String contactId : objectInfoMap.keySet()) {
-                        Contact contact = contactMap.get(contactId);
-
-                        Map<String, Object> infoMap = objectInfoMap.get(contactId);
-                        infoMap.put('phone', '010-2932-3033');
-
-                        String customerType = String.valueOf(infoMap.get('customerType'));
-
-                        String phone;
-                        infoMap.put('phone', '010-2932-3033');
-                        switch on customerType.toUpperCase() {
-                            when 'OWNER' {
-                                phone = contact.MobilePhone;
-                            }
-                            when 'REALDRIVER' {
-                                phone = contact.RealDriverMobile__c;
-                            }
-                        }
-
-                        infoMap.put('phone', phone);
-
-                        objectInfoMap.put(contactId, infoMap);
-                    }
-                }
                 // Light Consent 카카오 알림 발송 로직 추가
                 when 'LEAD' {
                     Map<Id, Lead> leadMap = new Map<Id, Lead> ([
