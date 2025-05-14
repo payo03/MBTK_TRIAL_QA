@@ -787,50 +787,6 @@ global without sharing class InterfaceModuSign {
                         objectInfoMap.put(userId, infoMap);
                     }
                 }
-                when 'CONTACT' {
-                    Map<Id, Contact> contactMap = new Map<Id, Contact> ([
-                            SELECT Id, Name, MobilePhone, Email, RealDriver__c, RealDriverMobile__c
-                            FROM Contact
-                            WHERE Id IN :objectInfoMap.keySet()
-                    ]);
-                    for(String contactId : objectInfoMap.keySet()) {
-                        Contact contact = contactMap.get(contactId);
-
-                        Map<String, Object> infoMap = objectInfoMap.get(contactId);
-                        String sendType = String.valueOf(infoMap.get('sendType')).toUpperCase();
-                        String customerType = String.valueOf(infoMap.get('customerType'));
-
-                        String name;
-                        String sendTypeValue;
-                        switch on customerType.toUpperCase() {
-                            when 'OWNER' {
-                                name = contact.Name;
-                                sendTypeValue = contact.MobilePhone;
-                            }
-                            when 'REALDRIVER' {
-                                name = contact.RealDriver__c;
-                                sendTypeValue = contact.RealDriverMobile__c;
-                            }
-                        }
-
-                        String typeCase = sendType != null
-                                ? 'EMAIL'.equals(sendType)
-                                        ? 'EMAIL'
-                                        : 'KAKAO'
-                                : 'KAKAO';
-
-                        switch on typeCase {
-                            when 'EMAIL' { sendTypeValue = contact.Email; }
-                            when 'KAKAO' { sendTypeValue = sendTypeValue.replaceAll('-', ''); }
-                        }
-
-                        infoMap.put('name', name);
-                        infoMap.put('sendType', sendType);
-                        infoMap.put('sendTypeValue', sendTypeValue);
-
-                        objectInfoMap.put(contactId, infoMap);
-                    }
-                }
             }
 
             for(String recordId : objectInfoMap.keySet()) {
