@@ -32,6 +32,8 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
     private final static Map<String, String> TRIM_LEVEL_MAP = CommonUtilController.getPickListMap('Product2', 'TrimLevel__c');
     private final static Map<String, String> EMISSION_LEVEL_MAP = CommonUtilController.getPickListMap('Product2', 'EmissionLevel__c');
     private final static Map<String, String> CAR_COLOR_MAP = CommonUtilController.getPickListMap('VehicleStock__c', 'CarColor__c');
+    private final static Map<String, String> CAB_MARK_LBL_MAP = CommonUtilController.getPickListMap('Product2', 'CabMark__c', true);
+    private final static Map<String, String> WHEEL_BASE_LBL_MAP = CommonUtilController.getPickListMap('Product2', 'WheelBase__c', true);
 
     public CreateVehicleStock_ba(Map<String, Object> infoMap, String dynamicCondition) {
         if(infoMap != null) this.infoMap = infoMap;
@@ -325,8 +327,8 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
                 WHERE VehicleCategory__r.ERPCode__c IN: ERPCodeInfoMap.keySet()
         ]) {
             // ver2.0 Product2 CarAmount 복제
-            String cabMark = CommonUtilController.getPicklistLabelForLabel('Product2', 'CabMark__c', obj.CabMark__c);
-            String wheelBase = CommonUtilController.getPicklistLabelForLabel('Product2', 'WheelBase__c', obj.WheelBase__c);
+            String cabMark = CAB_MARK_LBL_MAP.get(obj.CabMark__c);
+            String wheelBase = WHEEL_BASE_LBL_MAP.get(obj.WheelBase__c);
             List<String> reportKeyList = new List<String>{
                     obj.SpecShort__c.trim(), cabMark, wheelBase
             };

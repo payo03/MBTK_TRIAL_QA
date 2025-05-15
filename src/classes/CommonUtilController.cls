@@ -182,20 +182,26 @@ public without sharing class CommonUtilController {
     /**
      * @param objectName    Object Name
      * @param fieldName     Object Field Name
-     * @description         Object와 Field명에 대한 PickList 값(Key-Value) Return
+     * @param isKeyValue    key - value 설정
+     * @description         Object와 Field명에 대한 PickList Map Return
      * @return              Map<String, String> Value
      */
-    public static Map<String, String> getPickListMap(String objectName, String fieldName) {
+    public static Map<String, String> getPickListMap(String objectName, String fieldName, Boolean isKeyValue) {
         DescribeSObjectResult describeResult = Schema.getGlobalDescribe().get(objectName).getDescribe();
         Schema.DescribeFieldResult field = describeResult.fields.getMap().get(fieldName).getDescribe();
 
         Map<String, String> infoMap = new Map<String, String>();
         for (Schema.PicklistEntry entry : field.getPicklistValues()) {
-            infoMap.put(entry.getLabel(), entry.getValue());
+            String key = isKeyValue ? entry.getValue() : entry.getLabel();
+            String value = isKeyValue ? entry.getLabel() : entry.getValue();
+
+            infoMap.put(key, value);
         }
 
         return infoMap;
     }
+    public static Map<String, String> getPickListMap(String objectName, String fieldName)       { return getPickListMap(objectName, fieldName, false);  }
+    public static Map<String, String> getPickListLabelMap(String objectName, String fieldName)  { return getPickListMap(objectName, fieldName, true);   }
 
     /**
      * @author th.kim
