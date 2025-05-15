@@ -15,6 +15,8 @@ public without sharing class SalesCondition_ba implements Database.Batchable<SOb
     private final static String RECORDTYPE_SALES_CONDITION = Schema.SObjectType.ConfigMaster__c.getRecordTypeInfosByDeveloperName().get('SALES_CONDITION').getRecordTypeId();
     private final static Map<String, String> SEGMENT2_MAP = CommonUtilController.getPickListMap('Product2', 'Segment2__c');
     private final static Map<String, String> EMISSION_LEVEL_MAP = CommonUtilController.getPickListMap('Product2', 'EmissionLevel__c');
+    public static final Map<String, String> CAB_MARK_LBL_MAP = CommonUtilController.getPickListMap('Product2', 'CabMark__c', true);
+    public static final Map<String, String> WHEEL_BASE_LBL_MAP = CommonUtilController.getPickListMap('Product2', 'WheelBase__c', true);
 
     public SalesCondition_ba(String paramDate) {
         if(paramDate != null) this.basisDate = Date.valueOf(paramDate);
@@ -184,8 +186,8 @@ public without sharing class SalesCondition_ba implements Database.Batchable<SOb
         for(Product2 obj : productList) {
             // Product2-SalesConditionMaster Lookup 유효한 데이터만 Mapping (Id or NULL)
             // ver1.1 판매조건 Key값 변경
-            String cabMark = CommonUtilController.getPicklistLabelForLabel('Product2', 'CabMark__c', obj.CabMark__c);
-            String wheelBase = CommonUtilController.getPicklistLabelForLabel('Product2', 'WheelBase__c', obj.WheelBase__c);
+            String cabMark = CAB_MARK_LBL_MAP.get(obj.CabMark__c);
+            String wheelBase = WHEEL_BASE_LBL_MAP.get(obj.WheelBase__c);
             List<String> modelKeyList = new List<String>{
                     obj.SpecShort__c.trim(), cabMark, wheelBase
             };

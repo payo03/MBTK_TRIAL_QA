@@ -19,6 +19,10 @@ public without sharing class Product2_tr extends TriggerHandler {
     public static final Map<String, String> CAB_MARK_MAP = CommonUtilController.getPickListMap('Product2', 'CabMark__c');
     public static final Map<String, String> WHEEL_BASE_MAP = CommonUtilController.getPickListMap('Product2', 'WheelBase__c');
 
+    public static final Map<String, String> CAB_MARK_LBL_MAP = CommonUtilController.getPickListMap('Product2', 'CabMark__c', true);
+    public static final Map<String, String> WHEEL_BASE_LBL_MAP = CommonUtilController.getPickListMap('Product2', 'WheelBase__c', true);
+    public static final Map<String, String> TRIM_LEVEL_LBL_MAP = CommonUtilController.getPickListMap('Product2', 'WheelBase__c', true);
+
     public Product2_tr() {
         newList = (List<Product2>)    Trigger.new;
         oldList = (List<Product2>)    Trigger.old;
@@ -109,9 +113,9 @@ public without sharing class Product2_tr extends TriggerHandler {
                 }
             }
 
-            String cabMark = CommonUtilController.getPicklistLabelForLabel('Product2', 'CabMark__c', newObj.CabMark__c);
-            String wheelBase = CommonUtilController.getPicklistLabelForLabel('Product2', 'WheelBase__c', newObj.WheelBase__c);
-            String trimLevel = CommonUtilController.getPicklistLabelForLabel('Product2', 'TrimLevel__c', newObj.TrimLevel__c);
+            String cabMark = CAB_MARK_LBL_MAP.get(newObj.CabMark__c);
+            String wheelBase = WHEEL_BASE_LBL_MAP.get(newObj.WheelBase__c);
+            String trimLevel = TRIM_LEVEL_LBL_MAP.get(newObj.TrimLevel__c);
 
             List<String> defaultList = new List<String>();
             defaultList.add(newObj.SpecShort__c);

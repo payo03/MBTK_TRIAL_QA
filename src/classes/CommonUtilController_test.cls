@@ -25,7 +25,8 @@ private class CommonUtilController_test {
 
         List<Map<String, String>> pickList = CommonUtilController.getPickList('Account', 'Type');
         Set<String> pickListValue = CommonUtilController.getPickListValue('Account', 'Type');
-        Map<String, String> pickListMap = CommonUtilController.getPickListMap('Account', 'Type');
+        Map<String, String> pickListMap = CommonUtilController.getPickListMap('Account', 'Type', false);
+        Map<String, String> pickListLabelMap = CommonUtilController.getPickListMap('Account', 'Type', true);
         String type = CommonUtilController.getPicklistLabelForLabel('Account', 'Type', 'Analyst');
 
         List<String> fieldList = CommonUtilController.getAllFields('Account');
