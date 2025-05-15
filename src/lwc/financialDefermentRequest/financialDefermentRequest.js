@@ -11,6 +11,7 @@
   1.3      2025-03-31      th.kim                           RealSalesPrice -> fm_RealSellAmt__c 필드 변경
   1.4      2025-04-07      chaebeom.do@solomontech.net      모바일 동작 대응
   1.5      2025-05-08      payo03@solomontech.net           유예금액 Validation
+  1.6      2025-05-15      payo03@solomontech.net           모바일 동작 재확인
  */
 import { LightningElement, api, track, wire } from "lwc";
 import { NavigationMixin } from "lightning/navigation";
@@ -56,12 +57,6 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 	@track selectedQuoteRow = {};
 
 	@wire(CurrentPageReference) pageRef;
-	// getStateParameters(currentPageReference) { // ver 1.4
-	// 	if (currentPageReference && !this.recordId) {
-	// 		this.recordId = currentPageReference.state?.c__recordId;
-	// 		this.apiName = currentPageReference.state?.c__apiName;
-	// 	}
-	// }
 
 	// 유예 요청일자와 오늘 사이의 날짜 차이
 	diffDay;
@@ -100,9 +95,13 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 	selectedQuoteRowIdList = [];
 
 	connectedCallback() {
-		this.recordId = this.pageRef.state.recordId;
-		this.apiName = this.pageRef.attributes.apiName.replace("Opportunity.", "");
-		// this.apiName = this.apiName != undefined ? this.apiName : this.pageRef.attributes.apiName.replace("Opportunity.", "");
+        // ver1.6 모바일 동작 재확인
+		this.recordId = this.pageRef.state.recordId
+		    ? this.pageRef.state.recordId
+		    : this.pageRef.state.c__recordId;
+		this.apiName = this.pageRef.attributes.apiName
+		    ? this.pageRef.attributes.apiName.replace("Opportunity.", "")
+		    : this.pageRef.state.c__apiName;
 		this.init();
 
 		if (this.apiName.includes("VAT")) {
