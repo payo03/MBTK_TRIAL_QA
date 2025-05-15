@@ -207,6 +207,7 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
             stock.RAL_Code__c = info.RAL_Code__c;
             stock.InvoiceNumber__c = info.InvoiceNumber__c;
             stock.ProductionSite__c = info.fm_ProductionSite__c;
+            stock.ModelYear__c = String.valueOf(info.ModelYear__c);
 
             // ver1.4 Spoiler장착된 차량Case 적용
             String spoilerKey = CommonUtilCustomController.getSpoilerKey(info);
