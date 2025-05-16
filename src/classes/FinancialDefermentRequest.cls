@@ -80,6 +80,7 @@ public with sharing class FinancialDefermentRequest {
         DefermentRequest__c request = new DefermentRequest__c();
 
         String recordId = paramMap.get('recordId');
+        String quoteId = paramMap.get('quoteId');
         String apiName = paramMap.get('apiName');
         String opportunityName = paramMap.get('opportunityName');
 
@@ -89,6 +90,7 @@ public with sharing class FinancialDefermentRequest {
         Date requestDueDate = paramMap.containsKey('requestDueDate') ? Date.valueOf(paramMap.get('requestDueDate')) : null;
 
         request.Opportunity__c = recordId;
+        request.Quote__c = quoteId;
         request.Name = opportunityName;
         request.Type__c = apiName;
         request.DeferredAmount__c = deferredAmount;
@@ -112,6 +114,10 @@ public with sharing class FinancialDefermentRequest {
                 FROM Quotes
                 WHERE Status != 'Canceled'
                 ORDER BY LastModifiedDate DESC
+            ),(
+                SELECT Id, Type__c, Quote__c
+                FROM DefermentRequest__r
+                WHERE Status__c = 'COMPLETED'
             )
             FROM Opportunity
             WHERE Id =: recordId
