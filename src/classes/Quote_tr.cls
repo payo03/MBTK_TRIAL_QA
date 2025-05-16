@@ -179,8 +179,8 @@ public with sharing class Quote_tr extends TriggerHandler {
             */
             if (
                 newQuote.IsApproveLoan__c != oldQuote.IsApproveLoan__c &&
-                'MFS'.equals(company) &&
-                !PROFILE_MAP.keySet().contains(curUser.ProfileId)
+                'MFS'.equals(company)
+//                !PROFILE_MAP.keySet().contains(curUser.ProfileId) 05-16. 전도형 책임 요청. MFS 대출 Validation임시 해제
             ) {
                 newQuote.addError('(MFS) 대출승인여부는 임의변경이 불가능합니다');
             }

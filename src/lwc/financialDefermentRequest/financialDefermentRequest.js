@@ -74,13 +74,19 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 		},
 		{
 			label: "상태",
-			fieldName: "Status",
+			fieldName: "StatusKO",
 			type: "text",
 			hideDefaultActions: true
 		},
 		{
 			label: "차종",
 			fieldName: "productName",
+			type: "text",
+			hideDefaultActions: true
+		},
+		{
+			label: "선수금",
+			fieldName: "fm_DeliveryPrice__c",
 			type: "text",
 			hideDefaultActions: true
 		},
@@ -166,9 +172,16 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 		this.isLoading = true;
 		screenInit({ recordId: this.recordId }).then(response => {
 			console.log("### response : ", response);
+            const translateMap = new Map([
+                ['Draft', '초안'],
+                ['SentOut', '견적 발송'],
+                ['Published', '견적 확정'],
+                ['Canceled', '취소']
+            ]);
 
 			this.quoteList = response?.Quotes?.map(quote => {
 				quote.productName = quote.Product__r.Name;
+        	    quote.StatusKO = translateMap.get(quote.Status);
 				return quote;
 			}) || [];
 			console.log("quoteList :: ", JSON.stringify(this.quoteList));
