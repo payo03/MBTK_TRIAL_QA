@@ -213,7 +213,7 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 			this.selectedQuoteRow = selectedQuoteRowList.length > 0 ? (() => {
 				const selectedRow = { ...selectedQuoteRowList[0] };
 				const segment = selectedRow.Product__r?.Segment2__c || "N/A";
-    	        const deferredAmount = this.isVATDeferred ? Math.min(selectedRow.fm_MAXTaxDeferredAmount__c, selectedRow.AdvancePayment__c) : selectedRow.AdvancePayment__c;
+    	        const deferredAmount = this.isVATDeferred ? Math.min(selectedRow.fm_MAXTaxDeferredAmount__c, selectedRow.fm_DeliveryPrice__c) : selectedRow.fm_DeliveryPrice__c;
                 console.log(JSON.stringify(selectedRow));
 
     	        selectedRow.deferredAmount = deferredAmount;

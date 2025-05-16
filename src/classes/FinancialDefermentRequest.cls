@@ -31,7 +31,16 @@ public with sharing class FinancialDefermentRequest {
         resultMap.put('isEqualUser', isEqualUser);
         */
         paramMap.put('opportunityName', opportunity.Name);
+
+        Savepoint sp = Database.setSavepoint();
         try {
+            opportunity.ContractAmount__c = Decimal.valueOf(contractAmount);
+            opportunity.VATRequestDays__c = paramMap.containsKey('requestDays') ?
+                    Decimal.valueOf(paramMap.get('requestDays'))
+                    : null;
+            opportunity.put(updateField, Decimal.valueOf(deferredAmount));
+            update opportunity;
+
             /*
                 2025-01-15 김현아책임 요청.
                 Q. 찬영님 부가세 후취 요청 버튼 눌렀을 때 제가 기회에 안보이는 필드로 [요청 금액] 필드 넣어두면 그쪽에 이 금액을 업데이트해주실 수 있나요?
@@ -52,18 +61,16 @@ public with sharing class FinancialDefermentRequest {
             Approval.ProcessResult result = Approval.process(request);
             resultMap.put('isSuccess', result.success);
 
-            opportunity.ContractAmount__c = Decimal.valueOf(contractAmount);
-            opportunity.VATRequestDays__c = paramMap.containsKey('requestDays') ?
-                    Decimal.valueOf(paramMap.get('requestDays'))
-                    : null;
-            opportunity.put(updateField, Decimal.valueOf(deferredAmount));
-            update opportunity;
-
             DefermentRequest__c defermentRequest = createDefermentRequest(paramMap);
             insert defermentRequest;
         } catch (Exception e) {
+            Database.rollback(sp);
+            String message = e.getMessage();
+            message = message.substring(message.indexOf(';') + 1);
+            if(message.contains('ALREADY_IN_PROCESS')) message = '기 승인요청 Process가 존재합니다';
+
             resultMap.put('isSuccess', false);
-            resultMap.put('message', e.getMessage());
+            resultMap.put('message', message);
         }
 
         return resultMap;
@@ -99,7 +106,7 @@ public with sharing class FinancialDefermentRequest {
         return [
             SELECT Id, OwnerId, Name, ContractAmount__c, TaxDeferredAmount__c, PaymentDeferredAmount__c,
             (
-                SELECT Id, Name, Status, AdvancePayment__c,
+                SELECT Id, Name, Status, fm_DeliveryPrice__c,
                         fm_TotalRealAndSpecialPrice__c, fm_RealSellAmt__c, fm_MAXTaxDeferredAmount__c,
                         Product__r.Name, toLabel(Product__r.Segment2__c)
                 FROM Quotes
