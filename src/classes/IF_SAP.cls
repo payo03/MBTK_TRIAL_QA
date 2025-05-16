@@ -157,8 +157,8 @@ global without sharing class IF_SAP {
                 paymentLog.PaymentTracker__c = paymentTrackerId;                                     // Process 완료 후 PaymentTracker 매핑처리
                 if (!updateList.isEmpty()) update updateList;                                        // PaymentType Update(DepositAmount__c)
                 if (
-                    adjustStatus != null &&                         // 상태값 존재
-                    (loanClear || 'DEPOSIT'.equals(adjustStatus))   // 대출완료 or 계약금 납입
+                    adjustStatus != null &&                                                          // 상태값 존재
+                    (loanClear || 'DEPOSIT'.equals(adjustStatus) || 'OVER_PAID'.equals(adjustStatus))// 대출완료 or 계약금 납입
                 ) update new PaymentTracker__c(Id = paymentTrackerId, Status__c = adjustStatus);     // PaymentTracker Update(Status__c)
                 if (updateFlag) StageUpdateCommonController.doUpdateOpportunity(contractId);         // 계약금 입금 확인. Opportunity Update
             }

@@ -38,7 +38,7 @@ const MAX_DAYS_MAP = {
 const translateMap = {
     "Draft": '초안',
     'SentOut': '견적 발송',
-    'Published': '견적 확정',
+    'Published': '게시됨',
     'Canceled': '취소'
 };
 
@@ -194,15 +194,15 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 
 			this.quoteList = response?.Quotes?.map(quote => {
        	        let typeList = this.quoteTypeMap[quote.Id];
-                let isVAT = 'N';
-                let isPaymentDeffered = 'N';
+                let isVAT = '-';
+                let isPaymentDeffered = '-';
 
                 if(typeList != undefined) {
                     typeList.forEach(type => {
                         if(type.includes('VAT')) {
-                            isVAT = 'Y';
+                            isVAT = '부';
                         } else {
-                            isPaymentDeffered = 'Y';
+                            isPaymentDeffered = '인';
                         }
                     });
                 }
