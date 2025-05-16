@@ -12,6 +12,7 @@
   1.4      2025-04-07      chaebeom.do@solomontech.net      모바일 동작 대응
   1.5      2025-05-08      payo03@solomontech.net           유예금액 Validation
   1.6      2025-05-15      payo03@solomontech.net           모바일 동작 재확인
+  1.7      2025-05-16      payo03@solomontech.net           견적 이름 가시성추가
  */
 import { LightningElement, api, track, wire } from "lwc";
 import { NavigationMixin } from "lightning/navigation";
@@ -32,6 +33,13 @@ const MAX_DAYS_MAP = {
 	"HDC": 90,
 	"TRT": 70,
 	"TPP": 70
+};
+
+const translateMap = {
+    "Draft": '초안',
+    'SentOut': '견적 발송',
+    'Published': '견적 확정',
+    'Canceled': '취소'
 };
 
 const MIN_DAYS = 45;
@@ -68,7 +76,7 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 	columns = [
 		{
 			label: "견적 이름",
-			fieldName: "Name",
+			fieldName: "NameNotation",
 			type: "text",
 			hideDefaultActions: true
 		},
@@ -79,14 +87,14 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 			hideDefaultActions: true
 		},
 		{
-			label: "차종",
-			fieldName: "productName",
-			type: "text",
+			label: "선수금",
+			fieldName: "fm_DeliveryPrice__c",
+			type: "number",
 			hideDefaultActions: true
 		},
 		{
-			label: "선수금",
-			fieldName: "fm_DeliveryPrice__c",
+			label: "차종",
+			fieldName: "productName",
 			type: "text",
 			hideDefaultActions: true
 		},
@@ -98,6 +106,7 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 		}
 	];
 	quoteList = [];
+ 	quoteTypeMap = {};
 	selectedQuoteRowIdList = [];
 
 	connectedCallback() {
@@ -172,16 +181,35 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 		this.isLoading = true;
 		screenInit({ recordId: this.recordId }).then(response => {
 			console.log("### response : ", response);
-            const translateMap = new Map([
-                ['Draft', '초안'],
-                ['SentOut', '견적 발송'],
-                ['Published', '견적 확정'],
-                ['Canceled', '취소']
-            ]);
+
+            // ver 1.7 견적 이름 가시성추가
+            response?.DefermentRequest__r?.forEach(obj => {
+                let quoteId = obj.Quote__c;
+
+                if(!this.quoteTypeMap[quoteId]) {
+                    this.quoteTypeMap[quoteId] = [];
+                }
+                this.quoteTypeMap[quoteId].push(obj.Type__c);
+            });
 
 			this.quoteList = response?.Quotes?.map(quote => {
+       	        let typeList = this.quoteTypeMap[quote.Id];
+                let isVAT = 'N';
+                let isPaymentDeffered = 'N';
+
+                if(typeList != undefined) {
+                    typeList.forEach(type => {
+                        if(type.includes('VAT')) {
+                            isVAT = 'Y';
+                        } else {
+                            isPaymentDeffered = 'Y';
+                        }
+                    });
+                }
+
+       	        quote.NameNotation = quote.Name + ' [ ' + isVAT + ' | ' + isPaymentDeffered + ' ]';
 				quote.productName = quote.Product__r.Name;
-        	    quote.StatusKO = translateMap.get(quote.Status);
+        	    quote.StatusKO = translateMap[quote.Status];
 				return quote;
 			}) || [];
 			console.log("quoteList :: ", JSON.stringify(this.quoteList));
@@ -307,6 +335,7 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 		this.isLoading = true;
 		const infoMap = {
 			recordId: this.recordId,
+			quoteId: this.selectedQuoteRow.Id,
 			apiName: this.apiName,
 			updateField: this.updateField,
 			deferredAmount: this.selectedQuoteRow.deferredAmount,
