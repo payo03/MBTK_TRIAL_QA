@@ -184,7 +184,7 @@ global without sharing class IF_MFS {
             responseMessage = JSON.serialize(e.getMessage());
 
             response.responseBody = Blob.valueOf(JSON.serialize(e.getMessage()));
-            response.statusCode = 500;
+            response.statusCode = 400;
         } finally {
             IF_DTO.LogWrapper objLogWrapper = new IF_DTO.LogWrapper();
 
