@@ -195,8 +195,8 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 
 			this.quoteList = response?.Quotes?.map(quote => {
        	        let typeList = this.quoteTypeMap[quote.Id];
-                let isVAT = '-';
-                let isPaymentDeffered = '-';
+                let isVAT = 'ㅡ';
+                let isPaymentDeffered = 'ㅡ';
 
                 if(typeList != undefined) {
                     typeList.forEach(type => {
