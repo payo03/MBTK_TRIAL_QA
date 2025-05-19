@@ -13,6 +13,7 @@
   1.5      2025-05-08      payo03@solomontech.net           유예금액 Validation
   1.6      2025-05-15      payo03@solomontech.net           모바일 동작 재확인
   1.7      2025-05-16      payo03@solomontech.net           견적 이름 가시성추가
+  1.8      2025-05-19      payo03@solomontech.net           전도형 책임 요청. 인도금 유예시 일수 Validation 제외
  */
 import { LightningElement, api, track, wire } from "lwc";
 import { NavigationMixin } from "lightning/navigation";
@@ -38,7 +39,7 @@ const MAX_DAYS_MAP = {
 const translateMap = {
     "Draft": '초안',
     'SentOut': '견적 발송',
-    'Published': '견적 확정',
+    'Published': '게시됨',
     'Canceled': '취소'
 };
 
@@ -194,15 +195,15 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 
 			this.quoteList = response?.Quotes?.map(quote => {
        	        let typeList = this.quoteTypeMap[quote.Id];
-                let isVAT = 'N';
-                let isPaymentDeffered = 'N';
+                let isVAT = '-';
+                let isPaymentDeffered = '-';
 
                 if(typeList != undefined) {
                     typeList.forEach(type => {
                         if(type.includes('VAT')) {
-                            isVAT = 'Y';
+                            isVAT = '부';
                         } else {
-                            isPaymentDeffered = 'Y';
+                            isPaymentDeffered = '인';
                         }
                     });
                 }
@@ -301,11 +302,15 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 	handleSubmit() {
 		let message = "";
 
+  	    // ver1.8 전도형 책임 요청. 인도금 유예시 일수 Validation 제외
+        /*
 		// 5-1. [인도금 유예] 유예일 범위 Validation
 		if (!this.isVATDeferred && !this.isDaysValid) {
 			if(this.diffDay < this.minDays) 					message = this.selectedQuoteRow.underflowMessage;
 			if(this.diffDay > this.selectedQuoteRow.maxDays) 	message = this.selectedQuoteRow.overflowMessage;
 		}
+        */
+
 		// 5-2. [부가세 후취] 유예일 범위 Validation
 		if (this.isVATDeferred && !this.isDaysValid) message = "유예일수 문구를 확인해주세요";
 
@@ -333,7 +338,7 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 		}
 
 		this.isLoading = true;
-		const infoMap = {
+		let infoMap = {
 			recordId: this.recordId,
 			quoteId: this.selectedQuoteRow.Id,
 			apiName: this.apiName,
