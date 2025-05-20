@@ -13,6 +13,14 @@
     padding-block-end: 0;
 }
 
+.body-header lightning-button-group {
+    margin-left: auto;
+}
+
+.handover-date {
+    min-width: 120px;
+}
+
 iframe {
     width: 100%;
     height: 80vh;
@@ -103,6 +111,27 @@ lightning-input:disabled {
     padding-top: 0.5rem;
 }
 
+lightning-accordion {
+    overflow-y: auto;
+}
+
+.finance-radio-btn {
+    transform: scale(1.5);
+}
+
+.active-box {
+    border: solid #066AFE 2px;
+    box-shadow: 0 0 4px;
+}
+
+.scroll-to-top {
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    right: 20px;
+    z-index: 10000;
+    transform: scale(1.3);
+}
+
 /* PC, 태블릿, Mobile 화면 체크 */
 
 /* PC */
@@ -114,16 +143,12 @@ lightning-input:disabled {
             padding-left: 0;
         }
     }
+    .body-contents > div:first-child {
+        width: 40%;
+    }
 
-    lightning-accordion {
-        lightning-datatable,
-        lightning-input,
-        lightning-record-picker,
-        lightning-combobox,
-        c-custom-data-table,
-        span, div, h2 {
-            color: black !important;
-        }
+    .body-contents > div:not(div:first-child) {
+        width: 60%;
     }
 }
 
@@ -152,6 +177,13 @@ lightning-input:disabled {
         span, div, h2 {
             color: black !important;
         }
+        a {
+            color: royalblue !important;
+        }
+    }
+
+    lightning-accordion-section {
+        background-color: #d8e6fe;
     }
 
     .slds-modal__content {
@@ -161,6 +193,15 @@ lightning-input:disabled {
 
 /* 모바일 */
 @media screen and (max-width: 540px) {
+    .quote-creator-wrap {
+        max-height: 100vh;
+        overflow-y: scroll;
+    }
+
+    .product-table-wrap {
+        overflow-x: auto;
+    }
+
     .body-header {
         width: 100%;
         padding: 0.5rem;
@@ -177,9 +218,17 @@ lightning-input:disabled {
         lightning-record-picker,
         lightning-combobox,
         c-custom-data-table,
+        lightning-card,
         span, div, h2 {
             color: black !important;
         }
+        a {
+            color: royalblue !important;
+        }
+    }
+
+    lightning-accordion-section {
+        background-color: #d8e6fe;
     }
 
     .summary-wrap > div {

@@ -3,7 +3,7 @@
  * @date : 2024-12-09
  * @description : 견적 구성기
  * @target : Quote, Opportunity Record Page Button
-==============================================================
+ ==============================================================
  * Ver          Date            Author          Modification
  * 1.0          2024-12-09      th.kim          Initial Version
  **************************************************************/
@@ -14,7 +14,7 @@ import { CurrentPageReference, NavigationMixin } from "lightning/navigation";
 import { notifyRecordUpdateAvailable } from "lightning/uiRecordApi";
 import formFactor from "@salesforce/client/formFactor";
 import LightningConfirm from "lightning/confirm";
-// Test
+
 // Controller
 import getInit from "@salesforce/apex/QuoteCreatorController.getInit";
 import getProductChangeData from "@salesforce/apex/QuoteCreatorController.getProductChangeData";
@@ -44,22 +44,33 @@ const specialDependency = {
 	"캡섀시 - 완성": completedSubOptions
 };
 
+const initSectionNameList = ["option", "campaign", "oilCoupon", "special", "finance", "expenses"];
+
+const defaultClassName = "custom-box slds-box slds-p-around_medium";
+
 const initSpecialData = { idx: 0, accountId: null, option: "", subOption: "", price: 0 };
 const defaultOptionSearchMap = { type: "", name: "" };
-const initFinancialData = [{ idx: 0 }, { idx: 1 }];
+const initFinancialData = [{ idx: 0, className: defaultClassName }, { idx: 1, className: defaultClassName }];
+
+let messageHandler = null;
 
 export default class quoteCreator extends NavigationMixin(LightningElement) {
 
-	// 현재 데이터
+	// 라벨
 	vfHost = labelList.VFHost;
+	specialRequestLink = labelList.SpecialRequestLink;
+	EmptyCampaignResult = labelList.EmptyCampaignResult;
+
+	// 현재 데이터
 	oppId;
 	oppData;
 	quoteData;
 	productData;
 	productId;
+	@track selectProductMap = {};
 	quoteName;
 	handoverDate;
-	activeSectionNames = ["option", "campaign", "oilCoupon", "special", "finance", "expenses"];
+	activeSectionNames = [...initSectionNameList];
 	filter = {
 		criteria: [
 			{
@@ -143,7 +154,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	// 모달 데이터
 	isModalOpen;
 	isLoading;
-	modalMap = { option: false, finance: false, calendar: false };
+	modalMap = { option: false, finance: false, calendar: false, product: false };
 	@track compareFinancialList = deepClone(initFinancialData);
 
 	// 현재 테이블 데이터맵
@@ -166,16 +177,23 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	}
 
 	/**
+	 * @description 선택 가능한 캠페인 데이터 리스트 존재 여부
+	 */
+	get isCampaignData() {
+		return this.campaignData?.length;
+	}
+
+	/**
 	 * @description 모달 사이즈 정의
 	 */
 	get modalSizeClass() {
 		const defaultClass = "slds-modal slds-fade-in-open";
 		const sizeClass = { 2: "slds-modal_small", 3: "slds-modal_medium", 4: "slds-modal_large" };
-		const modalSize = this.modalMap.option
+		const modalSize = this.modalMap.option || this.modalMap.product
 			? "slds-modal_large"
 			: this.modalMap.calendar
 				? "slds-modal_medium"
-				: sizeClass[this.compareFinancialList.length] || "";
+				: sizeClass[this.compareFinancialList?.length] || "";
 		return `${defaultClass} ${modalSize}`;
 
 	}
@@ -198,6 +216,24 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			: formFactor === "Medium"
 				? 6
 				: 12;
+	}
+
+	/**
+	 * @description 계산 화면 요소 가져오기
+	 */
+	get childComponent() {
+		return this.template.querySelector("c-quote-calculator-table");
+	}
+
+	/**
+	 * @description 차량재고조회 컴포넌트에 데이터 전송
+	 */
+	get parentData() {
+		return {
+			origin: "quoteCreator",
+			productId: this.productId,
+			stockId: this.selectedStockIdList?.[0]
+		}
 	}
 
 	/**
@@ -244,7 +280,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				if (quoteDetail && Object.keys(quoteDetail)?.length > 0) {
 
 					// 옵션
-					if (quoteDetail?.option.length > 0) {
+					if (quoteDetail?.option?.length > 0) {
 						const optionDataList = quoteDetail?.option || [];
 
 						// 필수 옵션 모두 체크하기 위한 기존 데이터 Id Set
@@ -287,15 +323,20 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 
 				// 금융 기본값 설정
 				const finance = this.financialList?.find(el => el?.value && el?.value === this.tableDataMap.financial?.financeId);
+
 				this.tableDataMap.financial.isVAT = this.oppData?.VATDefermentStatus__c === "승인됨";
-				this.tableDataMap.financial.defermentVATDays = this.oppData?.VATDeferredDays__c;
+				this.tableDataMap.financial.VATAmount = this.oppData?.TaxDeferredAmount__c || 0;
+
+				this.tableDataMap.financial.isPaymentDeferment = this.oppData?.PaymentDefermentStatus__c === "승인됨";
 				this.tableDataMap.financial.paymentDeferredAmount = this.oppData?.PaymentDeferredAmount__c || 0;
+				this.tableDataMap.financial.defermentVATDays = this.oppData?.VATDeferredDays__c;
 				this.setFinancialData(this.tableDataMap.financial, finance);
 
 				this.hideRequiredOptionButton();
 				this.setProductData(res?.productData, res?.optionList, res?.campaignList, res?.baseDiscount);
 				this.getServiceItem();
 				this.getSummaryData();
+				this.setRequiredOptionStyle();
 			}).catch(err => {
 				console.error("err :: ", err.message);
 			}).finally(() => this.isLoading = false);
@@ -303,8 +344,18 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	}
 
 	connectedCallback() {
-		// 캘린더 이벤트
-		window.addEventListener("message", this.getDataFromChild.bind(this));
+		if(!messageHandler) {
+			// 캘린더 이벤트
+			messageHandler = this.getDataFromChild.bind(this);
+			window.addEventListener("message", messageHandler);
+		}
+	}
+
+	disconnectedCallback() {
+		if (messageHandler) {
+			window.removeEventListener("message", messageHandler);
+			messageHandler = null;
+		}
 	}
 
 	/**
@@ -330,8 +381,9 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			let styleEl = document.querySelector(".custom-style");
 			if (!styleEl) {
 				requestAnimationFrame(() => {
+
 					const carTableWrapEl = this.template.querySelector(".car-table-wrap");
-					carTableWrapEl.style.overflowY = "initial";
+					if (carTableWrapEl) carTableWrapEl.style.overflowY = "initial";
 				});
 				styleEl = document.createElement("style");
 				styleEl.className = "custom-style";
@@ -378,6 +430,15 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				`;
 				document.body.appendChild(styleEl);
 			}
+
+			requestAnimationFrame(() => {
+				setTimeout(() => {
+					const accordionEl = this.template.querySelector("lightning-accordion");
+					const childEl = this.childComponent;
+
+					if (accordionEl && childEl) accordionEl.style.maxHeight = `${childEl.offsetHeight}px`;
+				}, 500);
+			});
 		}
 	}
 
@@ -414,6 +475,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 		// 캠페인 테이블
 		if (name === "campaign") {
 			let isDuplicated = false;
+			// 캠페인 단일 선택
 			if (action === "rowSelect") {
 				isDuplicated = this.campaignDupList.some(el => {
 					// 기존에 선택된 캠페인 먼저 중복 리스트에 포함되는지 체크
@@ -426,11 +488,17 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 					}
 					return false;
 				});
-			} else if (action === "selectAllRows") {
-				if (this.campaignDupList?.length > 0) {
-					isDuplicated = true;
-					showToast("중복 불가한 캠페인이 있습니다.", "", "warning");
-				}
+			}
+			// 캠페인 전체 선택
+			else if (action === "selectAllRows") {
+				const campainDataIdList = this.campaignData?.map(el => el.id) || [];
+				isDuplicated = this.campaignDupList?.some(el => {
+					if (campainDataIdList.includes(el.CampaignMaster__c) && campainDataIdList.includes(el.CampaignMaster2__c)) {
+						showToast("중복 불가한 캠페인이 있습니다.", "", "warning");
+						return true;
+					}
+					return false;
+				}) || false;
 			}
 
 			// 중복 시 함수 종료
@@ -444,10 +512,10 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			this.getSummaryData();
 		}
 		// 할인 차량 테이블
-		else if (name === "stock") {
-			this.selectedStockIdList = selectedRows?.length ? [selectedRows[0].Id] : [];
-			this.tableDataMap.promotion.additionalStockDiscount = selectedRows?.[0]?.totalDiscountPrice || 0;
-		}
+		// else if (name === "stock") {
+		// 	this.selectedStockIdList = selectedRows?.length ? [selectedRows[0].Id] : [];
+		// 	this.tableDataMap.promotion.additionalStockDiscount = selectedRows?.[0]?.totalDiscountPrice || 0;
+		// }
 		// 옵션 모달 테이블
 		else if (name === "modalOption") {
 			if (action) {
@@ -482,10 +550,14 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 		}
 	}
 
+	handleSelectProduct(e) {
+		this.selectProductMap = e.detail;
+	}
+
 	/**
 	 * @description 차종, 옵션 섹션 데이터 변경 시 계산기 컴포넌트로 데이터 전송
 	 */
-	handleChange(e) {
+	async handleChange(e) {
 		const name = e.target.dataset.name;
 		const recordId = e.detail.recordId;
 		const value = e.target.value;
@@ -505,7 +577,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				if (this.productId) {
 					this.isLoading = true;
 					// 차종 관련 데이터 가져오기
-					getProductChangeData({ oppId: this.oppId, productId: this.productId }).then(res => {
+					await getProductChangeData({ oppId: this.oppId, productId: this.productId }).then(res => {
 						this.allOptionData = res.optionList;
 						this.selectedOptionData = this.allOptionData?.filter(el => el.isRequired);
 						this.hideRequiredOptionButton();
@@ -519,6 +591,8 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				}
 				// 차종 제거 시 데이터 초기화
 				else {
+					this.campaignData = [];
+					this.selectedCampaignList = [];
 					this.financeId = null;
 					this.tableDataMap.financial = {};
 					this.tableDataMap.financial.advancePayment = 1000000;
@@ -545,11 +619,17 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				break;
 			// BB Case 특장 대분류
 			case "specialOption" :
-				this.specialOptionList[idx].option = value;
-				this.specialOptionList[idx].subOptions = specialDependency[value];
-				this.specialOptionList[idx].isViewAccount = value === "캡섀시 - 미완성";
-				if (!this.specialOptionList[idx].isViewAccount) this.specialOptionList[idx].accountId = null;
-				setSpecialOption(idx);
+				// this.specialOptionList[idx].option = value;
+				this.specialOptionList.forEach(special => {
+					setSpecialOption(special.idx);
+					special.option = value;
+					special.subOptions = specialDependency[value];
+					special.isViewAccount = value === "캡섀시 - 미완성";
+					if (!special.isViewAccount) special.accountId = null;
+				});
+				// this.specialOptionList[idx].subOptions = specialDependency[value];
+				// this.specialOptionList[idx].isViewAccount = value === "캡섀시 - 미완성";
+				// if (!this.specialOptionList[idx].isViewAccount) this.specialOptionList[idx].accountId = null;
 				break;
 			// BB Case 특장 회사
 			case "specialAccountId" :
@@ -606,6 +686,10 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			case "insurance":
 				this.tableDataMap.extraExpenses.insurance = numValue;
 				break;
+			// 취등록세
+			case "registrationTax":
+				this.tableDataMap.extraExpenses.registrationTax = numValue;
+				break;
 			// 인지대
 			case "stampDuty":
 				const loanAmount = this.tableDataMap.financial?.loanAmount || 0;
@@ -623,7 +707,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 		const name = e.target.dataset.name;
 		if (name === "campaign") {
 			this.selectedCampaignIdList = [];
-			const currentStock = this.tableDataMap.product.stockList.length > 0 ? this.tableDataMap.product.stockList[0] : [];
+			const currentStock = this.tableDataMap.product.stockList?.length > 0 ? this.tableDataMap.product.stockList[0] : [];
 
 			Object.assign(this.tableDataMap.promotion, {
 				promotionList: [],
@@ -640,12 +724,13 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	// 모달 창 on/off
 	toggleModal(type) {
 		this.isModalOpen = !this.isModalOpen;
+		const eventType = type?.target?.dataset?.type;
 
 		// 이벤트인지 함수 호출 파라미터인지 체크
-		if (!type || typeof type !== "string") type = "option";
+		if (eventType) type = eventType;
 
 		// 모바일 모달 오픈 시 맨 위로 스크롤
-		if (this.isModalOpen && formFactor !== "Large") this.scrollToTop();
+		// if (this.isModalOpen && formFactor !== "Large") this.scrollToTop();
 
 		Object.keys(this.modalMap).forEach(el => this.modalMap[el] = el === type);
 	}
@@ -675,7 +760,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			return {
 				...financial,
 				idx: idx
-			}
+			};
 		});
 	}
 
@@ -686,8 +771,9 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 		const currentFinancial = deepClone(this.tableDataMap.financial);
 		currentFinancial.idx = 0;
 		currentFinancial.checked = null;
+		currentFinancial.className = defaultClassName;
 
-		const childEl = this.template.querySelector("c-quote-calculator-table");
+		const childEl = this.childComponent;
 		currentFinancial.monthlyPayment = childEl?.calcMonthPayment(currentFinancial.loanAmount, currentFinancial.interestRate, currentFinancial.loanTermMonth) || 0;
 
 		return currentFinancial;
@@ -703,7 +789,11 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				showToast("비교는 최대 4개까지 가능합니다", "", "warning");
 				return;
 			}
-			this.compareFinancialList.push({ ...this.getCurrentFinancial(), idx: this.compareFinancialList.length });
+			this.compareFinancialList.push({
+				...this.getCurrentFinancial(),
+				idx: this.compareFinancialList?.length,
+				className: defaultClassName
+			});
 		} else {
 			if (this.compareFinancialList?.length > 2) {
 				this.compareFinancialList.pop();
@@ -741,8 +831,12 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 
 			// 금융 선택
 			case "select":
-				this.compareFinancialList.forEach(el => el.checked = "");
+				this.compareFinancialList.forEach(el => {
+					el.checked = "";
+					el.className = defaultClassName;
+				});
 				currentFinancial.checked = "checked";
+				currentFinancial.className = `${defaultClassName} active-box`;
 				break;
 			// 금융 회사
 			case "financeId":
@@ -767,7 +861,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 		}
 
 		// 월별 상환액 계산
-		const childEl = this.template.querySelector("c-quote-calculator-table");
+		const childEl = this.childComponent;
 		currentFinancial.monthlyPayment = childEl?.calcMonthPayment(currentFinancial.loanAmount, currentFinancial.interestRate, currentFinancial.loanTermMonth) || 0;
 	}
 
@@ -776,7 +870,6 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	 */
 	handleModalClick(e) {
 		const name = e.currentTarget.dataset.name;
-
 		// 옵션 데이터 가져오기
 		const getOptionData = () => {
 			this.isLoading = true;
@@ -784,6 +877,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			getFilteredOptionList({ filterMap: this.optionSearchMap }).then(res => {
 				this.optionData = res;
 				this.selectedOptionIdList = [...this.selectedOptionIdList];
+				this.setRequiredOptionStyle();
 			}).catch(err => {
 				console.error("err :: ", err);
 			}).finally(() => this.isLoading = false);
@@ -799,8 +893,22 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				if (this.productId) getOptionData();
 				break;
 			case "save":
+				// 차량 선택 모달 저장
+				if (this.modalMap.product) {
+					if (!this.selectProductMap?.productId && !this.selectProductMap?.stockId) {
+						showToast("세부 재고 또는 추가 할인 차량을 선택해주세요.", "", "warning");
+						return;
+					}
+					this.quoteData.VehicleStock__c = this.selectProductMap.stockId;
+					this.handleChange({
+						target: { dataset: { name: "product" } },
+						detail: {
+							recordId: this.selectProductMap?.productId
+						}
+					});
+				}
 				// 옵션 모달 저장
-				if (this.modalMap.option) {
+				else if (this.modalMap.option) {
 					const selectedRows = this.allOptionData?.filter(el => this.selectedOptionIdList.includes(el.id));
 					// 서비스 품목 개수 체크
 					if (selectedRows?.filter(el => el.type === "서비스품목" && !el.isRequired)?.length > 1) {
@@ -848,7 +956,9 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				}
 				this.toggleModal();
 				break;
+			// 모달 창 닫기
 			default:
+				this.selectProductMap = {};
 				this.toggleModal();
 				break;
 		}
@@ -862,13 +972,15 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 		switch (name) {
 			// 견적 저장
 			case "save":
-
 				// 차종 확인
 				if (!this.productId) {
 					showToast("차종을 선택해주세요.", "", "warning");
 					return;
 				}
-
+				if (!this.handoverDate){
+					showToast("출고희망일을 선택해주세요.", "", "warning");
+					return;
+				}
 				// 주유상품권 확인
 				const discountDetail = this.tableDataMap.discountDetail;
 				if (discountDetail.oilCouponCount < 0 || discountDetail.oilCouponCount > discountDetail.maxCount) {
@@ -877,13 +989,13 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				}
 
 				// 특장 확인
-				const isSpecialValidation = this.tableDataMap.special.some(el =>
-					el?.option === "캡섀시 - 미완성" && !el?.specialFinal
-				);
-				if (isSpecialValidation) {
-					showToast("최종 특장 제작사 / 최종 차랑명을 입력해주세요.", "", "warning");
-					return;
-				}
+				// const isSpecialValidation = this.tableDataMap.special.some(el =>
+				// 	el?.option === "캡섀시 - 미완성" && !el?.specialFinal
+				// );
+				// if (isSpecialValidation) {
+				// 	showToast("최종 특장 제작사 / 최종 차랑명을 입력해주세요.", "", "warning");
+				// 	return;
+				// }
 
 				// 금융 확인
 				const financial = this.tableDataMap.financial;
@@ -909,13 +1021,12 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 					showToast("캐피탈 유예금 범위를 확인해주세요.", "", "warning");
 					return;
 				}
-
 				this.isLoading = true;
 				const paramMap = {
 					oppId: this.oppId,
 					quoteId: this.quoteId,
 					handoverDate: this.handoverDate,
-					stockId: this.selectedStockIdList?.length > 0 ? this.selectedStockIdList[0] : null,
+					stockId: this.selectProductMap?.stockId ?? null,
 					oilCouponCount: this.tableDataMap.discountDetail.oilCouponCount,
 					dataMap: JSON.stringify(this.tableDataMap),
 					summaryData: JSON.stringify(this.summaryData)
@@ -942,7 +1053,14 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				break;
 			// 특장 추가
 			case "addBtn":
-				const specialData = { ...initSpecialData };
+				const currentSpecialData = this.tableDataMap.special?.[0];
+				const option = currentSpecialData?.option;
+				const specialData = {
+					...initSpecialData,
+					option: option,
+					subOptions: specialDependency[option],
+					isViewAccount: currentSpecialData?.isViewAccount
+				};
 				specialData.idx = this.specialOptionList?.length;
 				this.specialOptionList.push(specialData);
 				break;
@@ -958,7 +1076,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			// 캘린더
 			case "handover":
 				this.isLoading = true;
-				const stockId = this.selectedStockIdList.length > 0 ? this.selectedStockIdList[0] : null;
+				const stockId = this.selectedStockIdList?.length > 0 ? this.selectedStockIdList[0] : null;
 				getCalendarInit({ vehicleStockId: stockId }).then(res => {
 					this.handoverDateList = res.handoverDateList;
 					this.optionDelayList = res.optionDelayList
@@ -997,6 +1115,18 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	}
 
 	/**
+	 * @description 아코디언 모두 열기/닫기
+	 */
+	handleAccordionButtonClick(e) {
+		const name = e.target.dataset.name;
+		if (name === "openAll") {
+			this.activeSectionNames = [...initSectionNameList];
+		} else {
+			this.activeSectionNames = [];
+		}
+	}
+
+	/**
 	 * @description visualforce 캘린더에서 받아온 이벤트
 	 */
 	getDataFromChild(e) {
@@ -1014,8 +1144,8 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			// 에러 메시지 맵
 			const messageMap = {
 				"same": "현재 출고일과 같습니다."
-				// "6/6": "이미 마감된 출고일입니다.",
-				// "휴일": "휴일은 선택할 수 없습니다."
+				, "휴일": "휴일은 선택할 수 없습니다."
+				// , "6/6": "이미 마감된 출고일입니다."
 			};
 
 			if (messageMap[value]) {
@@ -1036,7 +1166,6 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				}
 			}).finally(() => this.isLoading = false);
 		}
-
 	}
 
 	/**
@@ -1055,20 +1184,19 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 		const stockList = productData?.stockList?.map(stock => {
 			const baseDiscountPrice = baseDiscount / 100;
 			const longTermDiscountRate = (stock.LongtermDiscountRate__c || 0);
-			const specialDiscountRate = (stock.SpecialDiscountRate__c || 0);
+			const specialDiscountPrice = (stock.SpecialDiscountAmt__c || 0);
 			const optionDiscountRate = (stock.OptionDiscountRate__c || 0);
 			const longTermDiscountPrice = productPrice * longTermDiscountRate;
-			const specialDiscountPrice = productPrice * specialDiscountRate;
 			const optionDiscountPrice = productPrice * optionDiscountRate;
 			const totalDiscountPrice = (productPrice * baseDiscountPrice) + longTermDiscountPrice + specialDiscountPrice + optionDiscountPrice;
-			const totalDiscountRate = (baseDiscount + (longTermDiscountRate * 100) + (specialDiscountRate * 100) + (optionDiscountRate * 100)).toFixed(2);
+			const totalDiscountRate = ((baseDiscount + (longTermDiscountRate * 100) + (optionDiscountRate * 100)).toFixed(2)) - specialDiscountPrice;
 
 			return {
 				...stock,
 				LMY: productData?.LMY,
 				VMY: productData?.VMY,
 				totalDiscount: `${Math.floor(totalDiscountPrice / 10000)}만원 할인 (총할인율 ${totalDiscountRate}%)`,
-				totalDiscountPrice: longTermDiscountPrice + specialDiscountPrice + optionDiscountPrice,
+				totalDiscountPrice: Math.floor((longTermDiscountPrice + specialDiscountPrice + optionDiscountPrice) /100000) * 100000,
 				baseDiscount: baseDiscountPrice,
 				discountedPrice: productPrice - totalDiscountPrice
 			};
@@ -1085,9 +1213,10 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 		// 옵션 데이터 세팅
 		this.optionData = optionList;
 		this.selectedOptionIdList = this.selectedOptionData?.map(el => el.id);
+		this.setRequiredOptionStyle();
 
 		// 캠페인 데이터 세팅
-		this.baseDiscount = (productData?.price || 0) * (baseDiscount / 100);
+		this.baseDiscount = Math.floor(((productData?.price || 0) * (baseDiscount / 100)) / 100000) * 100000;
 		this.campaignData = campaignList?.map(el => {
 			const discountRate = el.discountRate ? el.discountRate : el.discountPrice ? (el.discountPrice / this.productData.price) : 0;
 			const discountPrice = el.discountPrice ? el.discountPrice : this.productData.price * (el.discountRate || 0);
@@ -1098,7 +1227,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 				content: el.memo
 			};
 		}) || [];
-		this.selectedCampaignIdList = this.selectedCampaignList?.map(row => row.id);
+		this.selectedCampaignIdList = this.selectedCampaignList?.map(row => row.id) || [];
 		const selectedCampaignList = this.campaignData?.filter(row => this.selectedCampaignIdList.includes(row.id));
 
 		// 선택된 추가할인차량 데이터 세팅
@@ -1128,7 +1257,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	 */
 	getServiceItem() {
 		const serviceItemList = this.selectedOptionData?.filter(el => el.type === "서비스품목");
-		if (serviceItemList && serviceItemList.length > 0) {
+		if (serviceItemList && serviceItemList?.length > 0) {
 			// Carefree 존재 시 No Carefree 제외
 			const serviceItem = serviceItemList.length === 1
 				? serviceItemList[0]
@@ -1142,7 +1271,6 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 		} else {
 			this.tableDataMap.serviceItem = {};
 		}
-
 	}
 
 	/**
@@ -1150,7 +1278,7 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	 */
 	getSummaryData() {
 		requestAnimationFrame(() => {
-			const childEl = this.template.querySelector("c-quote-calculator-table");
+			const childEl = this.childComponent;
 			this.summaryData = childEl.calcSummary();
 			this.tableDataMap.extraExpenses = childEl.getExtraExpensesData();
 			const discountDetailData = childEl.getDiscountDetailData();
@@ -1207,9 +1335,11 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 			financialName: finance?.label || "",
 			minInterestRate: minInterestRate,
 			maxInterestRate: maxInterestRate,
+			interestLabel: `이자율 (${minInterestRate}% ~ ${maxInterestRate}%)`,
 			minimumDuration: minimumDuration,
 			maximumDuration: maximumDuration,
-			interestRateRange: `${minInterestRate} ~ ${maxInterestRate}`,
+			durationLabel: `기간 (${minimumDuration}개월 ~ ${maximumDuration}개월)`,
+			// interestRateRange: `${minInterestRate} ~ ${maxInterestRate}`,
 			advancePayment: advancePayment,
 			helpText: helpText
 		});
@@ -1251,7 +1381,50 @@ export default class quoteCreator extends NavigationMixin(LightningElement) {
 	 * @description 스크롤 맨 위로
 	 */
 	scrollToTop() {
-		window.scrollTo({ top: 0, behavior: "smooth" });
+		if (this.isMobileApp()) {
+			const scrollableEl = this.template.querySelector(".quote-creator-wrap");
+			if (scrollableEl) {
+				scrollableEl.scrollTo({ top: 0, behavior: "smooth" });
+			}
+		} else {
+			window.scrollTo({ top: 0, behavior: "smooth" });
+		}
 	}
 
+	/**
+	 * @description 모바일 앱 체크
+	 */
+	isMobileApp() {
+		const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+		// Salesforce 모바일 앱 환경에서 User-Agent에 'SalesforceMobileApp' 포함
+		return /SalesforceMobileSDK/i.test(userAgent);
+	}
+
+	/**
+	 * @description 필수옵션 스타일 처리
+	 */
+	setRequiredOptionStyle() {
+		let styleEl = document.querySelector(".quote-creator-required-option-style");
+		if (!styleEl) {
+			styleEl = document.createElement("style");
+			styleEl.className = "quote-creator-required-option-style";
+			document.body.appendChild(styleEl);
+		}
+
+		const styleCssList = [];
+
+		// 필수옵션 인덱스에만 스타일 추가
+		for (let i = 1; i <= this.optionData?.length; i++) {
+			if (this.optionData[i - 1].isRequired) {
+				styleCssList.push(`
+					lightning-datatable[data-name="modalOption"]
+					tbody tr:nth-child(${i}) td .slds-checkbox_faux {
+						background-color: gray;
+					}
+				`);
+			}
+		}
+		styleEl.innerText = styleCssList.join("\n");
+	}
 }

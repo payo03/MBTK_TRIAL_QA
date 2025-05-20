@@ -890,9 +890,10 @@ global without sharing class Opportunity_tr extends TriggerHandler {
                             'product' => quote.VehicleStock__r.Product__r.Name,
                             'ownerId' => quote.OwnerId
                     };
-                    quote.VehicleStock__c = '';
+                    quote.VehicleStock__c = null;
 
                     // Quote 배정되면 다른 견적의 차량재고 null처리
+                    System.debug(updateQuoteList);
                     updateQuoteList.add(quote);
                     sendNotiMap.put(quote.Id, infoMap);
                 }
