@@ -56,12 +56,13 @@ public with sharing class PaymentType_tr extends TriggerHandler {
         for(Boolean isBundle : isBundleMap.keySet()) {
             // ver1.2 PaymentType 인도금유예 단건추가 Case
             List<PaymentType__c> sortedList = new List<PaymentType__c>(isBundleMap.get(isBundle));
+            System.debug(sortedList);
             CommonUtilController.sortSObjectList(sortedList, 'Type__c', false);
 
             // 1. Tracker Key별로 Map, Type Key별로 2차Map 생성
             Map<String, Map<String, PaymentType__c>> typeMap = new Map<String, Map<String, PaymentType__c>>();
             for(PaymentType__c newType : sortedList) {
-                // 대출계정, 초과입금 PASS
+                // 대출계정은 PASS
                 if(newType.Type__c.startsWith('99')) continue;
 
                 String key = newType.PaymentTracker__c;
