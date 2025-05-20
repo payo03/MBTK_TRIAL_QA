@@ -160,7 +160,7 @@ global without sharing class IF_SAP {
                     adjustStatus != null &&                                                          // 상태값 존재
                     (
                         loanClear ||
-                        ('DEPOSIT'.equals(adjustStatus) && 'OVER_PAID'.equals(adjustStatus))
+                        ('DEPOSIT'.equals(adjustStatus) || 'OVER_PAID'.equals(adjustStatus))
                     )                                                                                // 대출완료 or 계약금 납입
                 ) update new PaymentTracker__c(Id = paymentTrackerId, Status__c = adjustStatus);     // PaymentTracker Update(Status__c)
                 if (updateFlag) StageUpdateCommonController.doUpdateOpportunity(contractId);         // 계약금 입금 확인. Opportunity Update

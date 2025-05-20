@@ -642,6 +642,11 @@ global without sharing class IF_DTO {
         public String ORCT_PRICE {get; set;}            // 반제 금액
     }
 
+    // 가상계좌 할당해제정보 전송(SMS021)
+    public class VirtualAccountRelease {
+        public List<String> V_ACC_NO {get; set;}        // 가상계좌 번호
+    }
+
     /* ------------------------------------------ MFS ------------------------------------------ */
     // Loan 요청 정보
     public class LoanRequestInfo {
