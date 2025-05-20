@@ -302,11 +302,15 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 	handleSubmit() {
 		let message = "";
 
+  	    // ver1.8 전도형 책임 요청. 인도금 유예시 일수 Validation 제외
+        /*
 		// 5-1. [인도금 유예] 유예일 범위 Validation
 		if (!this.isVATDeferred && !this.isDaysValid) {
 			if(this.diffDay < this.minDays) 					message = this.selectedQuoteRow.underflowMessage;
 			if(this.diffDay > this.selectedQuoteRow.maxDays) 	message = this.selectedQuoteRow.overflowMessage;
 		}
+        */
+
 		// 5-2. [부가세 후취] 유예일 범위 Validation
 		if (this.isVATDeferred && !this.isDaysValid) message = "유예일수 문구를 확인해주세요";
 
@@ -334,7 +338,7 @@ export default class financialDefermentRequest extends NavigationMixin(Lightning
 		}
 
 		this.isLoading = true;
-		const infoMap = {
+		let infoMap = {
 			recordId: this.recordId,
 			quoteId: this.selectedQuoteRow.Id,
 			apiName: this.apiName,
