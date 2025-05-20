@@ -46,7 +46,7 @@ const defaultNavigation = (component, apiName, actionName, recordId, state, url,
 /**
  * @description 레코드 페이지 이동 Navigation
  */
-const recordNavigation = (component, objectApiName, recordId, state, isNewWindow) => {
+const recordNavigation = (component, objectApiName, recordId, state, isNewWindow, isReplace) => {
 	if (isNewWindow) {
 		component[NavigationMixin.GenerateUrl]({
 			type: "standard__recordPage",
@@ -56,7 +56,7 @@ const recordNavigation = (component, objectApiName, recordId, state, isNewWindow
 				actionName: "view"
 			},
 			state: state
-		}).then(url => {
+		}, isReplace).then(url => {
 			window.open(url);
 		});
 	} else {
@@ -68,7 +68,7 @@ const recordNavigation = (component, objectApiName, recordId, state, isNewWindow
 				actionName: "view"
 			},
 			state: state
-		});
+		}, isReplace);
 	}
 };
 

@@ -10,684 +10,793 @@
 <!-- quoteCreator -->
 <template>
 	<template lwc:if={oppData}>
-		
-		<!-- Header Start -->
-		<div class="slds-page-header slds-page-header_record-home box-wrap">
-			<div class="slds-page-header__row">
-				
-				<!-- Title Wrap Start -->
-				<div class="slds-page-header__col-title">
-					<div class="slds-media">
-						<div class="slds-media__figure">
-							<lightning-icon icon-name="standard:quotes"></lightning-icon>
-						</div>
-						<div class="slds-media__body">
-							<div class="slds-page-header__name">
-								<div class="slds-page-header__name-title">
-									<h1>
-										<span>견적 구성</span>
-										<span class="slds-page-header__title slds-truncate">{quoteName}</span>
-									</h1>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<!-- Title Wrap End -->
-				
-				<!-- Button Wrap Start -->
-				<div class="slds-page-header__col-actions">
-					<div class="slds-page-header__controls">
-						<div class="slds-page-header__control">
-							<ul class="slds-button-group-list">
-								<li>
-									<button class="slds-button slds-button_neutral" onclick={handleClick}
-									        data-name="save">저장
-									</button>
-								</li>
-								<li>
-									<button class="slds-button slds-button_neutral" onclick={handleClick}
-									        data-name="cancel">취소
-									</button>
-								</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-				<!-- Button Wrap End -->
-			</div>
-		</div>
-		<!-- Header End -->
-		
-		<!-- Body Start -->
-		<div class="slds-m-vertical_small">
-			<div class="slds-size_1-of-1 slds-wrap slds-grid slds-card quote-creator-wrap">
-				
-				<!-- 기회 Wrap Start -->
-				<div class="slds-size_1-of-2 slds-p-around_small body-header">
-					<div class="box-wrap body-wrap">
-						<div class="slds-text-title_bold">
-							<div class="slds-text-heading_small">{oppData.Name}</div>
-						</div>
-						<div class="slds-p-vertical_small">
-							<table class="slds-table slds-table_cell-buffer slds-table_bordered">
-								<thead>
-								<tr class="slds-line-height_reset">
-									<th class="" scope="col">
-										<div class="slds-truncate" title="세그먼트">세그먼트</div>
-									</th>
-									<th class="" scope="col">
-										<div class="slds-truncate" title="차종">차종</div>
-									</th>
-									<th class="" scope="col">
-										<div class="slds-truncate" title="연식">연식</div>
-									</th>
-									<th class="" scope="col">
-										<div class="slds-truncate" title="출고희망일">출고희망일</div>
-									</th>
-								</tr>
-								</thead>
-								<tbody>
-								<tr class="slds-hint-parent">
-									<td data-label="세그먼트" scope="row">
-										<div class="slds-truncate" title={productData.segment}>{productData.segment}
-										</div>
-									</td>
-									<td data-label="차종">
-										<template lwc:if={productId}>
-											<lightning-record-picker
-												label="차종"
-												data-name="product"
-												variant="label-hidden"
-												object-api-name="Product2"
-												onchange={handleChange}
-												value={productId}
-												filter={filter}
-												display-info={displayInfo}
-												required="true"
-											></lightning-record-picker>
-										</template>
-										<template lwc:else>
-											<lightning-record-picker
-												label="차종"
-												data-name="product"
-												variant="label-hidden"
-												object-api-name="Product2"
-												onchange={handleChange}
-												filter={filter}
-												display-info={displayInfo}
-												required="true"
-											></lightning-record-picker>
-										</template>
-									</td>
-									<td data-label="LMY">
-										<div class="slds-truncate" title={productData.LMY}>{productData.LMY}</div>
-									</td>
-									<td data-label="handover">
-										<div class="slds-truncate" title={handoverDate}>
-											<lightning-input type="date" label="" variant="label-hidden"
-											                 value={handoverDate} data-name="handover"
-											                 onchange={handleChange} onclick={handleClick}
-											                 read-only="true"
-											></lightning-input>
-										</div>
-									</td>
-								</tr>
-								</tbody>
-							</table>
-						</div>
-						<template lwc:if={productData}>
-							<div class="slds-grid slds-wrap">
-								<lightning-input type="checkbox" label="추가할인 차량 보기" data-name="additionalDC"
-								                 class="slds-m-top_xx-small" onchange={handleChange}
-								                 checked={isViewStock}></lightning-input>
-							</div>
-						</template>
-					</div>
-				</div>
-				<!-- 기회 Wrap End -->
-				
-				<!-- Summary Wrap Start -->
-				<div
-					class="slds-grid slds-wrap slds-size_1-of-2 slds-p-around_small slds-text-heading_small body-header summary-wrap">
-					<div class="slds-size_1-of-3">
-						<div class="slds-size_1-of-1 slds-form-element box-wrap body-wrap">
-							<label class="slds-form-element__label">실판매가 + 특장 가격</label>
-							<div>
-								<lightning-formatted-number
-									value={summaryData.totalRealAndSpecialPrice}>
-								</lightning-formatted-number>
-								원
-							</div>
-						</div>
-					</div>
-					<div class="slds-size_1-of-3 slds-p-horizontal_x-small body-wrap">
-						<div class="slds-size_1-of-1 slds-p-bottom_xx-small body-sub-wrap">
-							<div class="box-wrap slds-form-element">
-								<label class="slds-form-element__label">실판매가</label>
-								<div>
-									<lightning-formatted-number
-										value={summaryData.realSalesPrice}>
-									</lightning-formatted-number>
-									원
-								</div>
-							</div>
-						</div>
-						<div class="slds-size_1-of-1 slds-p-top_xx-small body-sub-wrap">
-							<div class="box-wrap slds-form-element">
-								<label class="slds-form-element__label">특장 가격</label>
-								<div>
-									<lightning-formatted-number
-										value={summaryData.specialPrice}>
-									</lightning-formatted-number>
-									원
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="slds-size_1-of-3 body-wrap">
-						<div class="slds-size_1-of-1 slds-p-bottom_xx-small body-sub-wrap">
-							<div class="box-wrap slds-form-element">
-								<label class="slds-form-element__label">예상 월 할부금</label>
-								<div>
-									<lightning-formatted-number
-										value={summaryData.monthlyPayment}>
-									</lightning-formatted-number>
-									원
-								</div>
-							</div>
-						</div>
-						<div class="slds-size_1-of-1 slds-p-top_xx-small body-sub-wrap">
-							<div class="box-wrap slds-form-element">
-								<label class="slds-form-element__label">출고 전 총 납입금</label>
-								<div>
-									<lightning-formatted-number
-										value={summaryData.totalPaymentBeforeReleased}>
-									</lightning-formatted-number>
-									원
-								</div>
-							</div>
-						</div>
-					</div>
-				
-				</div>
-				<!-- Summary Wrap End -->
-				
-				<!--				</template>-->
-				
-				<!-- 추가할인 차량 할인 Start -->
-				<template lwc:if={isViewStock}>
-					<template lwc:if={productData}>
-						<div class="slds-grid slds-wrap slds-size_1-of-1 slds-p-around_small slds-p-top_none">
-							<div class="slds-size_1-of-1 slds-text-align_right box-wrap body-wrap stock-table-wrap">
-								<template lwc:if={productData.stockList.length}>
-									<div class="slds-grid slds-size_1-of-1 stock-table-wrap-header">
-										<div class="slds-text-color_error">* 추가할인 차량 선택은 차량 확정 배정이 아님.</div>
-										<lightning-button-icon icon-name="utility:refresh" slot="actions"
-										                       data-name="stock"
-										                       onclick={handleRefresh}></lightning-button-icon>
-									</div>
-									<div class="slds-size_1-of-1 slds-scrollable_y">
-										<lightning-datatable
-											key-field="Id"
-											columns={stockColumns}
-											data={productData.stockList}
-											onrowselection={handleRowSelection}
-											selected-rows={selectedStockIdList}
-											data-name="stock"
-											max-row-selection="1"
-											min-column-width="120"
-											column-widths-mode="auto"
-										></lightning-datatable>
-									</div>
-								</template>
-								<template lwc:else>
-									<div class="slds-text-heading_small slds-text-align_center">
-										<strong>추가할인 가능한 차량이 없습니다.</strong>
-									</div>
-								</template>
-							</div>
-						</div>
-					</template>
-				</template>
-				<!-- 추가할인 차량 할인 End -->
-				
-				<div class="slds-size_1-of-1 slds-grid slds-wrap slds-p-bottom_small body-contents">
+		<div class="quote-creator-wrap">
+			<!-- Header Start -->
+			<div class="slds-page-header slds-page-header_record-home box-wrap">
+				<div class="slds-page-header__row">
 					
-					<!-- 데이터 선택 섹션 Start -->
-					<div class="slds-size_1-of-3 slds-p-left_small slds-p-right_x-small">
-						<lightning-accordion allow-multiple-sections-open class="box-wrap"
-						                     active-section-name={activeSectionNames}>
-							
-							<!-- 옵션 리스트 섹션 Start -->
-							<lightning-accordion-section name="option" label="옵션"
-							                             class="slds-m-bottom_small slds-theme_info">
-								<lightning-card title="옵션" icon-name="standard:custom">
-									<lightning-button-icon icon-name="utility:edit" slot="actions"
-									                       onclick={toggleModal}></lightning-button-icon>
-									<div class="slds-card__body slds-p-around_small slds-p-top_none">
-										<template lwc:if={isSelectedOptionData}>
-											<div class="slds-size_1-of-1">
-												<lightning-datatable
-													key-field="id"
-													data-name="option"
-													data={selectedOptionData}
-													columns={optionColumns}
-													onrowaction={handleRowAction}
-													hide-checkbox-column="false"
-													column-widths-mode="auto">
-												</lightning-datatable>
-											</div>
-										</template>
-										<template lwc:else>
-											옵션을 선택해주세요.
-										</template>
-									</div>
-								</lightning-card>
-							</lightning-accordion-section>
-							<!-- 옵션 리스트 섹션 End -->
-							
-							<!-- 캠페인 리스트 섹션 Start -->
-							<lightning-accordion-section name="campaign" label="캠페인"
-							                             class="slds-m-bottom_small slds-theme_info">
-								<lightning-card title="캠페인" icon-name="standard:campaign">
-									<lightning-button-icon icon-name="utility:refresh" slot="actions"
-									                       data-name="campaign"
-									                       onclick={handleRefresh}></lightning-button-icon>
-									<div class="slds-card__body slds-p-around_small slds-p-top_none">
-										<div class="slds-scrollable_y campaign-table-wrap">
-											<c-custom-data-table
-												key-field="id"
-												data-name="campaign"
-												data={campaignData}
-												columns={campaignColumns}
-												onrowselection={handleRowSelection}
-												selected-rows={selectedCampaignIdList}
-												column-widths-mode="auto">
-											</c-custom-data-table>
-										</div>
-									</div>
-								</lightning-card>
-							</lightning-accordion-section>
-							<!-- 캠페인 리스트 섹션 End -->
-							
-							<lightning-accordion-section name="oilCoupon" label="주유상품권"
-							                             class="slds-m-bottom_small slds-theme_info">
-								<div class="slds-card slds-p-around_small">
-									<lightning-input type="number"
-									                 label="주유상품권 수량(장)"
-									                 onchange={handleChange}
-									                 value={tableDataMap.discountDetail.oilCouponCount}
-									                 min="0"
-									                 max={tableDataMap.discountDetail.maxCount}
-									                 message-when-range-underflow={tableDataMap.discountDetail.underflowMessage}
-									                 message-when-range-overflow={tableDataMap.discountDetail.overflowMessage}
-									                 data-name="oilCoupon"
-									></lightning-input>
-									<lightning-input type="number" label="주유상품권 총액"
-									                 value={tableDataMap.discountDetail.oilCouponPrice}
-									                 formatter="currency" disabled></lightning-input>
-								</div>
-							</lightning-accordion-section>
-							<lightning-accordion-section name="special" label="차량타입 및 용도"
-							                             class="slds-m-bottom_small slds-theme_info">
-								<div class="slds-card slds-p-around_small">
-									<template for:each={specialOptionList} for:item="special" for:index="idx">
-										<div key={special.idx} class="special-wrap">
-											<lightning-combobox label="차량타입" options={specialOptions}
-											                    onchange={handleChange} data-name="specialOption"
-											                    data-idx={idx}
-											                    value={special.option}></lightning-combobox>
-											<template lwc:if={special.isViewAccount}>
-												<template lwc:if={special.accountId}>
-													<lightning-record-picker
-														label="특장회사"
-														object-api-name="Account"
-														onchange={handleChange}
-														data-idx={idx}
-														data-name="specialAccountId"
-														value={special.accountId}
-														filter={specialFilter}
-													></lightning-record-picker>
-												</template>
-												<template lwc:else>
-													<lightning-record-picker
-														label="특장회사"
-														object-api-name="Account"
-														onchange={handleChange}
-														data-idx={idx}
-														data-name="specialAccountId"
-														filter={specialFilter}
-													></lightning-record-picker>
-												</template>
-											</template>
-											<lightning-combobox label="용도 분류" options={special.subOptions}
-											                    onchange={handleChange} data-name="specialSubOption"
-											                    data-idx={idx}
-											                    value={special.subOption}></lightning-combobox>
-											<lightning-input type="number" label="특장 가격" onchange={handleChange}
-											                 data-name="specialPrice" data-idx={idx}
-											                 value={special.price}></lightning-input>
-											<template lwc:if={special.isViewAccount}>
-												<lightning-input type="text" label="최종 특장 제작사 / 최종 차랑명"
-												                 onchange={handleChange}
-												                 data-name="specialFinal" data-idx={idx} required="true"
-												                 value={special.specialFinal}></lightning-input>
-											</template>
-										</div>
-									</template>
-									<div class="slds-p-top_x-small slds-grid slds-wrap button-wrap">
-										<lightning-button-icon icon-name="utility:add" title="특장 추가"
-										                       onclick={handleClick} data-name="addBtn"
-										                       class="slds-m-right_xxx-small"></lightning-button-icon>
-										<lightning-button-icon icon-name="utility:dash" title="특장 제거"
-										                       onclick={handleClick} data-name="removeBtn"
-										                       class="slds-m-left_xxx-small"></lightning-button-icon>
+					<!-- Title Wrap Start -->
+					<div class="slds-page-header__col-title">
+						<div class="slds-media">
+							<div class="slds-media__figure">
+								<lightning-icon icon-name="standard:quotes"></lightning-icon>
+							</div>
+							<div class="slds-media__body">
+								<div class="slds-page-header__name">
+									<div class="slds-page-header__name-title">
+										<h1>
+											<span>견적 구성</span>
+											<span class="slds-page-header__title slds-truncate">{quoteName}</span>
+										</h1>
 									</div>
 								</div>
-							</lightning-accordion-section>
-							<lightning-accordion-section name="finance" label="Finance"
-							                             class="slds-m-bottom_small slds-theme_info">
-								<div class="slds-card slds-p-around_small">
-									<div class="slds-p-vertical_xx-small lgc-bg">
-										금융회사
-										<lightning-helptext
-											content={tableDataMap.financial.helpText}></lightning-helptext>
-									</div>
-									<lightning-combobox
-										label="금융회사"
-										variant="label-hidden"
-										options={financialList}
-										data-name="financeId"
-										value={tableDataMap.financial.financeId}
-										onchange={handleChange}
-									></lightning-combobox>
-									<lightning-input type="text" label="이자율 범위" disabled
-									                 value={tableDataMap.financial.interestRateRange}
-									></lightning-input>
-									<lightning-input type="number" label="인도금" onchange={handleChange}
-									                 data-name="advancePayment" formatter="currency"
-									                 value={tableDataMap.financial.advancePayment}
-									                 max={summaryData.realSalesPrice} min={tableDataMap.financial.minAdvancePayment}
-									                 message-when-range-overflow="실판매가를 초과하였습니다."
-									                 message-when-range-underflow="계약금, 부가세유예금, 인도금유예금 이상의 금액을 입력해주세요."
-									></lightning-input>
-									<lightning-input type="number" label="총 대출금액" onchange={handleChange}
-									                 data-name="loanAmount" formatter="currency"
-									                 value={tableDataMap.financial.loanAmount} disabled="true"
-									></lightning-input>
-									<lightning-input type="number" label="캐피탈 유예" onchange={handleChange}
-									                 data-name="capitalDeferment" formatter="currency"
-									                 value={tableDataMap.financial.capitalDeferment}
-									                 max={tableDataMap.financial.maxCapitalPrice} min="0"
-									                 message-when-range-overflow="대출금액을 초과하였습니다."
-									                 message-when-range-underflow="0 이상의 금액을 입력해주세요."
-									></lightning-input>
-									<lightning-input type="number" label="이자율 (%)" formatter="percent-fixed" step="0.01"
-									                 onchange={handleChange} data-name="interestRate"
-									                 min={tableDataMap.financial.minInterestRate}
-									                 max={tableDataMap.financial.maxInterestRate}
-									                 value={tableDataMap.financial.interestRate}
-									                 message-when-range-underflow="이자율 범위를 확인해주세요."
-									                 message-when-range-overflow="이자율 범위를 확인해주세요."
-									></lightning-input>
-									<lightning-input type="number" label="기간(개월)"
-									                 min={tableDataMap.financial.minimumDuration}
-									                 max={tableDataMap.financial.maximumDuration}
-									                 onchange={handleChange} data-name="loanTermMonth"
-									                 value={tableDataMap.financial.loanTermMonth}
-									                 message-when-range-underflow="기간(개월)을 확인해주세요."
-									                 message-when-range-overflow="기간(개월)을 확인해주세요."
-									></lightning-input>
-									<div class="slds-text-align_center slds-p-top_x-small">
-										<lightning-button label="비교하기" icon-name="utility:product_transfer_state"
-										                  icon-position="right"
-										                  onclick={handleCompareOpen}
-										></lightning-button>
-									</div>
-								</div>
-							</lightning-accordion-section>
-							<lightning-accordion-section name="expenses" label="Expenses 부대비용"
-							                             class="slds-m-bottom_small slds-theme_info">
-								<div class="slds-card slds-p-around_small">
-									<lightning-input type="number" label="탁송료" onchange={handleChange}
-									                 data-name="consignment"
-									                 value={tableDataMap.extraExpenses.consignment}></lightning-input>
-									<lightning-input type="number" label="출고보험료" onchange={handleChange}
-									                 data-name="insurance"
-									                 value={tableDataMap.extraExpenses.insurance}></lightning-input>
-									<lightning-input type="checkbox" label="인지대 노출"
-									                 class="slds-m-top_xx-small" onchange={handleChange}
-									                 data-name="stampDuty"
-									                 checked={tableDataMap.extraExpenses.isStampDuty}></lightning-input>
-								</div>
-							</lightning-accordion-section>
-						</lightning-accordion>
-					</div>
-					<!-- 데이터 선택 섹션 End -->
-					
-					<!-- 견적 가격 계산 섹션 Start -->
-					<div class="slds-size_2-of-3">
-						<c-quote-calculator-table table-data-map={tableDataMap}></c-quote-calculator-table>
-					</div>
-					<!-- 견적 가격 계산 섹션 End -->
-				
-				</div>
-			</div>
-		</div>
-		<!-- Body End -->
-		
-		<!-- Modal Start -->
-		<template lwc:if={isModalOpen}>
-			<section role="dialog" tabindex="-1" aria-modal="true"
-			         aria-label="Meaningful description of the modal content"
-			         class={modalSizeClass}>
-				<div class="slds-modal__container">
-					<button class="slds-button slds-button_icon slds-modal__close" onclick={toggleModal}>
-						<lightning-icon icon-name="utility:close" size="small"></lightning-icon>
-						<span class="slds-assistive-text">Cancel and close</span>
-					</button>
-					<template lwc:if={modalMap.finance}>
-						<div class="slds-modal__header">
-							<h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate" tabindex="-1">
-								금융 비교
-							</h1>
+							</div>
 						</div>
-					</template>
-					<div class={modalClass} id="modal-content-id-1">
-						
-						<!-- 옵션 Start -->
-						<template lwc:if={modalMap.option}>
-							<article class="slds-card">
-								<div class="slds-card__header slds-grid">
-									<header class="slds-media slds-media_center slds-has-flexi-truncate">
-										<div class="slds-media__figure">
-							        <span class="slds-icon_container slds-icon-standard-custom" title="옵션">
-								        <lightning-icon icon-name="standard:custom"></lightning-icon>
-							        </span>
-										</div>
-										<div class="slds-media__body">
-											<h2 class="slds-card__header-title">
-											<span class="slds-card__header-link slds-truncate" title="옵션">
-												<span>옵션</span>
-											</span>
-											</h2>
-										</div>
-										<div class="slds-no-flex"></div>
-									</header>
-								</div>
-								<div class="slds-grid slds-wrap">
-									<lightning-combobox label="구분" options={optionFilter} value={optionSearchMap.type}
-									                    onchange={handleModalChange}
-									                    data-name="searchType"></lightning-combobox>
-									<lightning-input type="search" label="옵션명" class="slds-p-left_x-small"
-									                 value={optionSearchMap.name} onchange={handleModalChange}
-									                 data-name="searchName"></lightning-input>
-									<div class="button-wrap">
-										<lightning-button-icon icon-name="utility:refresh" variant="border-filled"
-										                       alternative-text="Refresh"
-										                       class="slds-m-horizontal_xx-small"
-										                       title="Refresh" onclick={handleModalClick}
-										                       data-name="refresh">
-										</lightning-button-icon>
-										<button class="slds-button slds-button_neutral" onclick={handleModalClick}
-										        data-name="search">
-											<lightning-icon icon-name="utility:search" alternative-text="Utility search"
-											                size="x-small" title="search"></lightning-icon>
-											검색
+					</div>
+                    <!-- Title Wrap End -->
+                    
+                    <!-- Button Wrap Start -->
+					<div class="slds-page-header__col-actions">
+						<div class="slds-page-header__controls">
+							<div class="slds-page-header__control">
+								<ul class="slds-button-group-list">
+									<li>
+										<button class="slds-button slds-button_neutral" onclick={handleClick}
+                                                data-name="save"
+                                        >저장
 										</button>
+									</li>
+									<li>
+										<button class="slds-button slds-button_neutral" onclick={handleClick}
+                                                data-name="cancel"
+                                        >취소
+										</button>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+                    <!-- Button Wrap End -->
+				</div>
+			</div>
+            <!-- Header End -->
+            
+            <!-- Body Start -->
+			<div class="slds-m-vertical_small">
+				<div class="slds-size_1-of-1 slds-wrap slds-grid slds-card">
+					
+					<!-- 기회 Wrap Start -->
+					<div class="slds-size_1-of-2 slds-p-around_small body-header">
+						<div class="box-wrap body-wrap">
+                            <div class="slds-grid slds-wrap">
+							<div class="slds-text-title_bold">
+								<div class="slds-text-heading_small">{oppData.Name}</div>
+							</div>
+                            <lightning-button-group>
+                                <lightning-button label="차종 선택" onclick={toggleModal}
+                                                  data-type="product"></lightning-button>
+                                <lightning-button label="출고일 선택" onclick={handleClick}
+                                                  data-name="handover"></lightning-button>
+                            </lightning-button-group>
+                            </div>
+							<div class="slds-p-vertical_small product-table-wrap">
+								<table class="slds-table slds-table_cell-buffer slds-table_bordered">
+									<colgroup>
+										<col style="width: 70%; min-width: 200px;">
+										<col style="width: 30%; min-width: 100px;">
+									</colgroup>
+									<thead>
+									<tr class="slds-line-height_reset">
+<!--										<th class="" scope="col">-->
+<!--											<div class="slds-truncate" title="세그먼트">세그먼트</div>-->
+<!--										</th>-->
+										<th class="" scope="col">
+											<div class="slds-truncate" title="차종">차종</div>
+										</th>
+<!--										<th class="" scope="col">-->
+<!--											<div class="slds-truncate" title="연식">연식</div>-->
+<!--										</th>-->
+										<th class="" scope="col">
+											<div class="slds-truncate" title="출고희망일">출고희망일</div>
+										</th>
+									</tr>
+									</thead>
+									<tbody>
+									<tr class="slds-hint-parent">
+<!--										<td data-label="세그먼트" scope="row">-->
+<!--											<div class="slds-truncate" title={productData.segment}>{productData.segment}-->
+<!--											</div>-->
+<!--										</td>-->
+										<td data-label="차종">
+											<template lwc:if={productId}>
+												<lightning-record-picker
+                                                    label="차종"
+                                                    data-name="product"
+                                                    variant="label-hidden"
+                                                    object-api-name="Product2"
+                                                    onchange={handleChange}
+                                                    value={productId}
+                                                    filter={filter}
+                                                    display-info={displayInfo}
+                                                    required="true"
+                                                ></lightning-record-picker>
+											</template>
+											<template lwc:else>
+                                                <lightning-input
+                                                    label=""
+                                                    variant="label-hidden"
+                                                    read-only="true"
+                                                ></lightning-input>
+<!--												<lightning-record-picker-->
+<!--                                                    label="차종"-->
+<!--                                                    data-name="product"-->
+<!--                                                    variant="label-hidden"-->
+<!--                                                    object-api-name="Product2"-->
+<!--                                                    onchange={handleChange}-->
+<!--                                                    filter={filter}-->
+<!--                                                    display-info={displayInfo}-->
+<!--                                                    required="true"-->
+<!--                                                ></lightning-record-picker>-->
+											</template>
+										</td>
+<!--										<td data-label="LMY">-->
+<!--											<div class="slds-truncate" title={productData.LMY}>{productData.LMY}</div>-->
+<!--										</td>-->
+										<td data-label="handover">
+											<div class="" title={handoverDate}>
+												<lightning-input type="text" label="" variant="label-hidden"
+                                                                 value={handoverDate} data-name="handover"
+                                                                 onchange={handleChange}
+                                                                 read-only="true" class="handover-date"
+                                                ></lightning-input>
+											</div>
+										</td>
+									</tr>
+									</tbody>
+								</table>
+							</div>
+<!--							<template lwc:if={productData}>-->
+<!--								<div class="slds-grid slds-wrap">-->
+<!--									<lightning-input type="checkbox" label="추가할인 차량 보기" data-name="additionalDC"-->
+<!--                                                     class="slds-m-top_xx-small" onchange={handleChange}-->
+<!--                                                     checked={isViewStock}-->
+<!--                                    ></lightning-input>-->
+<!--								</div>-->
+<!--							</template>-->
+						</div>
+					</div>
+                    <!-- 기회 Wrap End -->
+                    
+                    <!-- Summary Wrap Start -->
+					<div
+                        class="slds-grid slds-wrap slds-size_1-of-2 slds-p-around_small slds-text-heading_small body-header summary-wrap">
+						<div class="slds-size_1-of-3">
+							<div class="slds-size_1-of-1 slds-form-element box-wrap body-wrap">
+								<label class="slds-form-element__label">실판매가 + 특장 가격</label>
+								<div>
+									<lightning-formatted-number
+                                        value={summaryData.totalRealAndSpecialPrice}
+                                    >
+									</lightning-formatted-number>
+									원
+								</div>
+							</div>
+						</div>
+						<div class="slds-size_1-of-3 slds-p-horizontal_x-small body-wrap">
+							<div class="slds-size_1-of-1 slds-p-bottom_xx-small body-sub-wrap">
+								<div class="box-wrap slds-form-element">
+									<label class="slds-form-element__label">실판매가</label>
+									<div>
+										<lightning-formatted-number
+                                            value={summaryData.realSalesPrice}
+                                        >
+										</lightning-formatted-number>
+										원
 									</div>
 								</div>
-								<div class="slds-card__body">
-									<lightning-datatable
-										key-field="id"
-										data-name="modalOption"
-										data={optionData}
-										columns={modalOptionColumns}
-										selected-rows={selectedOptionIdList}
-										onrowselection={handleRowSelection}
-										column-widths-mode="auto">
-									</lightning-datatable>
-								</div>
-							</article>
-						</template>
-						<!-- 옵션 End -->
-						
-						<!-- 금융 Start -->
-						<template lwc:elseif={modalMap.finance}>
-							<lightning-layout>
-								<template for:each={compareFinancialList} for:item="finance" for:index="idx">
-									<lightning-layout-item key={finance.idx} size={compareSize} padding="around-small">
-										<div class="custom-box slds-box slds-p-around_medium">
-											<div class="slds-text-align_center">
-												<input type="radio" data-name="select" data-idx={idx}
-												       onchange={handleCompareChange} checked={finance.checked}>
-											</div>
-											<div class="slds-p-vertical_xx-small lgc-bg">
-												금융회사
-												<lightning-helptext content={finance.helpText}></lightning-helptext>
-											</div>
-											<lightning-combobox
-												label="금융회사"
-												variant="label-hidden"
-												options={financialList}
-												data-name="financeId"
-												data-idx={idx}
-												value={finance.financeId}
-												onchange={handleCompareChange}
-											></lightning-combobox>
-											<lightning-input type="text" label="이자율 범위" disabled
-											                 value={finance.interestRateRange} data-idx={idx}
-											></lightning-input>
-											<lightning-input type="number" label="인도금" onchange={handleCompareChange}
-											                 data-name="advancePayment" formatter="currency"
-											                 value={finance.advancePayment} data-idx={idx}
-											                 max={summaryData.realSalesPrice} min={tableDataMap.financial.minAdvancePayment}
-											                 message-when-range-overflow="실판매가를 초과하였습니다."
-											                 message-when-range-underflow="계약금, 부가세유예금, 인도금유예금 이상의 금액을 입력해주세요."
-											></lightning-input>
-											<lightning-input type="number" label="대출금액" onchange={handleCompareChange}
-											                 data-name="loanAmount" formatter="currency"
-											                 value={finance.loanAmount} data-idx={idx} disabled="true"
-											></lightning-input>
-											<lightning-input type="number" label="이자율 (%)" formatter="percent-fixed"
-											                 step="0.01"
-											                 onchange={handleCompareChange} data-name="interestRate"
-											                 min={finance.minInterestRate} max={finance.maxInterestRate}
-											                 value={finance.interestRate} data-idx={idx}
-											                 message-when-range-underflow="이자율 범위를 확인해주세요."
-											                 message-when-range-overflow="이자율 범위를 확인해주세요."
-											></lightning-input>
-											<lightning-input type="number" label="기간(개월)" min={finance.minimumDuration}
-											                 max={finance.maximumDuration}
-											                 onchange={handleCompareChange} data-name="loanTermMonth"
-											                 value={finance.loanTermMonth} data-idx={idx}
-											                 message-when-range-underflow="기간(개월)을 확인해주세요."
-											                 message-when-range-overflow="기간(개월)을 확인해주세요."
-											></lightning-input>
-											<lightning-input type="number" label="예상 월 할부금"
-											                 value={finance.monthlyPayment} data-idx={idx}
-											                 formatter="currency" disabled>
-											</lightning-input>
-										</div>
-									</lightning-layout-item>
-								</template>
-							</lightning-layout>
-							<div class="slds-text-align_center">
-								<lightning-button-icon icon-name="utility:add" title="금융 추가"
-								                       onclick={handleCompareClick} data-name="addBtn"
-								                       class="slds-m-right_xxx-small"></lightning-button-icon>
-								<lightning-button-icon icon-name="utility:dash" title="금융 제거"
-								                       onclick={handleCompareClick} data-name="removeBtn"
-								                       class="slds-m-left_xxx-small"></lightning-button-icon>
 							</div>
-						</template>
-						<!-- 금융 End -->
-						
-						<!-- 캘린더 Start -->
-						<template lwc:elseif={modalMap.calendar}>
-							<div class="slds-grid slds-size_1-of-1 calendar-wrap">
-								<div class="slds-size_3-of-4">
-									<iframe src="/apex/CustomCalendar?isdtp=p1" onload={handleLoad}></iframe>
+							<div class="slds-size_1-of-1 slds-p-top_xx-small body-sub-wrap">
+								<div class="box-wrap slds-form-element">
+									<label class="slds-form-element__label">특장 가격</label>
+									<div>
+										<lightning-formatted-number
+                                            value={summaryData.specialPrice}
+                                        >										</lightning-formatted-number>
+										원
+									</div>
 								</div>
-								<div class="slds-size_1-of-4">
-									<lightning-card title="모델별 소요 영업일">
-										<div class="">
-											<template for:each={optionDelayList} for:item="option">
-												<lightning-layout key={option.Id} class="slds-vertical slds-wrap">
-													<lightning-layout-item
-														class="slds-size_1-of-1 slds-grid slds-p-around_x-small">
-														<template lwc:if={option.isAssign}>
-															<lightning-input type="checkbox" label=""
-															                 variant="label-hidden" name="" checked
-															                 disabled></lightning-input>
-															<div class="slds-text-heading_small">
-																<strong>{option.Attribute1__c}</strong>
-																<br>
-																<strong>+{option.Attribute2__c}영업일</strong>
-															</div>
-														</template>
-														<template lwc:else>
-															<lightning-input type="checkbox" label=""
-															                 variant="label-hidden" name=""
-															                 disabled></lightning-input>
-															<div class="slds-text-heading_small">
-																{option.Attribute1__c}
-																<br>
-																+{option.Attribute2__c}영업일
-															</div>
-														</template>
-													</lightning-layout-item>
-												</lightning-layout>
+							</div>
+						</div>
+						<div class="slds-size_1-of-3 body-wrap">
+							<div class="slds-size_1-of-1 slds-p-bottom_xx-small body-sub-wrap">
+								<div class="box-wrap slds-form-element">
+									<label class="slds-form-element__label">예상 월 할부금</label>
+									<div>
+										<lightning-formatted-number
+                                            value={summaryData.monthlyPayment}
+                                        ></lightning-formatted-number>
+										원
+									</div>
+								</div>
+							</div>
+							<div class="slds-size_1-of-1 slds-p-top_xx-small body-sub-wrap">
+								<div class="box-wrap slds-form-element">
+									<label class="slds-form-element__label">출고 전 총 납입금</label>
+									<div>
+										<lightning-formatted-number
+                                            value={summaryData.totalPaymentBeforeReleased}
+                                        ></lightning-formatted-number>
+										원
+									</div>
+								</div>
+							</div>
+						</div>
+					
+					</div>
+                    <!-- Summary Wrap End -->
+                    
+                    <!--				</template>-->
+                    
+                    <!-- 추가할인 차량 할인 Start -->
+<!--					<template lwc:if={isViewStock}>-->
+<!--						<template lwc:if={productData}>-->
+<!--							<div class="slds-grid slds-wrap slds-size_1-of-1 slds-p-around_small slds-p-top_none">-->
+<!--								<div class="slds-size_1-of-1 slds-text-align_right box-wrap body-wrap stock-table-wrap">-->
+<!--                                    <template lwc:if={productData.stockList}>-->
+<!--                                        <template lwc:if={productData.stockList.length}>-->
+<!--                                            <div class="slds-grid slds-size_1-of-1 stock-table-wrap-header">-->
+<!--                                                <div class="slds-text-color_error">* 추가할인 차량 선택은 차량 확정 배정이 아님.</div>-->
+<!--                                                <lightning-button-icon icon-name="utility:refresh" slot="actions"-->
+<!--                                                                       data-name="stock"-->
+<!--                                                                       onclick={handleRefresh}-->
+<!--                                                ></lightning-button-icon>-->
+<!--                                            </div>-->
+<!--                                            <div class="slds-size_1-of-1 slds-scrollable_y">-->
+<!--                                                <lightning-datatable-->
+<!--                                                    key-field="Id"-->
+<!--                                                    columns={stockColumns}-->
+<!--                                                    data={productData.stockList}-->
+<!--                                                    onrowselection={handleRowSelection}-->
+<!--                                                    selected-rows={selectedStockIdList}-->
+<!--                                                    data-name="stock"-->
+<!--                                                    max-row-selection="1"-->
+<!--                                                    min-column-width="120"-->
+<!--                                                    column-widths-mode="auto"-->
+<!--                                                ></lightning-datatable>-->
+<!--                                            </div>-->
+<!--                                        </template>-->
+<!--                                        <template lwc:else>-->
+<!--                                            <div class="slds-text-heading_small slds-text-align_center">-->
+<!--                                                <strong>추가할인 가능한 차량이 없습니다.</strong>-->
+<!--                                            </div>-->
+<!--                                        </template>-->
+<!--                                    </template>-->
+<!--								</div>-->
+<!--							</div>-->
+<!--						</template>-->
+<!--					</template>-->
+                    <!-- 추가할인 차량 할인 End -->
+					
+					<div class="slds-size_1-of-1 slds-grid slds-wrap slds-p-bottom_small body-contents">
+						
+						<!-- 데이터 선택 섹션 Start -->
+						<div class="slds-size_1-of-3 slds-p-left_small slds-p-right_x-small">
+							<lightning-accordion allow-multiple-sections-open class="box-wrap"
+                                                 active-section-name={activeSectionNames}>
+								<div class="slds-p-bottom_small slds-text-align_right">
+									<lightning-button-group>
+										<lightning-button label="모두 닫기" data-name="closeAll"
+                                                          onclick={handleAccordionButtonClick}
+                                        ></lightning-button>
+										<lightning-button label="모두 열기" data-name="openAll"
+                                                          onclick={handleAccordionButtonClick}
+                                        ></lightning-button>
+									</lightning-button-group>
+								</div>
+                                <!-- 옵션 리스트 섹션 Start -->
+								<lightning-accordion-section name="option" label="옵션"
+                                                             class="slds-m-bottom_small slds-theme_info">
+									<lightning-card title="옵션" icon-name="standard:custom">
+										<lightning-button-icon icon-name="utility:edit" slot="actions"
+                                                               onclick={toggleModal} data-type="option"
+                                        ></lightning-button-icon>
+										<div class="slds-card__body slds-p-around_small slds-p-top_none">
+											<template lwc:if={isSelectedOptionData}>
+												<div class="slds-size_1-of-1">
+													<lightning-datatable
+                                                        key-field="id"
+                                                        data-name="option"
+                                                        data={selectedOptionData}
+                                                        columns={optionColumns}
+                                                        onrowaction={handleRowAction}
+                                                        hide-checkbox-column="false"
+                                                        min-column-width="100"
+                                                        column-widths-mode="auto"
+                                                    >
+													</lightning-datatable>
+												</div>
+											</template>
+											<template lwc:else>
+												옵션을 선택해주세요.
 											</template>
 										</div>
 									</lightning-card>
-								</div>
-							</div>
-						</template>
-						<!-- 캘린더 End -->
+								</lightning-accordion-section>
+                                <!-- 옵션 리스트 섹션 End -->
+                                
+                                <!-- 캠페인 리스트 섹션 Start -->
+								<lightning-accordion-section name="campaign" label="캠페인"
+                                                             class="slds-m-bottom_small slds-theme_info">
+									<lightning-card title="캠페인" icon-name="standard:campaign">
+										<lightning-button-icon icon-name="utility:refresh" slot="actions"
+                                                               data-name="campaign"
+                                                               onclick={handleRefresh}
+                                        ></lightning-button-icon>
+										<div class="slds-card__body slds-p-around_small slds-p-top_none">
+                                            <template lwc:if={isCampaignData}>
+                                                <div class="slds-scrollable_y campaign-table-wrap">
+                                                    <c-custom-data-table
+                                                        key-field="id"
+                                                        data-name="campaign"
+                                                        data={campaignData}
+                                                        columns={campaignColumns}
+                                                        onrowselection={handleRowSelection}
+                                                        selected-rows={selectedCampaignIdList}
+                                                        min-column-width="100"
+                                                        column-widths-mode="auto"
+                                                    ></c-custom-data-table>
+                                                </div>
+                                            </template>
+                                            <template lwc:else>
+                                                {EmptyCampaignResult}
+                                            </template>
+										</div>
+									</lightning-card>
+								</lightning-accordion-section>
+                                <!-- 캠페인 리스트 섹션 End -->
+								
+								<lightning-accordion-section name="oilCoupon" label="주유상품권"
+                                                             class="slds-m-bottom_small slds-theme_info">
+									<div class="slds-card slds-p-around_small">
+										<lightning-input type="number"
+                                                         label="주유상품권 수량(장)"
+                                                         onchange={handleChange}
+                                                         value={tableDataMap.discountDetail.oilCouponCount}
+                                                         min="0"
+                                                         max={tableDataMap.discountDetail.maxCount}
+                                                         message-when-range-underflow={tableDataMap.discountDetail.underflowMessage}
+                                                         message-when-range-overflow={tableDataMap.discountDetail.overflowMessage}
+                                                         data-name="oilCoupon"
+                                        ></lightning-input>
+										<lightning-input type="number" label="주유상품권 총액"
+                                                         value={tableDataMap.discountDetail.oilCouponPrice}
+                                                         formatter="currency" disabled
+                                        ></lightning-input>
+									</div>
+								</lightning-accordion-section>
+								<lightning-accordion-section name="special" label="차량타입 및 용도"
+                                                             class="slds-m-bottom_small slds-theme_info">
+									<div class="slds-card slds-p-around_small">
+										<template for:each={specialOptionList} for:item="special" for:index="idx">
+											<div key={special.idx} class="special-wrap">
+												<template if:false={idx}>
+													<lightning-combobox label="차량타입" options={specialOptions}
+                                                                        onchange={handleChange}
+                                                                        data-name="specialOption"
+                                                                        data-idx={idx}
+                                                                        value={special.option}
+                                                    ></lightning-combobox>
+												</template>
+												<template lwc:if={special.isViewAccount}>
+													<template lwc:if={special.accountId}>
+														<lightning-record-picker
+                                                            label="특장회사"
+                                                            object-api-name="Account"
+                                                            onchange={handleChange}
+                                                            data-idx={idx}
+                                                            data-name="specialAccountId"
+                                                            value={special.accountId}
+                                                            filter={specialFilter}
+                                                        ></lightning-record-picker>
+													</template>
+													<template lwc:else>
+														<lightning-record-picker
+                                                            label="특장회사"
+                                                            object-api-name="Account"
+                                                            onchange={handleChange}
+                                                            data-idx={idx}
+                                                            data-name="specialAccountId"
+                                                            filter={specialFilter}
+                                                        ></lightning-record-picker>
+													</template>
+												</template>
+												<lightning-combobox label="용도 분류" options={special.subOptions}
+                                                                    onchange={handleChange} data-name="specialSubOption"
+                                                                    data-idx={idx}
+                                                                    value={special.subOption}
+                                                ></lightning-combobox>
+												<lightning-input type="number" label="특장 가격" onchange={handleChange}
+                                                                 data-name="specialPrice" data-idx={idx}
+                                                                 value={special.price}
+                                                ></lightning-input>
+                                                <!--											<template lwc:if={special.isViewAccount}>-->
+                                                <!--												<lightning-input type="text" label="최종 특장 제작사 / 최종 차랑명"-->
+                                                <!--												                 onchange={handleChange}-->
+                                                <!--												                 data-name="specialFinal" data-idx={idx} required="true"-->
+                                                <!--												                 value={special.specialFinal}></lightning-input>-->
+                                                <!--											</template>-->
+											</div>
+										</template>
+										<div class="slds-size_1-of-1 slds-p-top_xx-small">
+											<div class="slds-size_1-of-1">
+												선택 옵션 및 특장 제작 요청 사항은 아래 링크에서 기재
+											</div>
+                                            <a href={specialRequestLink} target="_blank">선택 옵션 및 특장 제작 요청 사항</a>
+										</div>
+										<div class="slds-p-top_x-small slds-grid slds-wrap button-wrap">
+											<lightning-button-icon icon-name="utility:add" title="특장 추가"
+                                                                   onclick={handleClick} data-name="addBtn"
+                                                                   class="slds-m-right_xxx-small"
+                                            ></lightning-button-icon>
+											<lightning-button-icon icon-name="utility:dash" title="특장 제거"
+                                                                   onclick={handleClick} data-name="removeBtn"
+                                                                   class="slds-m-left_xxx-small"
+                                            ></lightning-button-icon>
+										</div>
+									</div>
+								</lightning-accordion-section>
+								<lightning-accordion-section name="finance" label="파이낸셜"
+                                                             class="slds-m-bottom_small slds-theme_info">
+									<div class="slds-card slds-p-around_small">
+										<div class="slds-p-vertical_xx-small lgc-bg">
+											금융회사
+											<lightning-helptext
+                                                content={tableDataMap.financial.helpText}
+                                            ></lightning-helptext>
+										</div>
+										<lightning-combobox
+                                            label="금융회사"
+                                            variant="label-hidden"
+                                            options={financialList}
+                                            data-name="financeId"
+                                            value={tableDataMap.financial.financeId}
+                                            onchange={handleChange}
+                                        ></lightning-combobox>
+                                        <!--										<lightning-input type="text" label="이자율 범위" disabled-->
+                                        <!--										                 value={tableDataMap.financial.interestRateRange}-->
+                                        <!--										></lightning-input>-->
+										<lightning-input type="number" label="인도금" onchange={handleChange}
+                                                         data-name="advancePayment" formatter="currency"
+                                                         value={tableDataMap.financial.advancePayment}
+                                                         max={summaryData.realSalesPrice}
+                                                         min={tableDataMap.financial.minAdvancePayment}
+                                                         message-when-range-overflow="실판매가를 초과하였습니다."
+                                                         message-when-range-underflow="계약금, 부가세유예금, 인도금유예금 이상의 금액을 입력해주세요."
+                                        ></lightning-input>
+										<lightning-input type="number" label="캐피탈 유예" onchange={handleChange}
+                                                         data-name="capitalDeferment" formatter="currency"
+                                                         value={tableDataMap.financial.capitalDeferment}
+                                                         max={tableDataMap.financial.maxCapitalPrice} min="0"
+                                                         message-when-range-overflow="대출금액을 초과하였습니다."
+                                                         message-when-range-underflow="0 이상의 금액을 입력해주세요."
+                                        ></lightning-input>
+										<lightning-input type="number" label={tableDataMap.financial.interestLabel}
+                                                         formatter="percent-fixed" step="0.01"
+                                                         onchange={handleChange} data-name="interestRate"
+                                                         min={tableDataMap.financial.minInterestRate}
+                                                         max={tableDataMap.financial.maxInterestRate}
+                                                         value={tableDataMap.financial.interestRate}
+                                                         message-when-range-underflow="이자율 범위를 확인해주세요."
+                                                         message-when-range-overflow="이자율 범위를 확인해주세요."
+                                        ></lightning-input>
+										<lightning-input type="number" label={tableDataMap.financial.durationLabel}
+                                                         min={tableDataMap.financial.minimumDuration}
+                                                         max={tableDataMap.financial.maximumDuration}
+                                                         onchange={handleChange} data-name="loanTermMonth"
+                                                         value={tableDataMap.financial.loanTermMonth}
+                                                         message-when-range-underflow="기간(개월)을 확인해주세요."
+                                                         message-when-range-overflow="기간(개월)을 확인해주세요."
+                                        ></lightning-input>
+										<lightning-input type="number" label="총 대출금액" onchange={handleChange}
+                                                         data-name="loanAmount" formatter="currency"
+                                                         value={tableDataMap.financial.loanAmount} disabled="true"
+                                        ></lightning-input>
+										<div class="slds-text-align_center slds-p-top_x-small">
+											<lightning-button label="비교하기" icon-name="utility:product_transfer_state"
+                                                              icon-position="right"
+                                                              onclick={handleCompareOpen}
+                                            ></lightning-button>
+										</div>
+									</div>
+								</lightning-accordion-section>
+								<lightning-accordion-section name="expenses" label="부대비용"
+                                                             class="slds-m-bottom_small slds-theme_info">
+									<div class="slds-card slds-p-around_small">
+										<lightning-input type="number" label="탁송료" onchange={handleChange}
+                                                         data-name="consignment" formatter="currency"
+                                                         value={tableDataMap.extraExpenses.consignment}
+                                        ></lightning-input>
+										<lightning-input type="number" label="출고보험료" onchange={handleChange}
+                                                         data-name="insurance" formatter="currency"
+                                                         value={tableDataMap.extraExpenses.insurance}
+                                        ></lightning-input>
+										<lightning-input type="number" label="취등록세" onchange={handleChange}
+                                                         data-name="registrationTax" formatter="currency"
+                                                         value={tableDataMap.extraExpenses.registrationTax}
+                                        ></lightning-input>
+										<lightning-input type="checkbox" label="인지대 노출"
+                                                         class="slds-m-top_xx-small" onchange={handleChange}
+                                                         data-name="stampDuty"
+                                                         checked={tableDataMap.extraExpenses.isStampDuty}
+                                        ></lightning-input>
+									</div>
+								</lightning-accordion-section>
+							</lightning-accordion>
+						</div>
+                        <!-- 데이터 선택 섹션 End -->
+                        
+                        <!-- 견적 가격 계산 섹션 Start -->
+						<div class="slds-size_2-of-3">
+							<c-quote-calculator-table table-data-map={tableDataMap}></c-quote-calculator-table>
+						</div>
+                        <!-- 견적 가격 계산 섹션 End -->
 					
 					</div>
-					<template if:false={modalMap.calendar}>
-						<div class="slds-modal__footer slds-text-align_center">
-							<button class="slds-button slds-button_neutral" data-name="cancel"
-							        onclick={handleModalClick}>취소
-							</button>
-							<button class="slds-button slds-button_brand" data-name="save" onclick={handleModalClick}>
-								저장
-							</button>
-						</div>
-					</template>
 				</div>
-				<template lwc:if={isLoading}>
-					<lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
-				</template>
-			</section>
-			<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
-		</template>
-		<!-- Modal End -->
-	
+			</div>
+            <!-- Body End -->
+            
+            <!-- Modal Start -->
+			<template lwc:if={isModalOpen}>
+				<section role="dialog" tabindex="-1" aria-modal="true"
+                         aria-label="Meaningful description of the modal content"
+                         class={modalSizeClass}>
+					<div class="slds-modal__container">
+						<button class="slds-button slds-button_icon slds-modal__close" onclick={toggleModal}>
+							<lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+							<span class="slds-assistive-text">Cancel and close</span>
+						</button>
+						<template lwc:if={modalMap.finance}>
+							<div class="slds-modal__header">
+								<h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate" tabindex="-1">
+									금융 비교
+								</h1>
+							</div>
+						</template>
+						<div class={modalClass} id="modal-content-id-1">
+							
+                            <template lwc:if={modalMap.product}>
+                                <c-vehicle-stock-table onselectproduct={handleSelectProduct}
+                                                       parentdata={parentData}></c-vehicle-stock-table>
+                            </template>
+                            <!-- 옵션 Start -->
+							<template lwc:if={modalMap.option}>
+								<article class="slds-card">
+									<div class="slds-card__header slds-grid">
+										<header class="slds-media slds-media_center slds-has-flexi-truncate">
+											<div class="slds-media__figure">
+										        <span class="slds-icon_container slds-icon-standard-custom" title="옵션">
+											        <lightning-icon icon-name="standard:custom"></lightning-icon>
+										        </span>
+											</div>
+											<div class="slds-media__body">
+												<h2 class="slds-card__header-title">
+													<span class="slds-card__header-link slds-truncate" title="옵션">
+														<span>옵션</span>
+													</span>
+												</h2>
+											</div>
+											<div class="slds-no-flex"></div>
+										</header>
+									</div>
+									<div class="slds-grid slds-wrap">
+										<lightning-combobox label="구분" options={optionFilter}
+                                                            value={optionSearchMap.type}
+                                                            onchange={handleModalChange}
+                                                            data-name="searchType"
+                                        ></lightning-combobox>
+										<lightning-input type="search" label="옵션명" class="slds-p-left_x-small"
+                                                         value={optionSearchMap.name} onchange={handleModalChange}
+                                                         data-name="searchName"
+                                        ></lightning-input>
+										<div class="button-wrap">
+											<lightning-button-icon icon-name="utility:refresh" variant="border-filled"
+                                                                   alternative-text="Refresh"
+                                                                   class="slds-m-horizontal_xx-small"
+                                                                   title="Refresh" onclick={handleModalClick}
+                                                                   data-name="refresh">
+											</lightning-button-icon>
+											<button class="slds-button slds-button_neutral" onclick={handleModalClick}
+                                                    data-name="search">
+												<lightning-icon icon-name="utility:search"
+                                                                alternative-text="Utility search"
+                                                                size="x-small" title="search"
+                                                ></lightning-icon>
+												검색
+											</button>
+										</div>
+									</div>
+									<div class="slds-card__body">
+										<lightning-datatable
+                                            key-field="id"
+                                            data-name="modalOption"
+                                            data={optionData}
+                                            columns={modalOptionColumns}
+                                            selected-rows={selectedOptionIdList}
+                                            onrowselection={handleRowSelection}
+                                            min-column-width="100"
+                                            column-widths-mode="auto"
+                                        ></lightning-datatable>
+									</div>
+								</article>
+							</template>
+                            <!-- 옵션 End -->
+                            
+                            <!-- 금융 Start -->
+							<template lwc:elseif={modalMap.finance}>
+								<lightning-layout>
+									<template for:each={compareFinancialList} for:item="finance" for:index="idx">
+										<lightning-layout-item key={finance.idx} size={compareSize}
+                                                               padding="around-small">
+											<div class={finance.className}>
+												<div class="slds-text-align_center">
+													<input
+                                                        type="radio"
+                                                        class="finance-radio-btn"
+                                                        data-name="select"
+                                                        data-idx={idx}
+                                                        onchange={handleCompareChange}
+                                                        checked={finance.checked}
+                                                    >
+												</div>
+												<div class="slds-p-vertical_xx-small lgc-bg">
+													금융회사
+													<lightning-helptext content={finance.helpText}></lightning-helptext>
+												</div>
+												<lightning-combobox
+                                                    label="금융회사"
+                                                    variant="label-hidden"
+                                                    options={financialList}
+                                                    data-name="financeId"
+                                                    data-idx={idx}
+                                                    value={finance.financeId}
+                                                    onchange={handleCompareChange}
+                                                ></lightning-combobox>
+                                                <!--												<lightning-input type="text" label="이자율 범위" disabled-->
+                                                <!--												                 value={finance.interestLabel} data-idx={idx}-->
+                                                <!--												></lightning-input>-->
+												<lightning-input type="number" label="인도금"
+                                                                 onchange={handleCompareChange}
+                                                                 data-name="advancePayment" formatter="currency"
+                                                                 value={finance.advancePayment} data-idx={idx}
+                                                                 max={summaryData.realSalesPrice}
+                                                                 min={tableDataMap.financial.minAdvancePayment}
+                                                                 message-when-range-overflow="실판매가를 초과하였습니다."
+                                                                 message-when-range-underflow="계약금, 부가세유예금, 인도금유예금 이상의 금액을 입력해주세요."
+                                                ></lightning-input>
+												<lightning-input type="number" label={finance.interestLabel}
+                                                                 formatter="percent-fixed"
+                                                                 step="0.01"
+                                                                 onchange={handleCompareChange} data-name="interestRate"
+                                                                 min={finance.minInterestRate}
+                                                                 max={finance.maxInterestRate}
+                                                                 value={finance.interestRate} data-idx={idx}
+                                                                 message-when-range-underflow="이자율 범위를 확인해주세요."
+                                                                 message-when-range-overflow="이자율 범위를 확인해주세요."
+                                                ></lightning-input>
+												<lightning-input type="number" label={finance.durationLabel}
+                                                                 min={finance.minimumDuration}
+                                                                 max={finance.maximumDuration}
+                                                                 onchange={handleCompareChange}
+                                                                 data-name="loanTermMonth"
+                                                                 value={finance.loanTermMonth} data-idx={idx}
+                                                                 message-when-range-underflow="기간(개월)을 확인해주세요."
+                                                                 message-when-range-overflow="기간(개월)을 확인해주세요."
+                                                ></lightning-input>
+												<lightning-input type="number" label="대출금액"
+                                                                 onchange={handleCompareChange}
+                                                                 data-name="loanAmount" formatter="currency"
+                                                                 value={finance.loanAmount} data-idx={idx}
+                                                                 disabled="true"
+                                                ></lightning-input>
+												<lightning-input type="number" label="예상 월 할부금"
+                                                                 value={finance.monthlyPayment} data-idx={idx}
+                                                                 formatter="currency" disabled
+                                                ></lightning-input>
+											</div>
+										</lightning-layout-item>
+									</template>
+								</lightning-layout>
+								<div class="slds-text-align_center">
+									<lightning-button-icon icon-name="utility:add" title="금융 추가"
+                                                           onclick={handleCompareClick} data-name="addBtn"
+                                                           class="slds-m-right_xxx-small"
+                                    ></lightning-button-icon>
+									<lightning-button-icon icon-name="utility:dash" title="금융 제거"
+                                                           onclick={handleCompareClick} data-name="removeBtn"
+                                                           class="slds-m-left_xxx-small"
+                                    ></lightning-button-icon>
+								</div>
+							</template>
+                            <!-- 금융 End -->
+                            
+                            <!-- 캘린더 Start -->
+							<template lwc:elseif={modalMap.calendar}>
+								<div class="slds-grid slds-size_1-of-1 calendar-wrap">
+									<div class="slds-size_3-of-4">
+										<iframe src="/apex/CustomCalendar?isdtp=p1" onload={handleLoad}></iframe>
+									</div>
+									<div class="slds-size_1-of-4">
+										<lightning-card title="모델별 소요 영업일">
+											<div class="">
+												<template for:each={optionDelayList} for:item="option">
+													<lightning-layout key={option.Id} class="slds-vertical slds-wrap">
+														<lightning-layout-item
+                                                            class="slds-size_1-of-1 slds-grid slds-p-around_x-small">
+															<template lwc:if={option.isAssign}>
+																<lightning-input type="checkbox" label=""
+                                                                                 variant="label-hidden" name="" checked
+                                                                                 disabled
+                                                                ></lightning-input>
+																<div class="slds-text-heading_small">
+																	<strong>{option.Attribute1__c}</strong>
+																	<br>
+																	<strong>+{option.Attribute2__c}영업일</strong>
+																</div>
+															</template>
+															<template lwc:else>
+																<lightning-input type="checkbox" label=""
+                                                                                 variant="label-hidden" name=""
+                                                                                 disabled
+                                                                ></lightning-input>
+																<div class="slds-text-heading_small">
+																	{option.Attribute1__c}
+																	<br>
+																	+{option.Attribute2__c}영업일
+																</div>
+															</template>
+														</lightning-layout-item>
+													</lightning-layout>
+												</template>
+											</div>
+										</lightning-card>
+									</div>
+								</div>
+							</template>
+                            <!-- 캘린더 End -->
+						
+						</div>
+						<template if:false={modalMap.calendar}>
+							<div class="slds-modal__footer slds-text-align_center">
+								<button class="slds-button slds-button_neutral" data-name="cancel"
+                                        onclick={handleModalClick}
+                                >취소
+								</button>
+								<button class="slds-button slds-button_brand" data-name="save"
+                                        onclick={handleModalClick}
+                                >저장</button>
+							</div>
+						</template>
+					</div>
+					<template lwc:if={isLoading}>
+						<lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+					</template>
+				</section>
+				<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+			</template>
+            <!-- Modal End -->
+		</div>
+		
 	</template>
+	<lightning-button-icon
+        class="scroll-to-top"
+        icon-name="utility:arrowup"
+        variant="border-filled"
+        alternative-text="맨 위로"
+        title="맨 위로"
+        size="large"
+        onclick={scrollToTop}
+    ></lightning-button-icon>
 	
 	<template lwc:if={isLoading}>
 		<lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>

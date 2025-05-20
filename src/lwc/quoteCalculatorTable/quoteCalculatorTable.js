@@ -153,17 +153,24 @@ export default class quoteCalculatorTable extends LightningElement {
 		const financial = this.tableDataMap?.financial;
 
 		const isVAT = financial?.isVAT || false;
+		const isPaymentDeferment = financial?.isPaymentDeferment || false;
+
 		const advancePayment = financial?.advancePayment || 0;
 		const deposit = 1000000;
+		const VATAmount = financial?.VATAmount || 0;
 		const paymentDeferredAmount = financial?.paymentDeferredAmount || 0;
 		const interestRate = financial?.interestRate || 0;
 		const loanTermMonth = financial?.loanTermMonth || 0;
 
-		const defermentVAT = isVAT ? Math.round((this.realSalesPrice / 1.1) * 0.1) : 0;
+		const defermentPayment = isPaymentDeferment ? paymentDeferredAmount : 0;
+
+		// const defermentVAT = isVAT ? Math.round((this.realSalesPrice / 1.1) * 0.1) : 0;
+		const defermentVAT = isVAT ? VATAmount : 0;
 		const defermentVATDays = financial?.defermentVATDays || 0;
 		const interestDefermentVAT = Math.round((((defermentVAT * 0.12) / 365) * defermentVATDays) / 100000) * 100000;
 
-		const deliveryPrice = advancePayment - (deposit + defermentVAT + paymentDeferredAmount);
+		// const deliveryPrice = advancePayment - (deposit + defermentVAT + paymentDeferredAmount);
+		const deliveryPrice = advancePayment - (deposit + defermentVAT + defermentPayment);
 		const loanAmount = this.realSalesPrice - advancePayment;
 		const capitalDeferment = financial?.capitalDeferment || 0;
 		const excludeCapitalLoanAmount = loanAmount - capitalDeferment;
@@ -176,7 +183,8 @@ export default class quoteCalculatorTable extends LightningElement {
 			deposit: deposit,
 			deliveryPrice: deliveryPrice,
 			defermentVAT: defermentVAT,
-			paymentDeferredAmount: paymentDeferredAmount,
+			paymentDeferredAmount: paymentDeferredAmount,	// defermentPayment로 대체됨(05/14)
+			defermentPayment: defermentPayment,
 			loanAmount: loanAmount,
 			excludeCapitalLoanAmount: excludeCapitalLoanAmount,
 			capitalDeferment: capitalDeferment,
@@ -200,8 +208,8 @@ export default class quoteCalculatorTable extends LightningElement {
 		const stampDuty = isStampDuty ? extraExpenses?.stampDuty || 0 : 0;
 		const notarizedFee = this.financialData.isVAT ? Math.round(((this.financialData.defermentVAT * 1.3 * 0.0015) + 21500) / 10) * 10 : 0;
 		const totalExpenses = consignment + insurance + stampDuty + notarizedFee;
-		const taxRate = this.tableDataMap?.product?.segment === "TPP" ? 0.03 : 0.04;
-		const registrationTax = Math.round((this.totalRealAndSpecialPrice / 1.1) * taxRate);
+		// const taxRate = this.tableDataMap?.product?.segment === "TPP" ? 0.03 : 0.04;
+		// const registrationTax = Math.round((this.totalRealAndSpecialPrice / 1.1) * taxRate);
 		return {
 			consignment: consignment,
 			insurance: insurance,
@@ -209,7 +217,7 @@ export default class quoteCalculatorTable extends LightningElement {
 			stampDuty: stampDuty,
 			notarizedFee: notarizedFee,
 			totalExpenses: totalExpenses,
-			registrationTax: registrationTax
+			registrationTax: extraExpenses?.registrationTax || 0
 		};
 	}
 

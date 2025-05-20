@@ -2,8 +2,8 @@
  * @author : th.kim
  * @date : 2024-12-10
  * @description :
- * @target : 
-==============================================================
+ * @target :
+ ==============================================================
  * Ver          Date            Author          Modification
  * 1.0          2024-12-10      th.kim          Initial Version
  **************************************************************/
@@ -12,26 +12,31 @@ const productColumns = [
 		type: "text",
 		fieldName: "segment",
 		label: "Segment"
+		// wrapText: true
 	},
 	{
 		type: "text",
 		fieldName: "name",
 		label: "차종"
+		// wrapText: true
 	},
 	{
 		type: "text",
 		fieldName: "LMY",
 		label: "연식"
+		// wrapText: true
 	},
 	{
 		type: "text",
 		fieldName: "service",
 		label: "보증"
+		// wrapText: true
 	},
 	{
 		type: "text",
 		fieldName: "handoverDate",
 		label: "Handover Data"
+		// wrapText: true
 	}
 ];
 
@@ -64,18 +69,21 @@ const modalOptionColumns = [
 		fieldName: "type",
 		label: "Type",
 		hideDefaultActions: true
+		// wrapText: true
 	},
 	{
 		type: "text",
 		fieldName: "name",
 		label: "Name",
 		hideDefaultActions: true
+		// wrapText: true
 	},
 	{
 		type: "number",
 		fieldName: "price",
 		label: "가격",
 		hideDefaultActions: true
+		// wrapText: true
 	}
 ];
 
@@ -83,6 +91,7 @@ const optionColumns = [...modalOptionColumns, {
 	type: "button-icon",
 	initialWidth: 32,
 	hideDefaultActions: true,
+	// wrapText: true,
 	typeAttributes: {
 		iconName: "utility:delete",
 		name: "delete"
@@ -98,30 +107,33 @@ const campaignColumns = [
 		fieldName: "name",
 		label: "이름",
 		hideDefaultActions: true,
+		// wrapText: true,
 		typeAttributes: {
-			content: { fieldName: "content" },
+			content: { fieldName: "content" }
 		}
-	},
-	{
-		type: "date",
-		fieldName: "expireDate",
-		label: "종료일",
-		hideDefaultActions: true
 	},
 	{
 		type: "number",
 		fieldName: "discountPrice",
 		label: "할인가격",
 		hideDefaultActions: true
+		// wrapText: true
 	},
 	{
 		type: "percent",
 		fieldName: "discountRate",
 		label: "할인율",
 		hideDefaultActions: true,
+		// wrapText: true,
 		typeAttributes: {
 			maximumFractionDigits: "2"
 		}
+	}, {
+		type: "date",
+		fieldName: "expireDate",
+		label: "종료일",
+		hideDefaultActions: true
+		// wrapText: true
 	}
 ];
 
@@ -198,45 +210,52 @@ const stockColumns = [
 		fieldName: "LMY",
 		label: "LMY",
 		hideDefaultActions: true
+		// wrapText: true
 	},
 	{
 		type: "text",
 		fieldName: "VMY",
 		label: "VMY",
 		hideDefaultActions: true
+		// wrapText: true
 	},
 	{
 		type: "text",
 		fieldName: "CarColor__c",
 		label: "색상",
 		hideDefaultActions: true
+		// wrapText: true
 	},
 	{
 		type: "text",
 		fieldName: "totalDiscount",
 		label: "총 할인율",
 		hideDefaultActions: true
+		// wrapText: true
 	},
 	{
 		type: "percent",
 		fieldName: "baseDiscount",
 		label: "기준 할인율",
 		hideDefaultActions: true
+		// wrapText: true
 	},
 	{
 		type: "percent",
 		fieldName: "LongtermDiscountRate__c",
 		label: "장기재고 할인율",
 		hideDefaultActions: true,
+		// wrapText: true,
 		typeAttributes: {
 			maximumFractionDigits: "2"
 		}
 	},
 	{
-		type: "percent",
-		fieldName: "SpecialDiscountRate__c",
-		label: "스페셜 할인율",
+		type: "number",
+		fieldName: "SpecialDiscountAmt__c",
+		label: "스페셜 할인 금액",
 		hideDefaultActions: true,
+		// wrapText: true,
 		typeAttributes: {
 			maximumFractionDigits: "2"
 		}
@@ -246,6 +265,7 @@ const stockColumns = [
 		fieldName: "OptionDiscountRate__c",
 		label: "옵션 할인율",
 		hideDefaultActions: true,
+		// wrapText: true,
 		typeAttributes: {
 			maximumFractionDigits: "2"
 		}
@@ -255,19 +275,22 @@ const stockColumns = [
 		fieldName: "discountedPrice",
 		label: "할인된 가격",
 		hideDefaultActions: true
+		// wrapText: true
 	},
 	{
 		type: "text",
 		fieldName: "Deviation__c",
 		label: "결함",
 		hideDefaultActions: true
+		// wrapText: true
 	},
 	{
 		type: "text",
 		fieldName: "Remarks__c",
 		label: "비고",
 		hideDefaultActions: true
-	},
+		// wrapText: true
+	}
 
 ];
 
