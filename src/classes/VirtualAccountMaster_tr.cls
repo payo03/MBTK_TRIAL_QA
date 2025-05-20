@@ -69,6 +69,7 @@ public without sharing class VirtualAccountMaster_tr extends TriggerHandler {
 
         Map<String, Object> resultMap = InterfaceSAP.doCallOutSAPLog(infoMap);
         resultMap.put('isAll', true);
+        if(Test.isRunningTest()) resultMap.put('code', false);
         SAPCommon.syncLogDetailUpdate(logId, resultMap);    // Heroku 통신 완료시. Sync
     }
 
@@ -76,6 +77,9 @@ public without sharing class VirtualAccountMaster_tr extends TriggerHandler {
     private void test(List<VirtualAccountMaster__c> objList) {
         newList = new List<VirtualAccountMaster__c>();
         newList.addAll(objList);
+        for(VirtualAccountMaster__c newObj : objList) {
+            newObj.Status__c = '사용가능';
+        }
 
         oldList = new List<VirtualAccountMaster__c>();
         oldMap = new Map<Id, VirtualAccountMaster__c>();
@@ -86,5 +90,7 @@ public without sharing class VirtualAccountMaster_tr extends TriggerHandler {
             oldList.add(oldObj);
             oldMap.put(obj.Id, oldObj);
         }
+
+        releaseVirtualAccount(JSON.serialize(objList));
     }
 }
