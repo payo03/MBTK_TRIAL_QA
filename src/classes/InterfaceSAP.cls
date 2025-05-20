@@ -28,6 +28,7 @@ public without sharing class InterfaceSAP {
     public static final String IF_SMS013 = 'HEROKU_SMS013';                 // 매출확정정보 전송
     public static final String IF_SMS018 = 'HEROKU_SMS018';                 // 가상계좌-BP코드 전송
     public static final String IF_SMS020 = 'HEROKU_SMS020';                 // 입금-송장 반제처리 전송
+    public static final String IF_SMS021 = 'HEROKU_SMS021';                 // 가상계좌 할당해제 전송
 
     public static final String IF_SMS010_ASYNC = 'HEROKU_SMS010(Async)';    // 구매오더확정 전송
     public static final String IF_SMS011_ASYNC = 'HEROKU_SMS011(Async)';    // 구매인보이스 전송
