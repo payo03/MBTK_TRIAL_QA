@@ -68,8 +68,8 @@ public without sharing class VirtualAccountMaster_tr extends TriggerHandler {
         infoMap.put('isLogDetail', true);
 
         Map<String, Object> resultMap = InterfaceSAP.doCallOutSAPLog(infoMap);
-        SAPCommon.asyncLogDetailUpdate(logId, resultMap);   // Heroku 통신 완료시. Async
-        SAPCommon.updateLogByExternalId(keyMap.keySet(), LOG_TYPE);
+        resultMap.put('isAll', true);
+        SAPCommon.syncLogDetailUpdate(logId, resultMap);    // Heroku 통신 완료시. Sync
     }
 
     @TestVisible

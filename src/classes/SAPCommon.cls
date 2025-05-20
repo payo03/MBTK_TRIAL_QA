@@ -95,7 +95,15 @@ global without sharing class SAPCommon {
         }
 
         // 2. IsResponse Update
-        Map<String, Object> sapMap = (Map<String, Object>) JSON.deserializeUntyped(message);
+        Map<String, Object> sapMap = new Map<String, Object>();
+        try {
+            sapMap = (Map<String, Object>) JSON.deserializeUntyped(message);
+        } catch(Exception e) {
+            sapMap = new Map<String, Object> {
+                'Code' => 0,
+                'Message' => message
+            };
+        }
         String resultCode = String.valueOf(sapMap.get('Code')) == '0' ? 'Y' : 'C';
         String resultMessage = String.valueOf(sapMap.get('Message'));
         for(IFAuditLogDetail__c logDetail : logDetailList) {
