@@ -10,17 +10,25 @@
 @IsTest
 private class IncentiveCalculationController_test {
 
-    private static final Opportunity opportunity = TestObjectBuilder.createOpportunity();
-    private static final List<IncentiveTargetMaster__c> incentiveTargetMasterList = TestObjectBuilder.createIncentiveTargetMaster();
+    @TestSetup
+    static void setup() {
+        insert TestObjectBuilder2.createIncentiveTargetMaster();
+        TestObjectBuilder2.createOpportunityBundle();
 
-    static {
-        insert opportunity;
-        insert incentiveTargetMasterList;
+        Database.executeBatch(new AnnualIncentiveCalculation_ba(Date.today()));
     }
 
     @IsTest
     static void doTest() {
         Test.startTest();
+
+        Opportunity opportunity = [SELECT Id, OwnerId FROM Opportunity LIMIT 1];
+        List<IncentiveTargetMaster__c> incentiveTargetMasterList = [
+                SELECT Id, MinSalesTarget__c, Year__c, TargetType__c, Quarter__c
+                FROM IncentiveTargetMaster__c
+        ];
+
+        System.debug('TEST : ' + opportunity.OwnerId + ' / ' + opportunity.Id);
         Map<Id, Set<Id>> ownerOpportunityCountMap = new Map<Id, Set<Id>>{
             opportunity.OwnerId => new Set<Id>{opportunity.Id}
         };

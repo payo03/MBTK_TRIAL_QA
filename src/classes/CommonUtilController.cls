@@ -36,6 +36,25 @@ public without sharing class CommonUtilController {
         return formatDate;
     }
 
+    public enum ReturnType {
+        DateTimeType, DateType
+    }
+    public static Object stringToDate(String paramDate) { return stringToDate(paramDate, ReturnType.DateType); }
+    public static Object stringToDate(String paramDate, ReturnType returnType) {
+        Object result;
+
+        Integer year = Integer.valueOf(paramDate.substring(0, 4));
+        Integer month = Integer.valueOf(paramDate.substring(4, 6));
+        Integer day = Integer.valueOf(paramDate.substring(6, 8));
+
+        switch on returnType.name() {
+            when 'DateTimeType' { result = Datetime.newInstance(year, month, day, 0, 0, 0); }
+            when else           { result = Date.newInstance(year, month, day); }
+        }
+
+        return result;
+    }
+
     /**
      * @param           url URL 주소
      * @param           key 추출하고자하는 Key

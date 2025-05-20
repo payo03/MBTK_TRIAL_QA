@@ -18,6 +18,7 @@ public with sharing class CreateQuoteBizAccController {
         String accountId = String.valueOf(inputMap.get('accountId'));
         String productId = String.valueOf(inputMap.get('productId'));
         Decimal totalLoan = Decimal.valueOf(String.valueOf(inputMap.get('totalLoan')));
+        Decimal advancePayment = Decimal.valueOf(String.valueOf(inputMap.get('advancePayment')));
         Decimal interestRate = Decimal.valueOf(String.valueOf(inputMap.get('interestRate')));
         Integer duration = Integer.valueOf(inputMap.get('duration'));
         String financeId = String.valueOf(inputMap.get('financeId'));
@@ -38,7 +39,15 @@ public with sharing class CreateQuoteBizAccController {
             Map<String, CampaignMaster__c> campaignMap = new Map<String, CampaignMaster__c>(campaignList);
 
             LeadManagementController.ProductWrap ProductWrap = getProductWrap(productId);
-            Pricebook2 pricebook = [SELECT Id FROM Pricebook2 WHERE IsStandard = TRUE AND IsActive = TRUE LIMIT 1];
+//            Pricebook2 pricebook = [SELECT Id FROM Pricebook2 WHERE IsStandard = TRUE AND IsActive = TRUE LIMIT 1];
+
+            Pricebook2 pricebook;
+            if (Test.isRunningTest()) {
+                pricebook = new Pricebook2();
+                pricebook.Id = Test.getStandardPricebookId();
+            } else {
+                pricebook = [SELECT Id FROM Pricebook2 WHERE IsStandard = TRUE AND IsActive = TRUE LIMIT 1];
+            }
 
             Account account = [SELECT Id, Name, Owner.Agency__c FROM Account WHERE Id = :accountId];
 
@@ -127,10 +136,14 @@ public with sharing class CreateQuoteBizAccController {
             quote.DiscountAmt__c = discountPrice;
     //                quote.RealSalesPrice__c = tempPrice;
             quote.Deposit__c = 1000000;
-            Decimal loadAmount = totalLoan != null ? totalLoan : 0;
-    //                quote.LoanAmount__c = inputInfo.get('totalLoan') != null ? totalLoan : 0;
-            quote.AdvancePayment__c = tempPrice - loadAmount;
-    //                quote.DeliveryPrice__c = quote.TotalVehiclePrice__c - quote.Deposit__c - quote.LoanAmount__c;
+//            Decimal loadAmount = totalLoan != null ? totalLoan : 0;
+//            quote.LoanAmount__c = inputInfo.get('totalLoan') != null ? totalLoan : 0;
+//            quote.AdvancePayment__c = tempPrice - loadAmount;
+            quote.AdvancePayment__c = inputMap.get('advancePayment') != null ? advancePayment : 0;
+            Decimal loadAmount = quote.TotalVehiclePrice__c - quote.SalesconditionDiscountAmt__c - quote.DiscountAmt__c - quote.Deposit__c - quote.AdvancePayment__c;
+//
+
+//            quote.DeliveryPrice__c = quote.TotalVehiclePrice__c - quote.Deposit__c - quote.LoanAmount__c;
             quote.DefaultInterestRate__c = interestRate != null ? interestRate : 0;
             quote.MonthDivideInputMonth__c = duration != null ? duration : 0;
             quote.MonthlyPayment__c = calPMT(quote.DefaultInterestRate__c, quote.MonthDivideInputMonth__c, loadAmount);

@@ -9,7 +9,7 @@
  * 2.0          2025-03-14      chaebeom.do     사전배정 프로세스 삭제로 인한 이름 변경
  * 3.0          2025-04-29      chaebeom.do     AssignRequest__c 오브젝트 삭제로 인한 클래스 이름 변경 및 로직 수정
 **************************************************************/
-public with sharing class DepositInvoiceController {
+public without sharing class DepositInvoiceController {
     
     public class depositWrap {
         @AuraEnabled public String accName;
@@ -81,18 +81,30 @@ public with sharing class DepositInvoiceController {
         List<VirtualAccountMaster__c> usedVAMList = new List<VirtualAccountMaster__c>();    // 가상계좌 마스터 Update List
         List<Contract> requestContractList = new List<Contract>();                          // 계약 Update List
         List<String> accountIdList = new List<String>();                                    // 할당된 고객 Id Set
-        Map<String, VirtualAccount__c> accountVAMap = new Map<String, VirtualAccount__c>(); // 고객에 할당중인 가상계좌 Map
-        for(VirtualAccount__c activeVA : [
+        // Map<String, VirtualAccount__c> accountVAMap = new Map<String, VirtualAccount__c>(); // 고객에 할당중인 가상계좌 Map
+        // for(VirtualAccount__c activeVA : [
+        //     SELECT Id, Account__c, Opportunity__c
+        //     FROM VirtualAccount__c
+        //     WHERE IsValid__c = true
+        // ]) {
+        //     accountVAMap.put(activeVA.Account__c, activeVA);
+        // }
+
+        List<VirtualAccount__c> existingVAList = [
             SELECT Id, Account__c
             FROM VirtualAccount__c
             WHERE IsValid__c = true
-        ]) {
-            accountVAMap.put(activeVA.Account__c, activeVA);
-        }
+            AND Opportunity__c = :inputMap.get('opptyId')
+        ];
 
-        if(accountVAMap.containsKey(curOppty.AccountId)) {  // 기존 할당 고객 Case.  
-            returnMap.put('recordId', accountVAMap.get(curOppty.AccountId).Id);
-            returnMap.put('accId', accountVAMap.get(curOppty.AccountId).Account__c);
+        if(!existingVAList.isEmpty()) {  // 기존 할당된 VA가 있을 경우 해당 정보 반환  
+            VirtualAccount__c matchedVA = existingVAList[0]; // 기회 : VA = 1 : 1
+            returnMap.put('recordId', matchedVA.Id);
+            returnMap.put('accId', matchedVA.Account__c);
+
+        // if(accountVAMap.containsKey(curOppty.AccountId)) {  // 기존 할당 고객 Case.  
+        //     returnMap.put('recordId', accountVAMap.get(curOppty.AccountId).Id);
+        //     returnMap.put('accId', accountVAMap.get(curOppty.AccountId).Account__c);
         } else {
             String validVamId = validVAMList.get(0).Id;
             Map<String, Object> paramMap = new Map<String, Object>{

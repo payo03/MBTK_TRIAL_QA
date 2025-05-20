@@ -57,16 +57,21 @@ public without sharing class CreatedMngController {
 
     @AuraEnabled
     public static Map<String, Object> getInitData(String vehicleStockId) {
-        VehicleStock__c vehicleStock = [SELECT Id, Product__r.Segment2__c, SpecShort__c FROM VehicleStock__c WHERE Id =:vehicleStockId];
-        String type = vehicleStock?.Product__r?.Segment2__c != 'TPP' ? '제원관리번호': '형식승인번호';
-        String whereConditions = 'Form__c LIKE \'%' + vehicleStock.SpecShort__c + '%\'';
+
+        // 차량 재고의 type, 차량재고에 차종 제원관리번호 정션 Id를 가져옴
+        Map<String,Object> getWhereConditionMap = getWhereCondition(vehicleStockId);
+
+        String whereConditions = String.valueOf(getWhereConditionMap.get('whereConditions'));
+        String type = String.valueOf(getWhereConditionMap.get('type'));
+        Set<String> specTypeNoIdSet = (Set<String>) getWhereConditionMap.get('specTypeNoIdSet');
+
 
         List<Map<String, String>> options = new List<Map<String, String>>();
         List<AggregateResult> groupedYears = [
                 SELECT ModelYear__c
                 FROM SpecTypeNo__c
                 WHERE ModelYear__c != null
-                AND Form__c LIKE :('%' + vehicleStock.SpecShort__c + '%')
+                AND Id IN:specTypeNoIdSet
                 GROUP BY ModelYear__c
                 ORDER BY ModelYear__c DESC
         ];
@@ -85,19 +90,21 @@ public without sharing class CreatedMngController {
 
     @AuraEnabled
     public static List<SpecTypeNoWrapper> searchSpecTypeNo(String type, String vehicleStockId, Map<String, String> filterMap) {
-        System.debug('filterMap'+filterMap);
-        VehicleStock__c vehicleStock = [SELECT Id, Product__r.Segment2__c, SpecShort__c FROM VehicleStock__c WHERE Id =:vehicleStockId];
+
+        Map<String,Object> getWhereConditionMap = getWhereCondition(vehicleStockId);
+        String whereConditions = String.valueOf(getWhereConditionMap.get('whereConditions'));
+
         List<String> filters = new List<String>();
-        String whereConditions = 'Form__c LIKE \'%' + vehicleStock.SpecShort__c + '%\' AND ';
         for (String key : filterMap.keySet()) {
-            String value = filterMap.get(key) != null ?  filterMap.get(key) : null ;
-            if (value != null) {
-                filters.add(key + ' LIKE \'%' + String.escapeSingleQuotes(value) + '%\'');
+            String value = filterMap.get(key) != null ? filterMap.get(key) : null;
+            System.debug('value ::' + value);
+            if (String.isNotBlank(value)) {
+                filters.add(' ' + key + ' LIKE \'%' + String.escapeSingleQuotes(value) + '%\'');
             }
         }
         // 동적 필터 추가
         if (!filters.isEmpty()) {
-            whereConditions += String.join(filters, ' AND ');
+            whereConditions += ' AND ' + String.join(filters, ' AND ');
         }
 
         return getSpecTypeNoList(type, whereConditions);
@@ -169,4 +176,43 @@ public without sharing class CreatedMngController {
 
     }
 
+    @AuraEnabled
+    public static Map<String,Object> getWhereCondition(String vehicleStockId) {
+
+        VehicleStock__c vehicleStock = [SELECT Id, Product__r.Segment2__c, Product__c FROM VehicleStock__c WHERE Id = :vehicleStockId];
+        //product에 연결된 제원관리번호 정션을 가져옴
+        Product2 product = [
+                SELECT Id, (SELECT SpecTypeNo__c FROM SpecTypeNoJunction__r)
+                FROM Product2
+                WHERE Id = :vehicleStock.Product__c
+        ];
+        List<SpecTypeNoJunction__c> specTypeNoJunctionList = product != null ? product.SpecTypeNoJunction__r : null;
+        Set<String> specTypeNoIdSet = new Set<String>();
+
+        for (SpecTypeNoJunction__c specTypeNoJunction : specTypeNoJunctionList) {
+            specTypeNoIdSet.add(specTypeNoJunction.SpecTypeNo__c);
+        }
+        String type = vehicleStock?.Product__r?.Segment2__c != 'TPP' ? '제원관리번호' : '형식승인번호';
+        String idListStr = ' Id = NULL ';
+        if (!specTypeNoIdSet.isEmpty()) {
+            idListStr = ' Id IN ( ';
+            for (Id id : specTypeNoIdSet) {
+                idListStr += '\'' + String.valueOf(id) + '\',';
+            }
+            if (idListStr.endsWith(',')) {
+                idListStr = idListStr.substring(0, idListStr.length() - 1); // 마지막 콤마 제거
+            }
+            idListStr += ')';
+        }
+
+        String whereConditions = idListStr;
+
+        Map<String,Object> whereConditionMap = new Map<String, Object>{
+                'type' => type,
+                'whereConditions' => whereConditions,
+                'specTypeNoIdSet' => specTypeNoIdSet
+        };
+
+        return whereConditionMap;
+    }
 }

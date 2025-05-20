@@ -56,13 +56,12 @@ public with sharing class PaymentType_tr extends TriggerHandler {
         for(Boolean isBundle : isBundleMap.keySet()) {
             // ver1.2 PaymentType 인도금유예 단건추가 Case
             List<PaymentType__c> sortedList = new List<PaymentType__c>(isBundleMap.get(isBundle));
-            System.debug(sortedList);
             CommonUtilController.sortSObjectList(sortedList, 'Type__c', false);
 
             // 1. Tracker Key별로 Map, Type Key별로 2차Map 생성
             Map<String, Map<String, PaymentType__c>> typeMap = new Map<String, Map<String, PaymentType__c>>();
             for(PaymentType__c newType : sortedList) {
-                // 대출계정은 PASS
+                // 대출계정, 초과입금 PASS
                 if(newType.Type__c.startsWith('99')) continue;
 
                 String key = newType.PaymentTracker__c;
@@ -81,7 +80,8 @@ public with sharing class PaymentType_tr extends TriggerHandler {
                     typeOrder.add(typeKey);
                 }
 
-                String type = typeOrder.get(1); // OVER_PAID DEFAULT 생성
+                String type = typeOrder.get(0);
+                if('90_OVER_PAID'.equals(type)) type = typeOrder.get(1);
                 switch on type {
                     // 입금계정의 마지막 순번 찾기
                     when '91_VAT' {
@@ -222,7 +222,7 @@ public with sharing class PaymentType_tr extends TriggerHandler {
     }
 
     private static void adjustPaymentType(Map<String, PaymentType__c> infoMap, String key, String stage) {
-        System.debug('체크 :: ' + infomap);
+        System.debug('체크 :: ' + infoMap);
         System.debug('체크 :: ' + key + ', ' + stage);
         PaymentType__c payment = infoMap.get(key);
         payment.UpdateStage__c = stage;

@@ -271,7 +271,9 @@ public without sharing class ModuSignPDFController {
             wrapper.accountPersonMobilePhone = contract.Account.PersonMobilePhone != null ? contract.Account.PersonMobilePhone : '';
             wrapper.accountPersonEmail = contract.Account.PersonEmail != null ? contract.Account.PersonEmail : '';
             wrapper.accountBusinessNumber = contract.Account.BusinessNumber__c != null ? contract.Account.BusinessNumber__c : '';
-            wrapper.accountIDNumber = contract.Account.IDNumber__pc != null ? contract.Account.IDNumber__pc : '';
+            // wrapper.accountIDNumber = contract.Account.IDNumber__pc != null ? contract.Account.IDNumber__pc : '';
+            wrapper.accountIDNumber =
+            (contract.Account.IDNumber__pc != null && contract.Account.IDNumber__pc.length() >= 6) ? contract.Account.IDNumber__pc.substring(0, 6) : (contract.Account.IDNumber__pc != null ? contract.Account.IDNumber__pc : '');
             wrapper.accountBusinessCategory = contract.Account.BusinessCategory__c != null ? contract.Account.BusinessCategory__c : '';
             wrapper.accountRoadAddress = contract.Account.RoadAddress__c != null ? contract.Account.RoadAddress__c : '';
             
@@ -430,9 +432,39 @@ public without sharing class ModuSignPDFController {
             ];
         }
 
+        List<ApprovalHierarchy__c> approvalHierarchyList = [
+            SELECT Id, Stage__c, Approver1__c, Approver2__c, Approver3__c, Approver4__c
+            FROM ApprovalHierarchy__c
+            WHERE Stage__c = 'Contract Modusign Final'
+        ];
+        Set<Id> internalUserIdSet = new Set<Id>();
+        if (!approvalHierarchyList.isEmpty()) {
+            ApprovalHierarchy__c approvalHierarchy = approvalHierarchyList[0];
+
+            Id[] approvers = new Id[] {
+                approvalHierarchy.Approver1__c,
+                approvalHierarchy.Approver2__c,
+                approvalHierarchy.Approver3__c,
+                approvalHierarchy.Approver4__c
+            };
+
+            for (Id approverId : approvers) {
+                if (approverId != null) {
+                    internalUserIdSet.add(approverId);
+                }
+            }
+        }
+        List<User> internalUserList = [
+            SELECT Id, MobilePhone
+            FROM User
+            WHERE Id IN :internalUserIdSet
+        ];
+
         returnMap.put('account', account);
         returnMap.put('realDriver', realDriver);
         returnMap.put('opptyInfo', contractInfo.Opportunity__r);
+        returnMap.put('internalUserList', internalUserList);
+
         return returnMap;
     }
 

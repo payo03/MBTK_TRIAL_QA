@@ -11,7 +11,8 @@
 private class HalfYearlyGoodWillCalculation_ba_test {
     @TestSetup
     static void setup() {
-        TestObjectBuilder.createObjects();
+        TestObjectBuilder2.createGoodWillBundle();
+        TestObjectBuilder2.createOpportunityBundle();
     }
     
     @IsTest

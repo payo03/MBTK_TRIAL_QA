@@ -1,11 +1,11 @@
 /*************************************************************
- * @author : th.kim
+ * @author : jh.jung
  * @date : 2024-11-07
  * @description : 
  * @target : 
 ==============================================================
- * Ver          Date            Author          Modification
- * 1.0          2024-11-07      th.kim         Initial Version
+ * Ver          Date            Author         Modification
+ * 1.0          2024-11-07      jh.jung        Initial Version
  * 1.1          2024-11-18      jh.jung        convertByLead 추가
  * 1.2          2024-11-27      jh.jung        getLeadListByFilter 추가
  * 1.3          2024-12-09      jh.jung        convertByLead 업데이트(Oppty, OpptyLineItem, Quote, QuoteLineItem)
@@ -45,7 +45,7 @@ public without sharing class LeadManagementController {
             addDateQuery = ' AND CreatedDate < LAST_N_DAYS:60';
         }
         String query = '';
-        query += ' SELECT Id, Name, MobilePhone, RoadAddress__c, CreatedDate, Latitude__c, Longitude__c, Company, fm_Rating__c, ProductId__c, ProductId__r.Name ';
+        query += ' SELECT Id, Name, MobilePhone, RoadAddress__c, CreatedDate, Latitude__c, Longitude__c, Company, fm_Rating__c, ProductId__c, ProductId__r.Name, Finance__c, AdvancePayment__c, DefaultInterestRate__c, MonthDivideInputMonth__c ';
         query += ' FROM Lead ';
 //        query += ' WHERE IsConverted = FALSE ';
         query += ' WHERE Status != \'Converted\' ';
@@ -121,6 +121,20 @@ public without sharing class LeadManagementController {
         };
     }
 
+
+    @AuraEnabled
+    public static String accOwnerCheckByLeadInfo(String leadId) {
+
+        List<Lead> fetchLeads = getLeadList(new List<Map<String, Object>>{
+            new Map<String, Object> {
+                'leadId' => leadId
+            }
+        });
+
+        Map<String, Map<String, String>> duplicateInfoMap = getAccountIdByLeadList(fetchLeads);
+        return duplicateInfoMap.get(leadId).get('type');
+    }
+
     /**
      * @param inputMap
      *      String leadId
@@ -179,8 +193,23 @@ public without sharing class LeadManagementController {
             }
         }
 
-        List<Lead> leadList = [SELECT Id, LastName, OwnerId FROM Lead WHERE Id IN :leadIdSet];
+        List<Lead> leadList = [
+            SELECT Id, LastName, OwnerId, Finance__c,
+                MonthDivideInputMonth__c, AdvancePayment__c, DefaultInterestRate__c
+            FROM Lead
+            WHERE Id IN :leadIdSet];
+
+        List<CustomerConsent__c> customerConsentList = [
+            SELECT Id, Lead__c
+            FROM CustomerConsent__c
+            WHERE Lead__c IN :leadIdSet
+        ];
         Map<String, Lead> leadMap = new Map<String, Lead>(leadList);
+        Map<String, CustomerConsent__c> leadIdCustomerConsentMap = new Map<String, CustomerConsent__c>();
+        for(CustomerConsent__c consent : customerConsentList) {
+            leadIdCustomerConsentMap.put(consent.Lead__c, consent);
+        }
+        List<CustomerConsent__c> updateConsentList = new List<CustomerConsent__c>();
 
         Map<String, ProductWrap> ProductWrapMap = getProductWrapMap(productIdSet);
 
@@ -275,11 +304,18 @@ public without sharing class LeadManagementController {
                     if (result.isSuccess()) {
                         leadAccountIdMap.put(result.getLeadId(), result.getAccountId());
                         opportunityIdSet.add(result.getOpportunityId());
+
+                        CustomerConsent__c consent = leadIdCustomerConsentMap.get(result.getLeadId());
+                        consent.Account__c = result.getAccountId();
+                        updateConsentList.add(consent);
                     }
                 }
             }
             if (!updateList.isEmpty()) {
                 update updateList;
+            }
+            if (!updateConsentList.isEmpty()) {
+                update updateConsentList;
             }
 
 
@@ -323,7 +359,8 @@ public without sharing class LeadManagementController {
                 ProductWrap productWrap = ProductWrapMap.get((String) inputInfo.get('productId'));
 
                 // 수정할 정보 추가 & 업데이트
-                oppty.Name = oppty.Owner.Agency__c + '-' + lead.LastName + ' ' + productWrap.Name;
+                // 네이밍 룰 플로로 변경 (05/07)
+//                oppty.Name = oppty.Owner?.Agency__c + '-' + lead.LastName + ' ' + productWrap.Name;
                 oppty.StageName = 'Quotation';
                 oppty.CloseDate = closeDate;
                 oppty.OwnerId = lead.OwnerId;
@@ -336,7 +373,15 @@ public without sharing class LeadManagementController {
             System.debug('opptyMap.values() ::: ' + opptyMap.values());
 
             // Product에 Pricebook 없는 케이스 처리 : productPricebookEntry 생성
-            Pricebook2 pricebook = [SELECT Id FROM Pricebook2 WHERE IsStandard = TRUE AND IsActive = TRUE LIMIT 1];
+//            Pricebook2 pricebook = [SELECT Id FROM Pricebook2 WHERE IsStandard = TRUE AND IsActive = TRUE LIMIT 1];
+
+            Pricebook2 pricebook;
+            if (Test.isRunningTest()) {
+                pricebook = new Pricebook2();
+                pricebook.Id = Test.getStandardPricebookId();
+            } else {
+                pricebook = [SELECT Id FROM Pricebook2 WHERE IsStandard = TRUE AND IsActive = TRUE LIMIT 1];
+            }
 
             Map<Id, PricebookEntry> productPricebookEntryMap = new Map<Id, PricebookEntry>();
             for (Opportunity oppty : opptyList) {
@@ -424,6 +469,7 @@ public without sharing class LeadManagementController {
                 System.debug('interestRate ::: ' + inputInfo.get('interestRate'));
                 Decimal totalLoan = Decimal.valueOf(String.valueOf(inputInfo.get('totalLoan')));
                 Decimal interestRate = Decimal.valueOf(String.valueOf(inputInfo.get('interestRate')));
+                Decimal advancePayment = Decimal.valueOf(String.valueOf(inputInfo.get('advancePayment')));
 
                 Quote quote = new Quote();
                 quote.Name = 'quoteName';
@@ -438,11 +484,11 @@ public without sharing class LeadManagementController {
                 quote.DiscountAmt__c = discountPrice;
 //                quote.RealSalesPrice__c = tempPrice;
                 quote.Deposit__c = 1000000;
-                Decimal loadAmount = inputInfo.get('totalLoan') != null ? totalLoan : 0;
+                // Decimal loadAmount = inputInfo.get('totalLoan') != null ? totalLoan : 0;
                 //                quote.LoanAmount__c = inputInfo.get('totalLoan') != null ? totalLoan : 0;
-                quote.AdvancePayment__c = tempPrice - loadAmount;
-                // quote.AdvancePayment__c = inputInfo.get('advancePayment') != null ? totalLoan : 0;
-                // Decimal loadAmount = quote.TotalVehiclePrice__c - quote.SalesconditionDiscountAmt__c - quote.DiscountAmt__c - quote.Deposit__c - quote.AdvancePayment__c;
+                // quote.AdvancePayment__c = tempPrice - loadAmount;
+                quote.AdvancePayment__c = inputInfo.get('advancePayment') != null ? advancePayment : 0;
+                Decimal loadAmount = quote.TotalVehiclePrice__c - quote.SalesconditionDiscountAmt__c - quote.DiscountAmt__c - quote.Deposit__c - quote.AdvancePayment__c;
 //                quote.DeliveryPrice__c = quote.TotalVehiclePrice__c - quote.Deposit__c - quote.LoanAmount__c;
                 quote.DefaultInterestRate__c = inputInfo.get('interestRate') != null ? interestRate : 0;
                 quote.MonthDivideInputMonth__c = Integer.valueOf(inputInfo.get('duration'));

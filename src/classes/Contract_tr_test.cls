@@ -11,7 +11,7 @@
 private class Contract_tr_test {
     @TestSetup
     static void setup() {
-        TestObjectBuilder.createObjects();
+        TestObjectBuilder2.createContractBundle2();
     }
     @IsTest
     static void testBehavior() {

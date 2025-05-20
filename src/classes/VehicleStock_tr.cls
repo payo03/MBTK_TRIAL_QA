@@ -9,6 +9,7 @@
  * 1.1          2024-12-06      th.kim, payo03@solomontech.net  재고 증감로직 구현
  * 1.2          2025-02-17      payo03@solomontech.net          사전배정 관련프로세스 삭제
  * 1.3          2025-03-10      th.kim                          createCommissionHistory() 추가
+ * 1.4          2025-04-29      th.kim                          재고 증감 로직 수정 및 리팩토링 (특정 조건에서만 수량 차감 -> 상태 변경시 기존 상태 수량 차감)
 *********************************************************************************************************/
 public without sharing class VehicleStock_tr extends TriggerHandler {
 
@@ -62,19 +63,33 @@ public without sharing class VehicleStock_tr extends TriggerHandler {
             VehicleStock__c oldStock = new VehicleStock__c();
             if (oldMap != null) oldStock = oldMap.get(newStock.Id);
 
+            // 상태의 수량 필드 맵
+            Map<String, String> statusFieldMap = new Map<String, String>{
+                '재고 미노출(임시)' => 'StockNoShowQty__c',
+                '재고 노출' => 'Quantity__c',
+                '30일 재고' => 'After30DaysQty__c',
+                '60일 재고' => 'After60DaysQty__c'
+            };
+
+            /* ver 1.4 재고 증감 로직 수정 및 리팩토링
             String noShowField = 'StockNoShowQty__c';
             String quantityField = 'Quantity__c';
             String after30Field = 'After30DaysQty__c';
             String after60Field = 'After60DaysQty__c';
             String preAssignField = 'PreAssignQty__c';
             String waitingListField = 'WaitingListQty__c';
+            */
 
             Map<String, Integer> fieldQuantityMap = new Map<String, Integer>();
             if (productMap.get(productId) != null) fieldQuantityMap = productMap.get(productId);
 
+            Boolean isStatusChange = Trigger.isUpdate && oldStock.Status__c != newStock.Status__c;
+
             // Product 변경, Record 삭제
-            Boolean isOldChange = Trigger.isDelete || (Trigger.isUpdate && oldStock.Product__c != newStock.Product__c);
+            Boolean isOldChange = Trigger.isDelete || (Trigger.isUpdate && oldStock.Product__c != newStock.Product__c) || isStatusChange;
             if (isOldChange) {
+
+            /* ver 1.4 재고 증감 로직 수정 및 리팩토링
                 String varField = null;
                 switch on oldStock.Status__c {
                     when '재고 미노출(임시)' {
@@ -89,14 +104,19 @@ public without sharing class VehicleStock_tr extends TriggerHandler {
                     when '60일 재고' {
                         varField = after60Field;
                     }
-                }
+                }*/
 
-                if (varField != null) productMap.put(oldStock.Product__c, adjustQuantity(fieldQuantityMap, varField, false));
+                String statusField = statusFieldMap.get(oldStock.Status__c);
+                if (statusField != null) productMap.put(oldStock.Product__c, adjustQuantity(fieldQuantityMap, statusField, false));
             }
 
             // Record Insert, Record Status변경시
-            Boolean isNewChange = Trigger.isInsert || (Trigger.isUpdate && oldStock.Status__c != newStock.Status__c);
+            Boolean isNewChange = Trigger.isInsert || isStatusChange;
             if (isNewChange) {
+                String statusField = statusFieldMap.get(newStock.Status__c);
+                if (statusField != null) productMap.put(newStock.Product__c, adjustQuantity(fieldQuantityMap, statusField, true));
+
+                /* ver 1.4 재고 증감 로직 수정 및 리팩토링
                 switch on newStock.Status__c {
                     when '재고 미노출(임시)' {
                         productMap.put(productId, adjustQuantity(fieldQuantityMap, noShowField, true));
@@ -141,14 +161,14 @@ public without sharing class VehicleStock_tr extends TriggerHandler {
                     when '판매완료' {
                         productMap.put(productId, adjustQuantity(fieldQuantityMap, quantityField, false));
 
-                        /* ver1.2 사전배정 관련프로세스 삭제
+                        *//* ver1.2 사전배정 관련프로세스 삭제
                         // Case 기 존재데이터일경우
                         if (oldMap != null && newStock.PreAssigned__c) {
                             productMap.put(productId, adjustQuantity(fieldQuantityMap, preAssignField, false));
                         }
-                        */
+                        *//*
                     }
-                }
+                }*/
             }
 
             // TODO :: 배정상태로 변경 필요
@@ -173,7 +193,6 @@ public without sharing class VehicleStock_tr extends TriggerHandler {
             }
             */
         }
-        System.debug('productMap :: ' + productMap);
 
         // VehicleCategory Id별 -> Field별, 관련 Stock 수를 집계하는 Map
         // Key : VehicleCategory / Value : Map<String, Integer>
@@ -203,8 +222,6 @@ public without sharing class VehicleStock_tr extends TriggerHandler {
             vehicleMap.put(key, vehicleQuantityMap);
         }
         if (!productList.isEmpty()) update productList;
-        System.debug('vehicleMap :: ' + vehicleMap);
-
 
         List<VehicleCategory__c> categoryList = [SELECT Id, AdjustField__c FROM VehicleCategory__c WHERE Id IN :vehicleMap.keySet()];
         for (VehicleCategory__c category : categoryList) {

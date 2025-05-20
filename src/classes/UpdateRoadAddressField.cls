@@ -17,7 +17,6 @@ public with sharing class UpdateRoadAddressField {
 
         // objectType ::: Account, Lead
         String objectType = recordId.getSobjectType().getDescribe().getName();
-        Savepoint sp = Database.setSavepoint();
 
         try {
             switch on objectType {
@@ -45,9 +44,7 @@ public with sharing class UpdateRoadAddressField {
             return true;
 
         } catch (Exception e) {
-            System.debug('e.getMessage() :::' + e.getMessage());
-            System.debug('e.getStackTraceString() :::' + e.getStackTraceString());
-            Database.rollback(sp);
+            System.debug('e.getMessage() :::' + e.getMessage() + '\n' + e.getStackTraceString());
         }
 
         return false;
@@ -63,7 +60,6 @@ public with sharing class UpdateRoadAddressField {
 
         // objectType ::: Account, Opportunity
         String objectType = recordId.getSobjectType().getDescribe().getName();
-        Savepoint sp = Database.setSavepoint();
 
         try {
             switch on objectType {
@@ -92,9 +88,7 @@ public with sharing class UpdateRoadAddressField {
             return true;
 
         } catch (Exception e) {
-            System.debug('e.getMessage() :::' + e.getMessage());
-            System.debug('e.getStackTraceString() :::' + e.getStackTraceString());
-            Database.rollback(sp);
+            System.debug('e.getMessage() :::' + e.getMessage() + '\n' + e.getStackTraceString());
         }
 
         return false;

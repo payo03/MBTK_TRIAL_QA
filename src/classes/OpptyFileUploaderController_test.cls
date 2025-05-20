@@ -15,9 +15,13 @@ private class OpptyFileUploaderController_test {
     static final Opportunity opportunity2;
 
     static {
-        TestObjectBuilder.createObjects();
-        opportunity = TestObjectBuilder.createOpportunity();
-        opportunity2 = TestObjectBuilder.createOpportunityAdvance();
+//        TestObjectBuilder.createObjects();
+//        opportunity = TestObjectBuilder.createOpportunity();
+//        opportunity2 = TestObjectBuilder.createOpportunityAdvance();
+
+        TestObjectBuilder2.createOpportunityBundle();
+
+        opportunity = TestObjectBuilder2.createOpportunityAdvance();
     }
 
     @isTest

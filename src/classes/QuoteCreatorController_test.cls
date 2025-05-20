@@ -19,14 +19,19 @@ private class QuoteCreatorController_test {
     static final Finance__c finance;
 
     static {
-        TestObjectBuilder.createObjects();
-        opportunity = TestObjectBuilder.opportunity;
-        quote = TestObjectBuilder.quote;
-        product = TestObjectBuilder.product;
-        option = TestObjectBuilder.option;
-        campaign = TestObjectBuilder.amtCampaign;
-        account = TestObjectBuilder.accountCompany;
-        finance = TestObjectBuilder.finance;
+//        TestObjectBuilder.createObjects();
+        update TestObjectBuilder2.createPricebook();
+        TestObjectBuilder2.createAccountBundle();
+        TestObjectBuilder2.createCampaignBundle();
+        TestObjectBuilder2.createOpportunityBundle();
+        TestObjectBuilder2.createQuoteBundle();
+        opportunity = TestObjectBuilder2.opportunity;
+        quote = TestObjectBuilder2.quote;
+        product = TestObjectBuilder2.product;
+        option = TestObjectBuilder2.option;
+        campaign = TestObjectBuilder2.amtCampaign;
+        account = TestObjectBuilder2.accountCompany;
+        finance = TestObjectBuilder2.finance;
     }
 
     @IsTest
@@ -89,6 +94,7 @@ private class QuoteCreatorController_test {
 
         Test.startTest();
 
+        System.debug('option :: ' + option);
         List<QuoteCreatorController.OptionWrap> optionList = new List<QuoteCreatorController.OptionWrap>{
             new QuoteCreatorController.OptionWrap(
                 option.Id,
@@ -153,7 +159,7 @@ private class QuoteCreatorController_test {
         );
 
         QuoteCreatorController.ExtraExpensesWrap extraExpenses = new QuoteCreatorController.ExtraExpensesWrap(
-            0, 0, 0, 0, 0
+            0, 0, 0, 0, 0, 0
         );
 
         QuoteCreatorController.DataWrap dataWrap = new QuoteCreatorController.DataWrap(

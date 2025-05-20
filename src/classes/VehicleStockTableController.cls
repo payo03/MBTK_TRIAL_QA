@@ -110,6 +110,8 @@ public without sharing class VehicleStockTableController {
         }
     }
     public class DetailAdditionalWrap {
+        @AuraEnabled public String id;                   // Id
+        @AuraEnabled public String productId;                   // Id
         @AuraEnabled public String localYear;                   // LMY
         @AuraEnabled public String modelYear;                   // VMY
         @AuraEnabled public String color;                       // 색상
@@ -122,7 +124,9 @@ public without sharing class VehicleStockTableController {
         @AuraEnabled public String remarks;                     // 비고
         @AuraEnabled public Integer amount;                     // 수량
 
-        public DetailAdditionalWrap(String localYear, String modelYear, String color, Decimal totalDC, Decimal longTermDiscountRate, Decimal partsDC, Decimal specialDC, Decimal discountedPrice, String deviation, String remarks, Integer amount) {
+        public DetailAdditionalWrap(String id,String productId, String localYear, String modelYear, String color, Decimal totalDC, Decimal longTermDiscountRate, Decimal partsDC, Decimal specialDC, Decimal discountedPrice, String deviation, String remarks, Integer amount) {
+            this.id = id;
+            this.productId = productId;
             this.localYear = localYear;
             this.modelYear = modelYear;
             this.color = color;
@@ -246,6 +250,19 @@ public without sharing class VehicleStockTableController {
         };
     }
 
+    /*
+    * quoteCreator일 때, key값 가져오기
+    * */
+    @AuraEnabled
+    public static String quoteCreatorData(String productId) {
+        String categoryKey = '';
+        if (String.isNotBlank(productId)) {
+            Product2 product2 = [SELECT Id, Name, Styling__c, VehicleCategory__r.Name FROM Product2 WHERE Id =:productId];
+            categoryKey = product2.VehicleCategory__r.Name + ',' + product2.Styling__c;
+        }
+
+        return categoryKey;
+    }
     /**
      * @author th.kim
      * @description 2분할 Master 데이터 가져오기
@@ -267,7 +284,6 @@ public without sharing class VehicleStockTableController {
      */
     @AuraEnabled
     public static Map<String, Object> getProductWrap(String categoryKey, String tab) {
-        System.debug('categoryKey ::'+categoryKey);
         List<String> keyList = new List<String>();
         for (String key : categoryKey.split(',')) {
             if(key.trim() == 'null' || key.trim() == null) {
@@ -277,14 +293,14 @@ public without sharing class VehicleStockTableController {
             }
             keyList.add(key);
         }
-        System.debug('keyList ::'+keyList);
-
         if (!keyList.isEmpty()) {
             String whereConditions = '';
             if (tab == 'sa') {
-                whereConditions += ' StockNoShow__c = false AND ' ;
+                whereConditions += ' StockNoShow__c = false AND Status__c = \'재고 노출\'' +
+                        ' AND VehicleStatus__c != \'출고됨\' AND ' ;
             }
-            whereConditions += ' Product__r.VehicleCategory__r.Name = ' + keyList[0] + ' AND ' + ' Product__r.Styling__c = ' + keyList[1] ;
+            whereConditions += ' Product__r.VehicleCategory__r.Name = ' + keyList[0] ;
+            whereConditions += keyList[1] != null ? ' AND ' + ' Product__r.Styling__c = ' + keyList[1] : '';
             return getDynamicProductWrapList(whereConditions, tab);
         } else {
             return null;
@@ -315,7 +331,6 @@ public without sharing class VehicleStockTableController {
      */
     @AuraEnabled
     public static List<MasterWrap> getFilteredCategoryList(Map<String, String> filterMap) {
-        System.debug('filterMap ::'+filterMap);
         Map<String, String> modifiedMap = new Map<String, String>();
         for (String key : filterMap.keySet()) {
             String newKey = (key == 'Styling__c') ? key : 'VehicleCategory__r.' + key;
@@ -542,7 +557,6 @@ public without sharing class VehicleStockTableController {
         // String query = CommonUtilController.buildQuery(selectFields, 'VehicleCategory__c', whereConditions, '');
         String query = CommonUtilController.buildQuery(selectFields, 'Product2', whereConditions, 'VehicleCategory__r.Quantity__c DESC');
         List<Product2> productList = Database.query(query);
-
         List<MasterWrap> MasterWrapList = new List<MasterWrap>();
         Map<String, Map<String, Object>> masterWrapMap = new Map<String, Map<String, Object>>();
         for (Product2 product : productList) {
@@ -566,7 +580,6 @@ public without sharing class VehicleStockTableController {
                             'After60DaysQty__c' => sumMasterField('After60DaysQty__c', masterWrapMap, product),
                             'ETA__c' => sumMasterField('After30DaysQty__c', masterWrapMap, product) + sumMasterField('After60DaysQty__c', masterWrapMap, product)
                     });
-            //123123
         }
 
         for(String key : masterWrapMap.keySet()){
@@ -614,13 +627,13 @@ public without sharing class VehicleStockTableController {
     private static Map<String, Object> getDynamicProductWrapList(String whereConditions, String tab) {
 
         String selectFields = 'Id, Name, ModelYear__c, VehicleNo__c, CarColor__c, StockStatusDesc__c, ProductionSite__c, LongTermStock__c, IsSpecial__c, IsOptionDiscount__c,  ' +
-                ' LongtermDiscountRate__c, StockNoShow__c, OptionDiscountRate__c,SpecialDiscountRate__c, Remarks__c, Deviation__c, Product__c, Product__r.ProductStyling__c,' +
+                ' LongtermDiscountRate__c, StockNoShow__c, OptionDiscountRate__c,SpecialDiscountAmt__c, Remarks__c, Deviation__c, Product__c, Product__r.ProductStyling__c,' +
                 ' Product__r.LocalYear__c, Product__r.ModelYear__c, Product__r.Quantity__c, Product__r.Colour__c, Product__r.DiscountKRW__c , Product__r.Deviation__c, Product__r.Remarks__c, ' +
-                ' Product__r.VehicleCategory__c, Product__r.VehicleCategory__r.Name, Product__r.CarAmt__c, Product__r.SalesConditionMaster__r.Discount__c, Product__r.fm_DiscountKRW__c' ;
-
+                ' Product__r.VehicleCategory__c, Product__r.VehicleCategory__r.Name, Product__r.CarAmt__c, Product__r.SalesConditionMaster__r.Discount__c, Product__r.fm_DiscountKRW__c, ' +
+                ' (SELECT VehicleStock__c FROM Opportunities__r) ';
         String orderBy = 'Product__r.LocalYear__c, Product__r.ModelYear__c';
         String query = CommonUtilController.buildQuery(selectFields, 'VehicleStock__c', whereConditions, orderBy);
-        System.debug('whereConditions'+whereConditions);
+        System.debug('query:'+query);
         List<VehicleStock__c> vehicleStockList = Database.query(query);
 
         List<ProductWrap> productWrapList = new List<ProductWrap>();
@@ -630,34 +643,38 @@ public without sharing class VehicleStockTableController {
         List<DetailAdditionalWrap> detailAdditionalWrapList = new List<DetailAdditionalWrap>();
         Map<String, Integer> detailAmountMap = new Map<String,Integer>();
         for (VehicleStock__c stock : vehicleStockList) {
-            productIdSet.add(stock.Product__c);
-            if(stock.LongTermStock__c || stock.IsSpecial__c || stock.IsOptionDiscount__c ){
-                if (detailAmountMap.containsKey(stock.Product__c)) {
-                    detailAmountMap.put(stock.Product__c, detailAmountMap.get(stock.Product__c) + 1);
-                } else {
-                    detailAmountMap.put(stock.Product__c, 1);
+            if ((stock.Opportunities__r == null || stock.Opportunities__r.size() == 0) && tab == 'sa') {
+                productIdSet.add(stock.Product__c);
+                if (stock.LongTermStock__c || stock.IsSpecial__c || stock.IsOptionDiscount__c) {
+                    if (detailAmountMap.containsKey(stock.Product__c)) {
+                        detailAmountMap.put(stock.Product__c, detailAmountMap.get(stock.Product__c) + 1);
+                    } else {
+                        detailAmountMap.put(stock.Product__c, 1);
+                    }
+                    Decimal totalDC = (stock?.OptionDiscountRate__c ?? 0) + (stock?.LongtermDiscountRate__c ?? 0);
+                    Decimal totalDCPrice = (decimalNullCheck(stock.Product__r.CarAmt__c) * totalDC) / 100 +
+                            (stock.SpecialDiscountAmt__c != null ? stock.SpecialDiscountAmt__c : 0);
+                    Decimal discountedPrice = (stock?.Product__r?.CarAmt__c ?? 0) - (totalDCPrice + decimalNullCheck(optionPriceMap.get(stock.Product__c)));
+                    detailAdditionalWrapList.add(new DetailAdditionalWrap(
+                            stock.Id,
+                            stock.Product__c,
+                            stock.Product__r.LocalYear__c,            // localYear
+                            stock.Product__r.ModelYear__c,            // modelYear
+                            stock.Product__r.Colour__c,            // color
+                            priceFloor(totalDCPrice),           // totalDC
+                            stock.LongtermDiscountRate__c > 0 ? stock.LongtermDiscountRate__c / 100 : 0,              // longTermDiscountRate
+                            stock.OptionDiscountRate__c > 0 ? stock.OptionDiscountRate__c / 100 : 0,// partsDC
+                            stock.SpecialDiscountAmt__c != null ? stock.SpecialDiscountAmt__c : 0,             // specialDC
+                            priceFloor(discountedPrice),          // discountedPrice
+                            stock.Deviation__c,   // deviation
+                            stock.Remarks__c,        // remarks
+                            1                  // amount
+                    ));
                 }
-                Decimal totalDC = (stock?.OptionDiscountRate__c ?? 0) + (stock?.SpecialDiscountRate__c ??0) + (stock?.LongtermDiscountRate__c ?? 0);
-                Decimal totalDCPrice = (decimalNullCheck(stock.Product__r.CarAmt__c) * totalDC) / 100;
-                Decimal discountedPrice = (stock?.Product__r?.CarAmt__c ??0) - totalDCPrice + decimalNullCheck(optionPriceMap.get(stock.Product__c));
-                detailAdditionalWrapList.add(new DetailAdditionalWrap(
-                        stock.Product__r.LocalYear__c,            // localYear
-                        stock.Product__r.ModelYear__c,            // modelYear
-                        stock.Product__r.Colour__c,            // color
-                        totalDCPrice,           // totalDC
-                        stock.LongtermDiscountRate__c > 0 ? stock.LongtermDiscountRate__c / 100 : 0 ,              // longTermDiscountRate
-                        stock.OptionDiscountRate__c > 0 ? stock.OptionDiscountRate__c / 100 : 0,// partsDC
-                        stock.SpecialDiscountRate__c > 0 ? stock.SpecialDiscountRate__c / 100 : 0,             // specialDC
-                        discountedPrice,          // discountedPrice
-                        stock.Deviation__c,   // deviation
-                        stock.Remarks__c,        // remarks
-                        1                  // amount
-                ));
-
+            } else if (tab == 'admin'){
+                productIdSet.add(stock.Product__c);
             }
         }
-        System.debug('vehicleStockList'+vehicleStockList);
-        System.debug('productIdSet'+productIdSet);
         List<Product2> productList = [SELECT Id,ProductStyling__c, LocalYear__c, ModelYear__c, Quantity__c, Colour__c, fm_DiscountKRW__c, DiscountKRW__c ,
                 Deviation__c, Remarks__c, VehicleCategory__c, VehicleCategory__r.Name, CarAmt__c, SalesConditionMaster__r.Discount__c,
         ( SELECT VehicleOptionMaster__r.Price__c FROM ProductOption__r WHERE VehicleOptionMaster__r.Division__c ='필수 옵션' )
@@ -711,8 +728,8 @@ public without sharing class VehicleStockTableController {
                             product.LocalYear__c,
                             product.ModelYear__c,
                             product.Colour__c,
-                            dcPrice,
-                            totalPrice,
+                            priceFloor(dcPrice),
+                            priceFloor(totalPrice),
                             product.Deviation__c,
                             product.Remarks__c,
                             tab != 'sa' ? Integer.valueOf(product.Quantity__c) :
@@ -769,29 +786,7 @@ public without sharing class VehicleStockTableController {
         return !permissionSets.isEmpty();
     }
 
-//    /**
-//     * @author th.kim
-//     * @description where 조건문 Dynamic 쿼리로 생성
-//     * @param filterMap where 조건문 {apiName => value}
-//     *
-//     * @return where 조건문 string query
-//     */
-//    private static String buildWhereConditions(Map<String, String> filterMap) {
-//
-//        List<String> whereClauses = new List<String>();
-//
-//        // 필터 맵 순회
-//        for (String key : filterMap.keySet()) {
-//            String value = filterMap.get(key);
-//            if (String.isNotBlank(value)) { // 값이 비어있지 않은 경우만 처리
-//                whereClauses.add(key + ' = \'' + String.escapeSingleQuotes(value) + '\'');
-//            }
-//        }
-//
-//        // 조건이 존재하면 AND로 결합
-//        String whereConditions = whereClauses.isEmpty() ? '' : String.join(whereClauses, ' AND ');
-//
-//
-//        return whereConditions; // 완성된 WHERE 절 반환
-//    }
+    public static Decimal priceFloor(Decimal price){
+        return Math.floor(price/100000) * 100000;
+    }
 }

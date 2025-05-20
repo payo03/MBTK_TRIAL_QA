@@ -7,6 +7,7 @@
  * Ver          Date            Author                          Modification
  * 1.0          2025-01-13      chaebeom.do                     Created
  * 1.1          2025-01-15      San.Kang                        Updated
+ * 1.2          2025-05-16      chaebeom.do                     MFS 캠페인 할인금액 Quote.CampaignAmount__c 사용으로 수정
 *********************************************************************************************************/
 public without sharing class Contract_tr extends TriggerHandler {
     /** TriggerHandler */
@@ -36,6 +37,7 @@ public without sharing class Contract_tr extends TriggerHandler {
 
     public override void afterUpdate() {
         oppStageBack();
+        falseFlag();
         createPaymentTracker();
     }
 
@@ -69,6 +71,24 @@ public without sharing class Contract_tr extends TriggerHandler {
         if(!oppList.isEmpty()) update oppList;
         if(!quoteList.isEmpty()) update quoteList;
     }
+
+    //계약이 승인되면 기회의 IsRenegotiation__c를 false로 변경
+    private void falseFlag() {
+        List<Opportunity> oppList = new List<Opportunity>();
+        List<Quote> quoteList = new List<Quote>();
+        for(Contract newCon : newList) {
+            Contract oldCon = new Contract();
+            if (oldMap != null) oldCon = oldMap.get(newCon.Id);
+            if (oldCon.ApprovalStatus__c == '제출됨' && newCon.ApprovalStatus__c == '승인됨') {
+                Opportunity opp = new Opportunity();
+                opp.Id = newCon.Opportunity__c;
+                opp.IsRenegotiation__c = false;
+                oppList.add(opp);
+            }
+        }
+        if(!oppList.isEmpty()) update oppList;
+    }
+
     //Contract가 생성될 때 Opportunity에 생성되어있는 계약 버전에 따라 네이밍룰 적용
     private void updateName() {
         try{
@@ -94,22 +114,21 @@ public without sharing class Contract_tr extends TriggerHandler {
 
     // 계약 생성시 신청한 승인 프로세스가 승인되면 입금현황, 핸드오버 레코드 생성
     private void createPaymentTracker() {
+        
         List<PaymentTracker__c> insertPTList = new List<PaymentTracker__c>();
-        // 트리거가 돈 계약의 기회에 연결 && 상태가 '계약취소'가 아닌 입금현황 쿼리
-        // 쿼리한 입금현황이 0이면 입금현황 생성
-
         Set<String> quoteIdSet = new Set<String>();
         for(Contract newCon : newList) {
             Contract oldCon = oldMap.get(newCon.Id);
             if (oldCon.ApprovalStatus__c == '제출됨' && newCon.ApprovalStatus__c == '승인됨') quoteIdSet.add(newCon.Quote__c);
         }
 
+        // 트리거가 돈 계약의 견적에서 필요한 금액 필드들 가져와서 Map으로 만듬
         Map<String, Quote> contractQuoteMap = new Map<String, Quote>();
         for(Quote quote : [
-                SELECT ContractId, Deposit__c, DiscountAmt__c,
-                        fm_DeliveryPrice__c, fm_TotalLoanAmount__c, fm_DefermentVAT__c,
+                SELECT ContractId, Deposit__c, DiscountAmt__c, CampaignAmount__c,
+                        fm_DeliveryPrice__c, fm_TotalLoanAmount__c, Opportunity.TaxDeferredAmount__c, Opportunity.PaymentDeferredAmount__c,
                         Finance__r.SubventionRate__c, Finance__r.FScompany__c,
-                        Opportunity.VATDefermentStatus__c
+                        Opportunity.VATDefermentStatus__c, Opportunity.PaymentDefermentStatus__c
                 FROM Quote
                 WHERE Id IN :quoteIdSet
         ]) {
@@ -128,11 +147,12 @@ public without sharing class Contract_tr extends TriggerHandler {
 
             Decimal subventionRate = (quote.Finance__r != null && quote.Finance__r.SubventionRate__c != null)
                     ? quote.Finance__r.SubventionRate__c : 0;
-            Decimal discountAmount = quote.DiscountAmt__c != null ? quote.DiscountAmt__c : 0;
-            Decimal vat = quote.Opportunity.VATDefermentStatus__c == '승인됨' ? quote.fm_DefermentVAT__c : 0;
-            paymentTracker.TotalAmount__c = quote.Deposit__c + quote.fm_DeliveryPrice__c + vat +
+            Decimal campaignDiscountAmountMFS = quote.CampaignAmount__c != null ? quote.CampaignAmount__c : 0;
+            Decimal vat = quote.Opportunity.VATDefermentStatus__c == '승인됨' ? quote.Opportunity.TaxDeferredAmount__c : 0;
+            Decimal deferredPayment = quote.Opportunity.PaymentDefermentStatus__c == '승인됨' ? quote.Opportunity.PaymentDeferredAmount__c : 0;
+            paymentTracker.TotalAmount__c = quote.Deposit__c + quote.fm_DeliveryPrice__c + vat + deferredPayment +
                     (quote.fm_TotalLoanAmount__c * (1 - (subventionRate / 100)));
-            if (discountAmount != 0 && quote.Finance__r.FScompany__c == 'MFS') paymentTracker.TotalAmount__c += discountAmount;
+            if (campaignDiscountAmountMFS != 0 && quote.Finance__r.FScompany__c == 'MFS') paymentTracker.TotalAmount__c += campaignDiscountAmountMFS;
             paymentTracker.IsValid__c = true;
             paymentTracker.OwnerId = newCon.OwnerId;
 
@@ -144,7 +164,6 @@ public without sharing class Contract_tr extends TriggerHandler {
         createHandover(insertPTList);
     }
 
-    // TODO 03-28 송찬영. 1. 인도금 유예 통 생성시. 함수호출 필요
     private static void createPayments(List<PaymentTracker__c> paymentTrackerList){
         List<PaymentType__c> typeList = new List<PaymentType__c>();
         List<PaymentTracker__c> updateTrackerList = new List<PaymentTracker__c>();
@@ -159,8 +178,8 @@ public without sharing class Contract_tr extends TriggerHandler {
         for(Opportunity opp : [
                 SELECT Id, Contract.Quote__r.Deposit__c, Contract.Quote__r.fm_DeliveryPrice__c, 
                 Contract.Quote__r.fm_TotalLoanAmount__c, Contract.Quote__r.Finance__r.SubventionRate__c,
-                Contract.Quote__r.Finance__r.FScompany__c, Contract.Quote__r.DiscountAmt__c,
-                Contract.Quote__r.fm_DefermentVAT__c, PaymentDeferredAmount__c,
+                Contract.Quote__r.Finance__r.FScompany__c, Contract.Quote__r.DiscountAmt__c, Contract.Quote__r.CampaignAmount__c,
+                TaxDeferredAmount__c, PaymentDeferredAmount__c,
                 VATDefermentStatus__c, PaymentDefermentStatus__c, Account.Name
                 FROM Opportunity
                 WHERE Id IN :paymentTrackerOppSet
@@ -175,19 +194,18 @@ public without sharing class Contract_tr extends TriggerHandler {
             amountMap.put('계약금', curOpp.Contract.Quote__r.Deposit__c);
             amountMap.put('인도금', curOpp.Contract.Quote__r.fm_DeliveryPrice__c);
             if (curOpp.PaymentDefermentStatus__c == '승인됨') {
-                amountMap.put('인도금', curOpp.Contract.Quote__r.fm_DeliveryPrice__c - curOpp.PaymentDeferredAmount__c);
                 amountMap.put('인도금 유예', curOpp.PaymentDeferredAmount__c);
             }
-            if (curOpp.VATDefermentStatus__c == '승인됨') amountMap.put('부가세 후취(출고전)', curOpp.Contract.Quote__r.fm_DefermentVAT__c);
+            if (curOpp.VATDefermentStatus__c == '승인됨') amountMap.put('부가세 후취(출고전)', curOpp.TaxDeferredAmount__c);
             // null 체크
             Decimal subventionRate = (curOpp.Contract.Quote__r.Finance__r != null && curOpp.Contract.Quote__r.Finance__r.SubventionRate__c != null) 
                         ? curOpp.Contract.Quote__r.Finance__r.SubventionRate__c : 0;
-            Decimal discountAmount = curOpp.Contract.Quote__r.DiscountAmt__c != null ? curOpp.Contract.Quote__r.DiscountAmt__c : 0;
+            Decimal campaignDiscountAmountMFS = curOpp.Contract.Quote__r.CampaignAmount__c != null ? curOpp.Contract.Quote__r.CampaignAmount__c : 0;
             amountMap.put('대출금', curOpp.Contract.Quote__r.fm_TotalLoanAmount__c * (1 - (subventionRate / 100)));
             amountMap.put('대출금 할인금액', curOpp.Contract.Quote__r.fm_TotalLoanAmount__c * subventionRate / 100);
-            if (discountAmount != 0 && curOpp.Contract.Quote__r.Finance__r.FScompany__c == 'MFS') {
-                amountMap.put('대출금', curOpp.Contract.Quote__r.fm_TotalLoanAmount__c * (1 - (subventionRate / 100)) + discountAmount);
-                amountMap.put('MFS 캠페인 할인금액', discountAmount);
+            if (campaignDiscountAmountMFS != 0 && curOpp.Contract.Quote__r.Finance__r.FScompany__c == 'MFS') {
+                amountMap.put('대출금', curOpp.Contract.Quote__r.fm_TotalLoanAmount__c * (1 - (subventionRate / 100)) + campaignDiscountAmountMFS);
+                amountMap.put('MFS 캠페인 할인금액', campaignDiscountAmountMFS);
             }
             // 입금받을 계정들만 Insert
             for(String key : amountMap.keySet()) {

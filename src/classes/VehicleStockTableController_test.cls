@@ -30,7 +30,9 @@ private class VehicleStockTableController_test {
             'Styling__c'=> '',
             'Wheelbase__c'=> ''
         };
-
+        vehicleCategory.Name = 'TGL 10.190 4x2 BL CH TN 4850';
+        update vehicleCategory;
+        System.debug('vehicleCategory::'+vehicleCategory);
         Map<String, String> stringMap = new Map<String, String>();
         for (String key : filterMap.keySet()) {
             Object value = filterMap.get(key);

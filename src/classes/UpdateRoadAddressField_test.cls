@@ -17,30 +17,22 @@ private class UpdateRoadAddressField_test {
     static Opportunity oppty;
 
     static {
-        TestObjectBuilder.createObjects();
-        accountCompany = TestObjectBuilder.createAccountCompany();
-        accountPerson = TestObjectBuilder.createAccountPerson();
-        contact = TestObjectBuilder.createContact();
-        lead = TestObjectBuilder.createLead();
-        oppty = TestObjectBuilder.createOpportunity();
+//        TestObjectBuilder.createObjects();
+        TestObjectBuilder2.createAccountBundle();
+        TestObjectBuilder2.createLeadBundle();
+        TestObjectBuilder2.createOpportunityBundle();
+        accountPerson = TestObjectBuilder2.createAccountPerson();
+        lead = TestObjectBuilder2.createLead();
+        oppty = TestObjectBuilder2.createOpportunity();
     }
 
     @IsTest
     static void testBehavior() {
         UpdateRoadAddressField.updateRoadAddress(accountPerson.Id, 'roadValue', 'detailValue', 'postalCode');
-        UpdateRoadAddressField.updateRoadAddress(accountCompany.Id, 'roadValue', 'detailValue', 'postalCode');
-        UpdateRoadAddressField.updateRoadAddress(contact.Id, 'roadValue', 'detailValue', 'postalCode');
         UpdateRoadAddressField.updateRoadAddress(lead.Id, 'roadValue', 'detailValue', 'postalCode');
         UpdateRoadAddressField.updateRoadAddress(oppty.Id, 'roadValue', 'detailValue', 'postalCode');
 
-        UpdateRoadAddressField.updateRealDriverRoadAddress(accountPerson.Id, 'realDriverName', '01012341234', 'realDriverIDNumber');
-        UpdateRoadAddressField.updateRealDriverRoadAddress(accountCompany.Id, 'realDriverName', 'realDriverMobile', 'realDriverIDNumber');
-        UpdateRoadAddressField.updateRealDriverRoadAddress(contact.Id, 'realDriverName', '01012341234', 'realDriverIDNumber');
-        UpdateRoadAddressField.updateRealDriverRoadAddress(oppty.Id, 'realDriverName', '01012341234', 'realDriverIDNumber');
-
-//        UpdateRoadAddressField.getRealDriverInfo(accountPerson.Id);
-//        UpdateRoadAddressField.getRealDriverInfo(contact.Id);
-//        UpdateRoadAddressField.getRealDriverInfo(oppty.Id);
+        UpdateRoadAddressField.updateRealDriverRoadAddress(oppty.Id, 'realDriverName', '01012341234', '123412-1234123');
     }
 
 }

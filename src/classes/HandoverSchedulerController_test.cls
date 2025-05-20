@@ -10,14 +10,28 @@
 @IsTest
 private class HandoverSchedulerController_test {
 
+    //todo : 테스트 실행시 CommissionHistory_tr.setFieldDataForRollUp: line 78 에서 에러 발생(Attempt to de-reference a null object)
     static final Handover__c handover;
     static final Handover__c newHandover;
     static final Product2 product;
 
     static {
-        TestObjectBuilder.createObjects();
-        handover = TestObjectBuilder.createHandover();
-        product = TestObjectBuilder.createProduct();
+        // TestObjectBuilder.createObjects();
+        // TestObjectBuilder2.createContractBundle2();
+        Contract contract = TestObjectBuilder2.createContract();
+        insert contract;
+        Opportunity opportunity = TestObjectBuilder2.createOpportunity();
+        Quote quote = TestObjectBuilder2.createQuote();
+        List<SObject> SObjectList = new List<SObject>();
+        opportunity.ContractId = contract.Id;
+        quote.ContractId = contract.Id;
+        SObjectList.add(opportunity);
+        SObjectList.add(quote);
+        update SObjectList;
+        insert TestObjectBuilder2.createPDIStep();
+        insert TestObjectBuilder2.createHandover();
+        handover = TestObjectBuilder2.createHandover();
+        product = TestObjectBuilder2.createProduct();
         newHandover = [
             SELECT Id, Opportunity__c, fm_VehicleStock__c, Opportunity__r.Name, Opportunity__r.OwnerId,
                 Opportunity__r.ContractId, Opportunity__r.VehicleStock__r.Name
@@ -55,14 +69,11 @@ private class HandoverSchedulerController_test {
     }
 
     @IsTest
-    static void testUpdateHandoverStockList() {
+    static void testUpdateHandoverStock() {
         Test.startTest();
 
         SchedulerMainController.HandoverWrap handoverWrap = HandoverSchedulerController.getFilteredHandoverList(null).get(0);
         System.debug('handoverWrap :: ' + handoverWrap);
-//        List<VehicleStock__c> vehicleStockList = HandoverSchedulerController.getVehicleStockList(new Map<String, String>{
-//            'Product__c' => handoverWrap.vehicleStock.Product__c
-//        });
         VehicleStock__c vehicleStock = new VehicleStock__c(
             Name = 'Test',
             Product__c = handoverWrap.vehicleStock.Product__c
@@ -79,7 +90,34 @@ private class HandoverSchedulerController_test {
             'currentVIN' => null
         };
 
-        HandoverSchedulerController.updateHandoverStockList(new List<Map<String, String>>{dataMap});
+        HandoverSchedulerController.updateHandoverStock(dataMap);
+
+        Test.stopTest();
+    }
+
+    @IsTest
+    static void testUpdateHandoverStock2() {
+        Test.startTest();
+
+        SchedulerMainController.HandoverWrap handoverWrap = HandoverSchedulerController.getFilteredHandoverList(null).get(0);
+        System.debug('handoverWrap :: ' + handoverWrap);
+        VehicleStock__c vehicleStock = new VehicleStock__c(
+            Name = 'Test',
+            Product__c = handoverWrap.vehicleStock.Product__c
+        );
+        insert vehicleStock;
+
+        Map<String, String> dataMap = new Map<String, String>{
+            'stockId' => newHandover.fm_VehicleStock__c,
+            'opportunityId' => newHandover.Opportunity__r.Id,
+            'oppName' => newHandover.Opportunity__r.Name,
+            'ownerId' => newHandover.Opportunity__r.OwnerId,
+            'contractId' => newHandover.Opportunity__r.ContractId,
+            'previousVIN' => 'Test',
+            'currentVIN' => newHandover.Opportunity__r.VehicleStock__r.Name
+        };
+
+        HandoverSchedulerController.updateHandoverStock(dataMap);
 
         Test.stopTest();
     }

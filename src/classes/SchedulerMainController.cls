@@ -7,6 +7,8 @@
  * Ver          Date            Author          Modification
  * 1.0          2025-01-22      th.kim          Created
  * 1.1          2025-04-24      chaebeom.do     워크넘버 클릭시 PDI 메인으로 이동하게 url 추가
+ * 1.2          2025-04-29      jh.jung         주유상품권 추가를 위한 quote 추가
+ * 1.3          2025-05-09      jh.jung         HandoverWrap 필드 추가
 **************************************************************/
 public with sharing class SchedulerMainController {
 
@@ -17,6 +19,8 @@ public with sharing class SchedulerMainController {
         @AuraEnabled public String customer;
         @AuraEnabled public String oppUrl;
         @AuraEnabled public String oppName;
+        @AuraEnabled public String contractUrl;
+        @AuraEnabled public String contractNumber;
         @AuraEnabled public String stockId;
         @AuraEnabled public String stockUrl;
         @AuraEnabled public String VIN;
@@ -37,6 +41,19 @@ public with sharing class SchedulerMainController {
         @AuraEnabled public List<QuoteDetail__c> quoteDetailList;
         @AuraEnabled public Opportunity opp;
         @AuraEnabled public VehicleStock__c vehicleStock;
+        @AuraEnabled public String oilCoupon;
+        @AuraEnabled public String oilCouponFormat;
+
+        // ver 1.3
+        @AuraEnabled public String handoverRequest;
+        @AuraEnabled public String shirtSize;
+        @AuraEnabled public String safetyPackageDescription;
+        @AuraEnabled public String eopDate;
+        @AuraEnabled public String modelYear;
+        @AuraEnabled public String productName;
+        @AuraEnabled public String segment2;
+        @AuraEnabled public String taxInvoiceRequestDate;
+        @AuraEnabled public String saleNumber;
 
         public HandoverWrap(
             String id,
@@ -51,7 +68,8 @@ public with sharing class SchedulerMainController {
             String updatedField,
             List<QuoteDetail__c> quoteDetailList,
             Opportunity opp,
-            VehicleStock__c vehicleStock
+            VehicleStock__c vehicleStock,
+            Decimal oilCoupon
         ) {
             this.id = id;
             this.agency = opp.Owner.Agency__c;
@@ -59,13 +77,21 @@ public with sharing class SchedulerMainController {
             this.customer = opp.Account.Name;
             this.oppUrl = '/lightning/r/Opportunity/' + opp.Id + '/view';
             this.oppName = opp.Name;
+            this.contractUrl = '/lightning/r/Contract/' + opp.ContractId + '/view';
+            this.contractNumber = opp.Contract.ContractNumber;
             if (vehicleStock != null) {
                 this.stockId = vehicleStock.Id;
                 this.stockUrl = '/lightning/r/VehicleStock__c/' + vehicleStock.Id + '/view';
                 this.vehicleNo = vehicleStock.VehicleNo__c;
-                this.vehicleNoUrl = '/lightning/n/PDIMain';     // ver 1.1
+                this.vehicleNoUrl = '/lightning/n/PDIMain?c__stockId=' + vehicleStock.Id + '&c__vehicleNo=' + vehicleStock.VehicleNo__c;     // ver 1.1
                 this.vehicleStatus = vehicleStock.VehicleStatus__c;
                 this.vehicleStock = vehicleStock;
+                // ver 1.3
+                this.safetyPackageDescription = vehicleStock.Safety_Package_Description__c;
+                this.eopDate = vehicleStock.EopDate__c != null ? String.valueOf(vehicleStock.EopDate__c) : '';
+                this.modelYear = vehicleStock.Product__r?.ModelYear__c;
+                this.productName = vehicleStock.Product__r?.Name;
+                this.segment2 = vehicleStock.Product__r?.Segment2__c;
             }
             this.VIN = vehicleStock?.Name ?? '차량 배정';
             this.productId = opp.Contract.Quote__r.Product__c;
@@ -81,6 +107,18 @@ public with sharing class SchedulerMainController {
             updatedFieldList = new List<String>(updatedField?.split(','));
             this.quoteDetailList = quoteDetailList;
             this.opp = opp;
+            // ver 1.2
+            Decimal oilAmt = oilCoupon != null ? oilCoupon : 0;
+            this.oilCoupon = String.valueOf(10*oilAmt);
+            this.oilCouponFormat = (10*oilAmt).format() + '만원';
+
+            // ver 1.3
+            this.handoverRequest = opp.HandoverRequest__c;
+            this.saleNumber = opp.SaleNumber__c;
+            // this.shirtSize = opp.Shirtsize__c != null ? String.valueOf(opp.Shirtsize__c) : '';
+            this.shirtSize = opp.Shirtsize__c != null ? opp.Shirtsize__c : '';
+            this.taxInvoiceRequestDate = opp.TaxInvoicRequestDate__c != null ? String.valueOf(opp.TaxInvoicRequestDate__c) : '';
+
         }
     }
 
@@ -95,9 +133,40 @@ public with sharing class SchedulerMainController {
         return new Map<String, Object>{
             'paymentStatusOption' => CommonUtilController.getPickList('PaymentTracker__c', 'Status__c', null),
             'vehicleStatusOption' => CommonUtilController.getPickList('VehicleStock__c', 'VehicleStatus__c', null),
-            'handoverList' => getHandoverData()
+            'handoverList' => getHandoverData(),
+            'permissionSet' => getPermissionSet()
         };
     }
+
+    // 유저가 가진 권한 가져오기
+    private static Map<String, String> getPermissionSet() {
+
+        String userRole = 'default';
+
+        List<PermissionSetAssignment> permissionSetAssignments = [
+            SELECT Id, PermissionSet.Name, PermissionSet.Label
+            FROM PermissionSetAssignment
+            WHERE AssigneeId = :UserInfo.getUserId()
+        ];
+
+        for(PermissionSetAssignment tempObj : permissionSetAssignments) {
+            if('SA'.equals(tempObj.PermissionSet.Name)) {
+                userRole = 'sa';
+                break;
+            } else if('HandOver'.equals(tempObj.PermissionSet.Name)) {
+                userRole = 'handover';
+                break;
+            } else if('PDI'.equals(tempObj.PermissionSet.Name)) {
+                userRole = 'pdi';
+                break;
+            }
+        }
+
+        return new Map<String, String> {
+            'userRole' => userRole
+        };
+    }
+
 
     /**
      * @author th.kim
@@ -120,12 +189,13 @@ public with sharing class SchedulerMainController {
 
         String selectFields = 'Id, fm_SalesAgent__c, fm_ContractStatus__c, FORMAT(LastModifiedDate) lastModifiedDate, LastModifiedBy.Name,' +
             ' IsNeedToCheckUpdate__c, UpdatedFields__c, Opportunity__c, Opportunity__r.HandoverDate__c, ' +
-            ' Opportunity__r.Name, Opportunity__r.Account.Name, Opportunity__r.Owner.Agency__c, Opportunity__r.ContractId, Opportunity__r.Contract.Quote__r.Product__c, ' +
+            ' Opportunity__r.Name, Opportunity__r.Account.Name, Opportunity__r.Owner.Agency__c, Opportunity__r.ContractId, Opportunity__r.Contract.ContractNumber, Opportunity__r.Contract.Quote__r.Product__c, ' +
             ' Opportunity__r.VehicleStock__r.Name, Opportunity__r.VehicleStock__r.VehicleStatus__c, Opportunity__r.VehicleStock__r.VehicleNo__c, ' +
             ' Opportunity__r.VehicleStock__r.Product__c, Opportunity__r.VehicleStock__r.Product__r.Name, Opportunity__r.VehicleStock__r.Product__r.Segment2__c, ' +
-            ' fm_PaymentStatus__c, fm_IsDeposit__c, fm_IsVat__c, Opportunity__r.TaxInvoiceDate__c';
+            ' fm_PaymentStatus__c, fm_IsDeposit__c, fm_IsVat__c, Opportunity__r.TaxInvoiceDate__c, ' +
+            ' Opportunity__r.SaleNumber__c, Opportunity__r.HandoverRequest__c, Opportunity__r.TaxInvoicRequestDate__c, Opportunity__r.Shirtsize__c, Opportunity__r.VehicleStock__r.Safety_Package_Description__c, Opportunity__r.VehicleStock__r.EopDate__c, Opportunity__r.VehicleStock__r.Product__r.ModelYear__c';
         whereCondition = String.isNotBlank(whereCondition) ? whereCondition + ' AND IsActive__c = TRUE' : 'IsActive__c = TRUE';
-        String query = CommonUtilController.buildQuery(selectFields, 'Handover__c', whereCondition, 'Opportunity__r.HandoverDate__c ASC NULLS LAST');
+        String query = CommonUtilController.buildQuery(selectFields, 'Handover__c', whereCondition, 'Opportunity__r.CreatedDate DESC, fm_PaymentStatus__c DESC NULLS LAST');
         System.debug('check query :: ' + whereCondition);
         List<Handover__c> handoverList = Database.query(query);
 
@@ -150,6 +220,17 @@ public with sharing class SchedulerMainController {
             contractQuoteDetailMap.get(quoteDetail.Quote__r.OpportunityId).add(quoteDetail);
         }
 
+        Map<Id, Quote> contractQuoteMap = new Map<Id, Quote>();
+        for (Quote quote : [
+            SELECT Id, Name, OpportunityId, ru_OilCoupon__c
+            FROM Quote
+            WHERE OpportunityId IN :opportunityId
+            AND OpportunityId != NULL
+            AND Status = 'Published'
+        ]) {
+            contractQuoteMap.put(quote.OpportunityId, quote);
+        }
+
         List<HandoverWrap> handoverWrapList = new List<HandoverWrap>();
         for (Handover__c handover : handoverList) {
             handoverWrapList.add(new HandoverWrap(
@@ -165,7 +246,8 @@ public with sharing class SchedulerMainController {
                 handover.UpdatedFields__c,
                 contractQuoteDetailMap.get(handover.Opportunity__c),
                 handover.Opportunity__r,
-                handover.Opportunity__r.VehicleStock__r
+                handover.Opportunity__r.VehicleStock__r,
+                contractQuoteMap.get(handover.Opportunity__c)?.ru_OilCoupon__c
             ));
         }
 

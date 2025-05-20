@@ -9,13 +9,14 @@
 **************************************************************/
 public without sharing class PreAssignRequestAlimtalk {
 
-    @InvocableMethod(label='PreAssignRequestAlimTalk' description='PreAssignReqeust AlimTalk')
+    @InvocableMethod(label='DepositRequestAlimtalk' description='DepositRequestAlimtalk')
     public static void PreAssignRequestAlimtalk(List<String> AccountId) {
         System.debug('acctest::'+AccountId);
         try{
-            VirtualAccount__c VAObj = [SELECT Id, Account__c, Account__r.OwnerId, VirtualAccountMaster__r.VirtualAccountNum__c, Account__r.Name, Account__r.Owner.Name, Account__r.Owner.MobilePhone
-            FROM VirtualAccount__c WHERE Account__c =:AccountId[0]];
-            System.debug('test'+VAObj.Account__r.Owner.MobilePhone == null ? '-' : VAObj.Account__r.Owner.MobilePhone);
+            VirtualAccount__c VAObj = [SELECT Id, Account__c, Account__r.Owner.MobilePhone
+                                    FROM VirtualAccount__c
+                                    WHERE Account__c =:AccountId[0]];
+
             List<Map<Object, Object>> infoMapList = new List<Map<Object, Object>>{
                     new Map<Object, Object>{
                             'objectName' => 'Account',
@@ -36,9 +37,11 @@ public without sharing class PreAssignRequestAlimtalk {
                     'buttonMap' => buttonMap,
                     'infoMapList' => infoMapList
             };
+
             if(!test.isRunningTest()){
                 InterfaceKakao.doCallOutKakaoAlimTalk(InfoMap);
             }
+
         }catch (Exception e){
             System.debug('err=>'+e.getMessage() + ' ' + e.getStackTraceString());
         }

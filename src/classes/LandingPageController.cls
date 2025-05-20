@@ -37,16 +37,28 @@ public without sharing class LandingPageController {
     public static String updateCustomerConsent(String ccId, List<Boolean> ccList) {
 
         try {
+
             CustomerConsent__c cc = [
-                    SELECT Id, Opportunity__c, ConsentStatus__c, Type__c
+                    SELECT Id, Account__c, Lead__r.MobilePhone, Lead__r.ConvertedAccountId, Lead__r.LastName, Opportunity__c, ConsentStatus__c, Type__c
                     FROM CustomerConsent__c
                     WHERE Id = :ccId
             ];
+            String accountId = cc.Account__c;
+
+            if(accountId == null){
+                List<Account> accountList = [SELECT Id
+                                    FROM Account
+                                    WHERE PersonMobilePhone =: cc.Lead__r.MobilePhone AND LastName =: cc.Lead__r.LastName];
+                accountId = !accountList.isEmpty() ? accountList[0].Id : accountId;
+            }
+
+            System.debug('accountId:::'+accountId);
             if (ccList.size() <= 4) {
                 cc.ConsentRequire1__c = ccList[0];
                 cc.ConsentRequire5__c = ccList[1];
                 cc.ConsentOptional1__c = ccList[2];
                 cc.ConsentOptional4__c = ccList[3];
+                cc.Account__c = accountId;
                 cc.ConsentStatus__c = !ccList[0] || !ccList[1] ? '거절됨' : '작성완료됨';
                 cc.ConsentDate__c = System.today();
                 update cc;
@@ -132,10 +144,10 @@ public without sharing class LandingPageController {
             consentMap.put('VFHost', Label.LandingPage.replace('https://', ''));
             consentMap.put('Id', customerConsent.Id);
 
-            buttonMap.put('Consent', consentMap);
+            buttonMap.put('동의서 열기', consentMap);
 
             Map<String, Object> InfoMap = new Map<String, Object>{
-                    'templateTitle' => customerConsent.Opportunity__c != null ? 'Full Consent 알림톡1' : 'Light Consent 알림톡1',
+                    'templateTitle' => customerConsent.Opportunity__c != null ? 'Full Consent 알림톡2' : 'Light Consent 알림톡2',
                     'object' => 'CustomerConsent__c',
                     'whereField' => customerConsent.Opportunity__c != null ? 'Opportunity__c ' : 'Lead__c',
                     'recordId' => customerConsent.Opportunity__c != null ? customerConsent.Opportunity__c : customerConsent.Lead__c,

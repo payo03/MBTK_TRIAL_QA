@@ -12,20 +12,26 @@ public with sharing class CreatedMngController_test {
 
     static final VehicleStock__c vehicleStock = TestObjectBuilder.createVehicleStock();
     static final SpecTypeNo__c specTypeNo = TestObjectBuilder.createSpecTypeNo();
+    static final SpecTypeNoJunction__c specTypeNoJunction = TestObjectBuilder2.createSpecTypeNoJunction();
 
     static {
         insert vehicleStock;
         insert specTypeNo;
+        insert specTypeNoJunction;
+
+        specTypeNoJunction.Product__c = vehicleStock.Product__c;
+        specTypeNoJunction.SpecTypeNo__c = specTypeNo.Id;
+        update specTypeNoJunction;
     }
 
     @IsTest
     static void testBehavior() {
         Map<String, String> filterMap = new Map<String, String>{
-                'EngineType__c' => '',
+                'EngineType__c' => null,
                 'ModelYear__c' => '2019',
-                'Remark2__c'    => '',
-                'Remark3__c'    => '',
-                'Remark__c'     => ''
+                'Remark2__c'    => null,
+                'Remark3__c'    => null,
+                'Remark__c'     => null
         };
         Test.startTest();
         CreatedMngController.getInitData(vehicleStock.Id);

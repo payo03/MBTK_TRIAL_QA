@@ -15,10 +15,12 @@ private class Lead_tr_test {
     static Lead dupLead;
 
     static {
-        TestObjectBuilder.createObjects();
-        ifMasterList = TestObjectBuilder.createIfMasterList();
-        lead = TestObjectBuilder.createLead();
-        dupLead = TestObjectBuilder.createDupLead();
+        TestObjectBuilder2.createObjects();
+        TestObjectBuilder2.createLeadBundle();
+        TestObjectBuilder2.createIfBundle();
+        ifMasterList = TestObjectBuilder2.createIfMasterList();
+        lead = TestObjectBuilder2.createLead();
+        dupLead = TestObjectBuilder2.createDupLead();
     }
     @IsTest
     static void testBehavior() {

@@ -16,12 +16,13 @@ private class CreateContractController_test {
     static final Product2 testProduct;
 
     static {
-        TestObjectBuilder.createObjects();
-        testQuote = TestObjectBuilder.quote;
-        testAcc = TestObjectBuilder.accountPerson;
-        testOpportunity = TestObjectBuilder.opportunity;
-        testStock = TestObjectBuilder.vehicleStock;
-        testProduct = TestObjectBuilder.product;
+        TestObjectBuilder2.createQuoteBundle();
+        insert TestObjectBuilder2.createPDIStep();
+        testQuote = TestObjectBuilder2.quote;
+        testAcc = TestObjectBuilder2.accountPerson;
+        testOpportunity = TestObjectBuilder2.opportunity;
+        testStock = TestObjectBuilder2.vehicleStock;
+        testProduct = TestObjectBuilder2.product;
     }
 
     @isTest
@@ -44,6 +45,16 @@ private class CreateContractController_test {
         };
         testQuote.IsApproveLoan__c = true;
         update testQuote;
+        
+        PDIStep__c testStep = [
+            SELECT Id, Stage__c, IsPass__c
+            FROM PDIStep__c
+            WHERE VehicleStock__c = :testStock.Id
+            AND Stage__c = 'STEP2' 
+        ];
+
+        testStep.IsPass__c = true;
+        update testStep;
 
         Test.startTest();
         CreateContractController.createContract(inputMap);

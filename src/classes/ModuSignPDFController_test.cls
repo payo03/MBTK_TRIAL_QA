@@ -20,20 +20,27 @@ private class ModuSignPDFController_test {
     static Map<String, String> signInfo;
 
     static {
-        TestObjectBuilder.createObjects();
-        // contract = TestObjectBuilder.contract;
-        contract2 = TestObjectBuilder.createContractAdvance();
-        quote = TestObjectBuilder.quote;
-        account = TestObjectBuilder.accountPerson;
-        oppty = TestObjectBuilder.opportunity;
-        vehicleStock = TestObjectBuilder.vehicleStock;
-        product = TestObjectBuilder.product;
+//        TestObjectBuilder.createObjects();
+        TestObjectBuilder2.createContractBundle();
+        TestObjectBuilder2.createQuoteBundle();
+        TestObjectBuilder2.createAccountBundle();
+        TestObjectBuilder2.createOpportunityBundle();
+        TestObjectBuilder2.createStockBundle();
+        TestObjectBuilder2.createObjects();
+
+        contract2 = TestObjectBuilder2.createContractAdvance();
+        quote = TestObjectBuilder2.quote;
+        account = TestObjectBuilder2.accountPerson;
+        oppty = TestObjectBuilder2.opportunity;
+        vehicleStock = TestObjectBuilder2.vehicleStock;
+        product = TestObjectBuilder2.product;
         signInfo = new Map<String, String>();
-        signInfo.put('MobilePhone', '01098868298');
+        signInfo.put('PersonMobilePhone', '01098868298');
         signInfo.put('Info', '고객');
         signInfo.put('Name', 'Test');
-        signInfo.put('RoadAddress', 'roadaddress');
-        signInfo.put('PostalCode', '12345');
+        signInfo.put('RoadAddress__c', 'roadaddress');
+        signInfo.put('PostalCode__c', '12345');
+        signInfo.put('Id', account.Id);
 
     }
 

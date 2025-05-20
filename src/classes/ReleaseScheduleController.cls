@@ -28,8 +28,8 @@ public class ReleaseScheduleController {
                 opportunity.VehicleStock__r.Name.length() > 9)
                 ? opportunity.VehicleStock__r.Name.charAt(9)
                 : 0;
-        TotalWeight = opportunity.VehicleStock__r.Product__r.TotalWeight__c == null ? '' : opportunity.VehicleStock__r.Product__r.TotalWeight__c.replace(',','.');
-        MaxLoad = opportunity.VehicleStock__r.Product__r.MaxLoad__c == null ? '' : opportunity.VehicleStock__r.Product__r.MaxLoad__c.replace(',','.');
+        TotalWeight = opportunity.VehicleStock__r.TotalWeight__c == null ? '' : opportunity.VehicleStock__r.TotalWeight__c.replace(',','.');
+        MaxLoad = opportunity.VehicleStock__r.MaxLoad__c == null ? '-' : opportunity.VehicleStock__r.MaxLoad__c.replace(',','.');
         isNewAddress = PDFCommonController.isNewAddress(opportunity.HandoverDate__c);
         String year = ApexPages.currentPage().getParameters().get('year');
         String month = ApexPages.currentPage().getParameters().get('month');

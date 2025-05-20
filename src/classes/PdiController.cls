@@ -9,8 +9,9 @@
   1.1      2025-04-21      chaebeom.do@solomontech.net      PDI step3 완료시 기회 연결 로직 추가
   1.2      2025-04-22      chaebeom.do@solomontech.net      PDI step4Init 수정
   1.3      2025-04-23      chaebeom.do@solomontech.net      PDI step3 완료시 기회 연결 로직 수정
+  1.4      2025-05-09      ccy2010@solomontech.net          PDI step4 스포일러 코드 검색 기능 추가
 */
-public with sharing class PdiController {
+public without sharing class PdiController {
 
     @AuraEnabled
     public static List<VehicleStock__c> screenInit() {
@@ -157,7 +158,7 @@ public with sharing class PdiController {
             when 'STEP0' { status = '입고'; entryDate = Date.today(); driveDistance = false; }
             when 'STEP1' { status = '입고'; entryDate = Date.today(); driveDistance = true; }
             when 'STEP2' { status = '판매준비완료'; driveDistance = true; }
-            when 'STEP3' { status = '출고예정'; driveDistance = false; }
+            when 'STEP3' { status = '출고예정'; driveDistance = false; } // step3는 다른 메서드로 업데이트 하지만 혹시 몰라서
             when 'STEP4' { status = '출고예정'; driveDistance = false; }
             when 'STEP5' { status = '출고준비완료'; driveDistance = false; }
         }
@@ -231,6 +232,7 @@ public with sharing class PdiController {
 
         updateList.add(new VehicleStock__c(
             Id = completeMap.get('stockId'),
+            Status__c = '재고 미노출(임시)',
             VehicleStatus__c = '출고예정'
         ));
         PDIStep__c selectedVINStep = [
@@ -261,23 +263,26 @@ public with sharing class PdiController {
         }
         // 선택한 기회에 출고할 차량과 다른 차량이 배정되어있을 경우
         if(completeMap.get('stockId') != completeMap.get('previousStockId')) {
-            updateList.add(new VehicleStock__c(
-                Id = completeMap.get('previousStockId'),
-                VehicleStatus__c = '판매준비완료'
-            ));
-            for(PDIStep__c previousVINStep : [
-                SELECT Id
-                FROM PDIStep__c
-                WHERE VehicleStock__c = :completeMap.get('previousStockId')
-                AND Stage__c IN ('STEP3', 'STEP4', 'STEP5')
-            ]) {
-                updateList.add(new PDIStep__c(
-                    Id = previousVINStep.Id,
-                    IsPass__c = false,
-                    StepStart__c = null,
-                    StepEnd__c = null,
-                    StepWorker__c = null
+            if(completeMap.get('previousStockId') != null) {
+                updateList.add(new VehicleStock__c(
+                    Id = completeMap.get('previousStockId'),
+                    Status__c = '재고 노출',
+                    VehicleStatus__c = '판매준비완료'
                 ));
+                for(PDIStep__c previousVINStep : [
+                    SELECT Id
+                    FROM PDIStep__c
+                    WHERE VehicleStock__c = :completeMap.get('previousStockId')
+                    AND Stage__c IN ('STEP3', 'STEP4', 'STEP5')
+                ]) {
+                    updateList.add(new PDIStep__c(
+                        Id = previousVINStep.Id,
+                        IsPass__c = false,
+                        StepStart__c = null,
+                        StepEnd__c = null,
+                        StepWorker__c = null
+                    ));
+                }
             }
             updateList.add(new Opportunity(
                 Id = completeMap.get('opportunityId'),
@@ -285,6 +290,7 @@ public with sharing class PdiController {
             ));
         }
         updateList.sort();
+        System.debug('체크 : ' + updateList);
         if (!updateList.isEmpty()) update updateList;
     }
     //ver 1.1
@@ -299,6 +305,7 @@ public with sharing class PdiController {
         List<SObject> updateList = new List<SObject>();
         updateList.add(new VehicleStock__c(
             Id = rollbackMap.get('previousStockId'),
+            Status__c = '재고 노출',
             VehicleStatus__c = '판매준비완료'
         ));
         for(PDIStep__c previousVINStep : [
@@ -405,6 +412,7 @@ public with sharing class PdiController {
             'selectedOption' => optionWrapList,
             'installList' => installList,
             'spoilerPartsJuntion' => customSpoilerPartsJuntionList
+            // 'spoilerPartsList' => getSpoilerParts('')
         };
     }
 
@@ -436,6 +444,118 @@ public with sharing class PdiController {
     public static void spoilerDropoffSAP(List<Map<String, Object>> inputMapList) {
         System.enqueueJob(new AsyncSpoilerRequest(inputMapList));
     }
+
+    // 코드 추가 스포일러 코드 검색 기능
+
+    @AuraEnabled
+    public static Map<String, Object> getInitData() {
+
+        return new Map<String, Object>{
+            'spoilerPartsJuntion' => getSpoilerParts('')
+        };
+    }
+
+    @AuraEnabled
+    public static List<SpoilerPartsWrap> getFilteredSpoilerPartsList(Map<String, String> filterMap) {
+
+        String whereConditions = buildWhereConditions(filterMap);
+        return getSpoilerParts(whereConditions);
+    }
+
+    private static List<SpoilerPartsWrap> getSpoilerParts(String whereConditions) {
+
+        List<String> queryList = new List<String>();
+
+        queryList.add('SELECT Id, Name, SpoilerCode__c ');
+        queryList.add('FROM SpoilerPart__c');
+        if(String.isNotBlank(whereConditions)) {
+            queryList.add('WHERE ' + whereConditions);
+        }
+        queryList.add('ORDER BY Name, SpoilerCode__c');
+
+        String query = String.join(queryList, ' ');
+
+        List<SpoilerPart__c> spoilerPartsList = Database.query(query);
+
+        Set<String> spoilerCodeSet = new Set<String>();
+        for (SpoilerPart__c part : spoilerPartsList) {
+            if (String.isNotBlank(part.SpoilerCode__c)) {
+                spoilerCodeSet.add(part.SpoilerCode__c);
+            }
+        }
+
+        IF_DTO.PartStock partStock = SAPCommon.fetchSpoilerStockAPI(spoilerCodeSet);
+        Map<String, Map<String, Integer>> qtySpoilerMap = new Map<String, Map<String, Integer>>();
+        for (IF_DTO.PartStockInfo detailInfo : partStock.ResultData) {
+            String spoilerCode = detailInfo.ITEMCD;
+            Map<String, Integer> tempMap = new Map<String, Integer>();
+
+            for (IF_DTO.WarehouseInfo WHInfo : detailInfo.STK) {
+                if (WHInfo.WHSCD == 'P11' || WHInfo.WHSCD == 'P21') {
+                    tempMap.put(WHInfo.WHSCD, Integer.valueOf(WHInfo.QTY));
+                }
+            }
+            qtySpoilerMap.put(spoilerCode, tempMap);
+        }
+
+        List<SpoilerPartsWrap> spoilerPartsWrapList = new List<SpoilerPartsWrap>();
+
+        for(SpoilerPart__c spoilerPart : spoilerPartsList) {
+
+            Map<String, Integer> qtyMap = qtySpoilerMap.get(spoilerPart.SpoilerCode__c);
+
+            SpoilerPartsWrap spoilerPartsWrap = new SpoilerPartsWrap(
+                spoilerPart.Id,
+                spoilerPart.Name,
+                spoilerPart.SpoilerCode__c,
+                String.valueOf(qtyMap != null && qtyMap.containsKey('P11') ? qtyMap.get('P11') : 0),
+                String.valueOf(qtyMap != null && qtyMap.containsKey('P21') ? qtyMap.get('P21') : 0)
+            );
+            spoilerPartsWrapList.add(spoilerPartsWrap);
+        }
+
+        return spoilerPartsWrapList;
+    }
+
+    private static String buildWhereConditions(Map<String, String> filterMap) {
+
+        String whereConditions = '';
+        String tempWhere = '';
+        Boolean isFirstCondition = true; // 첫 번째 조건인지 여부를 판단
+
+        Map<String, String> fieldMap = new Map<String, String>{
+            'spoilerCode' => 'SpoilerPart__c.SpoilerCode__c'
+        };
+
+        for (String key : filterMap.keySet()) {
+            String value = filterMap.get(key);
+    
+            if (String.isNotBlank(value)) {
+                String actualField = fieldMap.containsKey(key) ? fieldMap.get(key) : key; // 변환
+
+                String condition = '';
+
+                if (actualField == 'SpoilerPart__c.SpoilerCode__c') {
+                    condition = actualField + ' LIKE \'%' + String.escapeSingleQuotes(value) + '%\'';
+                } else {
+                    condition = actualField + ' = \'' + String.escapeSingleQuotes(value) + '\'';
+                }
+                if (isFirstCondition) {
+                    whereConditions += condition;
+                    isFirstCondition = false;
+                } else {
+                    whereConditions += ' AND ' + condition;
+                }
+            }
+        }
+    
+        return whereConditions;
+
+    }
+
+    // 코드 추가 End
+
+
     //step4 End
 
     public static String getStockList(String whereCondition) {
@@ -444,7 +564,7 @@ public with sharing class PdiController {
 
         List<String> whereConditionList = new List<String>();
         whereConditionList.add('VehicleStatus__c != \'항구도착전\'');
-        whereConditionList.add('VehicleStatus__c != \'출고됨\''); // 출고불가도 안보여줄지?
+        whereConditionList.add('VehicleStatus__c != \'출고됨\''); 
         whereConditionList.add('Name LIKE \'WMA%\''); 
         if(whereCondition != '') whereConditionList.add(whereCondition);
 
@@ -465,5 +585,22 @@ public with sharing class PdiController {
             this.type = type;
             this.price = price;
         }
+    }
+
+    public class SpoilerPartsWrap {
+        @AuraEnabled public String id;
+        @AuraEnabled public String name;
+        @AuraEnabled public String spoilerCode;
+        @AuraEnabled public String p11;
+        @AuraEnabled public String p21;
+        
+        public SpoilerPartsWrap(String id, String name, String spoilerCode, String p11, String p21) {
+            this.id = id;
+            this.name = name;
+            this.spoilerCode = spoilerCode;
+            this.p11 = p11;
+            this.p21 = p21;
+        }
+
     }
 }

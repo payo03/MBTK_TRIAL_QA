@@ -9,19 +9,16 @@
 **************************************************************/
 @isTest
 private class GoodWillUsingController_test {
-    static final GoodWillMaster__c goodWillMaster;
-    static final GoodWillSaving__c goodWillSaving;
-    static final GoodWillUsing__c goodWillUsing;
 
-    static {
-        TestObjectBuilder.createObjects();
-        goodWillMaster = TestObjectBuilder.goodWillMaster;
-        goodWillSaving = TestObjectBuilder.goodWillSaving;
-        goodWillUsing = TestObjectBuilder.goodWillUsing;
+    @TestSetup
+    static void setup() {
+        insert TestObjectBuilder2.createApprovalHierarchyGoodwill();
+        TestObjectBuilder2.createGoodWillBundle();
     }
 
     @isTest
     static void testInit() {
+
         User testUser = [
             SELECT Id
             FROM User
@@ -37,6 +34,7 @@ private class GoodWillUsingController_test {
 
     @isTest
     static void testAttachFiles() {
+
         List<Map<String, String>> fileDetails = new List<Map<String, String>>();
         Map<String, String> fileDetail = new Map<String, String>();
         fileDetail.put('name', 'Test');
@@ -49,6 +47,11 @@ private class GoodWillUsingController_test {
             WHERE Profile.Name = 'MTBK Agent'
             AND IsActive = true 
             AND LastName = '테스트용 유저'
+        ];
+        GoodWillUsing__c goodWillUsing = [
+            SELECT Id
+            FROM GoodWillUsing__c
+            LIMIT 1
         ];
         goodWillUsing.GoodWillApprover__c = testUser.Id;
         update goodWillUsing;

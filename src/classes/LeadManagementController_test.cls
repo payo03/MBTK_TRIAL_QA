@@ -24,11 +24,11 @@ private class LeadManagementController_test {
 //        TestObjectBuilder2.createQuoteBundle();
 //        TestObjectBuilder2.createAccountBundle();
 
-        TestObjectBuilder2.createQuoteBundle();
         TestObjectBuilder2.createAccountBundle();
         TestObjectBuilder2.createLeadBundle();
-        TestObjectBuilder2.createStockBundle();
         TestObjectBuilder2.createCampaignBundle();
+        TestObjectBuilder2.createPricebook();
+        TestObjectBuilder2.createPricebookEntry();
 
         lead = TestObjectBuilder2.createLead();
         dupLead = TestObjectBuilder2.createDupLead();
@@ -61,6 +61,7 @@ private class LeadManagementController_test {
                 , 'interestRate' => 0
                 , 'duration' => 0
                 , 'totalLoan' => 0
+                , 'advancePayment' => 0
                 , 'financeId' => finance.Id
         };
 
@@ -72,6 +73,7 @@ private class LeadManagementController_test {
                 , 'interestRate' => 0
                 , 'duration' => 0
                 , 'totalLoan' => 0
+                , 'advancePayment' => 0
                 , 'financeId' => finance.Id
         };
     }
@@ -114,5 +116,10 @@ private class LeadManagementController_test {
                 'accountId' => accountPerson.Id
                 , 'leadId' => dupLead.Id
         });
+    }
+
+    @IsTest
+    static void testBehavior5() {
+        LeadManagementController.accOwnerCheckByLeadInfo(lead.Id);
     }
 }

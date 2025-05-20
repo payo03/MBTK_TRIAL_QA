@@ -52,10 +52,10 @@ public without sharing class SendLightConsent_ba implements Database.Batchable<S
             consentMap.put('VFHost', Label.LandingPage.replace('https://', ''));
             consentMap.put('Id', customerConsent.Id);
 
-            buttonMap.put('Consent', consentMap);
+            buttonMap.put('동의서 열기', consentMap);
 
             Map<String, Object> InfoMap = new Map<String, Object> {
-                    'templateTitle' => 'Light Consent 알림톡1',
+                    'templateTitle' => 'Light Consent 알림톡2',
                     'object' => 'CustomerConsent__c',
                     'whereField' => 'Lead__c',
                     'recordId' =>  customerConsent.Lead__c,

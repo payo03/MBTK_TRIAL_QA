@@ -14,8 +14,9 @@ private class Finance_tr_test {
     static Finance__c finance;
 
     static {
-        TestObjectBuilder.createObjects();
-        finance = TestObjectBuilder.createFinance();
+//        TestObjectBuilder.createObjects();
+        insert TestObjectBuilder2.createFinance();
+        finance = TestObjectBuilder2.createFinance();
     }
 
     @IsTest

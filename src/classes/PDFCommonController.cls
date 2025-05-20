@@ -15,7 +15,7 @@ public without sharing class PDFCommonController {
 
         String obj_fields = getField(Schema.SObjectType.VehicleStock__c.fields.getMap());
         String selectFields = obj_fields +
-                                ' , Product__r.VehicleCategory__r.CabMark__c,Product__r.Segment2__c, Product__r.SelfCertWeightLabel__c, Product__r.VehicleCategory__r.ModelType__c, ' +
+                                ' , Product__r.VehicleCategory__r.CabMark__c,Product__r.Segment2__c, SpecTypeNo__r.TypeDate__c, Product__r.SelfCertWeightLabel__c, Product__r.VehicleCategory__r.ModelType__c, ' +
                                 ' Product__r.TotalWeight__c, Product__r.CabMark__c, Product__r.length__c, Product__r.width__c, Product__r.height__c, Product__r.TypeDate__c, Product__r.MaxLoad__c, Product__r.ModelYear__c, ' +
                                 ' Product__r.VehicleCategory__r.Name, Product__r.Name, Product__r.ReleaseDate__c, Product__r.SupplyItem__c,' +
                                 ' SpecTypeNo__r.TypeNo__c, SpecTypeNo__r.MngNo__c ';
@@ -33,10 +33,10 @@ public without sharing class PDFCommonController {
         String objName = Id.valueOf(recordId).getSobjectType().getDescribe().getName();
         String obj_fields = getField(Schema.SObjectType.Opportunity.fields.getMap());
         String selectFields = obj_fields +
-                                ' , Account.Owner.Name, Account.Owner.Department, Account.fm_TotalAddress__c, Account.CompRegNum__c, Account.Owner.Agency__c, Account.Owner.FirstName, Account.Owner.LastName, Account.PostalCode__c, Account.IDNumber__pc, Account.Name, Account.RoadAddress__c, NoMDSApprover__r.Email, Account.LastName,  Account.FirstName, Account.DetailAddress__c, Account.RecordType.Name, Account.PersonMobilePhone,' +
-                                ' Account.BillingCity, Account.RealDriverMobile__pc, Account.EmailTaxInvoice__c, Account.RealDriver__pc, Account.BusinessNumber__c, VehicleStock__r.VehicleNo__c,  VehicleStock__r.CarColor__c, VehicleStock__r.EngineNumber__c, VehicleStock__r.WantedOutDT__c, VehicleStock__r.Product__r.ReleaseDate__c, Contract.Quote__c,' +
-                                ' Contract.fm_RealSalesPrice__c, Contract.ContractNumber, VehicleStock__r.Product__c,  VehicleStock__r.Product__r.CarAmt__c, VehicleStock__r.Product__r.MaxLoad__c, VehicleStock__r.Product__r.PurePriceWscCfx__c,VehicleStock__r.Name,VehicleStock__r.Product__r.TotalWeight__c, VehicleStock__r.Product__r.Name, VehicleStock__r.Product__r.Segment2__c,' +
-                                ' VehicleStock__r.Product__r.VehicleCategory__r.Name, VehicleStock__r.Displacement__c, VehicleStock__r.TaxType__c, VehicleStock__r.EmissionLevelEu__c, VehicleStock__r.HorsePower__c, Campaign.Name, VehicleStock__r.LongtermDiscountRate__c, VehicleStock__r.OptionDiscountRate__c, VehicleStock__r.SpecialDiscountRate__c,' +
+                                ' , Account.Owner.Name, Account.Owner.Department, Account.fm_TotalAddress__c, Account.CompRegNum__c, Account.Owner.Agency__c, Account.Owner.FirstName, Account.Owner.LastName, Account.PostalCode__c, Account.IDNumber__pc, Account.Name, Account.RoadAddress__c, NoMDSApprover__r.Email, Account.LastName,  Account.FirstName, Account.DetailAddress__c, Account.RecordType.Name, Account.PersonMobilePhone, RealDriverAccount__r.PersonMobilePhone,' +
+                                ' RealDriverAccount__r.IDNumber__pc ,RealDriverAccount__r.PersonEmail, Account.PersonEmail, Account.BillingCity, Account.EmailTaxInvoice__c, RealDriverAccount__r.LastName, Account.BusinessNumber__c, VehicleStock__r.VehicleNo__c,  VehicleStock__r.CarColor__c, VehicleStock__r.EngineNumber__c, VehicleStock__r.WantedOutDT__c, VehicleStock__r.Product__r.ReleaseDate__c, Contract.Quote__c,' +
+                                ' RealDriverAccount__r.RoadAddress__c, Contract.fm_RealSalesPrice__c, Contract.ContractNumber, VehicleStock__r.Product__c, VehicleStock__r.Length__c, VehicleStock__r.Width__c, VehicleStock__r.Height__c, VehicleStock__r.MaxLoad__c, VehicleStock__r.TotalWeight__c, VehicleStock__r.Product__r.CarAmt__c, VehicleStock__r.Product__r.MaxLoad__c, VehicleStock__r.Product__r.PurePriceWscCfx__c,VehicleStock__r.Name,VehicleStock__r.Product__r.TotalWeight__c, VehicleStock__r.Product__r.Name, VehicleStock__r.Product__r.Segment2__c,' +
+                                ' VehicleStock__r.Product__r.VehicleCategory__r.Name, VehicleStock__r.Displacement__c, VehicleStock__r.TaxType__c, VehicleStock__r.EmissionLevelEu__c, VehicleStock__r.HorsePower__c, Campaign.Name, VehicleStock__r.LongtermDiscountRate__c, VehicleStock__r.OptionDiscountRate__c, VehicleStock__r.SpecialDiscountAmt__c,' +
                                 ' TransferAccount__r.Name ';
         //TotOilCouponAmt__c
         String whereConditions = objName == 'Opportunity' ? ' Id =\''+ recordId + '\'' : ' VehicleStock__c = \'' + recordId + '\'';
@@ -118,6 +118,7 @@ public without sharing class PDFCommonController {
 
     @AuraEnabled
     public static List<ProductOption__c> getProductOption(String productId, Boolean division){
+        
         String obj_fields  = getField(Schema.SObjectType.ProductOption__c.fields.getMap());
         String selectFields = obj_fields + ' ,VehicleOptionMaster__r.Name, VehicleOptionMaster__r.Price__c ';
         String whereConditions = ' Product__c = \'' + productId + '\' and VehicleOptionMaster__r.Division__c ';
@@ -210,7 +211,7 @@ public without sharing class PDFCommonController {
         return new Map<String, Object> {
                 'opportunity' => getOpportunity(recordId),
                 'vehicleStock' => getVehicleStock(recordId),
-                'user' => getUsersByRole('PDI & HandOver TEAM Manager'),
+                'user' => getUsersByRole('HandOver Team'),
                 'mgmtUser' => profileCheck('MTBK Internal'),
                 'saUser' => profileCheck('MTBK Agent')
 

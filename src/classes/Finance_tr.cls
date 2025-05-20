@@ -60,7 +60,9 @@ public without sharing class Finance_tr extends TriggerHandler {
             if(finance.Segment2__c == null)     { finance.AllSegment2__c = true; }
 
             String updateName = '';
-            if(finance.FScompany__c != null) { updateName += finance.FScompany__c + ' '; }
+            String financeName = CommonUtilController.getPicklistLabelForLabel('Finance__c', 'FScompany__c', finance.FScompany__c);
+
+            if(finance.FScompany__c != null) { updateName += financeName + ' '; }
             if(finance.MinimumInterestRate__c != null) { updateName += finance.MinimumInterestRate__c  + ' '; }
             if(finance.MinimumInterestRate__c != null && finance.MaximumInterestRate__c != null) { updateName += '~ '; }
             if(finance.MaximumInterestRate__c != null) { updateName += finance.MaximumInterestRate__c  + ' '; }

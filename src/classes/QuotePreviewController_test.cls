@@ -13,8 +13,11 @@ private class QuotePreviewController_test {
     static final Opportunity opportunity;
 
     static {
-        TestObjectBuilder.createObjects();
-        opportunity = TestObjectBuilder.opportunity;
+        TestObjectBuilder2.createOpportunityBundle();
+        TestObjectBuilder2.createStockBundle();
+        TestObjectBuilder2.createQuoteBundle();
+
+        opportunity = TestObjectBuilder2.opportunity;
     }
 
     @IsTest

@@ -20,11 +20,11 @@ public with sharing class HalfYearlyGoodWillCalculation_ba implements Database.B
     private final Map<Id, Integer> ownerOpportunityCountMap = new Map<Id, Integer>();
     
     public HalfYearlyGoodWillCalculation_ba(Date targetDate) {
-        targetYear = targetDate.month() > 6 ? targetDate.year() : targetDate.year() - 1;
+        // targetYear = targetDate.month() > 6 ? targetDate.year() : targetDate.year() - 1;
+        targetYear = targetDate.year();
         targetMonth = targetDate.month();
-        // 적립 기준 반기 계산(1월 실행 -> 전년 3, 4분기 / 7월 실행 -> 동년 1, 2분기)
-        targetQuarter1 = targetDate.month() > 6 ? 1 : 3;
-        targetQuarter2 = targetDate.month() > 6 ? 2 : 4;
+        targetQuarter1 = targetDate.month() < 7 ? 1 : 3;
+        targetQuarter2 = targetDate.month() < 7 ? 2 : 4;
 
         for (AggregateResult ar : [
             SELECT COUNT(Id) cnt, OwnerId

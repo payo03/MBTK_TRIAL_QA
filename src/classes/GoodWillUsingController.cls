@@ -7,7 +7,7 @@
  * Ver          Date            Author          Modification
  * 1.0          2025-03-13      chaebeom.do     Created
 **************************************************************/
-public with sharing class GoodWillUsingController {
+public without sharing class GoodWillUsingController {
     @AuraEnabled
     public static Map<string, Object> init(String userId){
         Map<String, Object> resultMap = new Map<String, Object>();

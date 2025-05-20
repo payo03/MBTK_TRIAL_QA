@@ -87,6 +87,14 @@ private class TestObjectBuilder2_test {
 
         Test.stopTest();
     }
+    @IsTest
+    static void createContractNotTaxDateBundle() {
+        Test.startTest();
+
+        TestObjectBuilder2.createContractNotTaxDateBundle();
+
+        Test.stopTest();
+    }
 
     @IsTest
     static void createCampaignBundle() {

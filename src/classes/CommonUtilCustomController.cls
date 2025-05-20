@@ -558,4 +558,25 @@ public without sharing class CommonUtilCustomController {
 
         return code;
     }
+
+    /**
+     * @author chaebeom.do@solomontech.net
+     * @param recordId      해제할 레코드 Id    
+     * @description         패러미터로 받은 레코드 잠금 해제
+     */
+    @future
+    public static void unlockRecordAsync(Id recordId) {
+        try {
+            Approval.UnlockResult[] results = Approval.unlock(new Id[] {recordId});
+            for (Approval.UnlockResult result : results) {
+                if (result.isSuccess()) {
+                    System.debug('Record unlocked: ' + result.getId());
+                } else {
+                    System.debug('Failed to unlock record: ' + result.getErrors()[0].getMessage());
+                }
+            }
+        } catch (Exception e) {
+            System.debug('Exception while unlocking: ' + e.getMessage());
+        }
+    }
 }

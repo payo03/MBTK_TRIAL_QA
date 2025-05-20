@@ -15,10 +15,15 @@ private class ContractCancelController_test {
     static final Map<String, List<String>> selectedValue = new Map<String, List<String>>();
 
     static {
-        TestObjectBuilder.createObjects();
-        opportunity = TestObjectBuilder.opportunity;
-        contract = TestObjectBuilder.contract;
-        pdiStepList = TestObjectBuilder.pdiStepList;
+        TestObjectBuilder2.createContractBundle2();
+        insert TestObjectBuilder2.createPaymentTracker();
+        insert TestObjectBuilder2.createPaymentTypeList();
+        insert TestObjectBuilder2.createPaymentLog();
+        insert TestObjectBuilder2.createPDIStep();
+        insert TestObjectBuilder2.createHandover();
+        opportunity = TestObjectBuilder2.opportunity;
+        contract = TestObjectBuilder2.contract;
+        pdiStepList = TestObjectBuilder2.pdiStepList;
         List<String> value1 = new List<String>();
         value1.add('볼보 Volvo');
         List<String> value2 = new List<String>();
@@ -31,6 +36,8 @@ private class ContractCancelController_test {
         selectedValue.put('EconomicReasons__c', value2);
         selectedValue.put('PersonalReasons__c', value3);
         selectedValue.put('TechnicalReasons__c', value4);
+        // selectedValue.put('LostReasonType__c', value4);
+        // selectedValue.put('LostReasonText__c', value4);
     }
 
     @isTest

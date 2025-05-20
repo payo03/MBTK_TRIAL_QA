@@ -10,7 +10,7 @@
 public without sharing class SendLightConsent_sc {
 
     public static void scheduleBatchWithParam(String customerConsentId) {
-        String jobName = 'SendLightConsent_ba(' + customerConsentId + ')';
+        String jobName = 'MTBK_SendLightConsent_ba(' + customerConsentId + ')';
         List<CronTrigger> jobs = [
                 SELECT Id, CronJobDetail.Name
                 FROM CronTrigger

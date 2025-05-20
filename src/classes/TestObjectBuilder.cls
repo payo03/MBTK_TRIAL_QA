@@ -25,7 +25,7 @@ public class TestObjectBuilder {
     @TestVisible static List<AvisOrderInfo__c>          infoList;
     @TestVisible static List<AvisConfig__c>             configList;
     @TestVisible static List<IF_Master__c>              ifMasterList;
-    @TestVisible static List<AssignRequest__c>          requestList;
+    // @TestVisible static List<AssignRequest__c>          requestList;
     @TestVisible static VehicleCategory__c              vehicleCategory;
     @TestVisible static Product2                        product;
     @TestVisible static Pricebook2                      pricebook;
@@ -888,7 +888,6 @@ public class TestObjectBuilder {
                 IsSpecial__c = false,
                 IsOptionDiscount__c = false,
                 LongtermDiscountRate__c = 0.2,
-                SpecialDiscountRate__c = 0,
                 OptionDiscountRate__c = 0,
                 SpecShort__c = 'TGL 10.220 4x2 BL CH',
                 SpoilerPart__c = spoilerList.get(0).Id,
@@ -902,25 +901,25 @@ public class TestObjectBuilder {
         return vehicleStock;
     }
 
-    public static List<AssignRequest__c> createAssignRequestList() {
-        if(requestList == null) {
-            if(opportunity == null) insert createOpportunity();
-            if(vehicleStock == null) insert createVehicleStock();
-            requestList = new List<AssignRequest__c>();
-            for(Integer i = 10; i >= 7; i--) {
-                AssignRequest__c assignRequestObj = new AssignRequest__c();
-                assignRequestObj.Type__c = '계약금 요청';
-                assignRequestObj.RequestDate__c = System.today().addDays(-(i));
-                assignRequestObj.Opportunity__c = opportunity.Id;
-                assignRequestObj.VehicleStock__c = vehicleStock.Id;
+    // public static List<AssignRequest__c> createAssignRequestList() {
+    //     if(requestList == null) {
+    //         if(opportunity == null) insert createOpportunity();
+    //         if(vehicleStock == null) insert createVehicleStock();
+    //         requestList = new List<AssignRequest__c>();
+    //         for(Integer i = 10; i >= 7; i--) {
+    //             AssignRequest__c assignRequestObj = new AssignRequest__c();
+    //             assignRequestObj.Type__c = '계약금 요청';
+    //             assignRequestObj.RequestDate__c = System.today().addDays(-(i));
+    //             assignRequestObj.Opportunity__c = opportunity.Id;
+    //             assignRequestObj.VehicleStock__c = vehicleStock.Id;
 
-                requestList.add(assignRequestObj);
-                System.debug('requestList :: ' + requestList);
-            }
-            System.debug('requestList :: ' + requestList);
-        }
-        return requestList;
-    }
+    //             requestList.add(assignRequestObj);
+    //             System.debug('requestList :: ' + requestList);
+    //         }
+    //         System.debug('requestList :: ' + requestList);
+    //     }
+    //     return requestList;
+    // }
 
     public static VirtualAccountMaster__c createVirtualAccountMaster() {
         if(virtualAccountMaster == null) {
@@ -1713,7 +1712,7 @@ public class TestObjectBuilder {
         if(vehicleCategory == null) insert createVehicleCategory();
 //        if(virtualAccountMaster == null) insert createVirtualAccountMaster();
         if(virtualAccountMasterList == null) insert createVirtualAccountMasterList();
-        if(requestList == null) insert createAssignRequestList();
+        // if(requestList == null) insert createAssignRequestList();
         if(virtualAccount == null) insert createVirtualAccount();
         if(virtualAccountAdvance == null) insert createVirtualAccountAdvance();
         if(templateModuSign == null) insert createTemplateModuSign();

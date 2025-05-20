@@ -16,9 +16,6 @@ public with sharing class QuarterlyIncentiveCalculation_ba implements Database.B
     // 현재 분기 계산
     private final Integer targetQuarter;
 
-    // OwnerId별 Opportunity 개수 저장
-//    private final Map<Id, Integer> ownerOpportunityCountMap = new Map<Id, Integer>();
-
     private Map<Id, Set<Id>> ownerOpportunityIdCountMap = new Map<Id, Set<Id>>();
 
     /**
@@ -30,17 +27,15 @@ public with sharing class QuarterlyIncentiveCalculation_ba implements Database.B
         targetMonth = targetDate.month();
         targetQuarter = (targetMonth - 1) / 3 + 1;
 
-//        for (AggregateResult ar : [
-//            SELECT COUNT(Id) cnt, OwnerId
-//            FROM Opportunity
-//            WHERE CALENDAR_YEAR(TaxInvoiceDate__c) = :targetYear
-//            AND CALENDAR_QUARTER(TaxInvoiceDate__c) = :targetQuarter
-//            AND StageName = 'Closed Won'
-//            GROUP BY OwnerId
-//        ]) {
-//            ownerOpportunityCountMap.put((Id) ar.get('OwnerId'), (Integer) ar.get('cnt'));
-//        }
+        // 계산 전 초기화
+        IncentiveCalculationController.initData([
+            SELECT Id, IncentiveHistoryQuarterly__c, IncentiveHistoryAnnual__c
+            FROM Opportunity
+            WHERE CALENDAR_YEAR(TaxInvoiceDate__c) = :targetYear
+            AND CALENDAR_QUARTER(TaxInvoiceDate__c) = :targetQuarter
+        ]);
 
+        // 완료된 건
         for (Opportunity opportunity : [
             SELECT Id, OwnerId
             FROM Opportunity
@@ -48,6 +43,7 @@ public with sharing class QuarterlyIncentiveCalculation_ba implements Database.B
             AND CALENDAR_QUARTER(TaxInvoiceDate__c) = :targetQuarter
             AND StageName = 'Closed Won'
         ]) {
+            // 소유자별 기회 개수 맵
             ownerOpportunityIdCountMap = IncentiveCalculationController.setOwnerOpportunityIdCountMap(ownerOpportunityIdCountMap, opportunity);
         }
     }
@@ -66,7 +62,6 @@ public with sharing class QuarterlyIncentiveCalculation_ba implements Database.B
 
     public void execute(Database.BatchableContext bc, List<IncentiveTargetMaster__c> recordList) {
 
-//        IncentiveCalculationController.execute(ownerOpportunityCountMap, recordList);
         IncentiveCalculationController.execute(ownerOpportunityIdCountMap, recordList);
     }
 

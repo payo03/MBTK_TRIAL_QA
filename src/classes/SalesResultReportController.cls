@@ -174,17 +174,14 @@ public with sharing class SalesResultReportController {
             Decimal totalloamAmount  = opportunity.fm_TotalLoan__c;
             // 견적 데이터
             if(quote != null){
-                capitalDefermentAmt = setScale(quote.CapitalDefermentAmount__c);
-                defaultInterestRate = String.valueOf(quote.DefaultInterestRate__c) + '%';
+                capitalDefermentAmt   = setScale(quote.CapitalDefermentAmount__c != null ? quote.CapitalDefermentAmount__c : 0);
+                defaultInterestRate   = String.valueOf(quote.DefaultInterestRate__c) + '%';
                 monthDivideInputMonth = String.valueOf(quote.MonthDivideInputMonth__c) + '개월';
-                monthlyPayment = setScale(quote.MonthlyPayment__c);
-                notarizedFee = setScale(quote.fm_NotarizedFee__c);
-                consignmentPrice = setScale(quote.ConsignmentPrice__c);
-                registrationTax = setScale(quote.RegistrationTax__c);
-                totalExtraExpenses = setScale(quote.fm_TotalExtraExpenses__c);
-
-                System.debug('totalloamAmount'+totalloamAmount);
-                System.debug('quote.CapitalDefermentAmount__c'+quote.CapitalDefermentAmount__c);
+                monthlyPayment        = setScale(quote.MonthlyPayment__c != null ? quote.MonthlyPayment__c : 0);
+                notarizedFee          = setScale(quote.fm_NotarizedFee__c != null ? quote.fm_NotarizedFee__c : 0);
+                consignmentPrice      = setScale(quote.ConsignmentPrice__c != null ? quote.ConsignmentPrice__c : 0);
+                registrationTax       = setScale(quote.RegistrationTax__c != null ? quote.RegistrationTax__c : 0);
+                totalExtraExpenses    = setScale(quote.fm_TotalExtraExpenses__c != null ? quote.fm_TotalExtraExpenses__c : 0);
                 totalloanAmountStr = setScale(totalloamAmount + (quote.CapitalDefermentAmount__c == null ? 0 : quote.CapitalDefermentAmount__c));
 
                 if(quote.Finance__c != null){
@@ -218,7 +215,8 @@ public with sharing class SalesResultReportController {
                 Account account = opportunity.Account;
                 Account realDriverAccount = opportunity.RealDriverAccount__c != null ?  opportunity.RealDriverAccount__r : account;
                 name = account.Name;
-                String idNumber = realDriverAccount.IDNumber__pc != null ? realDriverAccount.IDNumber__pc.substring(0, 6) + '-XXXXXXX' : '';
+                String idNumber = realDriverAccount.IDNumber__pc != null && realDriverAccount.IDNumber__pc.length() > 7
+                        ? realDriverAccount.IDNumber__pc.substring(0, 6) + '-XXXXXXX' : '';
                 compRegNum = account.CompRegNum__c == null ? idNumber : account.CompRegNum__c;
                 phoneNumber = account.PersonMobilePhone;
                 realDriver = realDriverAccount.LastName;
@@ -237,14 +235,13 @@ public with sharing class SalesResultReportController {
                     User user = account.Owner;
                     agency = user.Agency__c;
                     salesName = user.Name;
-                    List<CommissionManagement__c> commissionManagements = [SELECT Id,ru_TotalCommissionSum__c FROM CommissionManagement__c WHERE OwnerId =:user.Id ];
+                    List<CommissionHistory__c> commissionHistories = [SELECT Id,fm_NetPaymentTotal__c FROM CommissionHistory__c WHERE Opportunity__c =:opportunity.Id];
                     totalCommissionSum = setScale(0);
-                    if(!commissionManagements.isEmpty()) totalCommissionSum = setScale(commissionManagements[0].ru_TotalCommissionSum__c);
+                    if(!commissionHistories.isEmpty()) totalCommissionSum = setScale(commissionHistories[0].fm_NetPaymentTotal__c);
                 }
             }
             // 입금내역 및 인도금
             if (paymentTracker != null) {
-                System.debug('paymentTracker'+paymentTracker);
                 Decimal totalPaymentPrice = 0;
                 Decimal totaldeferredPrice = 0;
                 deferredPrice = '0원';
@@ -252,7 +249,6 @@ public with sharing class SalesResultReportController {
                 if (!paymentTracker.PaymentTypes__r.isEmpty()) {
                     for (PaymentType__c paymentType : paymentTracker.PaymentTypes__r) {
 
-                        System.debug('paymentType'+paymentType);
                         if (paymentType.Type__c == null) continue;
                         switch on paymentType.Type__c {
                             when '1_DEPOSIT' {
@@ -272,10 +268,6 @@ public with sharing class SalesResultReportController {
                                 totaldeferredPrice += paymentType.RequestAmount__c;
                             }
                             when '4_VAT' {
-                                vatPrice = setScale(paymentType.DepositAmount__c);
-                                totaldeferredPrice += paymentType.RequestAmount__c;
-                            }
-                            when '91_VAT' {
                                 vatPrice = setScale(paymentType.DepositAmount__c);
                                 totaldeferredPrice += paymentType.RequestAmount__c;
                             }

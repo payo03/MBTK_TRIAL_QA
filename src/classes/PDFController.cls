@@ -14,7 +14,8 @@ public without sharing class PDFController {
     @AuraEnabled public static Account acc {get; set;}
     @AuraEnabled public static Opportunity opp {get; set;}
     @AuraEnabled public static Product2 product {get; set;}
-    @AuraEnabled public static VehicleStock__c vehicleStock {get; set;}
+    @AuraEnabled public static List<VehicleStock__c> vehicleStock {get; set;}
+    @AuraEnabled public static String vehicleStockDescription {get; set;}
     @AuraEnabled public static List<QuoteDetail__c> optionList {get; set;}
     @AuraEnabled public static List<QuoteDetail__c> accyList {get; set;}
     @AuraEnabled public static List<QuoteDetail__c> warrantyList {get; set;}
@@ -54,13 +55,18 @@ public without sharing class PDFController {
                 fm_DefermentVAT__c, fm_TotalLoanAmount__c, CapitalDefermentAmount__c, 
                 MonthlyPayment__c, fm_NotarizedFee__c, ConsignmentPrice__c,
                 RegistrationTax__c // financial 금액
-                // fm_RegistrationTax__c // financial 금액
                 FROM Quote 
                 WHERE Id = :recordId];
             acc = [SELECT Id, Name FROM Account WHERE Id = :quote.AccountId];
             opp = [SELECT Id, VATDefermentStatus__c, PaymentDeferredAmount__c FROM Opportunity WHERE Id = :quote.OpportunityId];
             vehicleStock = [SELECT Id, HorsePower__c, EngineRange__c FROM VehicleStock__c WHERE Id = :quote.VehicleStock__c];
-            System.debug('vehicleStock :: ' + vehicleStock);
+            if (vehicleStock.size() != 0 && lan == 'KR') {
+                vehicleStockDescription = vehicleStock[0].HorsePower__c +'마력의 ' + vehicleStock[0].EngineRange__c + ' 엔진과 ';
+            } else if (vehicleStock.size() != 0 && lan == 'EN') {
+                vehicleStockDescription = 'a ' + vehicleStock[0].EngineRange__c + ' engine with ' + vehicleStock[0].HorsePower__c + ' hp and ';
+            } else {
+                vehicleStockDescription = '';
+            }
             String productId = quote.Product__c;
             product = [SELECT Id, Name, toLabel(EmissionLevel__c) FROM Product2 WHERE Id = :productId];
 
@@ -118,9 +124,10 @@ public without sharing class PDFController {
                 WHERE Quote__c = :recordId
                 AND VehicleOptionMaster__r.Division__c = '서비스품목'];
             System.debug('warrantyList :: ' + warrantyList);
-
+            
             if(!warrantyList.isEmpty()) {
                 for (QuoteDetail__c warranty : warrantyList) {
+                    System.debug('no carefree :: ' + warranty.VehicleOptionMaster__r.isRequired__c);
                     if (warranty.VehicleOptionMaster__r.isRequired__c) continue; // no carefree면 스킵
                     warrantyDetail = new Map<String, String>{
                         '초기점검:4,000~5,000km' => warranty.VehicleOptionMaster__r.ServiceItemsMaster__r.firstCheck__c,
@@ -138,6 +145,7 @@ public without sharing class PDFController {
                     // warrantyDetailList?.add(warrantyDetail2);
                     // System.debug('test warrantyDetailList :: ' + warrantyDetailList); <- Attempt to de-reference a null object 왜?
                 }
+                System.debug('null check :: ' + warrantyDetail);
             }    
 
             // price break down에 들어갈 금액 계산해서 보냄

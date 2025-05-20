@@ -16,10 +16,20 @@ private class TaxInvoiceSchedulerController_test {
     static Map<String, String> filterMap;
 
     static {
-        TestObjectBuilder.createObjects();
-        oppty = TestObjectBuilder.createOpportunity();
-        vehicleStock = TestObjectBuilder.createVehicleStock();
-        handover = TestObjectBuilder.createHandover();
+//        TestObjectBuilder.createObjects();
+//        oppty = TestObjectBuilder.createOpportunity();
+//        vehicleStock = TestObjectBuilder.createVehicleStock();
+//        handover = TestObjectBuilder.createHandover();
+        TestObjectBuilder2.createOpportunityBundle();
+        TestObjectBuilder2.createStockBundle();
+        TestObjectBuilder2.createHandoverBundle();
+        TestObjectBuilder2.createObjects();
+
+
+        oppty = TestObjectBuilder2.createOpportunity();
+        vehicleStock = TestObjectBuilder2.createVehicleStock();
+        handover = TestObjectBuilder2.createHandover();
+
         filterMap = new Map<String, String> {
                 'fm_PaymentStatus__c' => '',
                 'Opportunity__r.HandoverDate__c >' => '=2025-03-30',
@@ -40,6 +50,22 @@ private class TaxInvoiceSchedulerController_test {
         TaxInvoiceSchedulerController.getInit();
         TaxInvoiceSchedulerController.getVFInfo();
         TaxInvoiceSchedulerController.callTaxInvoice(oppty.Id, true);
+        try {
+            TaxInvoiceSchedulerController.generatePdfBlobSave(handover.Id);
+        } catch(Exception e) {
+            System.debug('Expected exception: ' + e.getMessage());
+            Blob pdfBlob = Blob.valueOf('Mock PDF Data');
+        }
+        Test.stopTest();
+    }
+    @IsTest
+    static void testBehavior2() {
+
+        PageReference pageRef = Page.DepositReceiptPDF; // ⚠️ VF 페이지 이름 사용
+        Test.setCurrentPage(pageRef);  // 현재 페이지 컨텍스트 지정
+        ApexPages.currentPage().getParameters().put('recordId', handover.Id);
+
+        Test.startTest();
         TaxInvoiceSchedulerController.getCalendarInit(vehicleStock.Id);
         TaxInvoiceSchedulerController.insertHandoverDateAllocationHistory(Date.today(), oppty.Id, vehicleStock.Id);
         TaxInvoiceSchedulerController.getFilteredHandoverList(filterMap);

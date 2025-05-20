@@ -9,6 +9,36 @@
 **************************************************************/
 public with sharing class IncentiveCalculationController {
 
+    /**
+     * @author th.kim
+     * @description 인센티브 계산 전 기존 인센티브 데이터 초기화 (연월 외에 조건을 주면 조건에 해당되지 않으면 계산 안되므로 해당 연월 전부 재계산)
+     * @param initOpportunityList 초기화할 대상 기회 리스트
+     */
+    public static void initData(List<Opportunity> initOpportunityList) {
+        Set<Id> historyIdSet = new Set<Id>();
+        for (Opportunity opportunity : initOpportunityList) {
+            historyIdSet.add(opportunity.IncentiveHistoryQuarterly__c);
+            historyIdSet.add(opportunity.IncentiveHistoryAnnual__c);
+            opportunity.IncentiveHistoryQuarterly__c = null;
+            opportunity.IncentiveHistoryAnnual__c = null;
+        }
+        update initOpportunityList;
+
+        List<IncentiveHistory__c> initIncentiveHistoryList = [SELECT Id, SalesCount__c FROM IncentiveHistory__c WHERE Id IN :historyIdSet];
+        for (IncentiveHistory__c history : initIncentiveHistoryList) {
+            history.SalesCount__c = 0;
+        }
+        update initIncentiveHistoryList;
+    }
+
+    /**
+     * @author th.kim
+     * @description 소유자별 기회 개수 맵 생성
+     * @param ownerOpportunityIdCountMap 소유자별 기회 개수 맵
+     * @param opportunity 기회 객체 데이터
+     *
+     * @return 소유자별 기회 개수 맵
+     */
     public static Map<Id, Set<Id>> setOwnerOpportunityIdCountMap(Map<Id, Set<Id>> ownerOpportunityIdCountMap, Opportunity opportunity) {
 
         if (ownerOpportunityIdCountMap.get(opportunity.OwnerId) == null) {
@@ -22,10 +52,9 @@ public with sharing class IncentiveCalculationController {
     /**
      * @author th.kim
      * @description 영업사원별 달성 인센티브 목표에 따른 금액 계산
-     * @param ownerOpportunityCountMap 유저별 Opportunity 개수 저장 맵
+     * @param ownerOpportunityIdCountMap 유저별 Opportunity 개수 저장 맵
      * @param targetMasterList 인센티브 타겟 마스터 리스트
      */
-//    public static void execute(Map<Id, Integer> ownerOpportunityCountMap, List<IncentiveTargetMaster__c> targetMasterList) {
     public static void execute(Map<Id, Set<Id>> ownerOpportunityIdCountMap, List<IncentiveTargetMaster__c> targetMasterList) {
 
         Map<Id, IncentiveTargetMaster__c> ownerTargetMap = new Map<Id, IncentiveTargetMaster__c>();

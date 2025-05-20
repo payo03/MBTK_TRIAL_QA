@@ -16,7 +16,7 @@
 public with sharing class HalfYearlyGoodWillCalculation_sc implements Schedulable {
 
     public void execute(SchedulableContext sc) {
-        HalfYearlyGoodWillCalculation_ba batch = new HalfYearlyGoodWillCalculation_ba(Date.today());
+        HalfYearlyGoodWillCalculation_ba batch = new HalfYearlyGoodWillCalculation_ba(Date.today().addMonths(-6));
         Database.executeBatch(batch);
     }
 }

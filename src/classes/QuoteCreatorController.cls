@@ -206,7 +206,6 @@ public without sharing class QuoteCreatorController {
             if (String.isNotBlank(quoteId)) quote = getCurrentQuote();
 
             productId = product.id;
-
             // 추가할인 차량 선택 안했을 시 차량 할당
             if (String.isBlank(stockId)) {
                 stockId = [
@@ -362,7 +361,7 @@ public without sharing class QuoteCreatorController {
                 }
             }
 
-            // // 견적 세부사항, Line Item 생성
+            // 견적 세부사항, Line Item 생성
             if (!quoteDetailList.isEmpty()) insert quoteDetailList;
             if (!quoteLineItemList.isEmpty()) insert quoteLineItemList;
 
@@ -558,7 +557,7 @@ public without sharing class QuoteCreatorController {
 
         List<Opportunity> oppList = [
             SELECT Id, Name, AccountId, Account.Name, OwnerId, Owner.Name, Owner.MobilePhone, Owner.Email, Owner.Fax,
-                VATDefermentStatus__c, VATDeferredDays__c, PaymentDeferredAmount__c, (SELECT Product2Id FROM OpportunityLineItems ORDER BY CreatedDate DESC)
+                VATDefermentStatus__c, PaymentDefermentStatus__c, TaxDeferredAmount__c, PaymentDeferredAmount__c, VATDeferredDays__c, (SELECT Product2Id FROM OpportunityLineItems ORDER BY CreatedDate DESC)
             FROM Opportunity
             WHERE Id = :oppId
             LIMIT 1
@@ -618,7 +617,7 @@ public without sharing class QuoteCreatorController {
 
         List<Product2> productList = [
             SELECT Id, Name, CarAmt__c, Segment2__c, LocalYear__c, ModelYear__c, (
-                SELECT Id, toLabel(CarColor__c), ModelYear__c, LongtermDiscountRate__c, SpecialDiscountRate__c, OptionDiscountRate__c, Deviation__c, Remarks__c
+                SELECT Id, toLabel(CarColor__c), ModelYear__c, LongtermDiscountRate__c, SpecialDiscountAmt__c, OptionDiscountRate__c, Deviation__c, Remarks__c
                 FROM VehicleStock__r
                 WHERE Status__c = '재고 노출'
                 AND (
@@ -649,7 +648,7 @@ public without sharing class QuoteCreatorController {
         );
         for (VehicleStock__c stock : item.VehicleStock__r) {
             stock.LongtermDiscountRate__c = stock.LongtermDiscountRate__c != null ? stock.LongtermDiscountRate__c / 100 : 0;
-            stock.SpecialDiscountRate__c = stock.SpecialDiscountRate__c != null ? stock.SpecialDiscountRate__c / 100 : 0;
+            stock.SpecialDiscountAmt__c = stock.SpecialDiscountAmt__c != null ? stock.SpecialDiscountAmt__c : 0;
             stock.OptionDiscountRate__c = stock.OptionDiscountRate__c != null ? stock.OptionDiscountRate__c / 100 : 0;
         }
         productWrap.stockList = item.VehicleStock__r;

@@ -55,20 +55,20 @@ public with sharing class DefermentRequestNoti_ba implements Database.Batchable<
     public void finish(Database.BatchableContext context) {
         System.debug('Finish');
 
-        String titleMessage;
-        String bodyMessage;
-        List<Opportunity> listOpp = [SELECT Id, Name, OwnerId FROM Opportunity WHERE HandoverDate__c = :dueDate];
+        // String titleMessage;
+        // String bodyMessage;
+        // List<Opportunity> listOpp = [SELECT Id, Name, OwnerId FROM Opportunity WHERE HandoverDate__c = :dueDate];
 
-        System.debug('listOpp ::: ' + listOpp);
+        // System.debug('listOpp ::: ' + listOpp);
 
-        for (Opportunity opportunity : listOpp) {
-            titleMessage = '기회의 출고일 3일전 알림';
-            bodyMessage = '[' + opportunity.Name + '] 출고일이 3일전입니다.';
-            sendNotification(titleMessage, bodyMessage, notificationTypeId, opportunity.Id, new Set<String>{
-                opportunity.OwnerId
-            });
-        }
-        System.debug('여기는 유예요청 상관없이 기회의 출고일 3일전 알림' );
+        // for (Opportunity opportunity : listOpp) {
+        //     titleMessage = '기회의 출고일 3일전 알림';
+        //     bodyMessage = '[' + opportunity.Name + '] 출고일이 3일전입니다.';
+        //     sendNotification(titleMessage, bodyMessage, notificationTypeId, opportunity.Id, new Set<String>{
+        //         opportunity.OwnerId
+        //     });
+        // }
+        // System.debug('여기는 유예요청 상관없이 기회의 출고일 3일전 알림' );
     }
 
     public void execute(SchedulableContext context) {

@@ -11,6 +11,8 @@
 private class Opportunity_tr_test {
     @TestSetup
     static void setup() {
+        insert TestObjectBuilder2.createApprovalHierarchyPaymentDeferred();
+        TestObjectBuilder2.createUser();
         TestObjectBuilder2.createIfBundle();
         TestObjectBuilder2.createConsentBundle();
         TestObjectBuilder2.createStockBundle();
@@ -27,25 +29,42 @@ private class Opportunity_tr_test {
         System.debug('lead::'+lead);
 
         List<Opportunity> opportunities = [
-                SELECT Id, VATDefermentStatus__c, PaymentDefermentStatus__c, AccountId, Account.LastName, Account.PersonMobilePhone
+                SELECT Id, VATDefermentStatus__c, OwnerId, PaymentDefermentStatus__c, AccountId, Account.LastName, Account.PersonMobilePhone, PaymentDeferredApprover1__c, PaymentDeferredApprover2__c, PaymentDeferredApprover3__c
                 FROM Opportunity
         ];
-        System.debug('opportunities::'+opportunities);
-        List<VehicleStock__c> stockList = [SELECT Id FROM VehicleStock__c];
+
+        List<VehicleStock__c> stockList = [SELECT Id,LongTermStock__c,IsSpecial__c,IsOptionDiscount__c FROM VehicleStock__c];
+
+        // Oppty Owner와 다른 User가 Owner여야 차량배정 Noti가 발송됨
+        User diffUser = [SELECT Id FROM User WHERE Id !=:opportunities[0].OwnerId AND IsActive = TRUE LIMIT 1];
+        System.runAs(diffUser){
+            Quote quote = new Quote(
+                    VehicleStock__c = stockList[0].Id,
+                    OpportunityId = opportunities[0].Id
+            );
+
+            insert quote;
+        }
 
         for(Opportunity opportunity : opportunities) {
             customerConsent.Opportunity__c = opportunity.Id;
             opportunity.VATDefermentStatus__c = '승인됨';
-            opportunity.PaymentDefermentStatus__c = '반려됨';
+            // opportunity.PaymentDefermentStatus__c = '반려됨';
 
             Approval.ProcessSubmitRequest request = new Approval.ProcessSubmitRequest();
 
             request.setObjectId(opportunity.Id);
             request.setSubmitterId(UserInfo.getUserId());
             request.setProcessDefinitionNameOrId('PaymentDeferred');
+//            request.setProcessDefinitionNameOrId('VATDeferred');  // 송찬영. 수정하시오
             request.setComments('test');
 
             Approval.ProcessResult submitResult = Approval.process(request);
+            opportunity.VehicleStock__c = null;
+            opportunity.PaymentDeferredApprover1__c = UserInfo.getUserId();
+            opportunity.PaymentDeferredApprover2__c = UserInfo.getUserId();
+            opportunity.PaymentDeferredApprover3__c = UserInfo.getUserId();
+
             List<ProcessInstanceWorkitem> workitems = [
                     SELECT Id, ProcessInstance.Status
                     FROM ProcessInstanceWorkitem
@@ -59,8 +78,6 @@ private class Opportunity_tr_test {
                 workitemRequest.setWorkitemId(workitem.Id);
                 Approval.ProcessResult workitemResult = Approval.process(workitemRequest);
             }
-
-            opportunity.VehicleStock__c = null;
         }
         update opportunities;
         update customerConsent;
@@ -78,6 +95,7 @@ private class Opportunity_tr_test {
         for(Opportunity opportunity : opportunities) {
             opportunity.IsLockConsent__c = true;
             opportunity.StageName = 'Negotiation';
+            opportunity.PaymentStatus__c = 'COMPLETE';
         }
 
         update opportunities;

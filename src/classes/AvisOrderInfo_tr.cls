@@ -56,14 +56,16 @@ public without sharing class AvisOrderInfo_tr extends TriggerHandler {
         for(AvisOrderInfo__c newInfo : newList) {
             keyMap.put(newInfo.OrderIntakeNo__c, newInfo);
 
-            // ver1.4 CabColor값에 따라 CarColor데이터 Update
-            String cabColor = newInfo.Cab_Color__c.toUpperCase();
-            Integer idx = cabColor.indexOf('RAL');
-            String cabColorKey = idx != -1 ? cabColor.substring(0, idx).trim() : cabColor;
-            for(String key : CAR_COLOR_MAP.keySet()) {
+            if(newInfo.Cab_Color__c != null) {
+                // ver1.4 CabColor값에 따라 CarColor데이터 Update
+                String cabColor = newInfo.Cab_Color__c.toUpperCase();
+                Integer idx = cabColor.indexOf('RAL');
+                String cabColorKey = idx != -1 ? cabColor.substring(0, idx).trim() : cabColor;
+                for (String key : CAR_COLOR_MAP.keySet()) {
 
-                if(key.toUpperCase().contains(cabColorKey)) newInfo.CarColor__c = key;
-                if(newInfo.CarColor__c != null) break;
+                    if (key.toUpperCase().contains(cabColorKey)) newInfo.CarColor__c = key;
+                    if (newInfo.CarColor__c != null) break;
+                }
             }
         }
 

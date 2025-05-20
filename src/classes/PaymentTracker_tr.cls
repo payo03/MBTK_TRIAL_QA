@@ -117,6 +117,7 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
         // 가져온 PaymentTractker 아래에 연결된 PaymentLog를 가져와
         // 새롭게 생성한 PaymentTractker__c에 연결하기
 
+        final String OVER_PAID_KEY = '90_OVER_PAID';
         Map<String, String> curOpptyMap = new Map<String, String>();
         for (PaymentTracker__c newPT : newList) {
             PaymentTracker__c oldPT = oldMap.get(newPT.Id);
@@ -142,7 +143,7 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
         // 신규 TrackerMap
         Map<String, List<PaymentType__c>> curTypeMap = new Map<String, List<PaymentType__c>>();
         for (PaymentType__c type : [
-                SELECT Id, Type__c, RequestAmount__c, DepositAmount__c, PaymentTracker__c
+                SELECT Id, Type__c, RequestAmount__c, DepositAmount__c, PaymentTracker__c, fm_LeftAmount__c
                 FROM PaymentType__c
                 WHERE PaymentTracker__c IN :curOpptyMap.keySet()
         ]) {
@@ -179,16 +180,7 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
         for (PaymentTracker__c newPT : newList) {
             PaymentTracker__c oldTracker = expiredPaymentTrackerMap.get(newPT.Opportunity__c);
             if(oldTracker != null) {
-
-                // newPT.Status__c = oldTracker.StatusBeforeCancel__c;
-                PaymentTracker__c curPT = new PaymentTracker__c(
-                    Id = newPT.Id,
-                    Status__c = oldTracker.StatusBeforeCancel__c
-                );
-                updateTrackerList.add(curPT);
-
                 Decimal remainingAmount = sumPaymentLogMap.get(newPT.Id);
-                System.debug('paymentTracker 트리거 체크 :: ' + curTypeMap);
                 for (PaymentType__c type : curTypeMap.get(newPT.Id)) {
                     if (remainingAmount <= 0) break;
 
@@ -201,8 +193,27 @@ public without sharing class PaymentTracker_tr extends TriggerHandler {
                 }
             }
         }
-
-        if (!updateTrackerList.isEmpty()) update updateTrackerList;
         if (!updateTypeList.isEmpty()) update updateTypeList;
+
+        for (PaymentTracker__c newPT : newList) {
+            PaymentTracker__c oldTracker = expiredPaymentTrackerMap.get(newPT.Opportunity__c);
+            if(oldTracker != null) {
+                String adjustStatus;
+                for (PaymentType__c type : curTypeMap.get(newPT.Id)) {
+                    if (type.fm_LeftAmount__c == 0) {
+                        adjustStatus = type.UpdateStage__c;                                     // 가장 마지막 UpdateStage 조회
+                    } else {
+                        if (OVER_PAID_KEY.equals(type.Type__c) && type.DepositAmount__c > 0) adjustStatus = 'OVER_PAID'; // 초과금 납부 Case
+                        break;                                                                  // Update 대상 OUT
+                    }
+                }
+                PaymentTracker__c curPT = new PaymentTracker__c(
+                    Id = newPT.Id,
+                    Status__c = adjustStatus
+                );
+                updateTrackerList.add(curPT);
+            }
+        }
+        if (!updateTrackerList.isEmpty()) update updateTrackerList;
     }
 }
