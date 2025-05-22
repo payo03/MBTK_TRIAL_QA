@@ -21,7 +21,7 @@ public without sharing class Product2_tr extends TriggerHandler {
 
     public static final Map<String, String> CAB_MARK_LBL_MAP = CommonUtilController.getPickListMap('Product2', 'CabMark__c', true);
     public static final Map<String, String> WHEEL_BASE_LBL_MAP = CommonUtilController.getPickListMap('Product2', 'WheelBase__c', true);
-    public static final Map<String, String> TRIM_LEVEL_LBL_MAP = CommonUtilController.getPickListMap('Product2', 'WheelBase__c', true);
+    public static final Map<String, String> TRIM_LEVEL_LBL_MAP = CommonUtilController.getPickListMap('Product2', 'TrimLevel__c', true);
 
     public Product2_tr() {
         newList = (List<Product2>)    Trigger.new;

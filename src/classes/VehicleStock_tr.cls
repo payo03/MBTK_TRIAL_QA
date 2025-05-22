@@ -10,6 +10,7 @@
  * 1.2          2025-02-17      payo03@solomontech.net          사전배정 관련프로세스 삭제
  * 1.3          2025-03-10      th.kim                          createCommissionHistory() 추가
  * 1.4          2025-04-29      th.kim                          재고 증감 로직 수정 및 리팩토링 (특정 조건에서만 수량 차감 -> 상태 변경시 기존 상태 수량 차감)
+ * 1.5          2025-05-21      payo03@solomontech.net          배치 프로세스 반영
 *********************************************************************************************************/
 public without sharing class VehicleStock_tr extends TriggerHandler {
 
@@ -37,9 +38,12 @@ public without sharing class VehicleStock_tr extends TriggerHandler {
     }
 
     public override void afterUpdate() {
+        // ver1.5 배치 프로세스 반영
+        Boolean isAsync = (System.isBatch() || System.isFuture() || System.isQueueable());
+
         adjustStock();
         updateHandover();
-        processCommissionHistory();
+        if(!isAsync) processCommissionHistory();
 //        createSpecialProduct();
     }
 
