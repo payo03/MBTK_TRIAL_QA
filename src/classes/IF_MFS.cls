@@ -136,10 +136,6 @@ global without sharing class IF_MFS {
                     Opportunity oppty = new Opportunity(Id = quote.OpportunityId);
 
                     oppty.VATAmount__c = Decimal.valueOf(responseInfo.mfsVatAmt);       // 대상부가세 유예 금액(MFS)
-                    oppty.VATExpiredDate__c = Date.valueOf(CommonUtilController.stringToDate(responseInfo.mfsVatDt));      // 부가세 유예 만기일(MFS)
-                    oppty.LoanExecuteDate__c = Date.valueOf(CommonUtilController.stringToDate(responseInfo.exctDt));       // 대출 실행일자(MFS)
-                    oppty.ContractNo__c = responseInfo.cntrNo;                          // TFS 계약번호(MFS)
-                    oppty.ConsentNo__c = responseInfo.mtbkCnsnNo;                       // MTBK 품의번호(MFS)
                     update oppty;
 
                     quote.IsApproveLoan__c = true;
@@ -147,11 +143,11 @@ global without sharing class IF_MFS {
                 when 'E' {
                     Opportunity oppty = new Opportunity(Id = quote.OpportunityId);
 
-                    oppty.VATAmount__c = Decimal.valueOf(responseInfo.mfsVatAmt);       // 대상부가세 유예 금액(MFS)
-                    oppty.VATExpiredDate__c = Date.valueOf(CommonUtilController.stringToDate(responseInfo.mfsVatDt));      // 부가세 유예 만기일(MFS)
-                    oppty.LoanExecuteDate__c = Date.valueOf(CommonUtilController.stringToDate(responseInfo.exctDt));       // 대출 실행일자(MFS)
-                    oppty.ContractNo__c = responseInfo.cntrNo;                          // TFS 계약번호(MFS)
-                    oppty.ConsentNo__c = responseInfo.mtbkCnsnNo;                       // MTBK 품의번호(MFS)
+                    oppty.VATAmount__c = Decimal.valueOf(responseInfo.mfsVatAmt);                                           // 대상부가세 유예 금액(MFS)
+                    oppty.VATExpiredDate__c = Date.valueOf(CommonUtilController.stringToDate(responseInfo.mfsVatDt));       // 부가세 유예 만기일(MFS)
+                    oppty.LoanExecuteDate__c = Date.valueOf(CommonUtilController.stringToDate(responseInfo.exctDt));        // 대출 실행일자(MFS)
+                    oppty.ContractNo__c = responseInfo.cntrNo;                                                              // TFS 계약번호(MFS)
+                    oppty.ConsentNo__c = responseInfo.mtbkCnsnNo;                                                           // MTBK 품의번호(MFS)
                     update oppty;
                 }
                 // TODO. 보완요청이면 Canceled를 하는게 맞음?? 파일만 주면 될꺼같은데 대기상태로 해야하지 않나

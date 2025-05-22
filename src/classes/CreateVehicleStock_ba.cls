@@ -240,6 +240,7 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
             stockList.add(stock);
             vehicleNoMap.put(stock.Name, info);
 
+            String localYear = info.MY__c != null ? info.MY__c : info.LocalYear__c;
             String key = info.fm_SpecShort__c +
                     SEGMENT1_MAP.get(info.fm_Segment1__c) +
                     SEGMENT2_MAP.get(info.fm_Segment2__c) +
@@ -251,7 +252,7 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
                     Boolean.valueOf(info.IsPTO__c > 0) +
 //                    Boolean.valueOf(info.IsSpoiler__c > 0) +  // ver2.0 Product Key : IsSpoiler여부 제거
                     info.ModelYear__c +
-                    info.LocalYear__c +
+                    localYear +
                     info.fm_Generation__c;
             keyMap.put(key, info);
         }
@@ -376,6 +377,7 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
 
                 Product2 p2Obj = new Product2();
                 p2Obj.VehicleCategory__c = vehicleKeyMap.get(ERPCode).Id;
+                String localYear = info.MY__c != null ? info.MY__c : info.LocalYear__c;
 
                 p2Obj.Segment1__c = SEGMENT1_MAP.get(info.fm_Segment1__c);
                 p2Obj.Segment2__c = SEGMENT2_MAP.get(info.fm_Segment2__c);
@@ -392,7 +394,7 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
                 p2Obj.IsHypoid__c = info.IsHypoid__c > 0;
 
                 p2Obj.ModelYear__c = String.valueOf(info.ModelYear__c);
-                p2Obj.LocalYear__c = info.LocalYear__c;
+                p2Obj.LocalYear__c = localYear;
                 p2Obj.Generation__c = info.fm_Generation__c;
 
                 p2Obj.SpecShort__c = info.fm_SpecShort__c;
@@ -418,6 +420,8 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
         List<String> workNoList = new List<String>();
         for (VehicleStock__c stock : stockList) {
             AvisOrderInfo__c info = vehicleNoMap.get(stock.Name);
+
+            String localYear = info.MY__c != null ? info.MY__c : info.LocalYear__c;
             String p2Key = info.fm_SpecShort__c +
                     SEGMENT1_MAP.get(info.fm_Segment1__c) +
                     SEGMENT2_MAP.get(info.fm_Segment2__c) +
@@ -429,7 +433,7 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
                     Boolean.valueOf(info.IsPTO__c > 0) +
 //                    Boolean.valueOf(info.IsSpoiler__c > 0) +  // ver2.0 Product Key : IsSpoiler여부 제거
                     info.ModelYear__c +
-                    info.LocalYear__c +
+                    localYear +
                     info.fm_Generation__c;
 
             stock.Product__c = p2KeyMap.get(p2Key).Id;
@@ -608,7 +612,7 @@ public without sharing class CreateVehicleStock_ba implements Database.Batchable
         return 'Id, fm_Segment1__c, fm_SpecShort__c, CabMark__c, IntarderOption__c, WheelBase__c, TrimLevel__c, EmissionLevelEu__c, ' +
                 'fm_Segment2__c, fm_ProductionSite__c, fm_Generation__c, fm_Kind__c, fm_TRPCategory__c, fm_IsDeck__c, ' +
                 'fm_PurchaseInvoiceSAP__c, fm_SpoilerCode__c, fm_SpoilerText__c, fm_CabColor__c, ' +
-                'SendTo__c, Suffix__c, Ship__c, HorsePower__c, Leading_Axle__c, CarColor__c, ModelYear__c, LocalYear__c, ' +
+                'SendTo__c, Suffix__c, Ship__c, HorsePower__c, Leading_Axle__c, CarColor__c, ModelYear__c, LocalYear__c, MY__c, ' +
                 'BLDocumentNo__c, ChassisFrameNo__c, VehicleNo__c, InvoiceNumber__c, ' +
                 'IsCompleted__c, IsSpoiler__c, isHypoid__c, isPTO__c, Optiview__c, LION_S__c, ' +
                 'Priority__c, KblColumn__c, Destination__c, DriveConcept__c, Overhang__c, ' +
