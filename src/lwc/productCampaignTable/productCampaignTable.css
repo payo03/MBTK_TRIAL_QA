@@ -15,10 +15,16 @@
 
 .product-table {
   height: 250px;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
 }
 
 .campaign-table {
   height: 200px;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
 }
 
 .table-end {

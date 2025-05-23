@@ -1,15 +1,15 @@
 @IsTest
 public with sharing class ConnectionToProductOptionController_test {
     
-    static final Product2 product;
+    // static final Product2 product;
     static final ProductOption__c productOption;
     static final VehicleOptionMaster__c option;
 
     static {
-        TestObjectBuilder.createObjects();
-        product = TestObjectBuilder.product;
-        productOption = TestObjectBuilder.productOption;
-        option = TestObjectBuilder.option;
+        // TestObjectBuilder.createObjects();
+        // product = TestObjectBuilder.createProduct();
+        productOption = TestObjectBuilder.createProductOption();
+        option = TestObjectBuilder.createOption();
     }
 
     @IsTest
@@ -17,13 +17,21 @@ public with sharing class ConnectionToProductOptionController_test {
 
         Test.startTest();
 
-        ConnectionToProductOptionController.getInitData();
+        ConnectionToProductOptionController.getInitData(option.Id);
 
         Test.stopTest();
     }
 
     @IsTest
     static void testSaveProductsToOption() {
+
+        Product2 product = new Product2(
+            Name = 'TGS 33.460 8X4-4 BB M 3300 STANDARD',
+            Segment2__c = 'TPP',
+            SpecShort__c = 'TGS 33.460 8X4-4 BB',
+            ISDiscontinued__c = false
+        );
+        insert product;
 
         Test.startTest();
         List<Id> listProduct = new List<Id>();
@@ -39,8 +47,9 @@ public with sharing class ConnectionToProductOptionController_test {
         Test.startTest();
 
         Map<String, String> filterMap = new Map<String, String>{
-            'Segment2__c' => 'TGS',
-            'SpecShort__c' => 'TGS'
+            'Segment2__c' => 'TPP',
+            'Name ' => 'TGS 33.460 8X4-4 BB M 3300 STANDARD',
+            'SpecShort__c' => 'TGS 33.460 8X4-4 BB'
         };
 
         ConnectionToProductOptionController.getFilteredProductList(filterMap);

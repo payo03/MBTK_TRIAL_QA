@@ -4,16 +4,13 @@
 .container {
     display: flex;
     flex-direction: column;
-    /* height: 100%; */
     width: 100%;
-    /* overflow: hidden; 자식 요소에서 스크롤 방지 */
 }
 
 /* Content Section */
 .content-section {
     display: flex;
     flex: 1; /* 나머지 높이 차지 */
-    /* overflow: hidden; 부모 영역을 넘지 않도록 설정 */
     height: 93%
 }
 
@@ -23,7 +20,6 @@
 
 /* Left Section */
 .left-section {
-    flex: 1.5; /* 2:8 비율 */
     background-color: #f4f4f4;
     border-right: 1px solid #ddd;
     border: 0;
@@ -35,8 +31,6 @@
 
 /* Right Section */
 .right-section {
-    flex: 8.5; /* 2:8 비율 */
-    /* overflow-y: hidden; 콘텐츠가 넘칠 때만 세로 스크롤 */
     height: 100%; /* 부모의 높이와 동일 */
 }
 
@@ -64,4 +58,32 @@
 
 .slds-page-header__name h1 {
     line-height: normal !important;
+}
+
+/* PC, Mobile 화면비율 체크 */
+@media screen and (min-width: 1024px) {
+    .left-section {
+        width: 15%;
+    }
+    .right-section {
+        width: 85%;
+    }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+    .left-section {
+        width: 20%;
+    }
+    .right-section {
+        width: 80%;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .left-section {
+        width: 30%;
+    }
+    .right-section {
+        width: 70%;
+    }
 }

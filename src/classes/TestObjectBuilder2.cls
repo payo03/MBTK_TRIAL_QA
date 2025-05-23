@@ -25,7 +25,6 @@ public class TestObjectBuilder2 {
     @TestVisible static List<AvisOrderInfo__c>          infoList;
     @TestVisible static List<AvisConfig__c>             configList;
     @TestVisible static List<IF_Master__c>              ifMasterList;
-    @TestVisible static List<AssignRequest__c>          requestList;
     @TestVisible static VehicleCategory__c              vehicleCategory;
     @TestVisible static Product2                        product;
     @TestVisible static Pricebook2                      pricebook;
@@ -38,8 +37,10 @@ public class TestObjectBuilder2 {
     @TestVisible static CampaignJunction__c             campaignJunction;
     @TestVisible static Contract                        contract;
     @TestVisible static Contract                        contractAdvance;
+    @TestVisible static Contract                        contractNotTaxDate;
     @TestVisible static Opportunity                     opportunity;
     @TestVisible static Opportunity                     opportunityAdvance;
+    @TestVisible static Opportunity                     opportunityNotTaxDate;
     @TestVisible static VehicleStock__c                 vehicleStock;
     @TestVisible static VirtualAccountMaster__c         virtualAccountMaster;
     @TestVisible static List<VirtualAccountMaster__c>   virtualAccountMasterList;
@@ -50,6 +51,8 @@ public class TestObjectBuilder2 {
     @TestVisible static List<TemplateButton__c>         templateButtonList;
     @TestVisible static APIDocument__c                  apiDocument;
     @TestVisible static Quote                           quote;
+    @TestVisible static Quote                           quoteDraft;
+    @TestVisible static Quote                           quotePublish;
     @TestVisible static Quote                           quoteCopy;
     @TestVisible static Contact                         contact;
     @TestVisible static VehicleOptionMaster__c          option;
@@ -83,11 +86,14 @@ public class TestObjectBuilder2 {
     @TestVisible static GoodWillUsing__c                goodWillUsing;
     @TestVisible static List<PDIStep__c>                pdiStepList;
     @TestVisible static ApprovalHierarchy__c            approvalHierarchy;
+    @TestVisible static ApprovalHierarchy__c            approvalHierarchyModify;
+    @TestVisible static ApprovalHierarchy__c            approvalHierarchyPaymentDeferred;
     @TestVisible static SelfCertWeightLabel__c          selfCertWeightLabel;
     @TestVisible static SelfCertWeightLabelDtl__c       selfCertWeightLabelDtl;
     @TestVisible static CommissionManagement__c         commissionManagement;
     @TestVisible static CommissionHistory__c            commissionHistory;
     @TestVisible static IncentiveHistory__c             incentiveHistory;
+    @TestVisible static SpecTypeNoJunction__c           specTypeNoJunction;
 
     public static Account createAccountPerson() {
         if(accountPerson == null) {
@@ -125,7 +131,7 @@ public class TestObjectBuilder2 {
             accountLicense = new Account();
             accountLicense.RecordTypeId = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName().get('ACCOUNT_PERSON').getRecordTypeId();
             accountLicense.LastName = 'TEST';
-            accountLicense.AccountType__c = 'LICENSE';
+            accountLicense.AccountType__c = '영업인';
             accountLicense.User__c = UserInfo.getUserId();
             accountLicense.IDNumber__pc = '880420-1231233';
             accountLicense.PersonMobilePhone = '090-9999-1919';
@@ -499,7 +505,7 @@ public class TestObjectBuilder2 {
         if(ifMasterList == null) {
             ifMasterList = new List<IF_Master__c>();
 
-            for(Integer i = 0; i <= 25; i++) {
+            for(Integer i = 0; i <= 100; i++) {
                 IF_Master__c ifMaster = new IF_Master__c();
 
                 ifMaster.PrefixURL__c = 'https://test.com';
@@ -659,9 +665,21 @@ public class TestObjectBuilder2 {
                     ifMaster.Endpoint__c = 'https://test.com/api/check';
                     ifMaster.IsSendParameter__c = false;
                     ifMaster.IsLogInsert__c = false;
+                } else if(i==26) {
+                    ifMaster.IF_Id__c = 'AWS_LOAN000';
+                    ifMaster.Method__c = 'GET';
+                    ifMaster.Endpoint__c = 'https://test.com/healthcheck';
+                    ifMaster.IsSendParameter__c = false;
+                    ifMaster.IsLogInsert__c = false;
+                } else if(i==27) {
+                    ifMaster.IF_Id__c = 'AWS_LOAN001';
+                    ifMaster.Method__c = 'POST';
+                    ifMaster.Endpoint__c = 'https://test.com/v1/aws/loan';
+                    ifMaster.IsSendParameter__c = false;
+                    ifMaster.IsLogInsert__c = false;
                 }
 
-                ifMasterList.add(ifMaster);
+                if(ifMaster.IF_Id__c != null) ifMasterList.add(ifMaster);
             }
         }
         return ifMasterList;
@@ -863,6 +881,23 @@ public class TestObjectBuilder2 {
         }
         return contractAdvance;
     }
+    public static Contract createContractNotTaxDate() {
+        if(contractNotTaxDate == null) {
+            contractNotTaxDate = new Contract();
+            if(opportunityNotTaxDate == null) insert createOpportunityNotTaxDate();
+            if(vehicleStock == null) insert createVehicleStock();
+            if(accountPerson == null) insert createAccountPerson();
+            if(quotePublish == null) insert createQuotePublish();
+
+            contractNotTaxDate.Name = 'Test';
+            contractNotTaxDate.AccountId = accountPerson.Id;
+            contractNotTaxDate.Quote__c = quotePublish.Id;
+            contractNotTaxDate.Opportunity__c = opportunityNotTaxDate.Id;
+            contractNotTaxDate.VehicleStock__c = vehicleStock.Id;
+            contractNotTaxDate.ApprovalStatus__c = '승인됨';
+        }
+        return contractNotTaxDate;
+    }
 
     public static Opportunity createOpportunity() {
         if(opportunity == null) {
@@ -903,6 +938,22 @@ public class TestObjectBuilder2 {
         }
         return opportunityAdvance;
     }
+public static Opportunity createOpportunityNotTaxDate() {
+        if(opportunityNotTaxDate == null) {
+            opportunityNotTaxDate = new Opportunity();
+            if(accountPerson == null) insert createAccountPerson();
+//            if(contract == null) insert createContract();
+            if(vehicleStock == null) insert createVehicleStock();
+
+            opportunityNotTaxDate.StageName = 'Negotiation';
+            opportunityNotTaxDate.Name ='test';
+            opportunityNotTaxDate.CloseDate = System.today();
+            opportunityNotTaxDate.AccountId = accountPerson.Id;
+            opportunityNotTaxDate.VehicleStock__c = vehicleStock.Id;
+            opportunityNotTaxDate.OwnerId = UserInfo.getUserId();
+        }
+        return opportunityNotTaxDate;
+    }
 
     public static VehicleStock__c createVehicleStock() {
         if(vehicleStock == null) {
@@ -916,7 +967,6 @@ public class TestObjectBuilder2 {
                 IsSpecial__c = false,
                 IsOptionDiscount__c = false,
                 LongtermDiscountRate__c = 0.2,
-                SpecialDiscountRate__c = 0,
                 OptionDiscountRate__c = 0,
                 SpecShort__c = 'TGL 10.220 4x2 BL CH',
                 SpoilerPart__c = spoilerList.get(0).Id,
@@ -928,26 +978,6 @@ public class TestObjectBuilder2 {
             );
         }
         return vehicleStock;
-    }
-
-    public static List<AssignRequest__c> createAssignRequestList() {
-        if(requestList == null) {
-            if(opportunity == null) insert createOpportunity();
-            if(vehicleStock == null) insert createVehicleStock();
-            requestList = new List<AssignRequest__c>();
-            for(Integer i = 10; i >= 7; i--) {
-                AssignRequest__c assignRequestObj = new AssignRequest__c();
-                assignRequestObj.Type__c = '계약금 요청';
-                assignRequestObj.RequestDate__c = System.today().addDays(-(i));
-                assignRequestObj.Opportunity__c = opportunity.Id;
-                assignRequestObj.VehicleStock__c = vehicleStock.Id;
-
-                requestList.add(assignRequestObj);
-                System.debug('requestList :: ' + requestList);
-            }
-            System.debug('requestList :: ' + requestList);
-        }
-        return requestList;
     }
 
     public static List<VirtualAccountMaster__c> createVirtualAccountMasterList() {
@@ -1096,8 +1126,67 @@ public class TestObjectBuilder2 {
             quote.Segment__c = 'TPP';
             quote.Approver__c = user.Id;
             quote.Status = 'Published';
+
+            quote.DefaultInterestRate__c = 1;
+            quote.MonthDivideInputMonth__c = 1;
         }
         return quote;
+    }
+    public static Quote createQuoteDraft() {
+
+        if (quoteDraft == null) {
+            quoteDraft = new Quote();
+            if (opportunityNotTaxDate == null) insert createOpportunityNotTaxDate();
+            if (finance == null) insert createFinance();
+            if (product == null) insert createProduct();
+            if (vehicleStock == null) insert createVehicleStock();
+            if (user == null) insert createUser();
+
+            quoteDraft.OpportunityId = opportunityNotTaxDate.Id;
+            quoteDraft.Finance__c = finance.Id;
+            quoteDraft.Product__c = product.Id;
+            quoteDraft.AdvancePayment__c = 10000000;
+            quoteDraft.SalesconditionDiscountAmt__c = 1000000;
+            quoteDraft.DiscountAmt__c = 1000000;
+            quoteDraft.AdditionalLossPrice__c = 0;
+            quoteDraft.TotalVehiclePrice__c  = 150000000;
+            quoteDraft.VehicleStock__c = vehicleStock.Id;
+            quoteDraft.Segment__c = 'TPP';
+            quoteDraft.Approver__c = user.Id;
+            quoteDraft.Status = 'Draft';
+
+            quoteDraft.DefaultInterestRate__c = 1;
+            quoteDraft.MonthDivideInputMonth__c = 1;
+        }
+        return quoteDraft;
+    }
+public static Quote createQuotePublish() {
+
+        if (quotePublish == null) {
+            quotePublish = new Quote();
+            if (opportunityNotTaxDate == null) insert createOpportunityNotTaxDate();
+            if (finance == null) insert createFinance();
+            if (product == null) insert createProduct();
+            if (vehicleStock == null) insert createVehicleStock();
+            if (user == null) insert createUser();
+
+            quotePublish.OpportunityId = opportunityNotTaxDate.Id;
+            quotePublish.Finance__c = finance.Id;
+            quotePublish.Product__c = product.Id;
+            quotePublish.AdvancePayment__c = 10000000;
+            quotePublish.SalesconditionDiscountAmt__c = 1000000;
+            quotePublish.DiscountAmt__c = 1000000;
+            quotePublish.AdditionalLossPrice__c = 0;
+            quotePublish.TotalVehiclePrice__c  = 150000000;
+            quotePublish.VehicleStock__c = vehicleStock.Id;
+            quotePublish.Segment__c = 'TPP';
+            quotePublish.Approver__c = user.Id;
+            quotePublish.Status = 'Published';
+
+            quotePublish.DefaultInterestRate__c = 1;
+            quotePublish.MonthDivideInputMonth__c = 1;
+        }
+        return quotePublish;
     }
 
     public static Quote createQuoteCopy() {
@@ -1134,7 +1223,8 @@ public class TestObjectBuilder2 {
                 ServiceItemsMaster__c = serviceItem.Id,
                 EwWscPrice__c = 100,
                 RmcPrice__c = 100,
-                OptionCodeRMC__c = 'ML100'
+                OptionCodeRMC__c = 'ML100',
+                Price__c = 1000000
             );
         }
         return option;
@@ -1273,7 +1363,7 @@ public class TestObjectBuilder2 {
             defermentRequest2 = new DefermentRequest__c();
             defermentRequest2.Opportunity__c = opportunityAdvance.Id;
             defermentRequest2.RequestDays__c = 0;
-            defermentRequest2.Status__c = 'COMPLETED';
+            defermentRequest2.Status__c = 'IN_PROGRESS';
             defermentRequest2.Type__c = 'VATDeferred';
         }
         return defermentRequest2;
@@ -1393,7 +1483,7 @@ public class TestObjectBuilder2 {
             Map<String, Decimal> amountMap = new Map<String, Decimal>{
                 '인도금' => 100,
                 '인도금 유예' => 100,
-                '부가세후취' => 100,
+                '부가세 후취(출고전)' => 100,
                 '대출금' => 100,
                 '대출금 할인금액' => 100,
                 'MFS 캠페인 할인금액' => 100,
@@ -1565,6 +1655,13 @@ public class TestObjectBuilder2 {
         return specTypeNo;
     }
 
+    public static SpecTypeNoJunction__c createSpecTypeNoJunction() {
+        if (specTypeNoJunction == null) {
+        specTypeNoJunction = new SpecTypeNoJunction__c();
+            }
+        return specTypeNoJunction;
+    }
+
     public static List<CustomerConsent__c> createCustomerConsent() {
 
         if (customerConsent == null) {
@@ -1646,6 +1743,27 @@ public class TestObjectBuilder2 {
             approvalHierarchy.Stage__c = 'Contract Modusign Final';
         }
         return approvalHierarchy;
+    }
+    public static ApprovalHierarchy__c createApprovalHierarchyModify() {
+        if(managerUser == null) insert createManagerUser();
+        if (approvalHierarchyModify == null) {
+            approvalHierarchyModify = new ApprovalHierarchy__c();
+            approvalHierarchyModify.Approver1__c = managerUser.Id;
+            approvalHierarchyModify.Stage__c = 'OppModifyRequest Approver';
+        }
+        return approvalHierarchyModify;
+    }
+    public static ApprovalHierarchy__c createApprovalHierarchyPaymentDeferred() {
+        // if(managerUser == null) insert createManagerUser();
+        if (approvalHierarchyPaymentDeferred == null) {
+            approvalHierarchyPaymentDeferred = new ApprovalHierarchy__c();
+            approvalHierarchyPaymentDeferred.Approver1__c = UserInfo.getUserId();
+            approvalHierarchyPaymentDeferred.Approver2__c = UserInfo.getUserId();
+            approvalHierarchyPaymentDeferred.Approver3__c = UserInfo.getUserId();
+            approvalHierarchyPaymentDeferred.Object__c = '기회';
+            approvalHierarchyPaymentDeferred.Stage__c = 'Defferred Payment';
+        }
+        return approvalHierarchyPaymentDeferred;
     }
 
     public static SelfCertWeightLabel__c createSelfCertWeightLabel() {
@@ -1782,6 +1900,8 @@ public class TestObjectBuilder2 {
         if(productOption == null) insert createProductOption();
         if(defermentRequest == null) insert createDefermentRequest();
         if(defermentRequest2 == null) insert createStatusDefermentRequest();
+        if(quoteDraft == null) insert createQuoteDraft();
+        if(quotePublish == null) insert createQuotePublish();
     }
 
     public static void createContractBundle() {
@@ -1806,9 +1926,42 @@ public class TestObjectBuilder2 {
             opportunityAdvance.ContractId = contractAdvance.Id;
             update opportunityAdvance;
         }
-        if(requestList == null) insert createAssignRequestList();
         if(defermentRequest == null) insert createDefermentRequest();
         if(defermentRequest2 == null) insert createStatusDefermentRequest();
+    }
+
+    public static void createContractBundle2() {
+        createQuoteBundle();
+
+        if(contract == null) {
+            insert createContract();
+
+            List<SObject> SObjectList = new List<SObject>();
+            opportunity.ContractId = contract.Id;
+            quote.ContractId = contract.Id;
+
+            SObjectList.add(opportunity);
+            SObjectList.add(quote);
+
+            update SObjectList;
+        }
+    }
+
+    public static void createContractNotTaxDateBundle() {
+        createQuoteBundle();
+
+        if(contractNotTaxDate == null) {
+            insert createContractNotTaxDate();
+
+            List<SObject> SObjectList = new List<SObject>();
+            opportunityNotTaxDate.ContractId = contractNotTaxDate.Id;
+            quotePublish.ContractId = contractNotTaxDate.Id;
+
+            SObjectList.add(opportunityNotTaxDate);
+            SObjectList.add(quotePublish);
+
+            update SObjectList;
+        }
     }
 
     public static void createCampaignBundle() {
@@ -1825,7 +1978,7 @@ public class TestObjectBuilder2 {
     }
 
     public static void createHandoverBundle() {
-        createContractBundle();
+        createContractBundle2();
 
         if(pdiStepList == null) insert createPDIStep();
         if(handover == null) insert createHandover();
@@ -1864,6 +2017,7 @@ public class TestObjectBuilder2 {
         if(specTypeNo == null) insert createSpecTypeNo();
         if(customCalendar == null) insert createCustomCalendar();
         if(approvalHierarchy == null) insert createApprovalHierarchy();
+        if(approvalHierarchyModify == null) insert createApprovalHierarchyModify();
+        if(specTypeNoJunction == null) insert createSpecTypeNoJunction();
     }
-
 }

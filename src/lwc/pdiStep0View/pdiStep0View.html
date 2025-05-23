@@ -11,10 +11,10 @@
 <template>
     <div class="container">
         <!-- 콘텐츠 영역 -->
-        <div class="content">
+        <div class="slds-grid slds-wrap slds-size_1-of-1 content">
             <!-- 개별 VIN Select 화면 -->
             <template if:false={varIsBulk}>
-                <div class="filter-container">
+                <div class="filter-container slds-size_1-of-2">
                     <lightning-input
                             type="search"
                             label=""
@@ -25,19 +25,38 @@
                             class="custom-search">
                     </lightning-input>
                     <lightning-button
-                            label="검색"
-                            icon-name="utility:search"
-                            onclick={handleSearchButton}>
+                        icon-name="utility:refresh"
+                        label="검색 초기화"
+                        variant="border-filled"
+                        title="Refresh"
+                        onclick={handleSearchButton}
+                        data-id="refresh"
+                        class="slds-m-horizontal_xx-small">
+                    </lightning-button>
+                    <lightning-button
+                        icon-name="utility:search"
+                        label="검색"
+                        variant="border-filled"
+                        title="Search"
+                        onclick={handleSearchButton}
+                        data-id="search"
+                        class="slds-m-horizontal_xx-small">
                     </lightning-button>
                 </div>
-                <lightning-datatable
-                        key-field="Id"
-                        data={data}
-                        columns={columns}
-                        max-row-selection="1"
-                        selected-rows={selectedStockRowList}
-                        onrowselection={handleRowSelection}>
-                </lightning-datatable>
+                <div class="slds-size_1-of-1 table-container">
+                    <lightning-datatable
+                            key-field="Id"
+                            data={data}
+                            columns={columns}
+                            max-row-selection="1"
+                            column-widths-mode="auto"
+                            selected-rows={selectedStockRowList}
+                            onrowselection={handleRowSelection}>
+                    </lightning-datatable>
+                    <template lwc:if={isNoData}>
+                        <div class="slds-p-around_small">{myLabel.EmptyResult}</div>
+                    </template>
+                </div>
             </template>
 
             <!-- 대량 VIN Copy & Paste 화면 -->

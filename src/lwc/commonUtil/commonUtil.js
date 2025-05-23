@@ -23,6 +23,8 @@ import {
 // Label
 import LightningHost from "@salesforce/label/c.LightningHost";
 import VFHost from "@salesforce/label/c.VFHost";
+import SpecialRequestLink from "@salesforce/label/c.SpecialRequestLink";
+import EmptyResult from "@salesforce/label/c.EmptyResult";
 
 // Static Resource
 import JQEURY from "@salesforce/resourceUrl/jQuery";
@@ -35,7 +37,9 @@ import CustomTableStyle from "@salesforce/resourceUrl/CustomTableStyle";
  */
 const labelList = {
 	LightningHost,
-	VFHost
+	VFHost,
+	SpecialRequestLink,
+	EmptyResult
 };
 
 /**
@@ -89,10 +93,9 @@ const showToast = (title, message, variant, mode, messageData) => {
  * @returns {*[]}
  */
 const sortData = (listData, fieldName, direction) => {
+
 	// 데이터 복사
-	console.log("listData:", listData);
 	const sortList = [...listData];
-	console.log("sortList:", sortList);
 	// 정렬 방향 설정 (asc: 1, desc: -1)
 	const isReverse = direction === "asc" ? 1 : -1;
 
@@ -118,7 +121,6 @@ const sortData = (listData, fieldName, direction) => {
 		}
 		return 0; // 값이 동일한 경우
 	});
-	console.log("sortList::", sortList);
 	return sortList;
 };
 

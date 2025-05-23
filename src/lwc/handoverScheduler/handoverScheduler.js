@@ -6,6 +6,7 @@
  ==============================================================
  * Ver          Date            Author          Modification
  * 1.0          2025-01-21      th.kim          Initial Version
+ * 1.1          2025-05-09      jh.jung         permission에 따라 컬럼 및 스타일링
  **************************************************************/
 import { api, LightningElement, track, wire } from "lwc";
 
@@ -19,7 +20,7 @@ import getFilteredHandoverList from "@salesforce/apex/HandoverSchedulerControlle
 import updateCheckHandoverList from "@salesforce/apex/HandoverSchedulerController.updateCheckHandoverList";
 import getVehicleStockList from "@salesforce/apex/HandoverSchedulerController.getVehicleStockList";
 import doCompleteHandover from "@salesforce/apex/HandoverSchedulerController.doCompleteHandover";
-import updateHandoverStockList from "@salesforce/apex/HandoverSchedulerController.updateHandoverStockList";
+import updateHandoverStock from "@salesforce/apex/HandoverSchedulerController.updateHandoverStock";
 import getCalendarInit from "@salesforce/apex/TaxInvoiceSchedulerController.getCalendarInit";
 import insertHandoverDateAllocationHistory
 	from "@salesforce/apex/TaxInvoiceSchedulerController.insertHandoverDateAllocationHistory";
@@ -28,13 +29,18 @@ import insertHandoverDateAllocationHistory
 import { getMonthStartAndEnd, labelList, showToast } from "c/commonUtil";
 import {
 	columns,
-	exportColumns,
-	stockColumns,
-	fieldApiMapping,
-	exportMapping,
 	editStyle,
-	handoverProfileColumns
+	exportColumns,
+	exportMapping,
+	fieldApiMapping,
+	handoverProfileColumns,
+	stockColumns,
+	defaultColumns,
+	saColumns,
+	pdiColumns,
+	handoverColumns
 } from "./handoverSchedulerColumns";
+import {CurrentPageReference} from "lightning/navigation";
 
 // 초기화 Map
 const initFilterMap = { paymentStatus: "", vehicleStatus: "", startDate: "", endDate: "" };
@@ -44,8 +50,10 @@ const stockInitFilterMap = { Name: "", VehicleNo__c: "" };
 const today = new Date();
 const currentYear = today.getFullYear();
 const currentMonth = today.getMonth() + 1;
-const lastYear = currentMonth === 1 ? currentYear - 1 : currentYear;
-const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+const nextYear = currentMonth === 12 ? currentYear + 1 : currentYear;
+const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1;
+
+let messageHandler = null;
 
 export default class handoverScheduler extends LightningElement {
 
@@ -56,7 +64,7 @@ export default class handoverScheduler extends LightningElement {
 	// 우측 버튼 그룹 필터 variant 맵
 	@track variantMap = {
 		THIS_MONTH: "brand",
-		LAST_MONTH: "neutral",
+		NEXT_MONTH: "neutral",
 		undecided: "neutral"
 	};
 	// 좌측 상태 필터 옵션 맵
@@ -66,11 +74,12 @@ export default class handoverScheduler extends LightningElement {
 	};
 	@track filterMap = { ...initFilterMap }; // 좌측 필터 맵
 	currentFilterMap; // 현재 적용 중인 필터 맵
-	lastStartDate; // 이전 달 시작일
-	lastEndDate; // 이전 달 마지막일
+	nextStartDate; // 다음 달 시작일
+	nextEndDate; // 다음 달 마지막일
 	isLoading; // 로딩 여부
 	intervalId; // setInterval Id
 	profileName;
+	userRole; // 해당 유저의 퍼미션셋
 
 	// 재고 모달
 	stockList = []; // 재고 리스트
@@ -145,8 +154,23 @@ export default class handoverScheduler extends LightningElement {
 	@wire(getRecord, { recordId: userId, fields: ["User.Profile.Name"] })
 	currentUserInfo({ error, data }) {
 		this.profileName = data?.fields?.Profile?.displayValue;
-		if (this.profileName === "MTBK Agent" || this.profileName === "MTBK Handover") {
-			this.columns = handoverProfileColumns;
+		// if (this.profileName === "MTBK Agent" || this.profileName === "MTBK Handover") {
+		// 	this.columns = handoverProfileColumns;
+		// }
+	}
+
+	@wire(CurrentPageReference)
+	getStateParameters(pageRef) {
+		if (pageRef) {
+			if (pageRef?.state?.c__origin === 'handoverDateNotAssign') {
+				this.handleFilterClick({
+					currentTarget: {
+						dataset: {
+							name: 'undecided'
+						}
+					}
+				});
+			}
 		}
 	}
 
@@ -160,6 +184,27 @@ export default class handoverScheduler extends LightningElement {
 			// 부모 데이터 복사
 			this._parentData = { ...value };
 			this.handoverList = this._parentData?.handoverList || [];
+
+			this.userRole = this._parentData?.permissionSet?.userRole; // default, sa, handover, pdi
+			if(this.isSA)	{
+				this.columns = saColumns;
+			} else {
+				switch (this.userRole) {
+					case 'default':
+						this.columns = defaultColumns;
+						break;
+					case 'sa':
+						this.columns = saColumns;
+						break;
+					case 'handover':
+						this.columns = handoverColumns;
+						break;
+					case 'pdi':
+						this.columns = pdiColumns;
+						break;
+				}
+			}
+
 
 			// 필터 옵션
 			this.filterOptionMap.paymentStatusOption = [...this.filterOptionMap.paymentStatusOption, ...this._parentData?.paymentStatusOption];
@@ -180,18 +225,28 @@ export default class handoverScheduler extends LightningElement {
 	 */
 	connectedCallback() {
 
-		// 캘린더 이벤트
-		window.addEventListener("message", this.getDataFromChild.bind(this));
+		if(!messageHandler) {
+			// 캘린더 이벤트
+			messageHandler = this.getDataFromChild.bind(this);
+			window.addEventListener("message", messageHandler);
+		}
 
 		// 이번달
 		const currentMonthRange = getMonthStartAndEnd(currentYear, currentMonth);
-		initFilterMap.startDate = this.filterMap.startDate = `=${currentMonthRange.startDate}`;
-		initFilterMap.endDate = this.filterMap.endDate = `=${currentMonthRange.endDate}`;
+		initFilterMap.startDate = this.filterMap.startDate = currentMonthRange.startDate;
+		initFilterMap.endDate = this.filterMap.endDate = currentMonthRange.endDate;
 
 		// 지난달
-		const lastMonthRange = getMonthStartAndEnd(lastYear, lastMonth);
-		this.lastStartDate = `=${lastMonthRange.startDate}`;
-		this.lastEndDate = `=${lastMonthRange.endDate}`;
+		const nextMonthRange = getMonthStartAndEnd(nextYear, nextMonth);
+		this.nextStartDate = nextMonthRange.startDate;
+		this.nextEndDate = nextMonthRange.endDate;
+	}
+
+	disconnectedCallback() {
+		if (messageHandler) {
+			window.removeEventListener("message", messageHandler);
+			messageHandler = null;
+		}
 	}
 
 	// interval 삭제
@@ -346,7 +401,7 @@ export default class handoverScheduler extends LightningElement {
 				};
 			};
 
-			let dataList;
+			let dataMap;
 			// 차량 변경
 			if (this.modalMap.viewVIN) {
 				const stockId = this.selectedStockRowList.length > 0 ? this.selectedStockRowList[0] : null;
@@ -361,14 +416,14 @@ export default class handoverScheduler extends LightningElement {
 					this.isLoading = false;
 					return;
 				}
-				dataList = [setDataList(currentStock.Id, this.currentHandover.opp, this.currentHandover.VIN, currentStock.Name)];
+				dataMap = setDataList(currentStock.Id, this.currentHandover.opp, this.currentHandover.VIN, currentStock.Name);
 			}
 			// 배정 취소
-			else if (this.modalMap.cancelStock) {
-				dataList = this.selectedRowList.map(row => setDataList(null, row.opp, row.VIN, null));
-			}
+			// else if (this.modalMap.cancelStock) {
+			// 	dataList = this.selectedRowList.map(row => setDataList(null, row.opp, row.VIN, null));
+			// }
 
-			updateHandoverStockList({ dataList: dataList }).then(() =>
+			updateHandoverStock({ dataMap: dataMap }).then(() =>
 				successProcess(this.modalMap.viewVIN ? "차량 변경" : "배정 취소")
 			).catch(err => {
 				console.error("err :: ", err);
@@ -392,10 +447,21 @@ export default class handoverScheduler extends LightningElement {
 	 */
 	handleFilterChange(e) {
 		const name = e.target.dataset.name;
-		const value = e.target.value;
-		this.filterMap[name] = (name === "startDate" || name === "endDate")
-			? (value ? `=${value}` : null)
-			: value;
+		this.filterMap[name] = e.target.value;
+
+		// 픽리스트 동적 검색 추가
+		console.log('name ::: ' + name)
+		console.log('this.filterMap ::: ' + JSON.stringify(this.filterMap))
+		if(name === 'paymentStatus' || name === 'vehicleStatus') {
+			const event = {
+				'currentTarget' : {
+					'dataset' : {
+						'name' : 'search'
+					}
+				}
+			};
+			this.handleFilterClick(event);
+		}
 	}
 
 	/**
@@ -412,20 +478,26 @@ export default class handoverScheduler extends LightningElement {
 			if (name === "search") {
 				this.selectedRowList = [];
 				this.selectedRowIdList = [];
+
 				// 각 필터 필드 맵핑
-				Object.keys(this.filterMap).forEach(el => filterMap[fieldApiMapping[el]] = this.filterMap[el]);
+				Object.keys(this.filterMap).forEach(el => {
+					if (this.filterMap[el]) {
+						filterMap[fieldApiMapping[el]] = (el === "startDate" || el === "endDate") ? `=${this.filterMap[el]}` : this.filterMap[el];
+					}
+				});
 
 				// 필터, 버튼 동기화
 				const keyName = (this.filterMap.startDate === initFilterMap.startDate && this.filterMap.endDate === initFilterMap.endDate)
 					? "THIS_MONTH"
-					: (this.filterMap.startDate === this.lastStartDate && this.filterMap.endDate === this.lastEndDate)
-						? "LAST_MONTH"
+					: (this.filterMap.startDate === this.nextStartDate && this.filterMap.endDate === this.nextEndDate)
+						? "NEXT_MONTH"
 						: null;
 
 				Object.keys(this.variantMap).forEach(key => this.variantMap[key] = (key === keyName) ? "brand" : "neutral");
 			}
-			// 이번달 / 저번달 / 계약완료 & 출고일 미정
+			// 이번달 / 다음달 / 계약완료 & 출고일 미정
 			else {
+				this.filterMap = { ...initFilterMap };
 				Object.keys(this.variantMap).forEach(key => this.variantMap[key] = (key === name) ? "brand" : "neutral");
 
 				if (name === "undecided") {
@@ -438,8 +510,8 @@ export default class handoverScheduler extends LightningElement {
 						this.filterMap.startDate = initFilterMap.startDate;
 						this.filterMap.endDate = initFilterMap.endDate;
 					} else {
-						this.filterMap.startDate = this.lastStartDate;
-						this.filterMap.endDate = this.lastEndDate;
+						this.filterMap.startDate = this.nextStartDate;
+						this.filterMap.endDate = this.nextEndDate;
 					}
 				}
 			}
@@ -489,7 +561,7 @@ export default class handoverScheduler extends LightningElement {
 		// VIN 클릭
 		if (actionName === "viewVIN") {
 			this.toggleModal("viewVIN");
-			const productId = currentRow.vehicleStock?.Product__c || currentRow.opp.Contract.Quote__r.Product__c;
+			const productId = currentRow.vehicleStock?.Product__c || currentRow.opp.Contract?.Quote__r?.Product__c;
 			getVehicleStockList({ filterMap: { Product__c: productId } }).then(res => {
 				this.stockList = res?.map(el => ({
 					...el,
@@ -589,6 +661,7 @@ export default class handoverScheduler extends LightningElement {
 	 * @description 필드 스타일 세팅해주기
 	 */
 	setFieldStyle() {
+
 		// 업데이트된 필드 하이라이트 추가
 		this.handoverList = this.handoverList?.map(el => {
 			const updatedEl = { ...el };
@@ -607,6 +680,8 @@ export default class handoverScheduler extends LightningElement {
 				}
 			});
 
+			// updatedEl.oilCoupon = updatedEl.quote?.ru_OilCoupon__c;
+
 			// 옵션 보여주기
 			updatedEl.helpText = [
 				optionList.length > 0 ? `옵션\n${optionList.join("\n")}` : "",
@@ -615,6 +690,11 @@ export default class handoverScheduler extends LightningElement {
 			].filter(Boolean).join("\n\n");
 
 			Object.assign(updatedEl, { optionQty, defaultOptionQty, specialQty });
+
+			// sa는 업데이트 필드 색상 CSS 제외
+			if(this.userRole === 'sa' ) {
+				return updatedEl;
+			}
 
 			if (el?.isNeedToCheckUpdate) {
 				const fieldMap = {
@@ -669,14 +749,14 @@ export default class handoverScheduler extends LightningElement {
 		this.exportTitle =
 			(startDate === initFilterMap.startDate && endDate === initFilterMap.endDate)
 				? `${currentYear}년 ${currentMonth}월 판매예정 리스트`
-				: (startDate === this.lastStartDate && endDate === this.lastEndDate)
-					? `${lastYear}년 ${lastMonth}월 판매예정 리스트`
+				: (startDate === this.nextStartDate && endDate === this.nextEndDate)
+					? `${nextYear}년 ${nextMonth}월 판매예정 리스트`
 					: `${startDate?.replace("=", "") || ""} ~ ${endDate?.replace("=", "") || ""} 판매예정 리스트`;
 
-
 		// 판매예정 리스트 옵션 맵핑
-		this.exportList = this.handoverList?.map(handover => {
+		this.exportList = this.handoverList?.map((handover, index) => {
 			const updateHandover = { ...handover };
+			updateHandover.idx = index + 1;
 			updateHandover.product = handover.vehicleStock?.Product__r?.Name;
 			updateHandover.productId = handover.vehicleStock?.Product__c;
 			updateHandover.opportunityId = handover.opp?.Id;
@@ -758,7 +838,7 @@ export default class handoverScheduler extends LightningElement {
 
 	/**
 	 * @description 로직 실패 시 토스트 띄우기
- 	 */
+	 */
 	failedProcess(err) {
 		const errTitle = err?.body?.message || err.message || "ERROR";
 		const errBody = errTitle === "ERROR" ? "관리자에게 문의 부탁드립니다" : "";

@@ -38,18 +38,18 @@
   <lightning-modal-footer>
     <div class="slds-align_absolute-center">
       <lightning-button
+          class="slds-m-right_xx-small"
+          label="닫기"
+          onclick={handleCancel}
+          >
+      </lightning-button>
+      <lightning-button
         variant="brand"
         class="slds-m-right_xx-small"
         type="submit"
         label="견적서 카카오톡 발송"
         onclick={handleSend}
         >
-      </lightning-button>
-      <lightning-button
-          class="slds-m-right_xx-small"
-          label="닫기"
-          onclick={handleCancel}
-          >
       </lightning-button>
     </div>
   </lightning-modal-footer>

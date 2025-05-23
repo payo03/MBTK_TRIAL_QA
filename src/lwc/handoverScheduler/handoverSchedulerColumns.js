@@ -6,11 +6,12 @@
 ==============================================================
  * Ver          Date            Author          Modification
  * 1.0          2025-01-22      th.kim          Initial Version
+ * 1.1          2025-04-24      chaebeom.do     워크넘버 클릭시 PDI 메인으로 이동하게 url 추가
  **************************************************************/
 const columns = [
 	{
-		label: "고객명",
-		fieldName: "customer",
+		label: "영업인",
+		fieldName: "agent",
 		type: "text",
 		hideDefaultActions: true,
 		cellAttributes: {
@@ -22,11 +23,35 @@ const columns = [
 		fieldName: "oppUrl",
 		type: "url",
 		hideDefaultActions: true,
+		initialWidth: 150,
 		typeAttributes: {
 			label: { fieldName: "oppName" }
 		},
 		cellAttributes: {
 			style: { fieldName: "oppUrlStyle" }
+		}
+	},
+	{
+		label: "계약",
+		fieldName: "contractUrl",
+		type: "url",
+		hideDefaultActions: true,
+		initialWidth: 150,
+		typeAttributes: {
+			label: { fieldName: "contractNumber" }
+		},
+		cellAttributes: {
+			style: { fieldName: "contractUrlStyle" }
+		}
+	},
+	{
+		label: "차종",
+		fieldName: "productName",
+		type: "text",
+		hideDefaultActions: true,
+		initialWidth: 150,
+		cellAttributes: {
+			style: { fieldName: "productNameStyle" }
 		}
 	},
 	{
@@ -54,15 +79,20 @@ const columns = [
 			style: { fieldName: "VINStyle" }
 		}
 	},
-	{
-		label: "워크넘버",
-		fieldName: "vehicleNo",
-		type: "text",
-		hideDefaultActions: true,
-		cellAttributes: {
-			style: { fieldName: "vehicleNoStyle" }
-		}
-	},
+	// {
+	// 	label: "워크넘버",
+	// 	// fieldName: "vehicleNo",
+	// 	fieldName: "vehicleNoUrl",
+	// 	// type: "text",
+	// 	type: "url",
+	// 	hideDefaultActions: true,
+	// 	typeAttributes: {
+	// 		label: { fieldName: "vehicleNo" }
+	// 	},
+	// 	cellAttributes: {
+	// 		style: { fieldName: "vehicleNoStyle" }
+	// 	}
+	// },
 	{
 		label: "차량상태",
 		fieldName: "vehicleStatus",
@@ -91,20 +121,55 @@ const columns = [
 		fieldName: "taxInvoiceDate",
 		type: "text",
 		hideDefaultActions: true,
+		initialWidth: 150,
 		cellAttributes: {
 			style: { fieldName: "taxInvoiceDateStyle" }
 		}
 	},
 	{
-		label: "입금 상태",
+		label: "입금상태",
 		fieldName: "paymentStatus",
 		type: "text",
 		hideDefaultActions: true,
 		cellAttributes: {
 			style: { fieldName: "paymentStatusStyle" }
 		}
+	},
+	{
+		label: "매출번호",
+		fieldName: "saleNumber",
+		type: "text",
+		hideDefaultActions: true,
+		cellAttributes: {
+			style: { fieldName: "saleNumberStyle" }
+		}
 	}
 ];
+
+const vehicleNoObj = {
+	label: "워크넘버",
+	// fieldName: "vehicleNo",
+	fieldName: "vehicleNoUrl",
+	// type: "text",
+	type: "url",
+	hideDefaultActions: true,
+	typeAttributes: {
+		label: { fieldName: "vehicleNo" },
+		target: '_blank' 
+	},
+	cellAttributes: {
+		style: { fieldName: "vehicleNoStyle" }
+	}
+};
+
+const oilObj = {
+	label: "주유 상품권",
+	fieldName: "oilCouponFormat",
+	type: "text",
+	hideDefaultActions: true,
+};
+
+
 
 const handoverProfileColumns = columns.map(col =>
 	col.fieldName === "VIN"
@@ -119,8 +184,55 @@ const handoverProfileColumns = columns.map(col =>
 		: col
 );
 
+const saColumns = columns.map(col => {
+	if (col.fieldName === "handoverDate") {
+		return {
+			...col,
+			fieldName: "handoverDate",
+			type: "text",
+			typeAttributes: {
+				label: {fieldName: "handoverDate"}
+			}
+		}
+	} else if (col.fieldName === "VIN") {
+		return {
+			...col,
+			fieldName: "stockUrl",
+			type: "url",
+			typeAttributes: {
+				label: { fieldName: "VIN" }
+			}
+		}
+	}
+	else {
+		return col;
+	}
+});
+
+const pdiColumns = [
+	...columns.slice(0, 4)
+	, vehicleNoObj
+	, ...columns.slice(4, 5)
+	, oilObj
+	, ...columns.slice(5)
+];
+// const saColumns = [...handoverProfileColumns];
+const handoverColumns = [...handoverProfileColumns];
+const defaultColumns = pdiColumns;
 
 const exportColumns = [
+	{
+		label: "번호",
+		fieldName: "idx",
+		type: "text",
+		hideDefaultActions: true
+	},
+	{
+		label: "구분",
+		fieldName: "",
+		type: "text",
+		hideDefaultActions: true
+	},
 	{
 		label: "영업지점",
 		fieldName: "agency",
@@ -135,30 +247,30 @@ const exportColumns = [
 	},
 	{
 		label: "차종",
-		fieldName: "product",
+		fieldName: "productName",
+		type: "text",
+		hideDefaultActions: true
+	},
+	// {
+	// 	label: "차종 Id",
+	// 	fieldName: "productId",
+	// 	type: "text",
+	// 	hideDefaultActions: true
+	// },
+	// {
+	// 	label: "기회 Id",
+	// 	fieldName: "opportunityId",
+	// 	type: "text",
+	// 	hideDefaultActions: true
+	// },
+	{
+		label: "요청 사항",
+		fieldName: "handoverRequest",
 		type: "text",
 		hideDefaultActions: true
 	},
 	{
-		label: "차종 Id",
-		fieldName: "productId",
-		type: "text",
-		hideDefaultActions: true
-	},
-	{
-		label: "기회 Id",
-		fieldName: "opportunityId",
-		type: "text",
-		hideDefaultActions: true
-	},
-	{
-		label: "요청사항",
-		fieldName: "",
-		type: "text",
-		hideDefaultActions: true
-	},
-	{
-		label: "Works-No",
+		label: "works-no",
 		fieldName: "vehicleNo",
 		type: "text",
 		hideDefaultActions: true
@@ -166,6 +278,42 @@ const exportColumns = [
 	{
 		label: "차대번호",
 		fieldName: "VIN",
+		type: "text",
+		hideDefaultActions: true
+	},
+	{
+		label: "Safety pack",
+		fieldName: "safetyPackageDescription",
+		type: "text",
+		hideDefaultActions: true
+	},
+	{
+		label: "입고일",
+		fieldName: "eopDate",
+		type: "text",
+		hideDefaultActions: true
+	},
+	{
+		label: "연식",
+		fieldName: "modelYear",
+		type: "text",
+		hideDefaultActions: true
+	},
+	{
+		label: "테스트 드라이브",
+		fieldName: "",
+		type: "text",
+		hideDefaultActions: true
+	},
+	{
+		label: "램프타입",
+		fieldName: "",
+		type: "text",
+		hideDefaultActions: true
+	},
+	{
+		label: "주유 상품권",
+		fieldName: "oilCoupon",
 		type: "text",
 		hideDefaultActions: true
 	},
@@ -195,7 +343,7 @@ const exportColumns = [
 	},
 	{
 		label: "사이즈",
-		fieldName: "size",
+		fieldName: "shirtSize",
 		type: "text",
 		hideDefaultActions: true
 	},
@@ -212,7 +360,7 @@ const exportColumns = [
 		hideDefaultActions: true
 	},
 	{
-		label: "스포일러",
+		label: "스포일러2",
 		fieldName: "spoiler",
 		type: "boolean",
 		hideDefaultActions: true
@@ -238,6 +386,18 @@ const exportColumns = [
 	{
 		label: "바닥매트",
 		fieldName: "mat",
+		type: "text",
+		hideDefaultActions: true
+	},
+	{
+		label: "비고",
+		fieldName: "oppName",
+		type: "text",
+		hideDefaultActions: true
+	},
+	{
+		label: "Seg.",
+		fieldName: "segment2",
 		type: "text",
 		hideDefaultActions: true
 	}
@@ -322,9 +482,9 @@ const fieldApiMapping = {
 // 엑셀 컬럼 맵핑
 const exportMapping = {
 	"[MY] BODY DOOR OPEN WARNING": { key: "wingBody", value: true },
-	"출고기념품세트 - 100": { key: "size", value: "100" },
-	"출고기념품세트 - 105": { key: "size", value: "105" },
-	"출고기념품세트 - 110": { key: "size", value: "110" },
+	// "출고기념품세트 - 100": { key: "size", value: "100" },
+	// "출고기념품세트 - 105": { key: "size", value: "105" },
+	// "출고기념품세트 - 110": { key: "size", value: "110" },
 	"[MY] 사각지대 카메라 SCS": { key: "SCS", value: true },
 	"[MY] 유틸리티 패키지 - SCS, 냉장고, 스포일러": { key: "SCS", value: true },
 	"[MY] 유틸리티 패키지 - 휠, SCS, 냉장고, 스포일러": { key: "SCS", value: true },
@@ -332,15 +492,15 @@ const exportMapping = {
 	"[MY] PTO_NH/1B+Wiring kit": { key: "PTO", value: "1B" },
 	"[MY] PTO_NH/4B+Wiring kit": { key: "PTO", value: "4B" },
 	"[MY] PTO_NH/4C+Wiring kit": { key: "PTO", value: "4C" },
-	"[MY] 루프 스포일러": { key: "spoiler", value: true },
-	"[MY] 스포일러+사이드플랩": { key: "spoiler", value: true },
-	"[MY] 이지 컨트롤 버튼": { key: "easyControl", value: true },
-	"[MY] 냉장고(Cool Box)": { key: "refrigerator", value: true },
-	"[MY] 알루미늄휠 TGM 4x2": { key: "wheel", value: true },
+	"[MY] 루프 스포일러": { key: "spoiler", value: '○' },
+	"[MY] 스포일러+사이드플랩": { key: "spoiler", value: '○' },
+	"[MY] 이지 컨트롤 버튼": { key: "easyControl", value: '○' },
+	"[MY] 냉장고(Cool Box)": { key: "refrigerator", value: '○' },
+	"[MY] 알루미늄휠 TGM 4x2": { key: "wheel", value: '○' },
 	"[MY] 바닥매트": { key: "mat", value: "잔디매트" },
 	"[MY] 차량용품 패키지(블랙박스,썬팅,바닥매트,적재함카메라)": { key: "mat", value: "잔디매트" }
 };
 
 const editStyle = "border: 1px solid #A86403; color: #8C4B02; background-color: #f9e3b6; font-weight: bold;";
 
-export { columns, handoverProfileColumns, exportColumns, stockColumns, fieldApiMapping, exportMapping, editStyle };
+export { columns, handoverProfileColumns, exportColumns, stockColumns, fieldApiMapping, exportMapping, editStyle, defaultColumns, saColumns, pdiColumns, handoverColumns };

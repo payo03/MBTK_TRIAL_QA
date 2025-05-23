@@ -13,7 +13,7 @@
 
         <div class="slds-size_1-of-1 slds-card slds-p-around_x-small sub-wrap">
             <div class="slds-card slds-size_1-of-1 slds-p-around_x-small">              
-                <div class="slds-card__body slds-card__body_inner filter-wrap">
+                <!-- <div class="slds-card__body slds-card__body_inner filter-wrap"> -->
                     <div class="slds-grid slds-wrap button-wrap">
                         <lightning-combobox
                             class="slds-p-right_x-small"
@@ -50,18 +50,26 @@
                             onchange={handleChange}
                             placeholder="모델명을 입력해주세요">
                         </lightning-input>
-                       
-                        <lightning-button-icon
-                            icon-name="utility:refresh" variant="border-filled"
-                            alternative-text="Refresh" class="slds-p-top_large slds-p-right_small"
-                            title="Refresh" onclick={handleSearch} data-id="refresh">
-                        </lightning-button-icon>
-                   
                         <lightning-button
-                            data-id="search" variant="Neutral" label="Search" onclick={handleSearch} class="slds-p-top_large">
+                            icon-name="utility:refresh"
+                            label="필터 리셋"
+                            variant="border-filled"
+                            title="Refresh"
+                            onclick={handleSearch}
+                            data-id="refresh"
+                            class="slds-p-top_large slds-p-right_small">
+                        </lightning-button>
+                        <lightning-button
+                            icon-name="utility:search"
+                            label="검색"
+                            variant="border-filled"
+                            title="Search"
+                            onclick={handleSearch}
+                            data-id="search"
+                            class="slds-p-top_large slds-p-right_small">
                         </lightning-button>
                     </div>   
-                </div>
+                <!-- </div> -->
             </div>
         </div>
 
@@ -80,7 +88,7 @@
         </lightning-datatable>
 
         <template lwc:if={isNoData}>
-            <div class="slds-p-around_small">조건에 맞는 데이터가 없습니다.</div>
+            <div class="slds-p-around_small">{myLabel.EmptyResult}</div>
         </template>
 
 		<div slot="footer" class="slds-align_absolute-center">

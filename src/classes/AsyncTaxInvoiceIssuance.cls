@@ -99,7 +99,7 @@ public without sharing class AsyncTaxInvoiceIssuance implements Queueable, Datab
             // 취소데이터인경우, logId를 기존것으로 활용(CRTP = 'C')
             String logId = !isCreate && logIdMap.containsKey(opptyId)
                     ? logIdMap.get(opptyId)
-                    : CommonUtilCustomController.parseIFIdSAP(InterfaceSAP.PREFIX_TAX);
+                    : CommonUtilCustomController.parseIFId(InterfaceSAP.PREFIX_TAX);
             List<IF_DTO.SalesInfo> salesInfoList = logSalesInfoListMap.containsKey(logId)
                     ? logSalesInfoListMap.get(logId)
                     : new List<IF_DTO.SalesInfo>();

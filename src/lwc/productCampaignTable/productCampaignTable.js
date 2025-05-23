@@ -15,7 +15,7 @@ import getFilteredProduct from "@salesforce/apex/LeadAcquisitionController.getFi
 import getCampaign from "@salesforce/apex/LeadAcquisitionController.getCampaign";
 import getCampaignPreventDuplicate from "@salesforce/apex/LeadAcquisitionController.getCampaignPreventDuplicate";
 // import { getRecordCreateDefaults } from 'lightning/uiRecordApi';
-import { showToast } from "c/commonUtil";
+import { showToast, labelList } from "c/commonUtil";
 
 const productColumns = [
 	{ 
@@ -76,7 +76,7 @@ const productColumnsMobile = [
 		fieldName: 'quantity', 
 		label: '수량',
 		cellAttributes: { alignment: 'left' },
-		initialWidth: 40,
+		initialWidth: 60,
 		sortable: true,
 		hideDefaultActions: true
 	},
@@ -85,7 +85,7 @@ const productColumnsMobile = [
 		fieldName: 'etaQuantity', 
 		label: 'ETA',
 		cellAttributes: { alignment: 'left' },
-		initialWidth: 40,
+		initialWidth: 60,
 		sortable: true,
 		hideDefaultActions: true
 	},
@@ -105,28 +105,30 @@ const campaignColumns = [
 		hideDefaultActions: true,
 		typeAttributes: {
 			content: { fieldName: "content" },
-		}
+		},
+		initialWidth: 250,
 	},
 	{ 
 		type: 'date',
 		fieldName: 'expireDate', 
 		label: '캠페인 종료일',
 		cellAttributes: { alignment: 'left' },
-		hideDefaultActions: true
+		hideDefaultActions: true,
 	},
 	{ 
 		type: 'number',
 		fieldName: 'discountPrice', 
 		label: '할인가격',
 		cellAttributes: { alignment: 'left' },
-		hideDefaultActions: true
+		hideDefaultActions: true,
 	},
 	{ 
 		type: 'number',
 		fieldName: 'discountRate', 
 		label: '할인율(%)',
 		cellAttributes: { alignment: 'left' },
-		hideDefaultActions: true
+		hideDefaultActions: true,
+		initialWidth: 80,
 	},
 ];
 
@@ -136,6 +138,9 @@ const filterDefault = { Segment2__c: "", Name: ""};
 export default class ProductCampaignTable extends LightningElement {
   //차종, 캠페인 컴포넌트 변수
 	productData = [];
+	isNoProductData = false;
+	isNoCampaignData = false;
+	@track myLabel = labelList;
   dynamicColumns;	
 	@track campaignData = [];
 	@track campaignPreventDupData = [];
@@ -155,25 +160,7 @@ export default class ProductCampaignTable extends LightningElement {
 	selectedProductIdByManagement;
 
   connectedCallback() {
-		console.log('connectedCallback ::: this.selectedProductRowIds ::: ' + this.selectedProductRowIds)
 		this.getInit();
-		// 데이터 테이블 생성
-		// getInitData().then(res => {
-		// 	console.log("res :: ", res);
-		// 	this.productData = res.productList;
-		// 	requestAnimationFrame(() => {
-		// 		this.selectedProductRowIds = [this.selectedProductIdByManagement];
-		// 		console.log('this.selectedProductIdByManagement ::: ' + this.selectedProductIdByManagement)
-		// 		if(typeof this.selectedProductIdByManagement !== 'undefined') {
-		// 			this.getCampaignList(this.selectedProductIdByManagement);
-		// 			this.getProductId();
-		// 		}
-		// 	})
-		// 	this.filterOptions.segment = [{ label: "선택안함", value: "" }].concat(res.segment);
-		// }).catch(err => {
-		// 	console.log("err :: ", err);
-		// });
-
 		if (formFactor === "Small")	this.isMobile = true;
 		this.dynamicColumns = this.isMobile != true ? productColumns : productColumnsMobile;
 	}
@@ -181,11 +168,9 @@ export default class ProductCampaignTable extends LightningElement {
 	getInit() {
 		// 데이터 테이블 생성
 		getInitData().then(res => {
-			console.log("res :: ", res);
 			this.productData = res.productList;
 			requestAnimationFrame(() => {
 				this.selectedProductRowIds = [this.selectedProductIdByManagement];
-				console.log('this.selectedProductIdByManagement ::: ' + this.selectedProductIdByManagement)
 				if(typeof this.selectedProductIdByManagement !== 'undefined') {
 					this.getCampaignList(this.selectedProductIdByManagement);
 					this.getProductId();
@@ -203,9 +188,7 @@ export default class ProductCampaignTable extends LightningElement {
 	 */
   handleRowSelect(e) {
     const id = e.detail.config.value;
-    // const selectedRow = e.detail.selectedRows?.[0];
     const type = e.target.dataset.type;
-
     const customEvent = new CustomEvent('rowselect', {
       detail: { 
         id: e.detail.config.value, 
@@ -230,7 +213,6 @@ export default class ProductCampaignTable extends LightningElement {
 		// 		없으면 전체 선택
 		// 4. 전체 해제 액션이면 전체 해제
     if(type === 'campaign') {
-			console.log('camp' + JSON.stringify((this.campaignPreventDupData)));
 			switch (e.detail.config.action) {
 				case 'rowSelect':
 					if(this.firstCamp) {
@@ -261,16 +243,13 @@ export default class ProductCampaignTable extends LightningElement {
 					break;
 				case 'selectAllRows':
 					this.getCampaignPreventDupList('');
-					// this.selectedCampaignRowIds = e.detail.selectedRows.map(el => el.id);
 					for(let el of e.detail.selectedRows) {
 						this.selectedCampaignRowIds.push(el.id);
-						console.log(JSON.stringify(this.selectedCampaignRowIds));
 					}
 					for(let id of this.campaignPreventDupData) {
 						if(this.selectedCampaignRowIds.includes(id.campaign1)||this.selectedCampaignRowIds.includes(id.campaign2)) {
 							showToast("중복 적용 불가", "중복 적용이 불가능한 캠페인이 포함되어있습니다.", "error");
 							this.selectedCampaignRowIds = [];
-							// this.campaignPreventDupData = [];
 							return;
 						}
 					}
@@ -301,17 +280,14 @@ export default class ProductCampaignTable extends LightningElement {
 		this.selectedProductRowIds = [id]; 
       getCampaign({ productId: id }).then(res => {
         console.log("res :: ", res);
-        // this.campaignData = res;
 				this.campaignData = res?.map(el => {
-					// const discountRate = el.discountRate ? el.discountRate : el.discountPrice ? (el.discountPrice / this.productData.price) : 0;
-					// const discountPrice = el.discountPrice ? el.discountPrice : this.productData.price * (el.discountRate || 0);
 					return {
 						...el,
-						// discountRate: discountRate,
-						// discountPrice: discountPrice,
 						content: el.memo
 					};
 				}) || [];
+				this.isNoCampaignData = this.campaignData.length === 0 ? true : false;
+				console.log('체크 :: ' + this.myLabel.EmptyCampaignResult);
       }).catch(err => {
         console.log("err :: ", err);
       });
@@ -319,7 +295,6 @@ export default class ProductCampaignTable extends LightningElement {
 
 	getCampaignPreventDupList(id){
       getCampaignPreventDuplicate({campaignId: id}).then(res => {
-        console.log("res :: ", res);
 				this.campaignPreventDupData = [...this.campaignPreventDupData, ...res];
 				this.campaignPreventDupData = this.campaignPreventDupData.reduce((prev, now) => {
 					if(!prev.some(obj => obj.id === now.id)) {
@@ -338,7 +313,6 @@ export default class ProductCampaignTable extends LightningElement {
 
 	// Management에서 호출시 해당 Lead에 Product 있다면 받기
 	@api getProductByLead(data) {
-		console.log('getProductByLead ::: ' + JSON.stringify(data));
 		this.isCheckByManagement = true;
 		this.selectedProductIdByManagement = data[0].ProductId__c;
 		this.productNameByManagement = (typeof data[0].ProductId__c !== 'undefined') ? data[0].ProductId__r.Name : '';
@@ -351,12 +325,8 @@ export default class ProductCampaignTable extends LightningElement {
 	}
 
 	handleCheckboxChange(e) {
-		console.log('handleCheckboxChange ' + e.target.checked)
 		this.isProductChange = e.target.checked;
-
 		if(!this.isProductChange) {
-			console.log('this.isProductChange ::: ' + this.isProductChange)
-			console.log('this.selectedProductIdByManagement ::: ' + this.selectedProductIdByManagement)
 			this.selectedProductRowIds = this.selectedProductIdByManagement;
 
 			// 초기값 던지기
@@ -387,6 +357,7 @@ export default class ProductCampaignTable extends LightningElement {
     this.selectedCampaignRowIds = []; 
     this.campaignData = null; 
 		this.campaignPreventDupData = []; 
+		// this.productData = null;
   }
 
 	sortBy(field, reverse, primer) {
@@ -406,10 +377,8 @@ export default class ProductCampaignTable extends LightningElement {
 	}
 
 	onHandleSort(event) {
-			console.log(JSON.stringify(event.detail));
 			const { fieldName: sortedBy, sortDirection } = event.detail;
 			const cloneData = [...this.productData];
-
 			cloneData.sort(this.sortBy(sortedBy, sortDirection === 'asc' ? 1 : -1));
 			this.productData = cloneData;
 			this.sortDirection = sortDirection;
@@ -422,16 +391,15 @@ export default class ProductCampaignTable extends LightningElement {
 	handleFilter(e) {
 		const id = e.target.dataset.id;
 		const value = e.target.value;
-		console.log("id :: ", id);
 		switch (id) {
 			case "segment" :
 				this.filterMap.Segment2__c = value;
+				this.handleProductSearch(e);
 				break;
 			case "name" :
 				this.filterMap.Name = value;
 				break;
 		}
-		console.log("filterMap :: ", JSON.stringify(this.filterMap));
 	}
 
 	/**
@@ -440,24 +408,23 @@ export default class ProductCampaignTable extends LightningElement {
 	 */
 	handleProductSearch(e) {
 		const id = e.currentTarget.dataset.id;
-		console.log("id :: ", id);
 		// 필터 리셋
 		if (id === "refresh") {
 			this.filterMap = { ...filterDefault };
-			console.log("filterMap :: ", JSON.stringify(this.filterMap));
 		}
 		// 선택된 필터로 검색
-		else if(id === "search" || e.key === "Enter") {
-			getFilteredProduct({ filterMap: this.filterMap }).then(res => {
-				console.log("getFilteredProductList :: ", res);
-				this.productData = res;
-				this.selectedProductRowIds = [...this.selectedProductRowIds];
-				this.campaignPreventDupData = []; 
-				this.campaignData = [];
-			}).catch(err => {
-				console.log("err :: ", err);
-			});
-		}
+		// else if(id === "search" || e.key === "Enter") {
+		getFilteredProduct({ filterMap: this.filterMap }).then(res => {
+			this.productData = res;
+			this.selectedProductRowIds = [...this.selectedProductRowIds];
+			this.campaignPreventDupData = []; 
+			this.campaignData = [];
+			this.isNoProductData = this.productData.length === 0 ? true : false;
+			this.refreshTable();
+		}).catch(err => {
+			console.log("err :: ", err);
+		});
+		// }
 	}
 
 }

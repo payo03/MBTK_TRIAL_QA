@@ -18,19 +18,28 @@ public with sharing class ConnectionToProductOptionController {
         
         List<String> queryList = new List<String>();
 
-        queryList.add('SELECT Id, Name, SpecShort__c, Segment2__c ');
-        queryList.add('FROM Product2');
-        if(String.isNotBlank(whereConditions)) {
-            queryList.add('WHERE ' + whereConditions);
-        }
-        queryList.add(' ORDER BY Name');
+        // queryList.add('SELECT Id, Name, SpecShort__c, Segment2__c, ISDiscontinued__c ');
+        // queryList.add('FROM Product2');
+        // queryList.add('WHERE ' + baseWhere);
 
-        System.debug('queryList ::: ' +  queryList);
+        // if(String.isNotBlank(whereConditions)) {
+        //     queryList.add('AND ' + whereConditions);
+        // }
+        // queryList.add(' ORDER BY Segment2__c, Name');
+
+        String baseWhere = 'ISDiscontinued__c = false';
+
+        if (String.isNotBlank(whereConditions)) {
+            baseWhere += ' AND ' + whereConditions;
+        }
+        queryList.add('SELECT Id, Name, SpecShort__c, Segment2__c, ISDiscontinued__c ');
+        queryList.add('FROM Product2');
+        queryList.add('WHERE ' + baseWhere);
+        queryList.add('ORDER BY Segment2__c, Name');
 
         String query = String.join(queryList, ' ');
-
         List<Product2> productList = Database.query(query);
-
+        
         List<OptionWrap> OptionWrapList = new List<OptionWrap>();
 
         for(Product2 product : productList) {
@@ -43,26 +52,46 @@ public with sharing class ConnectionToProductOptionController {
             );
             OptionWrapList.add(OptionWrap);
         }
-        System.debug('OptionWrapList ::: ' +  OptionWrapList);
         return OptionWrapList;
     }
 
     @AuraEnabled
-    public static Map<String, Object> getInitData() {
+    public static Map<String, Object> getInitData(Id optionId) {
 
-        return new Map<String, Object>{
-            'pList' => getProductList(''),
-            'segment' => CommonUtilController.getPickList('Product2', 'Segment2__c')
-        };
+        Map<String, Object> result = new Map<String, Object>();
+
+        VehicleOptionMaster__c option = [
+            SELECT Id, OptionCode__c FROM VehicleOptionMaster__c WHERE Id = :optionId LIMIT 1
+        ];
+
+        Boolean hasOptionCode = String.isNotBlank(option.OptionCode__c);
+        result.put('hasOptionCode', hasOptionCode);
+
+        if (!hasOptionCode) {
+            result.put('pList', getProductList(''));
+        }
+
+        result.put('segment', CommonUtilController.getPickList('Product2', 'Segment2__c'));
+
+        return result;
     }
+
+    // 잠시 수정
+    // @AuraEnabled
+    // public static Map<String, Object> getInitData() {
+
+    //     return new Map<String, Object>{
+    //         'pList' => getProductList(''),
+    //         'segment' => CommonUtilController.getPickList('Product2', 'Segment2__c')
+    //     };
+    // }
 
     @AuraEnabled
     public static List<OptionWrap> getFilteredProductList(Map<String, String> filterMap) {
 
         String whereConditions = buildWhereConditions(filterMap);
-        System.debug('whereConditions ::: ' +  whereConditions);
-        System.debug('whereConditions11 ::: ' +  getProductList(whereConditions));
         return getProductList(whereConditions);
+
     }
 
     private static String buildWhereConditions(Map<String, String> filterMap) {
@@ -71,12 +100,9 @@ public with sharing class ConnectionToProductOptionController {
         String tempWhere = '';
         Boolean isFirstCondition = true; // 첫 번째 조건인지 여부를 판단
 
-        System.debug('filterMap ::: ' +  filterMap.keySet());
-
         // 필터 맵 순회
         for (String key : filterMap.keySet()) {
             String value = filterMap.get(key);
-            System.debug('value ::: ' +  value);
             if (String.isNotBlank(value)) { // 값이 비어있지 않은 경우만 처리
                 if (key == 'Name') {
                     tempWhere += key + ' LIKE \'%' + String.escapeSingleQuotes(value) + '%\'';
@@ -100,13 +126,7 @@ public with sharing class ConnectionToProductOptionController {
     @AuraEnabled
     public static void saveProductsToOption(List<Id> productIds, Id optionId) {
 
-        System.debug('productIds ::: ' + productIds);
-
-        if (String.isBlank(optionId)) {
-            throw new AuraHandledException('option ID is required.');
-        }
-
-        VehicleOptionMaster__c option = [SELECT Id, Name FROM VehicleOptionMaster__c WHERE Id = :optionId];
+        VehicleOptionMaster__c option = [SELECT Id, Name, OptionCode__c FROM VehicleOptionMaster__c WHERE Id = :optionId];
 
         List<ProductOption__c> optionProducts = new List<ProductOption__c>();
 
@@ -118,7 +138,6 @@ public with sharing class ConnectionToProductOptionController {
 
             optionProducts.add(product);
         }
-        System.debug('optionProducts ::: ' + optionProducts);
 
         insert optionProducts;
     }

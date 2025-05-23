@@ -3,12 +3,14 @@
 * @Description 		 :
 * @Target            :
 * @Modification Log
-  Ver      Date            Author                   Modification
+  Ver      Date            Author                               Modification
   ===================================================================================
-  1.0      2024-12-31      jh.jung                  Created
-  1.1      2025-02-13      tw.Choi                  Modified
-  2.0      2025-04-02      tw.Choi                  Refactoring(Wrapper클래스 사용)
-  2.1      2025-04-17      payo03@solomontech.net   모두싸인 후처리 Process 상속Class 구현
+  1.0      2024-12-31      jh.jung                              Created
+  1.1      2025-02-13      tw.Choi                              Modified
+  2.0      2025-04-02      tw.Choi                              Refactoring(Wrapper클래스 사용)
+  2.1      2025-04-17      payo03@solomontech.net               모두싸인 후처리 Process 상속Class 구현
+  2.2      2025-05-09      payo03@solomontech.net               모두싸인 서명시 본인인증 추가
+  2.3      2025-05-09      jh.jung, payo03@solomontech.net      Internal 서명자 추가 및 계약서 포함시에만 전달, metadata 추가
 */
 public without sharing class ModuSignPDFController {
 
@@ -26,12 +28,14 @@ public without sharing class ModuSignPDFController {
         public String ownerFax { get; set; }
 
         public String accountName { get; set; }
+        public String accountRealName { get; set; }
         public String accountPersonMobilePhone { get; set; }
         public String accountPersonEmail { get; set; }
         public String accountRealDriverEmail { get; set; }
         public String accountBusinessNumber { get; set; }
         public String accountIDNumber { get; set; }
         public String accountBusinessCategory { get; set; }
+        public String accountRealBusinessCategory { get; set; }
         public String accountRealDriverAddress { get; set; }
         public String accountRealDriver { get; set; }
         public String accountRealDriverIDNumber { get; set; }
@@ -153,16 +157,23 @@ public without sharing class ModuSignPDFController {
                         Account.Name,
                         Account.PersonMobilePhone,
                         Account.PersonEmail,
-                        Account.RealDriverEmail__pc,
+                        // Account.RealDriverEmail__pc,
                         Account.BusinessNumber__c,
                         Account.IDNumber__pc,
                         Account.BusinessCategory__c,
-                        Account.RealDriverAddress__pc,
-                        Account.RealDriver__pc,
-                        Account.RealDriverIDNumber__pc,
-                        Account.RealDriverMobile__pc,
+                        // Account.RealDriverAddress__pc,
+                        // Account.RealDriver__pc,
+                        // Account.RealDriverIDNumber__pc,
+                        // Account.RealDriverMobile__pc,
                         Account.RoadAddress__c,
                         Opportunity__c,
+                        Opportunity__r.RealDriverAccount__r.Name,
+                        Opportunity__r.RealDriverAccount__r.PersonMobilePhone,
+                        Opportunity__r.RealDriverAccount__r.PersonEmail,
+                        Opportunity__r.RealDriverAccount__r.IDNumber__pc,
+                        Opportunity__r.RealDriverAccount__r.RoadAddress__c,
+                        Opportunity__r.RealDriverAccount__r.BusinessCategory__c,
+                        Opportunity__r.RealDriverAccount__r.LastName,
                         Opportunity__r.PaymentDeferredAmount__c,
                         Opportunity__r.TaxInvoiceDate__c,
                         Opportunity__r.TaxDeferredAmount__c,
@@ -181,7 +192,7 @@ public without sharing class ModuSignPDFController {
                         Quote__r.AdvancePayment__c,
                         Quote__r.MonthlyPayment__c,
                         Quote__r.MonthDivideInputMonth__c,
-                        Quote__r.fm_RegistrationTax__c,
+                        Quote__r.RegistrationTax__c,
                         Quote__r.fm_DeliveryDiscountPrice__c,
                         Quote__r.fm_TotalRealAndSpecialPrice__c,
                         Quote__r.fm_VehicleDiscountPrice__c,
@@ -259,16 +270,20 @@ public without sharing class ModuSignPDFController {
             wrapper.accountName = contract.Account.Name != null ? contract.Account.Name : '';
             wrapper.accountPersonMobilePhone = contract.Account.PersonMobilePhone != null ? contract.Account.PersonMobilePhone : '';
             wrapper.accountPersonEmail = contract.Account.PersonEmail != null ? contract.Account.PersonEmail : '';
-            wrapper.accountRealDriverEmail = contract.Account.RealDriverEmail__pc != null ? contract.Account.RealDriverEmail__pc : '';
             wrapper.accountBusinessNumber = contract.Account.BusinessNumber__c != null ? contract.Account.BusinessNumber__c : '';
-            wrapper.accountIDNumber = contract.Account.IDNumber__pc != null ? contract.Account.IDNumber__pc : '';
+            // wrapper.accountIDNumber = contract.Account.IDNumber__pc != null ? contract.Account.IDNumber__pc : '';
+            wrapper.accountIDNumber =
+            (contract.Account.IDNumber__pc != null && contract.Account.IDNumber__pc.length() >= 6) ? contract.Account.IDNumber__pc.substring(0, 6) : (contract.Account.IDNumber__pc != null ? contract.Account.IDNumber__pc : '');
             wrapper.accountBusinessCategory = contract.Account.BusinessCategory__c != null ? contract.Account.BusinessCategory__c : '';
-            wrapper.accountRealDriverAddress = contract.Account.RealDriverAddress__pc != null ? contract.Account.RealDriverAddress__pc : '';
-            wrapper.accountRealDriver = contract.Account.RealDriver__pc != null ? contract.Account.RealDriver__pc : '';
-            wrapper.accountRealDriverIDNumber = contract.Account.RealDriverIDNumber__pc != null ? contract.Account.RealDriverIDNumber__pc : '';
-            wrapper.accountRealDriverMobile = contract.Account.RealDriverMobile__pc != null ? contract.Account.RealDriverMobile__pc : '';
             wrapper.accountRoadAddress = contract.Account.RoadAddress__c != null ? contract.Account.RoadAddress__c : '';
-
+            
+            wrapper.accountRealName = contract.Opportunity__r.RealDriverAccount__r.Name != null ? contract.Opportunity__r.RealDriverAccount__r.Name : '';
+            wrapper.accountRealDriverEmail = contract.Opportunity__r.RealDriverAccount__r.PersonEmail != null ? contract.Opportunity__r.RealDriverAccount__r.PersonEmail : '';
+            wrapper.accountRealBusinessCategory = contract.Opportunity__r.RealDriverAccount__r.BusinessCategory__c != null ? contract.Opportunity__r.RealDriverAccount__r.BusinessCategory__c : '';
+            wrapper.accountRealDriverAddress = contract.Opportunity__r.RealDriverAccount__r.RoadAddress__c != null ? contract.Opportunity__r.RealDriverAccount__r.RoadAddress__c : '';
+            wrapper.accountRealDriver = contract.Opportunity__r.RealDriverAccount__r.LastName != null ? contract.Opportunity__r.RealDriverAccount__r.LastName : '';
+            wrapper.accountRealDriverIDNumber = contract.Opportunity__r.RealDriverAccount__r.IDNumber__pc != null ? contract.Opportunity__r.RealDriverAccount__r.IDNumber__pc : '';
+            wrapper.accountRealDriverMobile = contract.Opportunity__r.RealDriverAccount__r.PersonMobilePhone != null ? contract.Opportunity__r.RealDriverAccount__r.PersonMobilePhone : '';
             wrapper.opportunityTaxDeferredAmount = contract.Opportunity__r.TaxDeferredAmount__c != null ? contract.Opportunity__r.TaxDeferredAmount__c : 0;
             wrapper.opportunityPaymentDeferredAmount = contract.Opportunity__r.PaymentDeferredAmount__c != null ? contract.Opportunity__r.PaymentDeferredAmount__c : 0;
             wrapper.opportunityOwnerName = contract.Opportunity__r.Owner.Name != null ? contract.Opportunity__r.Owner.Name : '';
@@ -278,7 +293,7 @@ public without sharing class ModuSignPDFController {
             wrapper.quoteTotalLoanAmount = contract.Quote__r.fm_TotalLoanAmount__c != null ? contract.Quote__r.fm_TotalLoanAmount__c : 0;
             wrapper.quoteOilCouponPrice = contract.Quote__r.ru_OilCouponPrice__c != null ? contract.Quote__r.ru_OilCouponPrice__c : 0;
             wrapper.quoteDefaultInterestRate = contract.Quote__r.DefaultInterestRate__c != null ? contract.Quote__r.DefaultInterestRate__c : 0;
-            wrapper.quoteRegistrationTax = contract.Quote__r.fm_RegistrationTax__c != null ? contract.Quote__r.fm_RegistrationTax__c : 0;
+            wrapper.quoteRegistrationTax = contract.Quote__r.RegistrationTax__c != null ? contract.Quote__r.RegistrationTax__c : 0;
             wrapper.quoteConsignmentPrice = contract.Quote__r.ConsignmentPrice__c != null ? contract.Quote__r.ConsignmentPrice__c : 0;
             wrapper.quoteCapitalDefermentAmount = contract.Quote__r.CapitalDefermentAmount__c != null ? contract.Quote__r.CapitalDefermentAmount__c : 0;
             wrapper.quoteDeliveryDiscountPrice = contract.Quote__r.fm_DeliveryDiscountPrice__c != null ? contract.Quote__r.fm_DeliveryDiscountPrice__c : 0;
@@ -293,7 +308,7 @@ public without sharing class ModuSignPDFController {
             wrapper.quoteProductName = contract.Quote__r.Product__r.Name != null ? contract.Quote__r.Product__r.Name : '';
             wrapper.quoteProductColour = contract.Quote__r.Product__r.Colour__c != null ? contract.Quote__r.Product__r.Colour__c : '';
 
-            wrapper.idNumber = contract.Account.IDNumber__pc != null ? contract.Account.IDNumber__pc : '';
+            // wrapper.idNumber = contract.Account.IDNumber__pc != null ? contract.Account.IDNumber__pc : '';
             wrapper.virtualAccount = !virtualAccountList.isEmpty() ? virtualAccountList.get(0).fm_VirtualAccount__c : '';
             wrapper.totalDownVATDefer = wrapper.contractDeposit + wrapper.quoteDeliveryDiscountPrice + wrapper.opportunityTaxDeferredAmount + wrapper.opportunityPaymentDeferredAmount;
             wrapper.loanAmount = wrapper.quoteTotalLoanAmount - wrapper.quoteCapitalDefermentAmount;
@@ -329,11 +344,14 @@ public without sharing class ModuSignPDFController {
             product.productPrice = productWrap.price != null ? productWrap.price : 0;
             product.productName = productWrap.name != null ? productWrap.name : '';
             wrapper.product = product;
-            //
 
             List<QuoteCreatorController.OptionWrap> optionWrapList = (List<QuoteCreatorController.OptionWrap>) quoteDetail.get('option');
             List<Option> optionList = new List<Option>();
             for(QuoteCreatorController.OptionWrap optionWrap : optionWrapList) {
+                String optionCarefree = optionWrap.name != null ? optionWrap.name.toUpperCase() : '';
+                if (optionCarefree.contains('NO CAREFREE')) {
+                    continue;
+                }
                 Option option = new Option();
 
                 option.optionName = optionWrap.name != null ? optionWrap.name : '';
@@ -390,27 +408,32 @@ public without sharing class ModuSignPDFController {
     public static Map<String, Object> getAccountInfo(String recordId) {
         Map<String, Object> returnMap = new Map<String, Object>();
         Account account = [
-                SELECT Id, Name, Phone, RoadAddress__c, DetailAddress__c, PostalCode__c, PersonMobilePhone, RecordType.DeveloperName,
-                (SELECT Id, Name, RoadAddress__c, DetailAddress__c, PostalCode__c, MobilePhone, RealDriverMobile__c, RealDriver__c, RealDriverAddress__c FROM Contacts)
+                SELECT Id, Name, Phone, RoadAddress__c, DetailAddress__c, PostalCode__c, PersonMobilePhone
                 FROM Account
                 WHERE Id IN (SELECT AccountId FROM Contract WHERE Id = :recordId)
                 LIMIT 1
         ];
-        User internalUser = [
-                SELECT Id, Name, FirstName, EmployeeNumber, CompanyName, MobilePhone
-                FROM User
-                WHERE Id IN (SELECT Approver1__c FROM ApprovalHierarchy__c WHERE Stage__c = 'Contract Modusign Final')
-                LIMIT 1
-        ];
         Contract contractInfo = [
-                SELECT Id, Opportunity__r.NoMDSStatus__c
+                SELECT Id, Opportunity__r.NoMDSStatus__c, Opportunity__r.RealDriverAccount__c
                 FROM Contract
                 WHERE Id = :recordId
                 LIMIT 1
         ];
 
+        Account realDriver;
+        if(contractInfo.Opportunity__r.RealDriverAccount__c == null) {
+            realDriver = account;
+        } else {
+            realDriver = [
+                    SELECT Id, Name, Phone, RoadAddress__c, DetailAddress__c, PostalCode__c, PersonMobilePhone
+                    FROM Account
+                    WHERE Id = :contractInfo.Opportunity__r.RealDriverAccount__c
+                    LIMIT 1
+            ];
+        }
+
         returnMap.put('account', account);
-        returnMap.put('internalUser', internalUser);
+        returnMap.put('realDriver', realDriver);
         returnMap.put('opptyInfo', contractInfo.Opportunity__r);
         return returnMap;
     }
@@ -519,6 +542,7 @@ public without sharing class ModuSignPDFController {
     @Future(Callout=true)
     private static void asyncModuSignAndKakao(String recordId, String selectedOption, Map<String, String> signInfo, String language ) {
         System.debug('asyncGeneratePdfBlob ::: ' + recordId);
+        System.debug('signInfo ::: ' + JSON.serialize(signInfo));
 
         Map<String, String> fileNameMap = new Map<String, String> {
                 'all' => '계약서 + RIO & MDS'
@@ -579,7 +603,7 @@ public without sharing class ModuSignPDFController {
                 //this.recordId, this.selectedRowInfo["Id"], this.selectedOption
                 Map<Object, Object> infoMap = new Map<Object, Object>{
                         'recordId' => signInfo.get('Id')
-                        , 'customerType' => '실차주'.equals(signInfo.get('Info')) ? 'realdriver' : 'owner'
+//                        , 'customerType' => '실차주'.equals(signInfo.get('Info')) ? 'realdriver' : 'owner'
                 };
 
                 Map<String, Object> paramMap = new Map<String, Object>{
@@ -603,13 +627,14 @@ public without sharing class ModuSignPDFController {
         } catch (CustomException e) {
 
             Map<String, String> errorMap = new Map<String, String> {
-                'id' => CommonUtilCustomController.parseIFIdSAP('')
+                'id' => CommonUtilCustomController.parseIFId('')
                 , 'title' => fileNameMap.get(selectedOption)
                 , 'status' => 'FAIL'
             };
             APIDocument__c failDocument = InterfaceModuSign.createDocument(JSON.serialize(errorMap));
             failDocument.Description__c = '해당 번호는 화이트리스트에 포함되지 않습니다.';
-            failDocument.Destination__c = signInfo.get('MobilePhone');
+//            failDocument.Destination__c = signInfo.get('MobilePhone');
+            failDocument.Destination__c = signInfo.get('PersonMobilePhone');
             failDocument.ExternalId__c = recordId;
             failDocument.Contract__c = recordId;
             insert failDocument;
@@ -656,17 +681,12 @@ public without sharing class ModuSignPDFController {
         // ------------------ isRioMds / isContract 값에 따라 Request 결정 --------------------
 
         // 고정 텍스트에 필요한 레코드 정보
-        // TODO: 조회 개별로 하지말고 한번에 가져오기
         // 계약
         Contract contract = [SELECT Id, AccountId, ContractNumber FROM Contract WHERE Id = :recordId];
         // 고객
         Account account = [SELECT Id, Name, Phone, LastName, FirstName, RoadAddress__c, PersonEmail, PersonMobilePhone, BusinessNumber__c, DetailAddress__c, PostalCode__c, OwnerId FROM Account WHERE Id = :contract.AccountId];
-//            contact = [SELECT Id, AccountId, LastName, RoadAddress__c, DetailAddress__c, PostalCode__c, Email, MobilePhone, RealDriverMobile__c, RealDriverAddress__c, RealDriver__c FROM Contact WHERE Id = :contactId];
         // 판매자
         User user = [SELECT Name, FirstName, EmployeeNumber, CompanyName, MobilePhone, Agency__c FROM User WHERE Id = :account.OwnerId];
-        // 최종 모두사인 받는 Internal 유저
-//        User InternalUser = [SELECT Name, FirstName, EmployeeNumber, CompanyName, MobilePhone FROM User WHERE Id = :Label.MTBK_Internal_Modusign];
-        User InternalUser = [SELECT Name, FirstName, EmployeeNumber, CompanyName, MobilePhone FROM User WHERE Id IN (SELECT Approver1__c FROM ApprovalHierarchy__c WHERE Stage__c = 'Contract Modusign Final')];
         // 견적
         Quote quote = [SELECT Id, Product__r.Name FROM Quote WHERE ContractId = :recordId];
 
@@ -677,23 +697,11 @@ public without sharing class ModuSignPDFController {
         IF_DTO.SigningMethod signingMethodMain = new IF_DTO.SigningMethod();
         signingMethodMain.type = 'KAKAO';
         // TODO :: 화이트리스트 반영 필요
-        String phoneNumber = signInfo.get('MobilePhone').replace('-', '');
+        String phoneNumber = signInfo.get('PersonMobilePhone').replace('-', '');
         signingMethodMain.value = phoneNumber;
         // 테스트 중 사고 방지를 위해 01098868298 으로 고정
 //        signingMethodMain.value = '01098868298';
 //        signingMethodMain.value = '01075782125';
-
-        IF_DTO.Participant participantInternal = new IF_DTO.Participant();
-        // SigningMethod Internal 설정
-        IF_DTO.SigningMethod signingMethodInternal = new IF_DTO.SigningMethod();
-        signingMethodInternal.type = 'KAKAO';
-
-        // TODO :: 화이트리스트 반영 필요
-        signingMethodInternal.value = InternalUser.MobilePhone.replace('-', '');
-
-        // 테스트 중 사고 방지를 위해 01098868298 으로 고정
-//        signingMethodInternal.value = '01098868298';
-//        signingMethodInternal.value = '01075782125';
 
 //        if(!Test.isRunningTest()) {
 //            // WhiteList ON_OFF
@@ -705,26 +713,89 @@ public without sharing class ModuSignPDFController {
 
         participantMain.locale = 'ko';
         participantMain.signingDuration = InterfaceModuSign.getSmallestValueDefault();
-        participantMain.role = signInfo.get('Info');
+//        participantMain.role = signInfo.get('Info');
+        participantMain.role = '고객';
         participantMain.name = signInfo.get('Name');
         participantMain.signingOrder = 1;
         participantMain.signingMethod = signingMethodMain;
         participantMain.fields = new List<IF_DTO.Field>();
+        // ver2.2 모두싸인 서명시 본인인증 추가
+        if('KAKAO'.equals(signingMethodMain.type)) {
+            IF_DTO.MobileIdentification mobile = new IF_DTO.MobileIdentification();
+            mobile.name = signInfo.get('Name');
+            mobile.phoneNumber = phoneNumber;
+            IF_DTO.Verification verification = new IF_DTO.Verification();
+            verification.mobileIdentification = mobile;
+            participantMain.verification = verification;
+        }
 
-        participantInternal.locale = 'ko';
-//        participantInternal.signingDuration = InterfaceModuSign.getSmallestValueDefault();
-        participantInternal.signingDuration = 525600;  // 최대값 1년
-        participantInternal.role = 'MTBK INTERNAL';
-        participantInternal.name = InternalUser.Name;
-        participantInternal.signingOrder = 2;
-        participantInternal.signingMethod = signingMethodInternal;
-        participantInternal.fields = new List<IF_DTO.Field>();
+        // ver2.3
+        // 1. 결재라인 조회(Field 전부)
+        ApprovalHierarchy__c approvalHierarchy = [
+                SELECT Approver1__c, Approver1__r.Name, Approver1__r.MobilePhone,
+                        Approver2__c, Approver2__r.Name, Approver2__r.MobilePhone,
+                        Approver3__c, Approver3__r.Name, Approver3__r.MobilePhone,
+                        Approver4__c, Approver4__r.Name, Approver4__r.MobilePhone
+                FROM ApprovalHierarchy__c
+                WHERE Stage__c = 'Contract Modusign Final'
+        ];
+
+        Map<Integer, User> orderUserMap = new Map<Integer, User>();
+        Integer orderNumber = 1;
+        if(approvalHierarchy != null) {
+            if(approvalHierarchy.Approver1__c != null) orderUserMap.put(orderNumber++, approvalHierarchy.Approver1__r);
+            if(approvalHierarchy.Approver2__c != null) orderUserMap.put(orderNumber++, approvalHierarchy.Approver2__r);
+            if(approvalHierarchy.Approver3__c != null) orderUserMap.put(orderNumber++, approvalHierarchy.Approver3__r);
+            if(approvalHierarchy.Approver4__c != null) orderUserMap.put(orderNumber++, approvalHierarchy.Approver4__r);
+        }
+
+        // 2. 필드별로 Signing Order 지정(Field Not NULL인 데이터들만)
+        // 3. User조회
+        // 4. User에 갯수만큼 for문
+        List<IF_DTO.Participant> participantInternalList = new List<IF_DTO.Participant>();
+        List<String> metadataValueList = new List<String>{'init'};
+        for(Integer signingOrder : orderUserMap.keySet()) {
+            User internalUser = orderUserMap.get(signingOrder);
+
+            IF_DTO.Participant participantInternal = new IF_DTO.Participant();
+            String internalPhoneNumber = internalUser.MobilePhone.replace('-', '');
+
+            // SigningMethod Internal 설정
+            IF_DTO.SigningMethod signingMethodInternal = new IF_DTO.SigningMethod();
+            signingMethodInternal.type = 'KAKAO';
+            signingMethodInternal.value = internalPhoneNumber;
+
+            participantInternal.locale = 'ko';
+            participantInternal.signingDuration = 525600;  // 최대값 1년
+            participantInternal.role = 'MTBK INTERNAL' + signingOrder;
+            participantInternal.name = internalUser.Name;
+            participantInternal.signingOrder = signingOrder + 1;
+            participantInternal.signingMethod = signingMethodInternal;
+            participantInternal.fields = new List<IF_DTO.Field>();
+
+            if('KAKAO'.equals(signingMethodInternal.type)) {
+                IF_DTO.MobileIdentification mobile = new IF_DTO.MobileIdentification();
+                mobile.name = internalUser.Name;
+                mobile.phoneNumber = internalPhoneNumber;
+                IF_DTO.Verification verification = new IF_DTO.Verification();
+                verification.mobileIdentification = mobile;
+                participantInternal.verification = verification;
+            }
+
+            participantInternalList.add(participantInternal);
+            metadataValueList.add(internalPhoneNumber);
+        }
+        // ver2.3 metadata 추가
+        IF_DTO.Metadatas metadataInfo = new IF_DTO.Metadatas();
+        metadataInfo.key = 'internal';
+        metadataInfo.value = String.join(metadataValueList, ',');
 
         // Request
         IF_DTO.SigningRequestByPDF signingRequest = new IF_DTO.SigningRequestByPDF();
 
         // 고정 텍스트 넣는 곳
         signingRequest.requesterInputs = new List<IF_DTO.RequesterInput>();
+        signingRequest.metadatas = new List<IF_DTO.Metadatas>{metadataInfo};
 
         // 계약서 파트
         if(isContract) {
@@ -807,13 +878,13 @@ public without sharing class ModuSignPDFController {
             List<String> RequesterInputValuesLarge = new List<String>{
                     account.Name                == null ? '' : account.Name,                        // RIO 회사
                     signInfo.get('Name') == null ? '' : signInfo.get('Name'),                       // RIO 이름
-                    signInfo.get('RoadAddress') == null ? '' : signInfo.get('RoadAddress'),         // RIO 도로명
+                    signInfo.get('RoadAddress__c') == null ? '' : signInfo.get('RoadAddress__c'),         // RIO 도로명
                     '',                                                                             // RIO 이메일 주소
                     account.BusinessNumber__c   == null ? '' : account.BusinessNumber__c,           // RIO 사업자등록번호
                     '',                                                                             // RIO 성
                     '',                                                                             // RIO 건물번호
                     '대한민국',                                                                      // RIO 국가명
-                    signInfo.get('MobilePhone') == null ? '' : signInfo.get('MobilePhone'),         // RIO 전화번호
+                    signInfo.get('PersonMobilePhone') == null ? '' : signInfo.get('PersonMobilePhone'),         // RIO 전화번호
                     quote.Product__r.Name       == null ? '' : quote.Product__r.Name                // MDS 차종
             };
 
@@ -831,9 +902,9 @@ public without sharing class ModuSignPDFController {
                     new IF_DTO.Position(0.2085, 0.0905, MDS_PAGE)   // MDS 구입장소
             };
             List<String> RequesterInputValuesSmall = new List<String>{
-                    signInfo.get('PostalCode')   == null ? '' : signInfo.get('PostalCode'),         // RIO 우편번호
+                    signInfo.get('PostalCode__c')   == null ? '' : signInfo.get('PostalCode__c'),         // RIO 우편번호
 //                    contact.RoadAddress__c  == null ? '' : contact.RoadAddress__c.split(' ')[0],    // RIO 도시명
-                    signInfo.get('RoadAddress') == null ? '' : signInfo.get('RoadAddress').split(' ')[0],       // RIO 도시명
+                    signInfo.get('RoadAddress__c') == null ? '' : signInfo.get('RoadAddress__c').split(' ')[0],       // RIO 도시명
                     user.Name               == null ? '' : user.Name,                               // RIO 판매담당자 이름
                     '',                                                                             // RIO 판매담당자 성
                     '',                                                                             // RIO 판매담당자 사원번호
@@ -894,7 +965,11 @@ public without sharing class ModuSignPDFController {
         signingRequest.title = fileName;
         signingRequest.file = file;
         signingRequest.participants.add(participantMain);
-        signingRequest.participants.add(participantInternal);
+
+        // 계약서 포함된 경우에만 추가
+        if(isContract) {
+            signingRequest.participants.addAll(participantInternalList);
+        }
 
         return signingRequest;
     }

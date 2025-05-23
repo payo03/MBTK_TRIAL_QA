@@ -11,18 +11,22 @@ import { api, track, LightningElement } from "lwc";
 
 import step4Init from "@salesforce/apex/PdiController.step4Init";
 import installSpoilerToVehicleStock from "@salesforce/apex/PdiController.installSpoilerToVehicleStock";
+import getInitData from "@salesforce/apex/PdiController.getInitData";
+import getFilteredSpoilerPartsList from "@salesforce/apex/PdiController.getFilteredSpoilerPartsList";
 import spoilerDropoffSAP from "@salesforce/apex/PdiController.spoilerDropoffSAP";
 
 // Util
-import { showToast } from "c/commonUtil";
+import { showToast, labelList } from "c/commonUtil";
 
 import {
 	columns,
 	optionColumns,
 	detailColumns,
-	installColumns
+	installColumns,
+	spoilerColums
 } from "./pdiStep4ViewColumns";
 
+const filterDefault = { opportunityName : "", status : "" };
 
 export default class PdiStep4View extends LightningElement {
 
@@ -30,25 +34,32 @@ export default class PdiStep4View extends LightningElement {
 	groupDetailColumns = detailColumns;
 	optionColumns = optionColumns;
 	installColumns = installColumns;
+	spoilerColums = spoilerColums;
 	selectedRows;
 
 	@track _selectedVIN;
 	@track selectedOptionData = [];
 	@track groupList;
+	@track spoilerData;
 	@track groupDetailList = [];
 	@track installList = [];
 	initialInstallStatus = 0; // 스포일러 장착 여부의 초기 상태 기록
 	@track varStepList;
+	@track myLabel = labelList;
+	isNoData = false;
 
 	paramMapList= [];
 
 	// 모달
 	isModalOpen;
 	modalMap = { add: false, remove: false, viewVIN: false };
+	// 스포일러코드 필터
+	filterMap = { ...filterDefault };
 	isLoading = false;
 
 	connectedCallback() {
 		this.init();
+		this.spoilerInint();
 	}
 
 	init() {
@@ -59,8 +70,18 @@ export default class PdiStep4View extends LightningElement {
 			if(this.installList.length) this.installList[0].installDate = this.varStepList[3].StepEnd__c;
 			this.groupList = response?.spoilerPartsJuntion;
 		}).catch(error => {
-			showToast("Error", "Error Loading step4 Init", "error", "dismissable");
+			showToast("불러오기 실패", "옵션장착을 위한 정보를 불러오는 중 에러가 발생했습니다.", "error", "dismissable");
 			console.log(error);
+		}).finally(this.isLoading = false);
+	}
+
+	spoilerInint() {
+		this.isLoading = true;
+		getInitData().then(res => {
+			this.spoilerData = res?.spoilerPartsJuntion;
+			// console.log('this.spoilerData ::: ', JSON.stringify(this.spoilerData));
+		}).catch(err => {
+			console.log(err);
 		}).finally(this.isLoading = false);
 	}
 
@@ -128,45 +149,63 @@ export default class PdiStep4View extends LightningElement {
 			Object.keys(this.modalMap).forEach(el => this.modalMap[el] = (el === type));
 		}
 	}
-
-	/**
-	 * @description Pdi Main 모달 on
-	 */
-	handleMainModal() {
-		if(this.varStepList[2].IsPass__c == false) {
-			showToast('Warning', 'Step 3를 먼저 완료해주세요.', 'warning');
-			return;
-		}
-		const customEvent = new CustomEvent('step4open');
-		this.dispatchEvent(customEvent);
-	}
 	
 	/**
 	 * @description 스포일러 추가
 	*/
-	handleAdd() {
-			this.isLoading = true;
-			if(this.installList.length != 0) {
-				showToast('장착된 스포일러가 있음', '장착되어있는 스포일러를 먼저 제거해주세요.', 'warning');
-				this.isLoading = false;
-				return;
-			}
-			installSpoilerToVehicleStock({inputMap: this.groupDetailList[0]}).then(() => {
-				this.installList = [this.groupDetailList[0]];
-				let paramMap = {
-					stockId: this._selectedVIN.Id,
-					spoilerCode: this.groupDetailList[0].SpoilerCode__c,
-					isAttach: true
-				};
-				this.paramMapList = [paramMap];
-				this.callSAP();
-			}).catch(error => {
-				showToast('Error', 'Error SF Spoiler Update', 'error', 'dismissable');
-				console.log(error);
-			}).finally(() => {
-				this.isLoading = false;
+	// handleAdd() {
+	// 		this.isLoading = true;
+	// 		if(this.installList.length != 0) {
+	// 			showToast('장착된 스포일러가 있음', '장착되어있는 스포일러를 먼저 제거해주세요.', 'warning');
+	// 			this.isLoading = false;
+	// 			return;
+	// 		}
+	// 		installSpoilerToVehicleStock({inputMap: this.groupDetailList[0]}).then(() => {
+	// 			this.installList = [this.groupDetailList[0]];
+	// 			let paramMap = {
+	// 				stockId: this._selectedVIN.Id,
+	// 				spoilerCode: this.groupDetailList[0].SpoilerCode__c,
+	// 				isAttach: true
+	// 			};
+	// 			this.paramMapList = [paramMap];
+	// 			this.callSAP();
+	// 		}).catch(error => {
+	// 			showToast('스포일러 장착 에러', '스포일러 장착 중 에러가 발생했습니다.', 'error', 'dismissable');
+	// 			console.log(error);
+	// 		}).finally(() => {
+	// 			this.isLoading = false;
+	// 			this.toggleModal();
+	// 		});
+	// }
+
+	/**
+	 * @description 스포일러 테스트 지울겁니다
+	*/
+	handleAdd(showModal) {
+		this.isLoading = true;
+		if(this.installList.length != 0) {
+			showToast('장착된 스포일러가 있음', '장착되어있는 스포일러를 먼저 제거해주세요.', 'warning');
+			this.isLoading = false;
+			return;
+		}
+		installSpoilerToVehicleStock({inputMap: this.groupDetailList[0]}).then(() => {
+			this.installList = [this.groupDetailList[0]];
+			let paramMap = {
+				stockId: this._selectedVIN.Id,
+				spoilerCode: this.groupDetailList[0].SpoilerCode__c,
+				isAttach: true
+			};
+			this.paramMapList = [paramMap];
+			this.callSAP();
+		}).catch(error => {
+			showToast('스포일러 장착 에러', '스포일러 장착 중 에러가 발생했습니다.', 'error', 'dismissable');
+			console.log(error);
+		}).finally(() => {
+			this.isLoading = false;
+			if (showModal) {
 				this.toggleModal();
-			});
+			}
+		});
 	}
 	
 	handleRemove() {
@@ -193,7 +232,7 @@ export default class PdiStep4View extends LightningElement {
 			this.installList = [];
 			this.callSAP();
 		}).catch(error => {
-			showToast('Error', 'Error Update', 'error', 'dismissable');
+			showToast('스포일러 제거 에러', '스포일러 제거 중 에러가 발생했습니다.', 'error', 'dismissable');
 			console.log(error);
 		}).finally(() => {
 			this.isLoading = false;
@@ -205,8 +244,68 @@ export default class PdiStep4View extends LightningElement {
 		await spoilerDropoffSAP({inputMapList: this.paramMapList}).then(() => {
 			// this.updateStep();
 		}).catch(error => {
-			showToast('Error', 'Error SAP Update', 'error', 'dismissable');
+			showToast('SAP 반영 에러', 'SAP에 스포일러 재고 전송 요청 중 에러가 발생했습니다.', 'error', 'dismissable');
 			console.log(error);
 		});
 	}
+
+	/**
+	 * @description 스포일러 코드 검색 
+	*/
+
+	handleChange(e) {
+		const id = e.target.dataset.id;
+		const value = e.target.value;
+
+        switch (id) {
+			case "ml" :
+                this.filterMap.spoilerCode = value;
+				break;
+		}
+	}
+
+	handleSearch(e) {
+		const id = e.currentTarget.dataset.id;
+		if (id === "refresh") {
+			const datatable = this.template.querySelector('[data-id="spoiler"]');
+
+            if (datatable) {
+                datatable.selectedRows = [];
+            }
+			this.filterMap = { ...filterDefault };
+
+		}
+		getFilteredSpoilerPartsList({ filterMap: this.filterMap }).then(res => {
+			this.spoilerData = res;
+			if (this.spoilerData.length === 0) {
+				this.isNoData = true;
+			} else {
+				this.isNoData = false;
+			}
+			this.isLoading = false;
+		}).catch(err => {
+			this.isLoading = false;
+			console.log('err ::: ', err);
+		});
+
+	}
+
+	handleRowSelection(e) {
+		console.log('handleRowSelection 이벤트');
+		const recId = e.detail.row.id;
+		const actionName = e.detail.action.name;
+
+		let inputMap = {
+			stockId: this._selectedVIN.Id,
+			spoilerId: recId,
+			Name: e.detail.row.name,
+			SpoilerCode__c: e.detail.row.spoilerCode,
+		};
+
+		this.groupDetailList = [inputMap];
+		if (actionName === 'Add') {
+			this.handleAdd(false);
+		}
+	}
+
 }

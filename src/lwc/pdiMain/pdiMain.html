@@ -16,16 +16,15 @@
 								<div class="slds-page-header__name-title">
 									<h1 class="slds-page-header__title slds-truncate">
 										<span>PDI Step</span>
+									</h1>
 										<template if:true={selectedRow}>
 											<template lwc:if={selectedRow.CarColor__c}>
-												<!-- <span>[{selectedRow.Name} / 색상: {selectedRow.CarColor__c}]</span> -->
-												<span>[<lightning-formatted-url value={url} label={selectedRow.Name} target="_blank" ></lightning-formatted-url> / 색상: {selectedRow.CarColor__c} / 미해결 이슈: {selectedRow.fm_UnresolvedIssues__c}건]</span>
+												<span class="slds-text-heading_medium">[<lightning-formatted-url value={url} label={selectedRow.Name} target="_blank" ></lightning-formatted-url> / 워크넘버: {selectedRow.VehicleNo__c} / 미해결 이슈: {selectedRow.fm_UnresolvedIssues__c}건 / 색상: {selectedRow.CarColor__c}]</span>
 											</template>
 											<template lwc:else>
-												<span>[<lightning-formatted-url value={url} label={selectedRow.Name} target="_blank" ></lightning-formatted-url> / 미해결 이슈: {selectedRow.fm_UnresolvedIssues__c}건]</span>
+												<span class="slds-text-heading_medium">[<lightning-formatted-url value={url} label={selectedRow.Name} target="_blank" ></lightning-formatted-url> / 워크넘버: {selectedRow.VehicleNo__c} / 미해결 이슈: {selectedRow.fm_UnresolvedIssues__c}건]</span>
 											</template>
 										</template>
-									</h1>
 								</div>
 							</div>
 						</div>
@@ -91,8 +90,18 @@
 					<!-- RIGHT -->
 					<div class="right-section">
 						<template if:false={isStep0}>
-							<div class="slds-grid slds-grid_align-end slds-p-vertical_x-small" style="width: 80%;">
+							<div class="slds-grid slds-grid_align-end slds-p-vertical_x-small">
 								<ul class="slds-button-group-list">
+									<template if:true={isIssueSave}>
+										<li>
+											<lightning-button
+												label="이슈 저장"
+												data-name="saveIssue"
+												onclick={toggleModal}
+												class="slds-button">
+											</lightning-button>
+										</li>
+									</template>
 									<li>
 										<lightning-button
 											label="단계 완료"
@@ -126,7 +135,6 @@
 						<template if:true={isStep1}>
 							<c-pdi-step1-view selected-vin={selectedRow}
 																is-bulk={isBulk}
-																onchangedrivedistance={handleDriveDistance}
 																onrecordselect={handleRecordSelected}
 																onbulkpaste={handleBulkPaste}>
 							</c-pdi-step1-view>
@@ -134,7 +142,6 @@
 						<template if:true={isStep2}>
 							<c-pdi-step2-view selected-vin={selectedRow}
 																is-bulk={isBulk}
-																onchangedrivedistance={handleDriveDistance}
 																onrecordselect={handleRecordSelected}
 																onbulkpaste={handleBulkPaste}>
 							</c-pdi-step2-view>
@@ -177,28 +184,38 @@
 									<span class="slds-assistive-text">Cancel and close</span>
 							</button>
 							<div class="slds-modal__header">
-									<template if:true={isNext}>
+									<template lwc:if={modalMap.nextStep}>
 											<h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate" tabindex="-1">
 													단계 완료
 											</h1>
 									</template>
-									<template if:false={isNext}>
+									<template lwc:elseif={modalMap.prevStep}>
 											<h1 id="modal-heading-02" class="slds-modal__title slds-hyphenate" tabindex="-1">
 													단계 취소
+											</h1>
+									</template>
+									<template lwc:elseif={modalMap.saveIssue}>
+											<h1 id="modal-heading-03" class="slds-modal__title slds-hyphenate" tabindex="-1">
+													이슈 저장
 											</h1>
 									</template>
 							</div>
 							<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
 									<div class="slds-grid slds-wrap">
 											<div class="slds-size_1-of-1">
-													<template if:true={isNext}>
+													<template lwc:if={modalMap.nextStep}>
 															<div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">
 																	<strong>현재 단계를 완료하시겠습니까?</strong>
 															</div>
 													</template>
-													<template if:false={isNext}>
+													<template lwc:elseif={modalMap.prevStep}>
 															<div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">
 																	<strong>현재 단계를 취소하시겠습니까?</strong>
+															</div>
+													</template>
+													<template lwc:elseif={modalMap.saveIssue}>
+															<div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">
+																	<strong>입력한 주행거리와 이슈를 저장하시겠습니까?</strong>
 															</div>
 													</template>
 											</div>
@@ -208,14 +225,19 @@
 								<button class="slds-button slds-button_neutral" data-name="cancel"
 												onclick={toggleModal}>취소
 								</button>
-								<template if:true={isNext}>
+								<template lwc:if={modalMap.nextStep}>
 										<button class="slds-button slds-button_brand" data-name="save"
 														onclick={handleComplete}>확인
 										</button>
 								</template>
-								<template if:false={isNext}>
+								<template lwc:elseif={modalMap.prevStep}>
 										<button class="slds-button slds-button_brand" data-name="rollback"
 														onclick={handleRollback}>확인
+										</button>
+								</template>
+								<template lwc:elseif={modalMap.saveIssue}>
+										<button class="slds-button slds-button_brand" data-name="saveIssue"
+														onclick={handleUpdateIssue}>확인
 										</button>
 								</template>
 							</div>

@@ -52,11 +52,11 @@
 										        data-name="completeHandover">출고처리
 										</button>
 									</li>
-									<li>
+									<!-- <li>
 										<button class="slds-button slds-button_neutral" onclick={handleHeaderClick}
 										        data-name="cancelStock">배정취소
 										</button>
-									</li>
+									</li> -->
 									<li>
 										<button class="slds-button slds-button_neutral" onclick={handleHeaderClick}
 										        data-name="checkUpdate">업데이트 확인
@@ -76,7 +76,7 @@
 		<div class="slds-m-vertical_small">
 			<div class="box-wrap">
 				<div class="slds-grid slds-wrap slds-p-bottom_small filter-wrap">
-					<div class="slds-grid">
+					<div class="slds-grid slds-wrap">
 						<lightning-combobox
 							label="입금 상태"
 							options={filterOptionMap.paymentStatusOption}
@@ -110,15 +110,25 @@
 							value={filterMap.endDate}
 						></lightning-input>
 						<div class="btn-wrap">
-							<lightning-button-icon
-								icon-name="utility:refresh"
-								variant="border-filled"
-								class="slds-p-right_xx-small"
-								alternative-text="Refresh"
-								title="Refresh"
-								data-name="refresh"
-								onclick={handleFilterClick}
-							></lightning-button-icon>
+<!--							<lightning-button-icon-->
+<!--								icon-name="utility:refresh"-->
+<!--								variant="border-filled"-->
+<!--								class="slds-p-right_xx-small"-->
+<!--								alternative-text="Refresh"-->
+<!--								title="Refresh"-->
+<!--								data-name="refresh"-->
+<!--								onclick={handleFilterClick}-->
+<!--							></lightning-button-icon>-->
+							<button class="slds-button slds-button_neutral" data-name="refresh"
+											onclick={handleFilterClick}>
+								<lightning-icon
+									icon-name="utility:refresh"
+									variant="border-filled"
+									alternative-text="Refresh"
+									size="x-small"
+									title="Refresh">
+								</lightning-icon>&nbsp;필터 리셋
+							</button>
 							<button class="slds-button slds-button_neutral" data-name="search"
 							        onclick={handleFilterClick}>
 								<lightning-icon
@@ -134,7 +144,7 @@
 					<lightning-button-group>
 						<lightning-button label="이번 달" variant={variantMap.THIS_MONTH} data-name="THIS_MONTH"
 						                  onclick={handleFilterClick}></lightning-button>
-						<lightning-button label="지난 달" variant={variantMap.LAST_MONTH} data-name="LAST_MONTH"
+						<lightning-button label="다음 달" variant={variantMap.NEXT_MONTH} data-name="NEXT_MONTH"
 						                  onclick={handleFilterClick}></lightning-button>
 						<lightning-button label="계약완료 & 출고일 미정" variant={variantMap.undecided} data-name="undecided"
 						                  onclick={handleFilterClick}></lightning-button>
@@ -149,7 +159,7 @@
 						onrowselection={handleSelection}
 						selected-rows={selectedRowIdList}
 						column-widths-mode="auto"
-						min-column-width="80"
+						min-column-width="120"
 					></c-custom-data-table>
 					<template if:false={handoverList.length}>
 						<div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">
@@ -254,7 +264,7 @@
 						<template lwc:elseif={modalMap.viewVIN}>
 							<div class="slds-grid slds-wrap">
 								<div class="slds-size_1-of-1 filter-wrap">
-									<div class="slds-grid">
+									<div class="slds-grid slds-wrap">
 										<lightning-input
 											type="text"
 											label="VIN"

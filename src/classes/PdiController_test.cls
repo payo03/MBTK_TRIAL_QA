@@ -9,9 +9,24 @@
 **************************************************************/
 @isTest
 private class PdiController_test {
-    @TestSetup
-    static void setup() {
-        TestObjectBuilder.createObjects();
+    static final Handover__c newHandover;
+    static final Handover__c handover;
+    
+    static {
+        TestObjectBuilder2.createIfBundle();
+        TestObjectBuilder2.createContractBundle2();
+        insert TestObjectBuilder2.createPaymentTracker();
+        insert TestObjectBuilder2.createPaymentTypeList();
+        insert TestObjectBuilder2.createPaymentLog();
+        insert TestObjectBuilder2.createPDIStep();
+        insert TestObjectBuilder2.createHandover();
+        handover = TestObjectBuilder2.createHandover();
+        newHandover = [
+            SELECT Id, Opportunity__c, fm_VehicleStock__c, Opportunity__r.Name, Opportunity__r.OwnerId,
+                Opportunity__r.ContractId, Opportunity__r.VehicleStock__r.Name
+            FROM Handover__c
+            WHERE Id = :handover.Id
+        ];
     }
 
     @isTest
@@ -63,7 +78,7 @@ private class PdiController_test {
         vininfoList.add(vinInfoMap);
         Test.startTest();
         PdiController.rollbackVehicleStock('STEP5', vinInfoList);
-        PdiController.updateVehicleStock('STEP5', vinInfoList);
+        PdiController.updateVehicleStock('STEP5', vinInfoList, false);
         Test.stopTest();
     }
 
@@ -73,6 +88,35 @@ private class PdiController_test {
         Test.startTest();
         PdiController.step3Init(vehicle.Id);
         PdiController.step3CheckSpoiler(vehicle.Id);
+
+        SchedulerMainController.HandoverWrap handoverWrap = HandoverSchedulerController.getFilteredHandoverList(null).get(0);
+        VehicleStock__c vehicleStock = new VehicleStock__c(
+            Name = 'Test',
+            Product__c = handoverWrap.vehicleStock.Product__c,
+            Status__c = '재고 노출'
+        );
+        insert vehicleStock;
+        List<PDIStep__c> insertList = new List<PDIStep__c>();
+        for(Integer i = 1; i <= 5; i++) {
+            PDIStep__c step = new PDIStep__c();
+            String stage = 'STEP' + i;
+
+            step.VehicleStock__c = vehicleStock.Id;
+            step.Stage__c = stage;
+            step.Name = vehicleStock.Name + '_' + stage;
+            step.IsPass__c = false;
+
+            insertList.add(step);
+        }
+        insert insertList;
+        Map<String, String> completeMap = new Map<String, String>{
+            'stockId' => vehicleStock.Id,
+            'opportunityId' => newHandover.Opportunity__r.Id,
+            'previousStockId' => newHandover.Opportunity__r.VehicleStock__r.Id
+        };
+
+        PdiController.doCompleteStep3(completeMap);
+        PdiController.doRollbackStep3(completeMap);
         Test.stopTest();
     }
 
@@ -84,10 +128,33 @@ private class PdiController_test {
         inputMap.put('spoilerId', vehicle.SpoilerPart__c);
 
         Test.startTest();
-        PdiController.step4Init(vehicle.Id, vehicle.SpoilerPart__c);
+        PdiController.step4Init(vehicle.Id);
         PdiController.installSpoilerToVehicleStock(inputMap);
         PdiController.updateStep4(vehicle.Id);
-        // PdiController.spoilerDropoffSAP(vehicle.Id);
+        Test.stopTest();
+    }
+
+    @isTest
+    static void testGetFilteredSpoilerPartsList() {
+        Test.startTest();
+
+        Map<String, String> filterMap = new Map<String, String>{
+            'spoilerCode' => 'SpoilerPart__c.SpoilerCode__c'
+        };
+
+        PdiController.getFilteredSpoilerPartsList(filterMap);
+        
+        Test.stopTest();
+
+    }
+
+    @IsTest
+    static void testGetInit() {
+
+        Test.startTest();
+
+        PdiController.getInitData();
+
         Test.stopTest();
     }
 }

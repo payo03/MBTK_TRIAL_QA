@@ -18,7 +18,7 @@
         }
 
         body {
-          font-family: Arial Unicode MS;
+          font-family: Arial Unicode MS, sans-serif;
           font-size: 12px;
           text-align: center;
           margin-top: 17em; /* 여백 조정 */

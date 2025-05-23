@@ -17,6 +17,7 @@
   1.9      2025-04-16      th.kim                           updateIncentiveHistory() 추가
   1.10     2025-04-16      th.kim                           부가세 유예일 수 기회에 업데이트 추가
   1.11     2025-04-18      payo03@solomontech.net           주민등록증 세금계산서 발행여부 완료시 고객정보전송
+  1.12     2025-04-29      blacktick@solomontech.net        updateLockStatus() 추가
 */
 global without sharing class Opportunity_tr extends TriggerHandler {
 
@@ -30,7 +31,7 @@ global without sharing class Opportunity_tr extends TriggerHandler {
     private final Map<String, List<Id>> PaymentDeferredListMap { get; set; }
     private final List<Map<String, Object>> requestStockMapList { get; set; }
     private final List<String> IDNumberUpdateList { get; set; }
-
+    private final Map<String, List<Id>> isLockUpdateMap { get; set; }
 
     private final static List<String> updateStatusList = new List<String>{
             '승인됨', '반려됨'
@@ -51,10 +52,12 @@ global without sharing class Opportunity_tr extends TriggerHandler {
             PaymentDeferredListMap = getDeferredListMap('PaymentDefermentStatus__c');
             requestStockMapList = getRequestStockMapList();     // ver1.6 재고이동요청 CALL After Update로 분리
             IDNumberUpdateList = getIDNumberUpdateList();       // ver1.11 주민등록증 세금계산서 발행여부 완료시 고객정보전송
+            isLockUpdateMap = getIsLockUpdateMap();
         }
     }
 
     public override void beforeUpdate() {
+        opportinityNamingRule();
         if (!opptyStockIdMap.isEmpty()) doUpdateAvailableStock();
     }
 
@@ -82,7 +85,32 @@ global without sharing class Opportunity_tr extends TriggerHandler {
                 'isChain' => false
         };
         if (!IDNumberUpdateList.isEmpty()) System.enqueueJob(new AsyncCustomerInfo(IDNumberUpdateList, infoMap));   // ver1.11 주민등록증 세금계산서 발행여부 완료시 고객정보전송
+
+        if(!isLockUpdateMap.isEmpty()) updateLockStatus();
     }
+
+    // 2025-05-07 oppty 네이밍룰 변경
+    private void opportinityNamingRule(){
+
+        try{
+            Map<String, String> accountMap = new Map<String, String>();
+            for(Opportunity opportunity : newList){
+                accountMap.put(opportunity.AccountId, null);
+            }
+
+            for(Account account : [SELECT Id, LastName FROM Account WHERE Id IN:accountMap.keySet()]){
+                accountMap.put(account.Id, account.LastName);
+            }
+            System.debug('accountMap:::::'+accountMap);
+            for(Opportunity opportunity : newList){
+                opportunity.Name = accountMap.get(opportunity.AccountId) + '-' + opportunity.OpportunityAutoNumber__c;
+            }
+
+        }catch(Exception e){
+            System.debug('err => ' + e);
+        }
+    }
+
 
     // 2025.01.10 프로세스 추가될 예정
     private static void approvalAfterProcess(Map<String, List<Id>> VATDeferredListMap, String approvalType) {
@@ -143,6 +171,7 @@ global without sharing class Opportunity_tr extends TriggerHandler {
             ProcessInstanceHistory process = obj.ProcessSteps.get(0);
 
             String status;
+            System.debug('oppty trigger 테클 체크 :: ' + process.StepStatus );
             switch on process.StepStatus {
                 when 'Approved' {
                     status = 'COMPLETED';
@@ -472,6 +501,27 @@ global without sharing class Opportunity_tr extends TriggerHandler {
         return accountIdList;
     }
 
+    private Map<String, List<Id>> getIsLockUpdateMap() {
+
+        List<Id> toLockList = new List<Id>();
+        List<Id> toUnlockList = new List<Id>();
+
+        for (Opportunity newObj : newList) {
+            Opportunity oldObj = oldMap.get(newObj.Id);
+            Boolean oldLock = oldObj.IsLock__c;
+            Boolean newLock = newObj.IsLock__c;
+            if (oldLock != newLock) {
+                if (newLock == true)    { toLockList.add(newObj.Id); }
+                else                    { toUnlockList.add(newObj.Id); }
+            }
+        }
+
+        return new Map<String, List<Id>> {
+            'lock' => toLockList
+            , 'unlock' => toUnlockList
+        };
+    }
+
     // 개인정보 고객 미동의 필드 락 로직
     private void consentFieldLock() {
         List<String> byPassfieldList = new List<String>{
@@ -587,7 +637,7 @@ global without sharing class Opportunity_tr extends TriggerHandler {
                     LIMIT 1
             ];
             if (!customerConsents.isEmpty()) {
-                String jobName = 'SendLightConsent_ba(' + customerConsents[0].Id + ')';
+                String jobName = 'MTBK_SendLightConsent_ba(' + customerConsents[0].Id + ')';
                 String query = 'SELECT Id FROM CronTrigger WHERE CronJobDetail.Name = \'' + jobName + '\'';
 
                 List<CronTrigger> jobs = Database.query(query);
@@ -606,13 +656,17 @@ global without sharing class Opportunity_tr extends TriggerHandler {
     private void updateIncentiveHistory() {
 
         Set<Id> incentiveIdSet = new Set<Id>();
+        Set<Id> complateOpptyIds = new Set<Id>();
         for (Opportunity newOpportunity : newList) {
             Opportunity oldOpportunity = oldMap.get(newOpportunity.Id);
             if (oldOpportunity.PaymentStatus__c != newOpportunity.PaymentStatus__c && newOpportunity.PaymentStatus__c == 'COMPLETE') {
                 if (String.isNotBlank(newOpportunity.IncentiveHistoryQuarterly__c)) incentiveIdSet.add(newOpportunity.IncentiveHistoryQuarterly__c);
                 if (String.isNotBlank(newOpportunity.IncentiveHistoryAnnual__c)) incentiveIdSet.add(newOpportunity.IncentiveHistoryAnnual__c);
+                complateOpptyIds.add(newOpportunity.Id);
             }
         }
+        // 출고를 위한 입금완료 상태일 때 핸드오버팀에게 노티 발송
+        if(!complateOpptyIds.isEmpty()) paymentComplateNoti(complateOpptyIds);
 
         // 모든입금완료로 업데이트된 기회의 인센티브 내역 리스트
         List<IncentiveHistory__c> incentiveHistoryList = [
@@ -668,5 +722,74 @@ global without sharing class Opportunity_tr extends TriggerHandler {
         }
 
         update updateList;
+    }
+    // 락 필드 업데이트 시 처리 프로세스
+    private void updateLockStatus() {
+
+        List<Id> lockList = isLockUpdateMap.get('lock');
+        List<Id> unlockList = isLockUpdateMap.get('unlock');
+
+        List<Opportunity> recoveryList = new List<Opportunity>();
+
+        System.debug('DEBUG: ' + lockList);
+        if (!lockList.isEmpty()) {
+            Approval.LockResult[] lockResults = Approval.lock(lockList, false);
+            for (Approval.LockResult result : lockResults) {
+                if (!result.isSuccess()) {
+//                if(true) {
+                    recoveryList.add(new Opportunity(
+                        Id = result.getId(),
+                        IsLock__c = false // Lock 실패했으니까 Lock 해제된 상태로
+                    ));
+                }
+            }
+        }
+
+        System.debug('DEBUG: ' + unlockList);
+        if (!unlockList.isEmpty()) {
+            Approval.UnlockResult[] unlockResults = Approval.unlock(unlockList, false);
+            for (Approval.UnlockResult result : unlockResults) {
+                if (!result.isSuccess()) {
+                    recoveryList.add(new Opportunity(
+                        Id = result.getId(),
+                        IsLock__c = true // Unlock 실패했으니까 다시 잠금 상태로
+                    ));
+                }
+            }
+        }
+
+        if (!recoveryList.isEmpty()) {
+            TriggerHandler.bypass('Opportunity');
+            update recoveryList;
+            TriggerHandler.clearBypass('Opportunity');
+        }
+    }
+
+    /**
+     * @author san.kang
+     * @description 출고를 위한 입금 완료시 핸드오버팀 노티발송
+     */
+    private void paymentComplateNoti(Set<Id> complateOpptyIds){
+
+        String notificationTypeId = [SELECT Id FROM CustomNotificationType WHERE DeveloperName = 'Custom' LIMIT 1].Id;
+        List<PermissionSetAssignment> permissionSetAssignments = [SELECT Id, AssigneeId, PermissionSet.Name, PermissionSet.Label FROM PermissionSetAssignment WHERE  PermissionSet.Name = 'HandOver'];
+
+        Set<String> handOverUserSet = new Set<String>();
+
+        for(PermissionSetAssignment permissionSetAssignment : permissionSetAssignments){
+            handOverUserSet.add(permissionSetAssignment.AssigneeId);
+        }
+        for(Id opportunityId : complateOpptyIds){
+            // notification util Wrapper Class=
+            CommonUtilController.NotificationWrap notiWrap = new CommonUtilController.NotificationWrap(
+                    '모든 입금 완료',
+                    '출고를 위한 모든 입금이 완료되었습니다.',
+                    notificationTypeId,
+                    UserInfo.getUserId(),
+                    opportunityId,
+                    handOverUserSet
+            );
+            CommonUtilController.sendNotification(notiWrap); // Noti 발송
+        }
     }
 }

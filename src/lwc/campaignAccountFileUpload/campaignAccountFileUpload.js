@@ -39,7 +39,7 @@ export default class CampaignAccountFileUpload extends NavigationMixin(Lightning
             this.readFile();
         } else {
             this.fileDetails = null;
-            showToast('Error', '파일을 선택해주세요.', 'error');
+            showToast('파일 미선택', '파일을 선택해주세요.', 'error');
         }
     }
 
@@ -61,15 +61,11 @@ export default class CampaignAccountFileUpload extends NavigationMixin(Lightning
 
         fileReader.onloadend = (() => {
             const csvData = fileReader.result;
-            // console.log('csvData ::: ', csvData);
-            // this.fileContents = btoa(csvData); // Base64 인코딩 처리
             this.fileContents = this.encodeToBase64(csvData)
-            // console.log('this.fileContents ::: ', this.fileContents);
-            // this.saveAccountData();
         });
 
         fileReader.onerror = (() => {
-            showToast('Error', '파일 읽기에 실패했습니다.', 'error');
+            showToast('파일 읽기 에러', '파일 읽기에 실패했습니다.', 'error');
         });
 
         fileReader.readAsText(this.file, 'UTF-8'); // UTF-8로 읽기
@@ -90,14 +86,13 @@ export default class CampaignAccountFileUpload extends NavigationMixin(Lightning
     }
 
     saveAccountData() {
-        // accountFileUpload({campaignId: this.campaignId, base64Data: JSON.stringify(this.fileContents)})
         accountFileUpload({campaignId: this.campaignId, base64Data: this.fileContents})
         .then(result => {
             if(!result || result.length === 0) {
-                showToast('Error', 'Account 파일을 확인해 주세요.', 'error', 'dismissable');
+                showToast('계정 관련 파일 체크', '계정 관련 파일을 확인해 주세요.', 'error', 'dismissable');
                 return;
             } 
-            showToast('Success', 'Create Successfully', 'success', 'dismissable');
+            showToast('고객 연결 성공', '고객 연결에 성공했습니다', 'success', 'dismissable');
             
             this.dispatchEvent(new CloseActionScreenEvent());   // Panel 닫기
             setTimeout(() => {
@@ -105,7 +100,7 @@ export default class CampaignAccountFileUpload extends NavigationMixin(Lightning
             }, 1500);
         })
         .catch(err=> {
-            showToast('Error', 'Account 관련 CSV 파일을 넣어주세요', 'error', 'dismissable');
+            showToast('계정 관련 CSV 파일 확인', '계정 관련 CSV 파일을 넣어주세요', 'error', 'dismissable');
         })
     }
 
@@ -143,7 +138,6 @@ export default class CampaignAccountFileUpload extends NavigationMixin(Lightning
     // 파일 선택 버튼 클릭 시 input[type="file"] 엘리먼트 트리거
     handleChooseFile() {
         this.template.querySelector('input[type="file"]').click();
-        // console.log('이건 뭐라고 찍히냐?');
     }
 
 }

@@ -27,29 +27,23 @@ export default class CampaignVehicleStockFileUpload extends NavigationMixin(Ligh
     handleFilesChange(event) {
         this.campaignId = this.pageRef.state.recordId;
         this.filesUploaded = event.target.files;
-        console.log('this.filesUploaded :: ', this.filesUploaded);
 
         if (this.filesUploaded.length > 0) {
             this.file = this.filesUploaded[0]; // 첫 번째 파일 선택
-            console.log('this.file ::: ', this.file);
-            console.log('this.file ::: ', this.file.name);
 
             this.fileDetails = {
                 name: this.file.name,                        // 파일 이름
                 size: this.formatFileSize(this.file.size),  // 파일 크기 (읽기 쉬운 형식으로 변환)
             };
-            
-            console.log('this.fileDetails ::: ', JSON.stringify(this.fileDetails));
 
             this.readFile();
         } else {
             this.fileDetails = null;
-            showToast('Error', '파일을 선택해주세요.', 'error');
+            showToast('차량 재고 관리 파일 확인', '차량 재고 관리 파일을 선택해주세요.', 'error');
         }
     }
 
     uploadFile(e) {
-        console.log('클릭 테스트');
         this.saveStockData();
     }
 
@@ -67,15 +61,11 @@ export default class CampaignVehicleStockFileUpload extends NavigationMixin(Ligh
 
         fileReader.onloadend = (() => {
             const csvData = fileReader.result;
-            // console.log('csvData ::: ', csvData);
-            // this.fileContents = btoa(csvData); // Base64 인코딩 처리
             this.fileContents = this.encodeToBase64(csvData)
-            // console.log('this.fileContents ::: ', this.fileContents);
-            // this.saveAccountData();
         });
 
         fileReader.onerror = (() => {
-            showToast('Error', '파일 읽기에 실패했습니다.', 'error');
+            showToast('파일 읽기 실패', '파일 읽기에 실패했습니다.', 'error');
         });
 
         fileReader.readAsText(this.file, 'UTF-8'); // UTF-8로 읽기
@@ -98,13 +88,11 @@ export default class CampaignVehicleStockFileUpload extends NavigationMixin(Ligh
     saveStockData() {
         stockUploadedFile({campaignId: this.campaignId, base64Data: this.fileContents})
         .then(result => {
-            console.log('save타나?');
-            console.log('result :::' , result);
             if(!result || result.length === 0) {
-                showToast('Error', '차량재고관리 파일을 확인해 주세요.', 'error', 'dismissable');
+                showToast('차량재고관리 파일 확인', '차량재고관리 파일을 확인해 주세요.', 'error', 'dismissable');
                 return;
             } 
-            showToast('Success', 'Create Successfully', 'success', 'dismissable');
+            showToast('차량 연결 성공', '차량 연결에 성공했습니다', 'success', 'dismissable');
             
             this.dispatchEvent(new CloseActionScreenEvent());   // Panel 닫기
             setTimeout(() => {
@@ -112,7 +100,7 @@ export default class CampaignVehicleStockFileUpload extends NavigationMixin(Ligh
             }, 1500);
         })
         .catch(err=> {
-            showToast('Error', '차량재고관리 관련 CSV 파일을 넣어주세요', 'error', 'dismissable');
+            showToast('차량재고관리 파일 확인', '차량재고관리 관련 CSV 파일을 넣어주세요', 'error', 'dismissable');
         })
     }
 
@@ -149,7 +137,6 @@ export default class CampaignVehicleStockFileUpload extends NavigationMixin(Ligh
 
     handleChooseFile() {
         this.template.querySelector('input[type="file"]').click();
-        // console.log('이건 뭐라고 찍히냐?');
     }
 
 }

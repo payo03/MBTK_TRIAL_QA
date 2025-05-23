@@ -10,6 +10,8 @@
  * 1.4          2024-11-27      chaebeom.do     Separate Product/Campaign table funtion
  * 2.0          2024-12-20      chaebeom.do     캠페인 중복 적용으로 인한 견적 수정
  * 2.1          2025-03-25      th.kim          리드 생성, 견적 생성 프로세스 변경 및 버튼 통합, UI/UX 조정
+ * 2.2          2025-04-22      chaebeom.do     인도금 입력, 대출금 계산으로 변경
+ * 2.3          2025-04-28      chaebeom.do     리드생성시 새 탭 이동 후 기존 생성화면은 리프레시되도록 수정
  **************************************************************/
 import { LightningElement, wire, track } from "lwc";
 import { NavigationMixin } from "lightning/navigation";
@@ -18,14 +20,13 @@ import LightningConfirm from "lightning/confirm";
 // Library
 import formFactor from "@salesforce/client/formFactor";
 import getLead from "@salesforce/apex/LeadAcquisitionController.getLead";
-// import getProductPrice from "@salesforce/apex/LeadAcquisitionController.getProductPrice";
 import getProduct from "@salesforce/apex/LeadAcquisitionController.getProduct";
 import getFinancialList from "@salesforce/apex/LeadAcquisitionController.getFinancialList";
 import doCheckBizNum from "@salesforce/apex/LeadAcquisitionController.doCheckBizNum";
 import doCheckDuplicate from "@salesforce/apex/LeadAcquisitionController.doCheckDuplicate";
-// import createPreQuote from "@salesforce/apex/LeadAcquisitionController.createPreQuote";
 import createPreQuote from "@salesforce/apex/LeadManagementController.createPreQuote";
 import callApprovalProcess from "@salesforce/apex/LeadManagementController.callApprovalProcess";
+import accOwnerCheckByLeadInfo from "@salesforce/apex/LeadManagementController.accOwnerCheckByLeadInfo";
 
 
 // Util
@@ -63,17 +64,17 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 	detailAddress;
 	postalCode;
 	description;
-	dupValidated = false; //중복 확인 실행 여부
-	dupComplete; //중복 확인 통과시 리드 생성 버튼 submit 활성화
+	// dupValidated = false; //중복 확인 실행 여부
+	// dupComplete; //중복 확인 통과시 리드 생성 버튼 submit 활성화
 	bizNumValidate = false;
 	leadCreated = false;
-	isNewLead = true;
+	// isNewLead = true;
 	isEditable;
 	iframeClass = "iframe-inactive";
 	recordId;
 	@track leadData = [];
 	leadColumns = leadColumns;
-	@track selectedLeadRowIds = [];
+	// @track selectedLeadRowIds = [];
 	inputMap = {};
 
 	//차종 캠페인 id 저장 변수
@@ -89,23 +90,23 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 	@track maxInterestRate;
 	@track minimumDuration;
 	@track maximumDuration;
-	totalLoan; //대출금액 = 할부원금
+	totalLoan = 0; //대출금
 	interestRate; //할부금리
 	duration = 12; //할부기간
 
 	//월 납입금 계산기, 예상 견적 컴포넌트 변수
 	isMobile = false;
 	isPC = true;
-	listPrice; //기준 가격
-	discountPrice; //캠페인 할인가격
-	discountRate; //총 할인율
-	realSellPrice; //실 판매 가격
-	scRate; //세일즈컨디션 할인율
-	salesconditionDiscountAmt; //세일즈컨디션 할인가격
+	listPrice = 0; //기준 가격
+	discountPrice = 0; //캠페인 할인가격
+	discountRate = 0; //총 할인율
+	realSellPrice = 0; //실 판매 가격
+	scRate = 0; //세일즈컨디션 할인율
+	salesconditionDiscountAmt = 0; //세일즈컨디션 할인가격
 	downpayment; //인도금
 	// interestTotal; //총 대출이자
 	// totalRepayment; //총 상환금액
-	monthlyPayment; //월 상환금액
+	monthlyPayment = 0; //월 상환금액
 
 	isCreateQuote;
 	isLoading = false;
@@ -162,7 +163,7 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 	 */
 	createNewLead() {
 		this.recordId = null;
-		this.isNewLead = true;
+		// this.isNewLead = true;
 		this.lastName = null;
 		this.phone = null;
 		this.roadAddress = null;
@@ -171,10 +172,10 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 		this.description = null;
 		this.bizNum = null;
 		this.isEditable = false;
-		this.dupValidated = false;
-		this.dupComplete = "";
+		// this.dupValidated = false;
+		// this.dupComplete = "";
 		this.bizNumValidate = false;
-		this.selectedLeadRowIds = [];
+		// this.selectedLeadRowIds = [];
 		this.clearSelection();
 	}
 
@@ -188,7 +189,7 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 
 	async submitLead() {
 		if (this.selectedProductId == null) {
-			showToast("", "차종 테이블에서 고객의 관심 차종을 선택해주세요.", "warning");
+			showToast("필수값 확인", "차종 테이블에서 고객의 관심 차종을 선택해주세요.", "warning");
 			return false;
 		}
 
@@ -232,92 +233,95 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 		// this.isEditable = true;
 		// this.isNewLead = false;
 		this.recordId = e.detail.id;
+		const leadId = e.detail.id;
+
 		// showToast("", "리드가 저장되었습니다.", "success");
 		if (this.isCreateQuote) {
-			if (this.recordId == null) {
-				showToast("리드가 생성되지 않았습니다.", "관리자에게 문의해주세요.", "warning");
+			if (leadId == null) {
+				showToast("리드 생성 실패", "관리자에게 문의해주세요.", "warning");
 				return;
 			}
 			if (!this.downpayment) this.downpayment = 0;
 			if (!this.interestRate) this.interestRate = 0;
 
 			const inputMap = {
-				"leadId": this.recordId
+				"leadId": leadId
 				, "productId": this.selectedProductId
 				, "campaignIdList": JSON.stringify(this.selectedCampaignList.map(item => item.id))
 				, "financeId": this.financeId
 				, "totalLoan": this.totalLoan || 0 // 리드 수집에서만
+				, "advancePayment": this.downpayment || 0 // 리드 수집에서만
 				, "interestRate": this.interestRate || 0// 리드 수집에서만
 				, "duration": this.duration || 0 // 리드 수집에서만
 			};
 			console.log("inputMap ::: " + JSON.stringify(inputMap));
-			await createPreQuote({ "inputMap": inputMap }).then(res => {
-				console.log("createPreQuote :: ", res);
-				const dupType = res["dupType"];
-				const accountId = res["accountId"];
 
-				if (dupType === "error") {
-					showToast("Error.", "관리자에게 문의.", "error");
-					return;
+			accOwnerCheckByLeadInfo({'leadId': leadId}).then(async res => {
+				let resultValue = true;
+				if (res === 'myAcc') {
+					resultValue = await LightningConfirm.open({
+						label: '기존에 생성된 계정이 존재합니다.', // 모달 제목
+						message: "기존 계정에 연결하여 견적을 생성하시겠습니까?",
+					})
 				}
+				if (resultValue) {
+					this.isLoading = true;
+					createPreQuote({'inputMap': inputMap}).then(res => {
 
-				// 다른 SA가 소유한 계정 -> 승인 프로세스
-				if (dupType === "otherAcc") {
-					// 변경 확인 문구
-					LightningConfirm.open({
-						message: "담당 매니저에게 승인 요청을 보내겠습니까?",
-						// variant: "headerless",
-						label: "이미 존재하는 계정 입니다." // 모달 제목
-					}).then(res => {
-						if (res) {
-							const inputMap = {
-								"accountId": accountId,
-								"leadId": this.recordId
-							};
-							// this.isLoading = true;
-							callApprovalProcess({ "inputMap": inputMap }).then(res => {
-								console.log("res ::: " + res);
-								const isSuccess = res["isSuccess"];
-								const value = res["value"];
-								if (isSuccess) {
-									showToast("승인프로세스 요청 성공", value, "success");
-								} else {
-									showToast("승인프로세스 요청 실패", value, "warning");
-								}
-							}).catch(err => {
-								console.log("err ::: " + JSON.stringify(err));
-							});
+						const dupType = res['dupType'];
+						const accountId = res['accountId'];
+
+						if (dupType === 'error') {
+							showToast("견적 생성 실패", "관리자에게 문의 바랍니다.", "error");
+							return;
 						}
+
+						// 다른 SA가 소유한 계정 -> 승인 프로세스
+						if (dupType === 'otherAcc') {
+							// 변경 확인 문구
+							LightningConfirm.open({
+								message: "담당 매니저에게 승인 요청을 보내겠습니까?",
+								// variant: "headerless",
+								label: '이미 존재하는 계정 입니다.' // 모달 제목
+							}).then(res => {
+								if (res) {
+									const inputMap = {
+										'accountId': accountId
+										, 'leadId': leadId
+									}
+									this.isLoading = true;
+									callApprovalProcess({'inputMap': inputMap}).then(res => {
+										const isSuccess = res['isSuccess'];
+										const value = res['value'];
+										if (isSuccess) {
+											showToast("승인프로세스 요청 성공", value, "success");
+										} else {
+											showToast("승인프로세스 요청 실패", value, "warning");
+										}
+									}).catch(err => {
+										console.log('err ::: ' + err.message)
+									}).finally(() => {
+										this.isLoading = false;
+										this.isConvertModal = false;
+									})
+								}
+							});
+						} else {
+							showToast("견적이 생성 되었습니다.", "", "success");
+							defaultNavigation(this, "Quote", '', res['value']);
+						}
+					}).catch(err => {
+						console.log("err :: ", err.message);
+					}).finally(() => {
+						this.isLoading = false;
 					});
-				} else {
-					showToast("Success", "견적이 생성 되었습니다.", "success");
-					defaultNavigation(this, "Quote", "", res["value"]);
 				}
-			}).catch(err => {
-				console.log("err :: ", err);
-			}).finally(() => {
-				this.isLoading = false;
-			});
+			})
 		} else {
 			recordNavigation(this, "Lead", e.detail.id);
 		}
+		this.createNewLead();
 		this.isLoading = false;
-		// this.leadCreated = true;
-		// const res = {
-		// 	id: this.recordId,
-		// 	recordDetail: "/" + this.recordId,
-		// 	lastName: this.lastName,
-		// 	mobilePhone: this.phone
-		// };
-		// let index = this.leadData.findIndex((item) => item.id === this.recordId);
-		// if (index === -1) {
-		// 	this.leadData = [...this.leadData, res];
-		// } else {
-		// 	this.leadData[index] = res;
-		// 	this.leadData = [...this.leadData];
-		// }
-		// ;
-		// this.selectedLeadRowIds = [this.recordId];
 	}
 
 	/**
@@ -325,50 +329,9 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 	 */
 	handleError(e) {
 		console.log(e.detail.detail);
+		// alert(JSON.stringify(e.detail));
 		this.isLoading = false;
-		showToast("", e.detail.detail, "warning");
-	}
-
-	/**
-	 * @description 생성된 리드 테이블에서 로우 선택시 해당 리드 정보를 입력폼으로 가져오는 이벤트
-	 */
-	handleLeadRowSelection(e) {
-		const selectedRows = e.detail.selectedRows;
-		const JSONrow = JSON.parse(JSON.stringify(selectedRows));
-
-		if (selectedRows.length > 0) {
-			this.dupValidated = true;
-			this.selectedLeadRowIds = [JSONrow[0].id];
-			this.recordId = JSONrow[0].id;
-			getLead({ leadId: JSONrow[0].id }).then(res => {
-				this.lastName = res[0].lastName;
-				this.phone = res[0].mobilePhone;
-				this.bizNum = res[0].bizNum != null ? res[0].bizNum : null;
-				this.bizNumValidate = res[0].bizNum != null ? true : false;
-				this.roadAddress = res[0].roadAddress;
-				this.detailAddress = res[0].detailAddress;
-				this.postalCode = res[0].postalCode;
-				this.description = res[0].description;
-				this.selectedProductId = res[0].productId;
-				const leadChoosen = this.template.querySelector("c-product-campaign-table");
-				leadChoosen.highlightProduct(res[0].productId);
-				getProduct({ whereConditions: "Id = '" + res[0].productId + "'" }).then(res => {
-					this.listPrice = res[0].listPrice;
-					this.scRate = res[0].salesconditionRate;
-					this.salesconditionDiscountAmt = this.scRate != null ? Math.round(this.listPrice * this.scRate / 100) : 0;
-					this.discountRate = this.scRate != null ? this.scRate : 0;
-					// this.realSellPrice = this.listPrice - this.salesconditionDiscountAmt;
-					this.handleCalc(e);
-				}).catch(err => {
-					console.log("err :: ", err);
-				});
-			}).catch(err => {
-				console.log("err :: ", err);
-			});
-			this.isNewLead = false;
-		} else {
-			this.selectedLeadRowIds = [];
-		}
+		showToast("리드 저장 실패", e.detail.detail, "warning");
 	}
 
 	/**
@@ -380,7 +343,7 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 		if (nameEl.value && this.phone) {
 			let inputMap = { phone: this.phone, name: nameEl.value };
 			await doCheckDuplicate({ inputMap: inputMap }).then(res => {
-				this.dupValidated = true;
+				// this.dupValidated = true;
 				switch (res.type) {
 					case "noDuplicate":
 						showToast("등록 가능한 리드입니다.", "", "success");
@@ -397,11 +360,11 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 				}
 			}).catch(err => {
 				console.log("err :: ", err);
-				showToast("", e.detail.message, "warning");
+				showToast("중복 체크 실패", e.detail.message, "warning");
 				returnValue = false;
 			});
 		} else {
-			showToast("", "고객 이름과 전화번호를 모두 입력해주세요.", "warning");
+			showToast("중복 체크 필수값 확인", "고객 이름과 전화번호를 모두 입력해주세요.", "warning");
 			returnValue = false;
 		}
 		return returnValue;
@@ -551,12 +514,13 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 			case "duration":
 				this.duration = e.target.value;
 				break;
-			case "totalLoan":
-				this.totalLoan = e.target.value;
+			case "downpayment":
+				this.downpayment = e.target.value;
 				break;
 		}
 		this.realSellPrice = this.listPrice - this.salesconditionDiscountAmt - this.discountPrice;
-		this.downpayment = this.realSellPrice - this.totalLoan - 1000000;
+		console.log('체크 :: ' + this.realSellPrice);
+		this.totalLoan = this.realSellPrice - this.downpayment - 1000000;
 		this.monthlyPayment = this.calcMonthPayment(this.totalLoan, this.interestRate, this.duration);
 		// this.totalRepayment = this.monthlyPayment * this.duration;
 		// this.interestTotal = this.totalRepayment > this.totalLoan ? this.totalRepayment - this.totalLoan : 0;
@@ -592,8 +556,7 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 	 */
 	handleRowSelect(e) {
 		if (e.detail.type === "product") {
-			this.clearSelection();
-			console.log("selectedRow :: ", e.detail.selectedRow);
+			// this.clearSelection(); <- 이거 왜 들어 있던거지?
 			this.scRate = e.detail.selectedRow[0].salesconditionRate;
 			this.selectedProductId = e.detail.id;
 			this.listPrice = e.detail.selectedRow[0].listPrice;
@@ -646,16 +609,16 @@ export default class leadAcquisition extends NavigationMixin(LightningElement) {
 		tableChoosen.refreshTable();
 		this.selectedProductId = null;
 		this.selectedCampaignId = null;
-		this.listPrice = null;
-		this.discountPrice = null;
-		this.discountRate = null;
-		this.realSellPrice = null;
-		this.scRate = null;
-		this.salesconditionDiscountAmt = null;
-		this.totalLoan = null;
+		this.listPrice = 0;
+		this.discountPrice = 0;
+		this.discountRate = 0;
+		this.realSellPrice = 0;
+		this.scRate = 0;
+		this.salesconditionDiscountAmt = 0;
+		this.totalLoan = 0;
 		// this.interestTotal = null;
 		// this.totalRepayment = null;
-		this.monthlyPayment = null;
+		this.monthlyPayment = 0;
 	}
 
 	/**

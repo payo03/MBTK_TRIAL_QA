@@ -15,7 +15,8 @@
                                 <div class="slds-page-header__name-title">
                                     <h1>
                                         <span
-                                            class="slds-page-header__title slds-truncate">고객 결제 현황 (Payment Tracker) </span>
+                                            class="slds-page-header__title slds-truncate">고객 입금 현황 (Payment Tracker) 
+                                        </span>
                                     </h1>
                                 </div>
                             </div>
@@ -52,11 +53,11 @@
                         <template if:false={isSA}>
                             <lightning-input
                                 class="slds-p-right_x-small"
-                                label="영업사원"
+                                label="영업인"
                                 data-id="sa"
                                 value={filterMap.opportunityName}
                                 onchange={handleChange}
-                                placeholder="SA를 입력해주세요">
+                                placeholder="영업인을 입력해주세요">
                             </lightning-input>
                         </template>
                         <lightning-combobox
@@ -69,49 +70,49 @@
                             onchange={handleChange}
                             data-id="status">
                         </lightning-combobox>
-                        <!-- <lightning-input
-                            class="slds-p-right_x-small"
-                            type="date"
-                            name="dueDate"
-                            label="결제 만기일"
-                            data-id="dueDate"
-                            onchange={handleChange}
-                            value={filterMap.dueDate}>
-                        </lightning-input> -->
-                        
+
                         <div class="btn-wrap">
-                            <lightning-button-icon
-                                icon-name="utility:refresh" variant="border-filled"
-                                alternative-text="Refresh" class="slds-p-top_large slds-p-right_small"
-                                title="Refresh" onclick={handleSearch} data-id="refresh">
-                            </lightning-button-icon>
-                        
                             <lightning-button
-                                data-id="search" variant="Neutral" label="Search" onclick={handleSearch} class="slds-p-top_large">
+                                icon-name="utility:refresh"
+                                label="필터 리셋"
+                                variant="border-filled"
+                                title="Refresh"
+                                onclick={handleSearch}
+                                data-id="refresh"
+                                class="slds-p-top_large slds-p-right_small">
+                            </lightning-button>
+                            <lightning-button
+                                icon-name="utility:search"
+                                label="검색"
+                                variant="border-filled"
+                                title="Search"
+                                onclick={handleSearch}
+                                data-id="search"
+                                class="slds-p-top_large slds-p-right_small">
                             </lightning-button>
                         </div>
-
                     </div>   
                 </div>
 
                 <div class="slds-m-vertical_small">
-                    <!-- <div style="overflow-x: auto; overflow-y: auto; width: 100%; max-width: 100%; max-height: 500px;"> -->
                     <div class="custom-scroll">
                         <lightning-datatable
                             class="custom-datatable"
-                            key-field="id"
+                            key-field="oppId"
                             data={masterData}
                             columns={columns}
                             onrowaction={handleRowAction}
                             onrowselection={handleRowSelection}
-                            data-id="master">
-                            <!-- hide-checkbox-column = "true" -->
+                            selected-rows={currentlySelectedRows}
+                            data-id="master"
+                            column-widths-mode="auto"
+                            min-column-width="80">
                         </lightning-datatable>
+                        
+                        <template lwc:if={isNoData}>
+                            <div class="slds-p-around_small">{myLabel.EmptyResult}</div>
+                        </template>
                     </div>
-
-                    <template lwc:if={isNoData}>
-                        <div class="slds-p-around_small">조건에 맞는 데이터가 없습니다.</div>
-                    </template>
                 </div>
             </div>
         </div>
@@ -131,14 +132,14 @@
                     <div class="slds-p-top_x-small">
                         <lightning-datatable
                             class="payment-datatable"
-                            key-field="id"
+                            key-field="paymentId"
                             data={paymentData}
                             columns={paymentColumns}
                             hide-checkbox-column = "true"
                             data-id="payment">
                         </lightning-datatable>
-                        <template lwc:if={ispaymentData}>
-                            <div class="slds-p-around_small">입금현황 종류가 존재하지 않습니다.</div>
+                        <template lwc:if={isNoData}>
+                            <div class="slds-p-around_small">{myLabel.EmptyResult}</div>
                         </template>
                     </div>
                 </div>

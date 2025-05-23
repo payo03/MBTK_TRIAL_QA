@@ -17,7 +17,7 @@ import { CloseActionScreenEvent } from "lightning/actions";
 import modal from "@salesforce/resourceUrl/custommodalcss";
 import { loadStyle } from "lightning/platformResourceLoader";
 // Util
-import {showToast } from "c/commonUtil";
+import {showToast, labelList } from "c/commonUtil";
 import { NavigationMixin, CurrentPageReference } from "lightning/navigation";
 
 const filterDefault = { Segment2__c: "", WheelBase__c: "", "VehicleCategory__r.AxleConfiguration__c": "", "VehicleCategory__r.HorsePower__c": "", SpecShort__c:"" };
@@ -46,6 +46,8 @@ export default class CampaignProduct extends NavigationMixin(LightningElement) {
     filteredData = []; // 필터링된 데이터
     filterOptions = { segment: []}; // 필터 옵션 맵
     columns = columns;
+
+    @track myLabel = labelList;
     
     connectedCallback() {
 
@@ -71,9 +73,11 @@ export default class CampaignProduct extends NavigationMixin(LightningElement) {
         switch (id) {
 			case "segment" :
 				this.filterMap.Segment2__c = value;
+                this.handleSearch(e);
 				break;
             case "axle" :
                 this.filterMap['VehicleCategory__r.AxleConfiguration__c'] = value;
+                this.handleSearch(e);
 				break;
 			case "specShort" :
 				this.filterMap.SpecShort__c = value;
@@ -95,11 +99,9 @@ export default class CampaignProduct extends NavigationMixin(LightningElement) {
         this.isLoading = true;
         saveProductsToCampaign({ productIds: productIds, campaignId: this.campaignId })
             .then(() => {
-                console.log("Products successfully linked to Campaign");
                 this.isLoading = false;
             })
             .catch(error => {
-                console.error("Error saving products to Campaign:", error);
                 this.isLoading = false;
             });
     }
@@ -117,16 +119,15 @@ export default class CampaignProduct extends NavigationMixin(LightningElement) {
         if(productIds && productIds.length > 0) {
             
             this.saveProductsToCampaign(productIds);
-            showToast("Success", 'Successfully', "success");
+            showToast("차종 연결 성공", '차종 연결에 성공했습니다', "success");
             this.dispatchEvent(new CloseActionScreenEvent());   // Panel 닫기
             setTimeout(() => {
                 window.location.reload();   // 새로고침
             }, 1500);
 
         } else {
-            showToast("Save Error", 'Product를 선택하고 저장을 눌러주세요', "error");
+            showToast("차종 연결 저장 실패", '차종을 선택하고 저장을 눌러주세요', "error");
         }
-
     }
 
     handleCancel() {
@@ -134,7 +135,6 @@ export default class CampaignProduct extends NavigationMixin(LightningElement) {
     }
 
     handleSearch(e) {
-        // console.log('search!!');
         const id = e.currentTarget.dataset.id;
 		if (id === "refresh") {
 			this.filterMap = { ...filterDefault };
@@ -144,7 +144,7 @@ export default class CampaignProduct extends NavigationMixin(LightningElement) {
             });
 		}
 		// 선택된 필터로 검색
-		else if (id === "search") {
+		// else if (id === "search") {
 			this.isLoading = true;
             this.clearSelectedRows();
 			getFilteredProductList({ filterMap: this.filterMap }).then(res => {
@@ -159,7 +159,7 @@ export default class CampaignProduct extends NavigationMixin(LightningElement) {
 			}).catch(err => {
 				this.isLoading = false;
 			});
-		}
+		// }
     }
     
 }

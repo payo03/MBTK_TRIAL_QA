@@ -55,7 +55,6 @@ export default class FileUploader extends NavigationMixin(LightningElement) {
 		// 새로고침 플래그 설정
 		window.addEventListener("beforeunload", () => {
 			sessionStorage.setItem("reloaded", "true");
-			// this.refreshCancel();
 		});
 	}
 
@@ -65,7 +64,6 @@ export default class FileUploader extends NavigationMixin(LightningElement) {
 			if (formFactorPropertyName === "Large") {
 				this.recordId = pageRef.state.recordId;
 			} else {
-				// alert('12');
 				this.recordId = pageRef.state?.c__recordId;
 			}
 			this.accHandleName();
@@ -89,7 +87,6 @@ export default class FileUploader extends NavigationMixin(LightningElement) {
 	}
 
 	accHandleName() {
-		console.log("this.recordId :::", this.recordId);
 		getInit({ recordId: this.recordId }).then(res => {
 			this.username = res.userName;
 
@@ -136,7 +133,7 @@ export default class FileUploader extends NavigationMixin(LightningElement) {
 			return;
 
 		} else if (this.sectionName === "부가세후취" && this.file3Details.length + this.listUploadedFiles.length < 6) {
-			showToast("Warning", "부가세후취 파일은 6개 이상부터 업로드 가능합니다.", "warning");
+			showToast("부가세후취 파일 개수 확인", "부가세후취 파일은 6개 이상부터 업로드 가능합니다.", "warning");
 		}
 
 		this.storeFileList = [...this.storeFileList, ...this.listUploadedFiles];
@@ -172,7 +169,6 @@ export default class FileUploader extends NavigationMixin(LightningElement) {
 				username: this.username,
 				fileIndex: this.fileIndex
 			}).then(res => {
-				console.log("updateFileName res :: ", res);
 				this.isLoading = false;
 			}).catch(err => {
 				console.log("err :: ", err);
@@ -211,8 +207,6 @@ export default class FileUploader extends NavigationMixin(LightningElement) {
 
 		if (this.storeFileList.length > 0) {
 			this.doRollbackData(storeIdList);
-		} else {
-			console.log("여기 찍혀??");
 		}
 
 		this.isLoading = false;
@@ -228,17 +222,17 @@ export default class FileUploader extends NavigationMixin(LightningElement) {
 
 	handleSave() {
 		if (this.file3Details.length != 0 && this.file3Details.length < 6) {
-			showToast("Warning", "부가세후취 파일은 6개 이상부터 저장 가능합니다.", "warning");
+			showToast("부가세후취 파일 개수 확인", "부가세후취 파일은 6개 이상부터 저장 가능합니다.", "warning");
 			return;
 		}
 
 		updateIsCheck({ opportunityId: this.recordId, opportunityFieldMap: this.originalCheckValues }).then(res => {
-			console.log("res ::: ", res);
+
 		}).catch(err => {
 			console.log("err ::: ", err);
 		});
 
-		showToast("Success", "파일이 업로드됐습니다.", "success");
+		showToast("파일 업로드 성공", "파일이 업로드됐습니다.", "success");
 		
 		this.dispatchEvent(new CloseActionScreenEvent());
 
@@ -260,7 +254,6 @@ export default class FileUploader extends NavigationMixin(LightningElement) {
 				this.file3Details = this.file3Details.filter(el => el.key !== key);
 			}
 		} else {
-			// this.files = this.files.filter(el => el.key !== key);
 			let removedFile = null;
 
 			if (name === "regNum") {

@@ -11,12 +11,18 @@
 <template>
 	<div class="slds-card scheduler-main-wrap">
 		<lightning-tabset>
-			<lightning-tab label="핸드오버 스케줄러">
+<!--			<lightning-tab label="핸드오버 스케줄러">-->
+			<lightning-tab label="출고 예정서">
 				<c-handover-scheduler parent-data={parentData}></c-handover-scheduler>
 			</lightning-tab>
-			<lightning-tab label="세금계산서 스케줄러">
+<!--			<lightning-tab label="세금계산서 스케줄러">-->
+			<lightning-tab label="세금계산서">
 <!--				<c-tax-invoice-scheduler parent-data={parentData}></c-tax-invoice-scheduler>-->
 				<c-tax-invoice-scheduler></c-tax-invoice-scheduler>
+			</lightning-tab>
+			<lightning-tab label="입금현황">
+<!--				입금현황 들어갈 부분 -->
+				<c-payment-tracker></c-payment-tracker>
 			</lightning-tab>
 		</lightning-tabset>
 		<template lwc:if={isLoading}>

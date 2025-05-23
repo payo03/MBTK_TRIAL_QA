@@ -6,12 +6,23 @@
 ==============================================================
  * Ver          Date            Author          Modification
  * 1.0          2025-01-06      chaebeom.do     Created
+ * 1.1          2025-05-08      chaebeom.do     계약 재협상시, 계약금이 입력되었던 케이스이면 계약금 발송 버튼 스킵
 **************************************************************/
 public without sharing class CreateContractController {
     public class QuoteWrap {
         @AuraEnabled public String id;
         @AuraEnabled public String opptyId;
+        @AuraEnabled public String opptyUrl;
         @AuraEnabled public String accId;
+        @AuraEnabled public String accUrl;
+        @AuraEnabled public String accName;
+        @AuraEnabled public String accType;
+        @AuraEnabled public String accIDnumber;
+        @AuraEnabled public String accRoadAddress;
+        @AuraEnabled public String accBizNo;
+        @AuraEnabled public String accCompRegNo;
+        @AuraEnabled public String accBizName;
+        @AuraEnabled public String accRepName;
         @AuraEnabled public String stockId;
         @AuraEnabled public String productId;
         @AuraEnabled public String contractId;
@@ -26,11 +37,33 @@ public without sharing class CreateContractController {
         @AuraEnabled public Boolean bizNo;
         @AuraEnabled public Boolean vat;
         @AuraEnabled public String vatStatus;
+        @AuraEnabled public Date hopeHandoverDate;
 
-        public QuoteWrap(String id, String opptyId, String accId, String stockId, String productId, String contractId, String opptyContractId, String segment, String financeCompany, Decimal interestRate, Decimal totalLoanAmount, Decimal loanTerm, Boolean loanApproved, Boolean jumin, Boolean bizNo, Boolean vat, String vatStatus) {
+        public QuoteWrap(
+            String id, 
+            String opptyId, 
+            Account account, 
+            String stockId, 
+            String productId, 
+            String contractId, 
+            String opptyContractId, 
+            String segment, 
+            String financeCompany, 
+            Decimal interestRate, 
+            Decimal totalLoanAmount, 
+            Decimal loanTerm, 
+            Boolean loanApproved, 
+            Boolean jumin, 
+            Boolean bizNo, 
+            Boolean vat, 
+            String vatStatus,
+            Date hopeHandoverDate
+        ) {
             this.id = id;
             this.opptyId = opptyId;
-            this.accId = accId;
+            this.opptyUrl =  '/lightning/r/Opportunity/' + opptyId + '/view';
+            this.accId = account.Id;
+            this.accUrl =  '/lightning/r/Account/' + account.Id + '/view';
             this.stockId = stockId;
             this.productId = productId;
             this.contractId = contractId;
@@ -45,25 +78,36 @@ public without sharing class CreateContractController {
             this.bizNo = bizNo;
             this.vat = vat;
             this.vatStatus = vatStatus;
+            this.accName = account.Name;
+            this.accType = account.AccountType__c;
+            this.accIDnumber = account.IDNumber__pc;
+            this.accRoadAddress = account.RoadAddress__c;
+            this.accBizNo = account.BusinessNumber__c;
+            this.accCompRegNo = account.CompRegNum__c;
+            this.accBizName = account.BusinessName__c;
+            this.accRepName = account.RepresentativeName__c;
+            this.hopeHandoverDate = hopeHandoverDate;
         }
     }
     
     @AuraEnabled
     public static QuoteWrap getQuote(String quoteId){
 
-        String selectFields = 'Id, OpportunityId, AccountId, ContractId, Segment__c, VehicleStock__c, fm_TotalLoanAmount__c, IsApproveLoan__c, DefaultInterestRate__c, MonthDivideInputMonth__c, Finance__r.FScompany__c, Product__c, Opportunity.IsJumin__c, Opportunity.IsBusiness__c, Opportunity.IsVAT__c, Opportunity.VATDefermentStatus__c, Opportunity.ContractId';
+        String selectFields = 'Id, OpportunityId, ContractId, Segment__c, VehicleStock__c, HopeHandoverDate__c,' + 
+        ' fm_TotalLoanAmount__c, IsApproveLoan__c, DefaultInterestRate__c, MonthDivideInputMonth__c,' + 
+        ' Finance__r.FScompany__c, Product__c, Opportunity.IsJumin__c, Opportunity.IsBusiness__c, Opportunity.IsVAT__c,' +
+        ' Opportunity.VATDefermentStatus__c, Opportunity.ContractId,' + 
+        ' AccountId, Account.Name, Account.AccountType__c, Account.IDNumber__pc,' + 
+        ' Account.RoadAddress__c, Account.BusinessNumber__c, Account.CompRegNum__c, Account.BusinessName__c, Account.RepresentativeName__c';
         String whereConditions = 'Id = \'' + quoteId + '\'';
         String query = CommonUtilController.buildQuery(selectFields, 'Quote', whereConditions);
 
-        // List<Quote> quoteList = Database.query(query);
         Quote quote = Database.query(query);
 
-        // List<QuoteWrap> quoteWraps = new List<QuoteWrap>();
-        // for(Quote quote : quoteList) {
         QuoteWrap quoteWrap = new quoteWrap(
             quote.Id,
             quote.OpportunityId,
-            quote.AccountId,
+            quote.Account,
             quote.VehicleStock__c,
             quote.Product__c,
             quote.ContractId,
@@ -77,31 +121,31 @@ public without sharing class CreateContractController {
             quote.Opportunity.IsJumin__c,
             quote.Opportunity.IsBusiness__c,
             quote.Opportunity.IsVAT__c,
-            quote.Opportunity.VATDefermentStatus__c
+            quote.Opportunity.VATDefermentStatus__c,
+            quote.HopeHandoverDate__c
         );
-        //     quoteWraps.add(quoteWrap);
-        // }
-        // return quoteWraps;
         return quoteWrap;
     }
 
     @AuraEnabled
     public static string createContract(Map<String, String> inputMap){
         
-        Quote curQ = [SELECT Id, OpportunityId, IsApproveLoan__c FROM Quote WHERE Id = :inputMap.get('recordId')];
+        Quote curQ = [
+            SELECT Id, OpportunityId, IsApproveLoan__c, Opportunity.IsRenegotiation__c , fm_DeliveryPrice__c
+            FROM Quote 
+            WHERE Id = :inputMap.get('recordId')
+            ];
         if(Integer.valueOf(inputMap.get('totalLoanAmount')) != 0 && curQ.IsApproveLoan__c == false) {
             return 'approvalNotComplete';
+        }
+        if(curQ.fm_DeliveryPrice__c < 0) {
+            return 'deliveryPriceNotValid';
         }
         Product2 product = [
             SELECT Id
             FROM Product2 
             WHERE Id = :inputMap.get('productId')
         ];
-        // Product2 product = [
-        //     SELECT Id
-        //     FROM Product2 
-        //     WHERE Id IN (SELECT Product__c FROM VehicleStock__c WHERE Id = :inputMap.get('stockId'))
-        // ];
         
         List<VehicleStock__c> stockList = [
             SELECT Id
@@ -120,6 +164,26 @@ public without sharing class CreateContractController {
         if(stepList.size() == 0) {
             return 'noStockForSelling';
         }
+
+        // ver 1.1
+        Decimal sumPaymentLog = 0;
+        List<PaymentTracker__c> expiredPaymentTracker = [
+            SELECT Id
+            FROM PaymentTracker__c
+            WHERE Opportunity__c = :curQ.OpportunityId
+            AND IsValid__c = FALSE
+            ORDER BY CreatedDate DESC LIMIT 1
+        ];
+        if(expiredPaymentTracker.size() > 0) {
+            for (PaymentLog__c oldLog : [
+                    SELECT Id, Amount__c
+                    FROM PaymentLog__c
+                    WHERE PaymentTracker__c = :expiredPaymentTracker[0].Id
+            ]) {
+                sumPaymentLog += oldLog.Amount__c;
+            }
+        }
+
         Contract c = new Contract();
         c.Status = 'Draft';
         c.ConStatus__c = '승인 단계';
@@ -131,6 +195,9 @@ public without sharing class CreateContractController {
         c.StartDate = Date.today();
         c.Deposit__c = 1000000;
         c.ContractTerm = 1;
+        if (curQ.Opportunity.IsRenegotiation__c == true && sumPaymentLog >= 1000000) {
+            c.CheckDepositRequest__c = true;
+        }
         insert c;
 
         Quote q = new Quote();
@@ -141,7 +208,6 @@ public without sharing class CreateContractController {
         update q;
         //발송한 견적 이외의 기회에 달린 견적들은 단계 'Published' 였으면 'SentOut'으로 변경
 
-        // Quote curQ = [SELECT Id, OpportunityId FROM Quote WHERE Id = :q.Id];
         List<Quote> otherQ = [SELECT Id, Status FROM Quote WHERE OpportunityId = :curQ.OpportunityId AND Id != :q.Id];
         System.debug('otherQ::: ' + otherQ);
         for (Quote el : otherQ) {
@@ -155,13 +221,12 @@ public without sharing class CreateContractController {
         opp.Id = inputMap.get('opptyId');
         opp.StageName = 'Contract';
         opp.ContractId = c.Id;
-        opp.IsRenegotiation__c = false;
+        // opp.IsRenegotiation__c = false;
         update opp;
 
         createApprovalProcess(c.Id);
 
         return c.Id;
-        // return '야호';
     }
 
     //승인 프로세스 생성

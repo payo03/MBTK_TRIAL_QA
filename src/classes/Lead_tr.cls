@@ -37,7 +37,7 @@ public without sharing class Lead_tr extends TriggerHandler {
 
     protected override void afterInsert() {
         setLocationValues(newMap.keySet());
-        insertCustomerConsent(newMap.keySet());
+        insertCustomerConsent(newMap);
         System.debug(newMap);
     }
 
@@ -103,13 +103,14 @@ public without sharing class Lead_tr extends TriggerHandler {
             }
 
             Map<String, Object> inputLeadMap = new Map<String, Object> {
-                    'leadId' => lead.Id
-                    , 'productId' => lead.ProductId__c
-                    , 'campaignIdList' => ''
-                    , 'financeId' => null
-                    , 'totalLoan' => 0
-                    , 'interestRate' => 0
-                    , 'duration' => 0
+                'leadId' => lead.Id
+                , 'productId' => lead.ProductId__c
+                , 'campaignIdList' => ''
+                , 'financeId' => lead.Finance__c
+                , 'totalLoan' => 0
+                , 'advancePayment' => lead.AdvancePayment__c != null ? lead.AdvancePayment__c : 0
+                , 'interestRate' => lead.DefaultInterestRate__c != null ? lead.DefaultInterestRate__c : 0
+                , 'duration' => lead.MonthDivideInputMonth__c != null ? lead.MonthDivideInputMonth__c : 0
             };
             inputLeadMapList.add(inputLeadMap);
         }
@@ -131,6 +132,7 @@ public without sharing class Lead_tr extends TriggerHandler {
             for(Integer i = 0; i<lockOpptyList.size(); i++) {
                 Opportunity lockOppty = lockOpptyList.get(i);
                 lockOppty.IsLock__c = lockResults.get(i).isSuccess();
+                lockOppty.StageName = 'Closed Lost';
                 System.debug(i + ' lockOppty ::: ' + lockOppty);
                 lockList.add(lockOppty);
             }
@@ -188,6 +190,7 @@ public without sharing class Lead_tr extends TriggerHandler {
 
     // 반려
     // 1. 요청한 SA에게 노티
+    // todo- 거절 당하면 해당 리드 삭제?
     private static void rejectProcess(List<Lead> leadList) {
         System.debug('rejectProcess START');
         String titleMessage;
@@ -195,14 +198,24 @@ public without sharing class Lead_tr extends TriggerHandler {
         String targetId;
         String sendId;
 
+        Set<Id> rejectedLeadIdSet = new Set<Id>();
         for(Lead lead : leadList) {
             titleMessage = '소유권 변경 거절.';
             bodyMessage = '담당자가 계정 소유 변경을 거절하였습니다.';
             targetId = lead.Id;
             sendId = lead.OwnerId;
             sendNotification(titleMessage, bodyMessage, targetId, sendId);
+
+            rejectedLeadIdSet.add(lead.Id);
         }
 
+        deleteRejectedLeadList(rejectedLeadIdSet);
+    }
+
+    @Future
+    private static void deleteRejectedLeadList(Set<Id> rejectedLeadIdSet) {
+
+        delete [SELECT Id FROM Lead WHERE Id IN:rejectedLeadIdSet];
     }
 
     private static void sendNotification(String titleMessage, String bodyMessage, String targetId, String sendId) {
@@ -272,20 +285,47 @@ public without sharing class Lead_tr extends TriggerHandler {
     }
 
     //리드 생성 시 Light Consent 생성
-    private static void insertCustomerConsent(Set<Id> leadIdSet) {
-        List<CustomerConsent__c> customerConsents = new List<CustomerConsent__c>();
-        try{
-            for(Id leadId : leadIdSet){
-                CustomerConsent__c customerConsent = new CustomerConsent__c(
-                        Lead__c = leadId,
-                        ConsentStatus__c = '링크 전송됨',
-                        SendAlimTalkDate__c = System.today()
-                );
-                customerConsents.add(customerConsent);
-            }
-            if(!customerConsents.isEmpty()) insert customerConsents;
+    private static void insertCustomerConsent(Map<Id, Lead> leadMap){
 
-            System.debug('insert :: '+ customerConsents);
+        // 중복이 있는 lead나 Account인지 확인
+        List<String> conditions = new List<String>();
+
+        for (Lead lead : leadMap.values()) {
+            if (String.isNotBlank(lead.MobilePhone) && String.isNotBlank(lead.LastName)) {
+                String mobile = String.escapeSingleQuotes(lead.MobilePhone);
+                String lastName = String.escapeSingleQuotes(lead.LastName);
+
+                conditions.add('(Account__r.PersonMobilePhone = \'' + mobile + '\' AND Account__r.LastName = \'' + lastName + '\')');
+                conditions.add('(Lead__r.MobilePhone = \'' + mobile + '\' AND Lead__r.LastName = \'' + lastName + '\')');
+            }
+        }
+
+        // 조건이 하나라도 있어야 쿼리 실행
+        String query = 'SELECT Id, Account__c, Lead__c ' +
+                'FROM CustomerConsent__c ' +
+                'WHERE ConsentStatus__c = \'작성완료됨\' AND (' + String.join(conditions, ' OR ') + ')';
+
+        // 4. Dynamic SOQL 실행
+        List<CustomerConsent__c> duplicateConsent = Database.query(query);
+        System.debug('query:: ' + query);
+        System.debug('duplicateConsent size:: ' + duplicateConsent.size());
+        System.debug('duplicateConsent :: ' +duplicateConsent);
+        try{
+            if(duplicateConsent.size() == 0){
+
+            List<CustomerConsent__c> insertCustomerConsentList = new List<CustomerConsent__c>();
+
+                for(Id leadId : leadMap.keySet()){
+                    CustomerConsent__c customerConsent = new CustomerConsent__c(
+                            Lead__c = leadId,
+                            ConsentStatus__c = '링크 전송됨',
+                            SendAlimTalkDate__c = System.today()
+                    );
+                    insertCustomerConsentList.add(customerConsent);
+                }
+                if(!insertCustomerConsentList.isEmpty()) insert insertCustomerConsentList;
+
+            }
         } catch (Exception e){
             System.debug('err :: ' + e);
         }

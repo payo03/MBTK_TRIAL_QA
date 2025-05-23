@@ -414,7 +414,7 @@
                   </apex:outputText>원
                 </td>
                 <th>할부회사</th>
-                <td>{!pdfWrapper.quoteFinanceName}</td>
+                <td style="text-align: right">{!pdfWrapper.quoteFinanceName}</td>
               </tr>
               <tr>
                 <th>총옵션가격</th>
@@ -448,7 +448,7 @@
                   </apex:outputText>원
                 </td>
                 <th>할부거치개월수</th>
-                <td>
+                <td style="text-align: right">
                   <apex:repeat value="{!pdfWrapper.defermentList}" var="item">
                       <apex:outputText value="{!item.requestDays}" />
                   </apex:repeat>
@@ -460,8 +460,7 @@
                   <apex:outputText value="{0,number,###,###}">
                       <apex:param value="{!pdfWrapper.contractRealSalesPrice}" />
                   </apex:outputText>원
-                </td>
-                
+                </td>           
                 <th>캐피탈부가세유예금</th>
                 <td style="text-align: right">
                   <apex:outputText value="{0,number,###,###}">
@@ -546,31 +545,40 @@
               </tr>
               <tr>
                 <th>성명</th>
-                <td>{!pdfWrapper.accountName}</td>
+                <td style="text-align: right">{!pdfWrapper.accountName}</td>
                 <th>생년월일</th>
-                <td>{!LEFT(pdfWrapper.accountIDNumber, FIND("-", pdfWrapper.accountIDNumber) - 1)}</td>
+                <!-- <td style="text-align: right">{!LEFT(pdfWrapper.accountIDNumber, FIND("-", pdfWrapper.accountIDNumber) - 1)}</td> -->
+                <td style="text-align: right">{!pdfWrapper.accountIDNumber}</td>
                 <th>전화번호</th>
-                <td>{!pdfWrapper.accountPersonMobilePhone}</td>
+                <td style="text-align: right">{!pdfWrapper.accountPersonMobilePhone}</td>
               </tr>
               <tr class="bottom-border">
                 <th>주민등록번호(사업자번호)</th>
                 <td style="text-align: right">
-                  <apex:outputText value="{!IF(
-                        AND(NOT(ISBLANK(TRIM(pdfWrapper.accountIDNumber))), NOT(ISBLANK(pdfWrapper.accountBusinessNumber))),
+                  <apex:outputText value="{!
+                      IF(
+                        AND(
+                          NOT(ISBLANK(TRIM(pdfWrapper.accountIDNumber))),
+                          NOT(ISBLANK(TRIM(pdfWrapper.accountBusinessNumber)))
+                        ),
                         pdfWrapper.accountIDNumber & ' / ' & pdfWrapper.accountBusinessNumber,
-                        IF(NOT(ISBLANK(TRIM(pdfWrapper.accountIDNumber))), 
-                            pdfWrapper.accountIDNumber, 
-                            IF(NOT(ISBLANK(pdfWrapper.accountBusinessNumber)), 
-                                pdfWrapper.accountBusinessNumber, 
-                                '' 
-                            )
+                        IF(
+                          NOT(ISBLANK(TRIM(pdfWrapper.accountIDNumber))),
+                          pdfWrapper.accountIDNumber,
+                          IF(
+                            NOT(ISBLANK(TRIM(pdfWrapper.accountBusinessNumber))),
+                            pdfWrapper.accountBusinessNumber,
+                            ''
+                          )
                         )
-                    )}">
-                  </apex:outputText> 
+                      )
+                    }">
+                  </apex:outputText>
                 </td>
                 <th>사업자명(상호)</th>
                 <td style="text-align: right">
-                  <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountName, '')}" />
+                  <!-- <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountName, '')}" /> -->
+                  <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory != '없음', pdfWrapper.accountName, '')}" />
                 </td>
                 <th>고객구분</th>
                 <td style="text-align: right">{!pdfWrapper.accountBusinessCategory}</td>
@@ -579,7 +587,7 @@
                 <th>주소</th>
                 <td colspan="3">{!pdfWrapper.accountRoadAddress}</td>
                 <th>Email</th>
-                <td>{!pdfWrapper.accountPersonEmail}</td>
+                <td style="text-align: right">{!pdfWrapper.accountPersonEmail}</td>
               </tr>
             </table>
 
@@ -589,27 +597,30 @@
               </tr>
               <tr>
                 <th>성명</th>
-                <td>{!pdfWrapper.accountRealDriver}</td>
+                <td style="text-align: right">{!pdfWrapper.accountRealDriver}</td>
                 <th>생년월일</th>
-                <td>{!LEFT(pdfWrapper.accountRealDriverIDNumber, FIND("-", pdfWrapper.accountRealDriverIDNumber) - 1)}</td>
+                <!-- <td style="text-align: right">{!LEFT(pdfWrapper.accountRealDriverIDNumber, FIND("-", pdfWrapper.accountRealDriverIDNumber) - 1)}</td> -->
+                <td style="text-align: right">{!pdfWrapper.accountRealDriverIDNumber}</td>
                 <th>전화번호</th>
-                <td>{!pdfWrapper.accountRealDriverMobile}</td>
+                <td style="text-align: right">{!pdfWrapper.accountRealDriverMobile}</td>
               </tr>
               <tr>
                 <th>주민등록번호(사업자번호)</th>
                 <td style="text-align: right">{!pdfWrapper.accountRealDriverIDNumber}</td>
                 <th>사업자명(상호)</th>
                 <td style="text-align: right">
-                  <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountName, '')}" />
+                  <!-- <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountName, '')}" /> -->
+                  <!-- <apex:outputText value="{!IF(OR(pdfWrapper.accountRealBusinessCategory == '법인사업자', pdfWrapper.accountRealBusinessCategory == '개인사업자'), pdfWrapper.accountName, '')}" /> -->
+                  <apex:outputText value="{!IF(pdfWrapper.accountRealBusinessCategory != '없음', pdfWrapper.accountRealName, '')}" />
                 </td>
                 <th>고객구분</th>
-                <td style="text-align: right">{!pdfWrapper.accountBusinessCategory}</td>
+                <td style="text-align: right">{!pdfWrapper.accountRealBusinessCategory}</td>
               </tr>
               <tr>
                 <th>주소</th>
                 <td colspan="3">{!pdfWrapper.accountRealDriverAddress}</td>
                 <th>Email</th>
-                <td>{!pdfWrapper.accountRealDriverEmail}</td>
+                <td style="text-align: right">{!pdfWrapper.accountRealDriverEmail}</td>
               </tr>
             </table>
             <!-- 담당 영업인 테이블 추가 -->
@@ -618,7 +629,7 @@
                 <th>담당 영업인</th>
                 <td>{!pdfWrapper.opportunityOwnerName}</td>
                 <th>전화번호</th>
-                <td>{!pdfWrapper.ownerPhone}</td>
+                <td style="text-align: right">{!pdfWrapper.ownerPhone}</td>
               </tr>
             </table>
             <table>
@@ -627,11 +638,11 @@
               </tr>
               <tr>
                 <th>가상계좌번호</th>
-                <td>{!pdfWrapper.virtualAccount}</td>
+                <td style="text-align: right">{!pdfWrapper.virtualAccount}</td>
                 <th>은행명</th>
-                <td>씨티은행</td>
+                <td style="text-align: right">씨티은행</td>
                 <th>예금주</th>
-                <td>만트럭버스코리아</td>
+                <td style="text-align: right">만트럭버스코리아</td>
               </tr>
             </table>
             <div style="font-size: 10px; color: red;">1. 계약서마다 가상계좌번호가 상이하므로 반드시 각 계약건의 가상게좌번호를 확인해주시기 바랍니다.</div>
@@ -653,7 +664,7 @@
                   </apex:outputText>원
                 </td>
                 <th>계약금 입금일</th>
-                <td>
+                <td style="text-align: right">
                   <!-- {!formatTaxDate} -->
                   <apex:repeat value="{!pdfWrapper.paymentTypeList}" var="item">
                     <apex:outputText value="{!item.formatDepositDate}" />
@@ -672,7 +683,7 @@
                   <col width="20%"/>
               </colgroup>
               <tr class="bottom-border">
-                  <th colspan="2">차량 가격 Vehicle</th>
+                  <th colspan="2" style="font-size: 15px">차량 가격 (Vehicle)</th>
                   <th style="text-align: right;">
                     <apex:outputText value="{0,number,###,###}">
                       <apex:param value="{!pdfWrapper.quoteTotalVehiclePrice}" />
@@ -685,7 +696,7 @@
                   <td style="text-align: right;">
                     <apex:outputText value="{0,number,###,###}">
                         <apex:param value="{!pdfWrapper.product.productPrice}" />
-                    </apex:outputText>
+                    </apex:outputText>원
                   </td>
               </tr>
               <tr>
@@ -693,7 +704,7 @@
                 <td style="text-align: right;">
                     <apex:outputText value="{0,number,###,###}">
                         <apex:param value="{!pdfWrapper.quoteTotalVehiclePrice - pdfWrapper.product.productPrice}" />
-                    </apex:outputText>
+                    </apex:outputText>원
                 </td>
                 <td></td>
               </tr>
@@ -704,7 +715,7 @@
                     <td style="text-align: right;">
                         <apex:outputText value="{0,number,###,###}">
                             <apex:param value="{!item.optionPrice}" />
-                        </apex:outputText>
+                        </apex:outputText>원
                     </td>
                 </tr>
               </apex:repeat>
@@ -829,7 +840,7 @@
                     <col width="20%"/>
                 </colgroup>
                 <tr class="bottom-border">
-                    <th style="height: 30px;">실 판매가격+특장비용 (Total price + BB use case price)</th>
+                    <th style="height: 30px; font-size: 15px;">실 판매가격+특장비용 (Total price + BB use case price)</th>
                     <th style="height: 30px; text-align: right;">
                         <apex:outputText value="{0,number,###,###}">
                             <apex:param value="{!pdfWrapper.quoteTotalRealAndSpecialPrice}" />
@@ -851,8 +862,8 @@
                   <div style="font-size: 10px; color: red;">금융 상품은 일부 다를 수 있으므로 반드시 금융회사와 금융상품에 대한 최종 정보를 확인해 주시기 바랍니다.</div>
                   <div style="font-size: 10px; color: red;">당사와 금융사 금융조건의 차이가 있는 경우, 금융사 금융조건이 우선합니다.</div>
                 </td> -->
-                <td colspan="5" style="font-size: 12px; word-break: break-word;">
-                  <div>지불조건</div>
+                <td colspan="5" style="word-break: break-word;">
+                  <div style="font-size: 15px;">지불조건 (Price Break Down)</div>
                   <div style="font-size: 10px; color: red; text-align: right;">금융 상품은 일부 다를 수 있으므로 반드시 금융회사와 금융상품에 대한 최종 정보를 확인해 주시기 바랍니다.</div>
                   <div style="font-size: 10px; color: red; text-align: right;">당사와 금융사 금융조건의 차이가 있는 경우, 금융사 금융조건이 우선합니다.</div>
                 </td>
@@ -951,7 +962,7 @@
                   <col width="20%"/>
               </colgroup>
               <tr class="bottom-border">
-                  <th colspan="4" style="height: 30px; font-size: 15px;">등록/부대비용 Additional purchase costs</th>
+                  <th colspan="4" style="height: 30px; font-size: 15px;">등록/부대비용 (Additional purchase costs)</th>
               </tr>
               <tr>
                 <th style="height: 30px;">공증료 (VAT Deferment Notarization fee)</th>
@@ -992,8 +1003,8 @@
                     <td>주소</td>
                     <td>경기도 용인시 기흥구 보라하갈로 57 만트럭버스코리아</td>
                     <td>대표이사 ANDERSSON LARS PETER MARTIN</td>
-                    <td>
-                      <apex:image value="{!$Resource.ManStamp}" />
+                    <td>(인)
+                      <!-- <apex:image value="{!$Resource.ManStamp}" /> -->
                     </td>
                 </tr>
               </table>
@@ -1009,14 +1020,16 @@
                   <col style="width: 5%;" />
                 </colgroup>
                 <tr class="bottom-border">
-                  <td>매도인(을)</td>
+                  <td>매수인(을)</td>
                   <td>주소</td>
                   <td>{!pdfWrapper.accountRoadAddress}</td>
                   <td>성명</td>
                   <td>{!pdfWrapper.accountName}</td>
                   <td>사업자명</td>
                   <td>
-                    <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountName, '')}" />
+                    <!-- <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountName, '')}" /> -->
+                    <!-- <apex:outputText value="{!IF(OR(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountBusinessCategory == '개인사업자'), pdfWrapper.accountName, '')}" /> -->
+                    <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory != '없음', pdfWrapper.accountName, '')}" />
                   </td>
                   <td>(인)</td>
                 </tr>
@@ -1168,7 +1181,7 @@
                 </apex:outputText>
               </td>
               <th>Capital Company</th>
-              <td>{!pdfWrapper.quoteFinanceName}</td>
+              <td style="text-align: right">{!pdfWrapper.quoteFinanceName}</td>
             </tr>
             <tr>
               <th>Option Price</th>
@@ -1184,7 +1197,7 @@
                 </apex:outputText>
               </td>
               <th>Capital Rate</th>
-              <td>{!pdfWrapper.quoteDefaultInterestRate}%</td> 
+              <td style="text-align: right;">{!pdfWrapper.quoteDefaultInterestRate}%</td> 
             </tr>
             <tr>
               <th>Downpayment Discount </th>
@@ -1200,7 +1213,7 @@
                 </apex:outputText>
               </td>
               <th>Capital Deferred Months</th>
-              <td>
+              <td style="text-align: right">
                 <apex:repeat value="{!pdfWrapper.defermentList}" var="item">
                     <apex:outputText value="{!item.requestDays}" />
                 </apex:repeat>
@@ -1220,7 +1233,7 @@
                 </apex:outputText>
               </td>
               <th>Capital installment Months</th>
-              <td>
+              <td style="text-align: right">
                 <apex:outputText value="{!pdfWrapper.quoteMonthDivideInputMonth}"/>Months
               </td>
             </tr>
@@ -1289,40 +1302,50 @@
             </tr>
             <tr>
               <th>Name</th>
-              <td>{!pdfWrapper.accountName}</td>
+              <td style="text-align: right">{!pdfWrapper.accountName}</td>
               <th>Birth Date</th>
-              <td>{!LEFT(pdfWrapper.accountIDNumber, FIND("-", pdfWrapper.accountIDNumber) - 1)}</td>
+              <!-- <td style="text-align: right">{!LEFT(pdfWrapper.accountIDNumber, FIND("-", pdfWrapper.accountIDNumber) - 1)}</td> -->
+               <td style="text-align: right">{!pdfWrapper.accountIDNumber}</td>
               <th>Phone</th>
-              <td>{!pdfWrapper.accountPersonMobilePhone}</td>
+              <td style="text-align: right">{!pdfWrapper.accountPersonMobilePhone}</td>
             </tr>
             <tr>
               <th>Residential Number(Biz Number)</th>
               <td style="text-align: right">
-                <apex:outputText value="{!IF(
-                      AND(NOT(ISBLANK(TRIM(pdfWrapper.accountIDNumber))), NOT(ISBLANK(pdfWrapper.accountBusinessNumber))),
+                <apex:outputText value="{!
+                    IF(
+                      AND(
+                        NOT(ISBLANK(TRIM(pdfWrapper.accountIDNumber))),
+                        NOT(ISBLANK(TRIM(pdfWrapper.accountBusinessNumber)))
+                      ),
                       pdfWrapper.accountIDNumber & ' / ' & pdfWrapper.accountBusinessNumber,
-                      IF(NOT(ISBLANK(TRIM(pdfWrapper.accountIDNumber))), 
-                          pdfWrapper.accountIDNumber, 
-                          IF(NOT(ISBLANK(pdfWrapper.accountBusinessNumber)), 
-                              pdfWrapper.accountBusinessNumber, 
-                              '' 
-                          )
+                      IF(
+                        NOT(ISBLANK(TRIM(pdfWrapper.accountIDNumber))),
+                        pdfWrapper.accountIDNumber,
+                        IF(
+                          NOT(ISBLANK(TRIM(pdfWrapper.accountBusinessNumber))),
+                          pdfWrapper.accountBusinessNumber,
+                          ''
+                        )
                       )
-                  )}">
+                    )
+                  }">
                 </apex:outputText>     
               </td>
               <th>Company Name</th>
-              <td>
-                <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountName, '')}" />
+              <td style="text-align: right">
+                <!-- <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountName, '')}" /> -->
+                <!-- <apex:outputText value="{!IF(OR(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountBusinessCategory == '개인사업자'), pdfWrapper.accountName, '')}" /> -->
+                <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory != '없음', pdfWrapper.accountName, '')}" />
               </td> 
               <th>Business Type</th>
-              <td>{!pdfWrapper.accountBusinessCategory}</td>
+              <td style="text-align: right">{!pdfWrapper.accountBusinessCategory}</td>
             </tr>
             <tr>
               <th>Adderess</th>
               <td colspan="3">{!pdfWrapper.accountRoadAddress}</td>
               <th>Email</th>
-              <td>{!pdfWrapper.accountPersonEmail}</td>
+              <td style="text-align: right">{!pdfWrapper.accountPersonEmail}</td>
             </tr>
           </table>
           <table>
@@ -1331,27 +1354,30 @@
             </tr>
             <tr>
               <th>Name</th>
-              <td>{!pdfWrapper.accountRealDriver}</td>
+              <td style="text-align: right">{!pdfWrapper.accountRealDriver}</td>
               <th>Birth date</th>
-              <td>{!LEFT(pdfWrapper.accountRealDriverIDNumber, FIND("-", pdfWrapper.accountRealDriverIDNumber) - 1)}</td>
+              <!-- <td style="text-align: right">{!LEFT(pdfWrapper.accountRealDriverIDNumber, FIND("-", pdfWrapper.accountRealDriverIDNumber) - 1)}</td> -->
+              <td style="text-align: right">{!pdfWrapper.accountRealDriverIDNumber}</td>
               <th>Phone</th>
-              <td>{!pdfWrapper.accountRealDriverMobile}</td>
+              <td style="text-align: right">{!pdfWrapper.accountRealDriverMobile}</td>
             </tr>
             <tr>
               <th>Residential number(Biz number)</th>
               <td style="text-align: right">{!pdfWrapper.accountRealDriverIDNumber}</td>
               <th>Company Name</th>
               <td style="text-align: right">
-                <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountName, '')}" />
+                <!-- <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountName, '')}" /> -->
+                <apex:outputText value="{!IF(pdfWrapper.accountRealBusinessCategory != '없음', pdfWrapper.accountRealName, '')}" />
+                <!-- <apex:outputText value="{!IF(OR(pdfWrapper.accountRealBusinessCategory == '법인사업자', pdfWrapper.accountRealBusinessCategory == '개인사업자'), pdfWrapper.accountName, '')}" /> -->
               </td>
               <th>Business Type</th>
-              <td style="text-align: right">{!pdfWrapper.accountBusinessCategory}</td>
+              <td style="text-align: right">{!pdfWrapper.accountRealBusinessCategory}</td>
             </tr>
             <tr>
               <th>Adderess</th>
               <td colspan="3">{!pdfWrapper.accountRealDriverAddress}</td>
               <th>Email</th>
-              <td>{!pdfWrapper.accountRealDriverEmail}</td>
+              <td style="text-align: right">{!pdfWrapper.accountRealDriverEmail}</td>
             </tr>
           </table>
           <!-- 담당 영업인 테이블 추가 -->
@@ -1360,7 +1386,7 @@
               <th>Sales Agent</th>
               <td>{!pdfWrapper.opportunityOwnerName}</td>
               <th>Phone</th>
-              <td>{!pdfWrapper.ownerPhone}</td>
+              <td style="text-align: right">{!pdfWrapper.ownerPhone}</td>
             </tr>
           </table>
           <table>
@@ -1369,16 +1395,18 @@
             </tr>
             <tr>
               <th>Virtue account</th>
-              <td>{!pdfWrapper.virtualAccount}</td>
+              <td style="text-align: right">{!pdfWrapper.virtualAccount}</td>
               <th>Bank</th>
-              <td>씨티은행</td>
+              <td style="text-align: right">씨티은행</td>
               <th>Account owner</th>
-              <td>만트럭버스코리아</td>
+              <td style="text-align: right">만트럭버스코리아</td>
             </tr>
           </table> 
           <div style="font-size: 10px; color: red;">1. 계약서마다 가상계좌번호가 상이하므로 반드시 각 계약건의 가상게좌번호를 확인해주시기 바랍니다.</div>
-          <div style="font-size: 10px; color: red;">2. 고객님의 차량 배정 및 계약의 확정을 위해 계약금은 환불이 불가능합니다.</div>
+          <div style="font-size: 10px; color: red;">2. 고객님의 차량 배정 및 계약의 확정을 위해 고객님의 단순 변심으로 인한 계약금은 환불은 불가능합니다.</div>
           <div style="font-size: 10px; color: red;">3. 자동차 매매대금 송금은 고객전용 입금계좌로만 가능합니다. 이 외 다른 계좌로 송금 유도 시 즉시 고객센터로 신고해주세요.</div>
+          <div style="font-size: 10px; color: red;">4. 금융 상품은 일부 다를 수 있으므로 반드시 금융회사와 금융상품에 대한 최종 정보를 확인해 주시기 바랍니다.</div>
+          <div style="font-size: 10px; color: red;">5. 당사와 금융사 금융조건의 차이가 있는 경우, 금융사 금융조건이 우선합니다.</div>
         </div>
         <div class="table-price">
           <table>
@@ -1392,7 +1420,7 @@
                 </apex:outputText>
               </td>
               <th>Deposit date</th>
-              <td>
+              <td style="text-align: right">
                 <apex:repeat value="{!pdfWrapper.paymentTypeList}" var="item">
                   <apex:outputText value="{!item.formatDepositDate}" />
                 </apex:repeat>
@@ -1410,7 +1438,7 @@
                 <col width="20%"/>
             </colgroup>
             <tr class="bottom-border">
-                <th colspan="2">차량 가격 Vehicle</th>
+              <th colspan="2" style="font-size: 15px">Vehicle</th>
                 <th style="text-align: right;">
                   <apex:outputText value="{0,number,###,###}">
                     <apex:param value="{!pdfWrapper.quoteTotalVehiclePrice}" />
@@ -1467,16 +1495,6 @@
                     </apex:outputText>
                 </th>
             </tr>
-            <apex:repeat value="{!pdfWrapper.promotionList}" var="item">
-              <tr>
-                <th style="text-align: left;">{!item.promotionName}</th>
-                <th style="text-align: right;">
-                  <apex:outputText value="{0,number,###,###}">
-                    <apex:param value="{!IF(item.promotionDiscountPrice != 0, item.promotionDiscountPrice, pdfWrapper.product.productPrice * item.promotionDiscountRate)}"/>
-                  </apex:outputText>원
-                </th>
-              </tr>
-            </apex:repeat>
             <tr>
               <th>Additional Vehicle Discount</th>
               <th style="text-align: right;">
@@ -1485,6 +1503,16 @@
                 </apex:outputText>
               </th>
             </tr>
+            <apex:repeat value="{!pdfWrapper.promotionList}" var="item">
+              <tr>
+                <th style="text-align: left;">{!item.promotionName}</th>
+                <th style="text-align: right;">
+                  <apex:outputText value="{0,number,###,###}">
+                    <apex:param value="{!IF(item.promotionDiscountPrice != 0, item.promotionDiscountPrice, pdfWrapper.product.productPrice * item.promotionDiscountRate)}"/>
+                  </apex:outputText>
+                </th>
+              </tr>
+            </apex:repeat>
           </table>
           <table style="margin-top: 20px;">
             <colgroup>
@@ -1564,7 +1592,7 @@
                   <col width="20%"/>
               </colgroup>
               <tr class="bottom-border">
-                  <th style="height: 30px;">Total price + BB use case price</th>
+                  <th style="height: 30px; font-size: 15px;">Total price + BB use case price</th>
                   <th style="height: 30px; text-align: right;">
                       <apex:outputText value="{0,number,###,###}">
                           <apex:param value="{!pdfWrapper.quoteTotalRealAndSpecialPrice}" />
@@ -1582,11 +1610,19 @@
             </colgroup>
             <tr class="bottom-border">
               <!-- <th colspan="4" style="height: 30px; font-size: 15px">Financing – Based on Total Price [individual offering of MFS / other banks] [lump sum] </th> -->
-              <td colspan="5" style="font-size: 12px; word-break: break-word;">
-                <div>Financing – Based on Total Price [individual offering of MFS / other banks] [lump sum]</div>
+              <td colspan="5" style="word-break: break-word;">
+                <div style="font-size: 15px;">Financing</div>
                 <div style="font-size: 10px; color: red; text-align: right;">금융 상품은 일부 다를 수 있으므로 반드시 금융회사와 금융상품에 대한 최종 정보를 확인해 주시기 바랍니다.</div>
                 <div style="font-size: 10px; color: red; text-align: right;">당사와 금융사 금융조건의 차이가 있는 경우, 금융사 금융조건이 우선합니다.</div>
               </td>
+            </tr>
+            <tr>
+              <th style="height: 30px; font-weight: bold">Deposit</th>
+              <th style="height: 30px; text-align: right;">
+                <apex:outputText value="{0,number,#,###}">
+                  <apex:param value="{!pdfWrapper.contractDeposit}" />
+                </apex:outputText>
+              </th>
             </tr>
             <tr>
                 <th style="height: 30px;">Downpayment</th>
@@ -1596,14 +1632,6 @@
                 </apex:outputText>
                 </th>
             </tr>
-            <tr>
-              <th style="height: 30px; font-weight: bold">Deposit</th>
-              <th style="height: 30px; text-align: right;">
-                <apex:outputText value="{0,number,#,###}">
-                  <apex:param value="{!pdfWrapper.contractDeposit}" />
-                </apex:outputText>
-              </th>
-          </tr>
             <tr>
                 <th style="height: 30px;">Advance payment for delivery</th>
                 <th style="height: 30px; text-align: right;">
@@ -1620,13 +1648,21 @@
                       </apex:outputText>
                   </th>
             </tr>
-            <tr>
+            <!-- <tr>
               <th style="height: 30px;">Deffered payment</th>
               <th style="height: 30px; text-align: right;">
                 <apex:outputText value="{0,number,###,###}">
                       <apex:param value="{!pdfWrapper.opportunityPaymentDeferredAmount}"/>
                   </apex:outputText>
               </th>
+            </tr> -->
+            <tr>
+                <th style="height: 30px; font-weight: bold">Total Capital Amount + Capital VAT Deferment</th>
+                <th style="height: 30px; text-align: right;">
+                    <apex:outputText value="{0,number,###,###}">
+                      <apex:param value="{!pdfWrapper.totalCapitalAmount}"/>
+                    </apex:outputText>
+                </th>
             </tr>
             <tr>
                 <th style="height: 30px; font-weight: bold">Capital amount</th>
@@ -1715,21 +1751,20 @@
                   <td>Adderess</td>
                   <td>57, Borahagal-ro, Giheung-gu, Yongin-si, Gyeonggi-do</td>
                   <td>ANDERSSON LARS PETER MARTIN</td>  
-                  <td>
-                    <apex:image value="{!$Resource.ManStamp}" />
+                  <td>(인)
+                    <!-- <apex:image value="{!$Resource.ManStamp}" /> -->
                   </td>  
               </tr>
             </table>
             <table class="watermarkTest">
               <colgroup>
                 <col style="width: 10%;" />
-                <col style="width: 5%;" />
+                <col style="width: 10%;" />
                 <col style="width: 35%;" />
                 <col style="width: 5%;" />
                 <col style="width: 25%;" />
                 <col style="width: 15%;" />
                 <col style="width: 10%;" />
-                <col style="width: 5%;" />
               </colgroup>
               <tr class="bottom-border">
                 <td>Customer</td>
@@ -1739,9 +1774,10 @@
                 <td>{!pdfWrapper.accountName}</td>  
                 <td>Company Name</td>
                 <td>
-                  <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountName, '')}" />
+                  <!-- <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory == '법인사업자', pdfWrapper.accountName, '')}" /> -->
+                  <!-- <apex:outputText value="{!IF(pdfWrapper.accountRealBusinessCategory != '없음', pdfWrapper.accountName, '')}" /> -->
+                  <apex:outputText value="{!IF(pdfWrapper.accountBusinessCategory != '없음', pdfWrapper.accountName, '')}" />
                 </td>  
-                <td>(sign)</td>  
               </tr>
             </table>
           </div> 

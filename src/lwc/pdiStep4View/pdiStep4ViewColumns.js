@@ -122,4 +122,25 @@ const installColumns = [
   }
 ];
 
-export {columns, optionColumns, selectedVinColumns, detailColumns, installColumns};
+// 추가
+const spoilerColums = [
+  { label: '파츠이름 ', fieldName: 'name', hideDefaultActions: 'true'},
+  { label: '파츠코드', fieldName: 'spoilerCode', initialWidth: 160, hideDefaultActions: 'true'},
+  { label: "P11", fieldName: "p11", initialWidth: 70, hideDefaultActions: true },
+  { label: "P21", fieldName: "p21", initialWidth: 70, hideDefaultActions: true },
+  {
+    type: "button", label: "추가", initialWidth: 120, typeAttributes: {
+      label: "추가",
+      name: "Add",
+      title: "Add",
+      disabled: false,
+      value: "add",
+      iconPosition: "left",
+      iconName: "utility:add",
+      variant: "Brand"
+    }
+  }
+];
+
+
+export {columns, optionColumns, selectedVinColumns, detailColumns, installColumns, spoilerColums};

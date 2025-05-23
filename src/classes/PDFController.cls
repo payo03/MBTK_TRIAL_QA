@@ -53,7 +53,8 @@ public without sharing class PDFController {
                 Deposit__c, fm_DeliveryPrice__c, AdvancePayment__c,
                 fm_DefermentVAT__c, fm_TotalLoanAmount__c, CapitalDefermentAmount__c, 
                 MonthlyPayment__c, fm_NotarizedFee__c, ConsignmentPrice__c,
-                fm_RegistrationTax__c // financial 금액
+                RegistrationTax__c // financial 금액
+                // fm_RegistrationTax__c // financial 금액
                 FROM Quote 
                 WHERE Id = :recordId];
             acc = [SELECT Id, Name FROM Account WHERE Id = :quote.AccountId];
@@ -117,9 +118,10 @@ public without sharing class PDFController {
                 WHERE Quote__c = :recordId
                 AND VehicleOptionMaster__r.Division__c = '서비스품목'];
             System.debug('warrantyList :: ' + warrantyList);
-
+            
             if(!warrantyList.isEmpty()) {
                 for (QuoteDetail__c warranty : warrantyList) {
+                    System.debug('no carefree :: ' + warranty.VehicleOptionMaster__r.isRequired__c);
                     if (warranty.VehicleOptionMaster__r.isRequired__c) continue; // no carefree면 스킵
                     warrantyDetail = new Map<String, String>{
                         '초기점검:4,000~5,000km' => warranty.VehicleOptionMaster__r.ServiceItemsMaster__r.firstCheck__c,
@@ -137,6 +139,7 @@ public without sharing class PDFController {
                     // warrantyDetailList?.add(warrantyDetail2);
                     // System.debug('test warrantyDetailList :: ' + warrantyDetailList); <- Attempt to de-reference a null object 왜?
                 }
+                System.debug('null check :: ' + warrantyDetail);
             }    
 
             // price break down에 들어갈 금액 계산해서 보냄

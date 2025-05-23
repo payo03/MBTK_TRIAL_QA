@@ -349,8 +349,9 @@
                     </tr>
                 </apex:outputPanel>
                 <!-- 1. 서비스 품목을 선택하지 않아서 기본으로 들어간 No carefree 밖에 없음 (warrantyDetailList.size == 0) -->
-                <!-- <apex:outputPanel rendered="{!ISNULL(warrantyDetail)}">
-                    <tr>
+                <!-- 여기 주석이였음 -->
+                <apex:outputPanel rendered="{!ISNULL(warrantyDetail)}">
+                    <!-- <tr>
                         <td colspan="2" style="text-align: left;">{!warrantyList[0].Name}
                             <br/>
                             <br/>
@@ -358,8 +359,74 @@
                             <br/>
                             No Carefree를 선택하셨습니다.
                         </td>
+                    </tr> -->
+                    <apex:outputPanel rendered="{!OR(CONTAINS(UPPER(warrantyList[0].Name), 'TGS'), CONTAINS(UPPER(warrantyList[0].Name), 'TGX'))}">
+                        <tr>
+                            <td colspan="2" style="text-align: left;">{!warrantyList[0].Name}
+                                <br/>
+                                <br/>
+                                MAN TGX/S 모델의 동력전달계통 보증조건은 3년 또는 450,000km (선도래 기준)입니다.
+                                <br/>
+                                보다 긴 기간과 강화된 보증조건, 유지보수 프로그램을 원하신다면,
+                                <br/>
+                                케어프리 또는 케어프리 엑스트라 상품에 대해 담당 영업사원에게 문의해 주시기 바랍니다.
+                            </td>
+                        </tr>
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!OR(CONTAINS(UPPER(warrantyList[0].Name), 'TGM'), CONTAINS(UPPER(warrantyList[0].Name), 'TGL'))}">
+                        <tr>
+                            <td colspan="2" style="text-align: left;">{!warrantyList[0].Name}
+                                <br/>
+                                <br/>
+                                MAN TGM/L 모델의 동력전달계통 보증조건은 2년이며, 주행거리 제한은 없습니다.
+                                <br/>
+                                보다 긴 기간과 강화된 보증조건, 유지보수 프로그램을 원하신다면,
+                                <br/>
+                                케어프리 또는 케어프리 엑스트라 상품에 대해 담당 영업사원에게 문의해 주시기 바랍니다.
+                            </td>
+                        </tr>
+                    </apex:outputPanel>
+                    <tr>
+                        <th style="text-align: left;">EHLA 액슬 오일 점검/교환(리프팅/조향축)</th>
+                        <td style="text-align: right;">{!warrantyList[0].VehicleOptionMaster__r.ServiceItemsMaster__r.EHLACheck__c}회</td>
                     </tr>
-                </apex:outputPanel> -->
+                    <tr>
+                        <th style="text-align: left;">냉각수 점검/교환</th>
+                        <td style="text-align: right;">{!warrantyList[0].VehicleOptionMaster__r.ServiceItemsMaster__r.CoolingWaterCheck__c}회</td>
+                    </tr>    
+                    <tr>
+                        <th style="text-align: left;">기어오일 점검/교환</th>
+                        <td style="text-align: right;">{!warrantyList[0].VehicleOptionMaster__r.ServiceItemsMaster__r.GearCheck__c}회</td>
+                    </tr>    
+                    <tr>
+                        <th style="text-align: left;">리어액슬 오일 점검/교환</th>
+                        <td style="text-align: right;">{!warrantyList[0].VehicleOptionMaster__r.ServiceItemsMaster__r.RearAxleCheck__c}회</td>
+                    </tr>    
+                    <tr>
+                        <th style="text-align: left;">HYVA 오일점검(덤프)</th>
+                        <td style="text-align: right;">{!warrantyList[0].VehicleOptionMaster__r.ServiceItemsMaster__r.HYVACheck__c}회</td>
+                    </tr>    
+                    <tr>
+                        <th style="text-align: left;">동계점검(연간 최대 1회)</th>
+                        <td style="text-align: right;">{!warrantyList[0].VehicleOptionMaster__r.ServiceItemsMaster__r.WinterCheck__c}회</td>
+                    </tr>    
+                    <tr>
+                        <th style="text-align: left;">연간점검1(연간 최대 1회)</th>
+                        <td style="text-align: right;">{!warrantyList[0].VehicleOptionMaster__r.ServiceItemsMaster__r.YearCheck__c}회</td>
+                    </tr>    
+                    <tr>
+                        <th style="text-align: left;">엔진밸브 점검/조정</th>
+                        <td style="text-align: right;">{!warrantyList[0].VehicleOptionMaster__r.ServiceItemsMaster__r.EngineValve__c}회</td>
+                    </tr>    
+                    <tr>
+                        <th style="text-align: left;">엔진오일점검/교환</th>
+                        <td style="text-align: right;">{!warrantyList[0].VehicleOptionMaster__r.ServiceItemsMaster__r.EngineOilCheck__c}회</td>
+                    </tr>    
+                    <tr>
+                        <th style="text-align: left;">초기점검:4,000~5,000km</th>
+                        <td style="text-align: right;">{!warrantyList[0].VehicleOptionMaster__r.ServiceItemsMaster__r.firstCheck__c}회</td>
+                    </tr>
+                </apex:outputPanel>
                 <apex:outputPanel rendered="{!NOT(ISNULL(warrantyList))}">
                     <apex:repeat value="{!warrantyList}" var="warranty">
                         <apex:outputPanel layout="none" rendered="{!NOT(warranty.VehicleOptionMaster__r.IsRequired__c)}">
@@ -430,8 +497,21 @@
                     </td>
                     <td></td>
                 </tr>
-                <apex:repeat value="{!quoteDetail['option']}" var="item">
+                <!-- <apex:repeat value="{!quoteDetail['option']}" var="item">
                     <tr>
+                        <td></td>
+                        <td>{!item['name']}</td>
+                        <td style="text-align: right;">
+                            <apex:outputText value="{0,number,###,###}">
+                                <apex:param value="{!item['price']}" />
+                            </apex:outputText>
+                        </td>
+                        <td></td>
+                    </tr>
+                </apex:repeat> -->
+                <!-- NO Carefree를 포함 할 경우 option에서 안보이게  -->
+                <apex:repeat value="{!quoteDetail['option']}" var="item">
+                    <tr style="{!IF(CONTAINS(UPPER(item['name']), 'NO CAREFREE'), 'display:none;', '')}">
                         <td></td>
                         <td>{!item['name']}</td>
                         <td style="text-align: right;">
@@ -743,7 +823,8 @@
                     <th>취등록세 (Registration fee)</th>
                     <th style="text-align: right;">
                         <apex:outputText value="{0,number,###,###}">
-                            <apex:param value="{!quote.fm_RegistrationTax__c}" />
+                            <!-- <apex:param value="{!quote.fm_RegistrationTax__c}" /> -->
+                            <apex:param value="{!quote.RegistrationTax__c}" />
                         </apex:outputText>
                     </th>
                     <th></th>

@@ -74,8 +74,12 @@
                   sorted-by={sortedBy}
                   onsort={onHandleSort}
                   onrowselection={handleRowSelect}
-                  data-type="product">
+                  data-type="product"
+                  column-widths-mode="auto">
           </lightning-datatable>
+          <template lwc:if={isNoProductData}>
+            <div class="slds-p-around_small">{myLabel.EmptyResult}</div>
+          </template>
         </div>
       </div>
     </div>
@@ -105,9 +109,13 @@
                   columns={campaignColumns}
                   selected-rows={selectedCampaignRowIds}
                   onrowselection={handleRowSelect}
-                  data-type="campaign">
+                  data-type="campaign"
+                  column-widths-mode="auto"
+                  min-column-width="150">
           </c-custom-data-table>
-
+          <template lwc:if={isNoCampaignData}>
+            <div class="slds-p-around_small">{myLabel.EmptyCampaignResult}</div>
+          </template>
         </div>
       </div>
     </div>

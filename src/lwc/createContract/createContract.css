@@ -1,21 +1,15 @@
 /*************************************************************
  * @author : chaebeom.do
- * @date : 2025-02-05
+ * @date : 2025-05-02
  * @description : 
  * @target : 
 ==============================================================
  * Ver          Date            Author          Modification
- * 1.0          2025-02-05      chaebeom.do     Initial Version
+ * 1.0          2025-05-02      chaebeom.do     Created
 **************************************************************/
-@import "c/commonStyleUtil";
 
-.custom-scroll {
-    display: flex;
-    flex-direction: column;
-    height: 30vh;
-    overflow: auto;
-}
-.btn-wrap {
-    margin-top: auto;
-    margin-bottom: 2px;
+.custom-box {
+  border-radius: 0.5rem;
+  border: 1px solid #c9c9c9;
+  margin: 1px;
 }

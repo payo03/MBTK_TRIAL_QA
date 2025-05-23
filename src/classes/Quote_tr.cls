@@ -4,30 +4,47 @@
  * @description : 견적 트리거 핸들러
  * @target : Quote
 ==============================================================
- * Ver          Date            Author          Modification
- * 1.0          2025-01-06      th.kim          Created
+ * Ver          Date            Author                  Modification
+ * 1.0          2025-01-06      th.kim                  Created
+ * 1.1          2025-04-23      payo03@solomontech.net  대출승인여부 Update Validation
 **************************************************************/
 public with sharing class Quote_tr extends TriggerHandler {
+
+    private final static Map<Id, Profile> PROFILE_MAP = new Map<Id, Profile>([
+            SELECT Id
+            FROM Profile
+            WHERE Name IN ('System Administrator', '시스템 관리자', 'Salesforce API Only System Integrations')
+    ]);
 
     private final List<Quote> newList { get; set; }
     private final List<Quote> oldList { get; set; }
     private final Map<Id, Quote> newMap { get; set; }
     private final Map<Id, Quote> oldMap { get; set; }
+    private final User curUser { get; set; }
 
     public Quote_tr() {
         newList = Trigger.new;
         oldList = Trigger.old;
         newMap = (Map<Id, Quote>) Trigger.newMap;
         oldMap = (Map<Id, Quote>) Trigger.oldMap;
+        curUser = [
+                SELECT Id, ProfileId
+                FROM User
+                WHERE Id = :UserInfo.getUserId()
+        ];
     }
 
     public override void beforeInsert() {
         setName();
     }
 
+    public override void beforeUpdate() {
+        doSetDefaultValues();   // ver1.1 대출승인여부 Update Validation
+    }
+
     public override void afterUpdate() {
         sendNoti();
-        updatedOpportunityName();
+//        updatedOpportunityName();
     }
 
     /**
@@ -64,6 +81,7 @@ public with sharing class Quote_tr extends TriggerHandler {
      * @author th.kim
      * @description Quote Naming Rule
      *              {SA 이름}-{기회 Id 마지막 6자리}-{견적 Q 버전}-{견적 V 버전}
+     *              변경 : {고객 이름}-{견적 Q 버전}-{견적 V 버전}
      */
     private void setName() {
 
@@ -80,6 +98,17 @@ public with sharing class Quote_tr extends TriggerHandler {
             WHERE OpportunityId IN :oppIdSet
             ORDER BY ConfigurationNo__c DESC NULLS LAST, VersionNo__c DESC NULLS LAST
         ];
+
+        List<Opportunity> opptyList = [
+            SELECT Id, Account.Name
+            FROM Opportunity
+            WHERE Id IN :oppIdSet
+        ];
+
+        Map<Id, Opportunity> opptyMap = new Map<Id, Opportunity>();
+        for (Opportunity oppty : opptyList) {
+            opptyMap.put(oppty.Id, oppty);
+        }
 
         Map<Id, Quote> quoteMap = new Map<Id, Quote>();
         for (Quote quote : quoteList) {
@@ -103,13 +132,17 @@ public with sharing class Quote_tr extends TriggerHandler {
                 newQuote.ConfigurationNo__c = lastQuote.ConfigurationNo__c;
                 newQuote.VersionNo__c = lastQuote.VersionNo__c + 1;
             }
+
+            String accountName = opptyMap.get(newQuote.OpportunityId).Account.Name;
             String oppId = newQuote.OpportunityId.toString();
-            String lastSixDigits = oppId.substring(oppId.length() - 6);
+//            String lastSixDigits = oppId.substring(oppId.length() - 6);
             String configurationNo = 'Q' + newQuote.ConfigurationNo__c;
             String versionNo = 'V' + newQuote.VersionNo__c;
+
             newQuote.Name = String.join(new List<String>{
-                userMap.get(newQuote.OwnerId).Name,
-                lastSixDigits,
+                accountName,
+//                userMap.get(newQuote.OwnerId).Name,
+//                lastSixDigits,
                 configurationNo,
                 versionNo
             }, '-');
@@ -121,26 +154,56 @@ public with sharing class Quote_tr extends TriggerHandler {
      * @description Opportunity Nameing rule
      *              {Owner Agency}-{Account Name}-{Product Name}
      */
-    private void updatedOpportunityName() {
-        System.debug('Opportunity Start');
-        Set<Id> quoteIdSet = new Set<Id>();
-        for(Id quoteId : newMap.keySet()){
-            if(oldMap.get(quoteId).Status == 'SentOut' && newMap.get(quoteId).Status == 'Published'){
-                quoteIdSet.add(quoteId);
+//    private void updatedOpportunityName() {
+//        System.debug('Opportunity Start');
+//        Set<Id> quoteIdSet = new Set<Id>();
+//        for(Id quoteId : newMap.keySet()){
+//            if(oldMap.get(quoteId).Status == 'SentOut' && newMap.get(quoteId).Status == 'Published'){
+//                quoteIdSet.add(quoteId);
+//            }
+//        }
+//        if(!quoteIdSet.isEmpty()){
+//            List<Opportunity> opportunityList = new List<Opportunity>();
+//            List<Quote> quoteList = [SELECT Account.Name, OpportunityId, Opportunity.Owner.Agency__c, Product__r.Name FROM Quote WHERE Id IN: quoteIdSet];
+//            for(Quote quote : quoteList){
+//                Opportunity opportunity = new Opportunity(
+//                        Id = quote.OpportunityId,
+//                        Name = quote.Opportunity.Owner.Agency__c + '-' + quote.Account.Name + '-' + quote.Product__r.Name
+//                );
+//                opportunityList.add(opportunity);
+//            }
+//            System.debug('opportunityList'+opportunityList);
+//            if(!opportunityList.isEmpty()) update opportunityList;
+//        }
+//    }
+
+    // ver1.1 대출승인여부 Update Validation
+    private void doSetDefaultValues() {
+        Map<Id, Quote> financeMap = new Map<Id, Quote>([
+                SELECT Id, Finance__r.FScompany__c
+                FROM Quote
+                WHERE Id IN :newMap.keySet()
+        ]);
+        System.debug(financeMap);
+
+        for(Quote newQuote : newList) {
+            Quote oldQuote = oldMap.get(newQuote.Id);
+            Finance__c finance = financeMap.get(newQuote.Id).Finance__r;
+            System.debug(finance);
+            String company = finance.FScompany__c;
+            /*
+                대출승인여부 승인 Update조건
+                1. 대출승인여부 Update했을때
+                2. 대출사 MFS일경우
+                3. Update진행자 Validation (Admin, IF계정)
+            */
+            if (
+                newQuote.IsApproveLoan__c != oldQuote.IsApproveLoan__c &&
+                'MFS'.equals(company) &&
+                !PROFILE_MAP.keySet().contains(curUser.ProfileId)
+            ) {
+//                newQuote.addError('(MFS) 대출승인여부는 임의변경이 불가능합니다');  // 05-16. 전도형 책임 요청. MFS 대출 Validation임시 해제
             }
-        }
-        if(!quoteIdSet.isEmpty()){
-            List<Opportunity> opportunityList = new List<Opportunity>();
-            List<Quote> quoteList = [SELECT Account.Name, OpportunityId, Opportunity.Owner.Agency__c, Product__r.Name FROM Quote WHERE Id IN: quoteIdSet];
-            for(Quote quote : quoteList){
-                Opportunity opportunity = new Opportunity(
-                        Id = quote.OpportunityId,
-                        Name = quote.Opportunity.Owner.Agency__c + '-' + quote.Account.Name + '-' + quote.Product__r.Name
-                );
-                opportunityList.add(opportunity);
-            }
-            System.debug('opportunityList'+opportunityList);
-            if(!opportunityList.isEmpty()) update opportunityList;
         }
     }
 }

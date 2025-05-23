@@ -54,6 +54,10 @@
           value={usingGoodWill} style="display: none;"></lightning-input-field>
           <lightning-input-field field-name="Description__c" data-id="Description" 
           value={description} onchange={handleChange}></lightning-input-field>
+          <!-- 추가  -->
+          <label for="uploadFile" class="slds-form-element__label">
+            <abbr class="slds-required" title="required">*</abbr> 업로드 파일 
+          </label>
           <div class="slds-file-selector__dropzone slds-size_1-of-1 slds-p-around_medium"
               data-name="uploadFile"
               ondragover={handleDragOver}

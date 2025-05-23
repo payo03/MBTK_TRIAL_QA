@@ -6,6 +6,8 @@
 ==============================================================
  * Ver          Date            Author          Modification
  * 1.0          2025-01-23      th.kim          Created
+ * 1.1          2025-04-25      chaebeom.do     핸드오버 스케줄러에서 차량 배정시 pdi 단계 업데이트 추가
+ * 1.2          2025-05-08      jh.jung         부가세 후취건 출고시 PaymentType 업데이트
 **************************************************************/
 public without sharing class HandoverSchedulerController {
 
@@ -17,7 +19,7 @@ public without sharing class HandoverSchedulerController {
      * @return HandoverWrap 리스트
      */
     @AuraEnabled
-    public static List<SchedulerMainController.HandoverWrap> getFilteredHandoverList(Map<String, String> filterMap) {
+    public static List<SchedulerMainController.HandoverWrap> getFilteredHandoverList(Map<String, Object> filterMap) {
 
         String whereCondition = filterMap != null ? CommonUtilController.buildWhereConditions(filterMap) : 'Opportunity__r.HandoverDate__c = THIS_MONTH';
 
@@ -51,7 +53,9 @@ public without sharing class HandoverSchedulerController {
     public static void doCompleteHandover(List<Map<String, String>> completeList) {
 
         List<SObject> updateList = new List<SObject>();
+        Set<Id> opptyIdSet = new Set<Id>();
         for (Map<String, String> dataMap : completeList) {
+            opptyIdSet.add(dataMap.get('opportunityId'));
             updateList.add(new VehicleStock__c(
                 Id = dataMap.get('stockId'),
                 VehicleStatus__c = '출고됨',
@@ -62,44 +66,107 @@ public without sharing class HandoverSchedulerController {
                 StageName = 'Closed Won'
             ));
         }
+
+        //
+        List<PaymentType__c> typeList = [
+            SELECT Id, Type__c
+            FROM PaymentType__c
+            WHERE Type__c = '91_VAT'
+            AND PaymentTracker__r.IsValid__c = TRUE
+            AND PaymentTracker__r.Opportunity__c IN :opptyIdSet
+            AND PaymentTracker__r.Opportunity__r.VATDefermentStatus__c = '승인됨'
+        ];
+
+        for(PaymentType__c typeObj : typeList) {
+            typeObj.Type__c = '4_VAT';
+            updateList.add(typeObj);
+        }
+
         if (!updateList.isEmpty()) update updateList;
     }
 
     /**
      * @author th.kim
      * @description 선택한 핸드오버 리스트의 차량 변경해주기
-     * @param dataList 핸드오버 데이터 리스트
+     * @param dataMap 핸드오버 데이터
      */
     @AuraEnabled
-    public static void updateHandoverStockList(List<Map<String, String>> dataList) {
+    public static void updateHandoverStock(Map<String, String> dataMap) {
 
         try {
             List<SObject> updateList = new List<SObject>();
-            for (Map<String, String> data : dataList) {
-                String stockId = data.get('stockId');
-                String opportunityId = data.get('opportunityId');
-                if (String.isNotBlank(opportunityId)) {
-                    // 기회 차량 업데이트
-                    Opportunity updateOpportunity = new Opportunity(
-                        Id = opportunityId,
-                        VehicleStock__c = stockId
-                    );
-                    updateList.add(updateOpportunity);
-                }
+            String stockId = dataMap.get('stockId');
+            String opportunityId = dataMap.get('opportunityId');
+            if (String.isNotBlank(opportunityId)) {
+                // 기회 차량 업데이트
+                Opportunity updateOpportunity = new Opportunity(
+                    Id = opportunityId,
+                    VehicleStock__c = stockId
+                );
+                updateList.add(updateOpportunity);
+            }
 
-                String contractId = data.get('contractId');
-                if (String.isNotBlank(contractId)) {
-                    // 계약 차량 업데이트
-                    Contract contract = new Contract(
-                        Id = contractId,
-                        VehicleStock__c = stockId
-                    );
-                    updateList.add(contract);
+            String contractId = dataMap.get('contractId');
+            if (String.isNotBlank(contractId)) {
+                // 계약 차량 업데이트
+                Contract contract = new Contract(
+                    Id = contractId,
+                    VehicleStock__c = stockId
+                );
+                updateList.add(contract);
+            }
+
+            // ver 1.1
+            updateList.add(new VehicleStock__c(
+                Id = dataMap.get('stockId'),
+                VehicleStatus__c = '출고예정'
+            ));
+            for(PDIStep__c selectedVINStep : [
+                SELECT Id
+                FROM PDIStep__c
+                WHERE VehicleStock__c = :dataMap.get('stockId')
+                AND Stage__c IN ('STEP1', 'STEP2', 'STEP3')
+            ]) {
+                updateList.add(new PDIStep__c(
+                    Id = selectedVINStep.Id,
+                    IsPass__c = true,
+                    StepStart__c = System.now(),
+                    StepEnd__c = System.now(),
+                    StepWorker__c = UserInfo.getName()
+                ));
+            }
+            // 선택한 기회에 출고할 차량과 다른 차량이 배정되어있던 경우
+            if(dataMap.get('previousVIN') != '차량 배정') {
+                VehicleStock__c previousStock = [
+                    SELECT Id, Name 
+                    FROM VehicleStock__c 
+                    WHERE Name = :dataMap.get('previousVIN')
+                    ];
+                if(dataMap.get('stockId') != previousStock.Id) {
+                    updateList.add(new VehicleStock__c(
+                        Id = previousStock.Id,
+                        VehicleStatus__c = '판매준비완료'
+                    ));
+                    for(PDIStep__c previousVINStep : [
+                        SELECT Id
+                        FROM PDIStep__c
+                        WHERE VehicleStock__c = :previousStock.Id
+                        AND Stage__c IN ('STEP3', 'STEP4', 'STEP5')
+                    ]) {
+                        updateList.add(new PDIStep__c(
+                            Id = previousVINStep.Id,
+                            IsPass__c = false,
+                            StepStart__c = null,
+                            StepEnd__c = null,
+                            StepWorker__c = null
+                        ));
+                    }
                 }
             }
 
             // 한 번의 DML로 업데이트
             if (!updateList.isEmpty()) {
+                updateList.sort();
                 update updateList;
 
                 CustomNotificationType notificationType = [SELECT Id FROM CustomNotificationType WHERE DeveloperName = 'Custom' LIMIT 1];
@@ -112,20 +179,16 @@ public without sharing class HandoverSchedulerController {
                 if (groupList.isEmpty()) throw new QueryException('알림 변경 대상 그룹이 존재하지 않습니다.');
 
                 userOrGroupIdSet.add(groupList[0].Id);
-
-                for (Map<String, String> data : dataList) {
-                    userOrGroupIdSet.add(data.get('ownerId'));
-
-                    // 알림 발송
-                    CommonUtilController.sendNotification(new CommonUtilController.NotificationWrap(
-                        '[핸드오버 차량 변경됨] - [' + data.get('oppName') + ']',
-                        '[' + data.get('previousVIN') + '] -> ' + '[' + data.get('currentVIN') + '] 으로 변경됨',
-                        notificationType.Id,
-                        UserInfo.getUserId(),
-                        data.get('opportunityId'),
-                        userOrGroupIdSet
-                    ));
-                }
+                userOrGroupIdSet.add(dataMap.get('ownerId'));
+                // 알림 발송
+                CommonUtilController.sendNotification(new CommonUtilController.NotificationWrap(
+                    '[핸드오버 차량 변경됨] - [' + dataMap.get('oppName') + ']',
+                    '[' + dataMap.get('previousVIN') + '] -> ' + '[' + dataMap.get('currentVIN') + '] 으로 변경됨',
+                    notificationType.Id,
+                    UserInfo.getUserId(),
+                    dataMap.get('opportunityId'),
+                    userOrGroupIdSet
+                ));
             }
         } catch (Exception e) {
             System.debug('err :: ' + e.getMessage() + '\nTrack :: ' + e.getStackTraceString());

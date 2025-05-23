@@ -10,35 +10,40 @@
 <!-- Pdi Step 4 View -->
 <template>
     <div class="slds-grid slds-wrap">
-        <div class="slds-col slds-size_2-of-5 slds-m-around_x-small box-wrap">
-            <lightning-card title="선택된 옵션" icon-name="standard:custom">
-                <div class="slds-card__body slds-p-around_small slds-p-top_none">
-                    <template lwc:if={isSelectedOptionData}>
-                        <div class="slds-size_1-of-1">
-                            <lightning-datatable
-                                key-field="id"
-                                data-name="option"
-                                data={selectedOptionData}
-                                columns={optionColumns}
-                                onrowaction={handleRowAction}
-                                hide-checkbox-column="true"
-                                column-widths-mode="auto">
-                            </lightning-datatable>
-                        </div>
-                    </template>
-                    <template lwc:else>
-                        <div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">
-                            <strong>선택된 차량에 부착된 옵션이 없습니다.</strong>
-                        </div>
-                    </template>
-                </div>
-            </lightning-card>
+        <div class="slds-col slds-size_2-of-5">
+            <div class="box-wrap slds-m-right_small">
+                <lightning-card title="선택된 옵션" icon-name="standard:custom">
+                    <div class="slds-card__body slds-p-around_small slds-p-top_none">
+                        <template lwc:if={isSelectedOptionData}>
+                            <div class="slds-size_1-of-1">
+                                <lightning-datatable
+                                    key-field="id"
+                                    data-name="option"
+                                    data={selectedOptionData}
+                                    columns={optionColumns}
+                                    onrowaction={handleRowAction}
+                                    hide-checkbox-column="true"
+                                    column-widths-mode="auto">
+                                </lightning-datatable>
+                            </div>
+                        </template>
+                        <template lwc:else>
+                            <div class="slds-p-top_x-small slds-text-heading_small slds-text-align_center">
+                                <strong>선택된 차량에 부착된 옵션이 없습니다.</strong>
+                            </div>
+                        </template>
+                    </div>
+                </lightning-card>
+            </div>
         </div>
-        <div class="slds-col slds-size_2-of-5 slds-m-around_x-small">
+        <div class="slds-col slds-size_3-of-5">
             <div class="box-wrap">
                 <!-- <div class="slds-grid slds-grid_align-end slds-wrap slds-p-vertical_small filter-wrap">
                     <lightning-button-group>
-                        <lightning-button label="설치 / 제거 (SAP)" data-name="INSTALL"
+                        <lightning-button label="설치 (SAP)" data-name="INSTALL"
+                                            onclick={handleMainModal}
+                                            ></lightning-button>
+                        <lightning-button label="제거 (SAP)" data-name="INSTALL"
                                             onclick={handleMainModal}
                                             ></lightning-button>
                     </lightning-button-group>
@@ -63,28 +68,94 @@
                     <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
                 </template>
             </div>
+            
+            
             <div class="box-wrap slds-m-top_small">
-                <header class="slds-media slds-media_center slds-has-flexi-truncate">
-                    <div class="slds-media__body">
-                        <h2 class="slds-card__header-title">
-                            <span class="slds-card__header-link slds-truncate" title="스포일러 그룹">
-                                <span>스포일러 그룹</span>
-                            </span>
-                        </h2>
-                    </div>
-                </header>
-                <div style="height: 30vh;">
-                    <lightning-datatable
-                        key-field="Id"
-                        columns={groupColumns}
-                        data={groupList}
-                        column-widths-mode="auto"
-                        max-row-selection="1"
-                        hide-checkbox-column="true"
-                        onrowaction={handleRowAction}
-                    ></lightning-datatable>
-                </div>
+                <lightning-tabset>
+                    <lightning-tab label="스포일러 그룹">
+                        <!-- <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                            <div class="slds-media__body">
+                                <h2 class="slds-card__header-title">
+                                    <span class="slds-card__header-link slds-truncate" title="스포일러 그룹">
+                                        <span>스포일러 그룹</span>
+                                    </span>
+                                </h2>
+                            </div>
+                        </header> -->
+                        <div style="height: 30vh;">
+                            <lightning-datatable
+                                key-field="Id"
+                                columns={groupColumns}
+                                data={groupList}
+                                column-widths-mode="auto"
+                                max-row-selection="1"
+                                hide-checkbox-column="true"
+                                onrowaction={handleRowAction}
+                            ></lightning-datatable>
+                        </div>
+                    </lightning-tab>
+    
+                    <lightning-tab label="파츠코드 검색">
+                        <div class="slds-m-vertical_small">
+                            <div class="box-wrap">
+                                <div class="slds-grid slds-wrap">
+                                    <lightning-input
+                                        class="slds-p-right_x-small"
+                                        label="파츠코드"
+                                        data-id="ml"
+                                        value={filterMap.spoilerCode}
+                                        onchange={handleChange}
+                                        placeholder="파츠코드를 입력해주세요">
+                                    </lightning-input>
+                                    <div class="btn-wrap">
+                                        <lightning-button
+                                            icon-name="utility:refresh"
+                                            label="필터 리셋"
+                                            variant="border-filled"
+                                            title="Refresh"
+                                            onclick={handleSearch}
+                                            data-id="refresh"
+                                            class="slds-p-top_large slds-p-right_small">
+                                        </lightning-button>
+                                        <lightning-button
+                                            icon-name="utility:search"
+                                            label="검색"
+                                            variant="border-filled"
+                                            title="Search"
+                                            onclick={handleSearch}
+                                            data-id="search"
+                                            class="slds-p-top_large slds-p-right_small">
+                                        </lightning-button>
+                                    </div>
+
+                                </div>
+                
+                                <div class="slds-m-vertical_small">
+                                    <div class="custom-scroll">
+                                        <lightning-datatable
+                                            class="custom-datatable"
+                                            key-field="masterId"
+                                            data={spoilerData}
+                                            columns={spoilerColums}
+                                            onrowaction={handleRowSelection}
+                                            data-id="spoiler"
+                                            column-widths-mode="auto"
+                                            max-row-selection="1"
+                                            hide-checkbox-column="true" 
+                                            min-column-width="80">
+                                        </lightning-datatable>
+                                        
+                                        <template lwc:if={isNoData}>
+                                            <div class="slds-p-around_small">{myLabel.EmptyResult}</div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </lightning-tab>
+                </lightning-tabset>
             </div>
+            
         </div>
     </div>
 
@@ -133,6 +204,9 @@
                     </div>
                 </div>
                 <div class="slds-modal__footer slds-text-align_center">
+                    <button class="slds-button slds-button_neutral" data-name="cancel"
+                            onclick={toggleModal}>취소
+                    </button>
                     <template lwc:if={modalMap.add}>
                         <button class="slds-button slds-button_brand" data-name="save"
                             onclick={handleAdd}>확인
@@ -143,9 +217,6 @@
                             onclick={removeSpoiler}>확인
                         </button>
                     </template>
-                    <button class="slds-button slds-button_neutral" data-name="cancel"
-                            onclick={toggleModal}>Cancel
-                    </button>
                 </div>
             </div>
         </section>
